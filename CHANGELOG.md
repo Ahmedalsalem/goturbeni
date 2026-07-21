@@ -2,6 +2,21 @@
 
 Bu proje [Semantic Versioning](https://semver.org/lang/tr/) kullanır.
 
+## [0.6.0]
+
+⚠️ **Live Supabase verification pending** — bu sürümdeki migration'lar (`0004_messages.sql`, `0005_reviews.sql`) henüz gerçek bir Supabase projesine uygulanmadı ve gerçek hesaplarla uçtan uca doğrulanmadı. Doğrulama yalnızca yerel `npm run lint` / `npx tsc --noEmit` / `npm run build` ile yapıldı (üçü de temiz). Ayrıntı için [PROJECT_STATUS.md](./PROJECT_STATUS.md).
+
+### Eklendi
+
+- **Faz 5 — Mesajlaşma**: `messages` tablosu + RLS (`0004_messages.sql`), `supabase_realtime` publication'ına eklendi. Sürücü ile onaylanmış rezervasyonu olan yolcu arasında `/rides/[id]/chat` üzerinden 1:1 sohbet; Supabase Realtime (`postgres_changes`) ile anlık mesaj teslimi ve okundu (`read_at`) bilgisi, ephemeral Broadcast kanalıyla "yazıyor..." göstergesi. Bir ilanda birden fazla onaylanmış yolcu varsa sürücü hangi yolcuyla konuşacağını seçer (`PassengerPicker`).
+- **Faz 6 — Değerlendirme (review)**: `reviews` tablosu + RLS (`0005_reviews.sql`, RPC kullanılmadı — race condition riski olmadığından düz RLS `with check` yeterli). Yolculuğun kalkış zamanı geçmiş, onaylanmış bir rezervasyon üzerinden sürücü ve yolcu birbirini 1-5 yıldız + opsiyonel yorumla değerlendirebilir (`ride_id, reviewer_id` üzerinde unique index — yolculuk başına bir yorum). Profil sayfasında ortalama puan/toplam yorum/toplam yolculuk, ilan detay sayfasında sürücünün ortalama puanı ve son yorumları.
+- Yeni tarayıcı Supabase client'ı (`src/lib/supabase/client.ts`, `createBrowserClient`) — yalnızca Realtime abonelikleri için, uygulamanın geri kalanı Server Components/Actions üzerinden çalışmaya devam ediyor.
+
+### Bakım
+
+- Kendi kendine yapılan denetimde bulunup düzeltilen sorunlar: `ReviewForm`'daki bir TypeScript tip uyuşmazlığı (zod `coerce.number()` alanı için `Controller`'ın `field.value`'su), sürücü rezervasyon panelinde "yorum yaptınız mı" kontrolünün yanlışlıkla yolcu bazında hesaplanması (doğrusu ilan bazında — `reviews` unique index'i `(ride_id, reviewer_id)`), mesaj yazma alanında eksik `aria-label`, "görüldü/gönderildi" durumunun yalnızca ikonla (ekran okuyucusuz) iletilmesi, yıldız puanlama girişinde uygulanmamış klavye ok-tuşu gezinmesini ima eden yanlış `radiogroup`/`radio` ARIA rolleri.
+- **v1.0.0 production hazırlığı denetiminde (bu oturum) bulunup düzeltilen a11y sorunları**: sayfa geneline `#main-content` hedefli bir "içeriğe geç" atlama bağlantısı eklendi (`src/app/layout.tsx`); `/rides/[id]` sayfasında eksik olan `<h1>` eklendi (rota başlığı artık düz `div` değil `<h1>`); `RideFilters`, `RideForm` ve `ProfileForm` içindeki 6 `<Select>` tetikleyicisinde eksik erişilebilir isim (`aria-label`) giderildi.
+
 ## [0.4.1]
 
 ### Değiştirildi

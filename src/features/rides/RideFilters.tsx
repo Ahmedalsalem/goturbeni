@@ -77,7 +77,7 @@ export function RideFilters({
         <div className="relative">
           <FieldIcon icon={MapPin} />
           <Select value={from} onValueChange={(value) => setFrom(value as TurkishProvince | null)}>
-            <SelectTrigger id="filter-from" className="w-full ps-9">
+            <SelectTrigger id="filter-from" aria-label={t("fromLabel")} className="w-full ps-9">
               <SelectValue placeholder={t("allCities")} />
             </SelectTrigger>
             <SelectContent>
@@ -96,7 +96,7 @@ export function RideFilters({
         <div className="relative">
           <FieldIcon icon={MapPin} />
           <Select value={to} onValueChange={(value) => setTo(value as TurkishProvince | null)}>
-            <SelectTrigger id="filter-to" className="w-full ps-9">
+            <SelectTrigger id="filter-to" aria-label={t("toLabel")} className="w-full ps-9">
               <SelectValue placeholder={t("allCities")} />
             </SelectTrigger>
             <SelectContent>
@@ -124,7 +124,7 @@ export function RideFilters({
           <div className="relative">
             <FieldIcon icon={ArrowUpDown} />
             <Select value={initial.sort} onValueChange={(value) => onSortChange(value as RideSort)}>
-              <SelectTrigger id="filter-sort" className="w-full ps-9">
+              <SelectTrigger id="filter-sort" aria-label={t("sortLabel")} className="w-full ps-9">
                 <SelectValue>{(value: RideSort) => t(`sort.${value}`)}</SelectValue>
               </SelectTrigger>
               <SelectContent>

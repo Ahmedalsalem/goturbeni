@@ -99,7 +99,7 @@ export function RideForm({ ride }: { ride?: Ride }) {
                   value={field.value || null}
                   onValueChange={(value) => field.onChange(value ?? "")}
                 >
-                  <SelectTrigger id="departureCity" className="w-full">
+                  <SelectTrigger id="departureCity" aria-label={t("departureCity")} className="w-full">
                     <SelectValue placeholder={t("selectCity")} />
                   </SelectTrigger>
                   <SelectContent>
@@ -126,7 +126,7 @@ export function RideForm({ ride }: { ride?: Ride }) {
                   value={field.value || null}
                   onValueChange={(value) => field.onChange(value ?? "")}
                 >
-                  <SelectTrigger id="arrivalCity" className="w-full">
+                  <SelectTrigger id="arrivalCity" aria-label={t("arrivalCity")} className="w-full">
                     <SelectValue placeholder={t("selectCity")} />
                   </SelectTrigger>
                   <SelectContent>

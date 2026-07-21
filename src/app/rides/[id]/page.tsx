@@ -65,12 +65,12 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
     <div className="mx-auto max-w-2xl px-4 py-12">
       <Card>
         <CardHeader className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-xl font-semibold">
+          <h1 className="flex items-center gap-2 text-xl font-semibold">
             <MapPin className="text-muted-foreground size-5" aria-hidden="true" />
             {ride.departure_city}
             <ArrowRight className="text-muted-foreground size-5 rtl:-scale-x-100" aria-hidden="true" />
             {ride.arrival_city}
-          </div>
+          </h1>
           <RideStatusBadge status={ride.status} />
         </CardHeader>
         <CardContent className="flex flex-col gap-6">

@@ -120,7 +120,7 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
         <Field>
           <FieldLabel htmlFor="language">{t("language")}</FieldLabel>
           <Select name="language" defaultValue={initialProfile.language} items={LOCALE_LABELS}>
-            <SelectTrigger id="language" className="w-full">
+            <SelectTrigger id="language" aria-label={t("language")} className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

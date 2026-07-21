@@ -2,7 +2,7 @@
 
 Türkiye'de şehirler arası masraf paylaşımı esaslı yolculuk platformu (BlaBlaCar benzeri). Kullanıcılar araç ilanı verip yolculuk masrafını paylaşabilir, ilan arayabilir ve kendi ilanlarını yönetebilir.
 
-**Faz 0 – Faz 6 tamamlandı.** Bu doküman production hazırlığını ve mevcut sınırları anlatır. Ayrıntılı durum raporu için [PROJECT_STATUS.md](./PROJECT_STATUS.md), sürüm geçmişi için [CHANGELOG.md](./CHANGELOG.md) dosyalarına bakın.
+**v0.6.0 — Faz 0 – Faz 6 kod tabanı tamamlandı.** ⚠️ **Live Supabase verification pending**: Faz 5/6 migration'ları (`0004_messages.sql`, `0005_reviews.sql`) henüz gerçek bir Supabase projesine uygulanmadı ve gerçek hesaplarla uçtan uca doğrulanmadı — yalnızca yerel `lint`/`tsc`/`build` doğrulaması yapıldı. Bu doküman production hazırlığını ve mevcut sınırları anlatır. Ayrıntılı durum raporu için [PROJECT_STATUS.md](./PROJECT_STATUS.md), sürüm geçmişi için [CHANGELOG.md](./CHANGELOG.md) dosyalarına bakın.
 
 ## Proje Amacı
 

@@ -4,6 +4,7 @@
     "description": "Şehirler arası masraf paylaşımlı yolculuk platformu."
   },
   "Nav": {
+    "skipToContent": "İçeriğe geç",
     "home": "Anasayfa",
     "rides": "Yolculuk Bul",
     "createRide": "İlan Ver",

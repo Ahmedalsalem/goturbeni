@@ -30,7 +30,11 @@ Ayrıca yazım sırasında bulunup düzeltilen bir mantık hatası: sürücünü
 - Gerçek iki hesapla (1 sürücü + 1 yolcu) uçtan uca doğrulama (rezervasyon → chat → completed → review → profil puanı) yapılmadı.
 - Kullanıcı, canlı Supabase'e dokunulmadan önce kodu incelemek istediğini belirtti; bu adımlar onun onayından sonra yapılacak.
 
-Bu nedenle **"GötürBeni v0.6.0" için henüz gerçek Supabase doğrulaması yoktur** — yalnızca statik/yerel doğrulama tamamlanmıştır. `package.json` sürümü bilinçli olarak `0.4.1`'de bırakıldı; canlı doğrulama tamamlanınca güncellenecektir.
+**Bu nedenle GötürBeni v0.6.0 için henüz gerçek Supabase doğrulaması yoktur** — yalnızca statik/yerel doğrulama tamamlanmıştır. `package.json` sürümü, kullanıcının açık talimatıyla (kod tabanı commit'lendikten sonra) `0.6.0`'a güncellendi; bu, canlı doğrulamanın da tamamlandığı anlamına **gelmez** — bkz. "⚠️ Live Supabase verification pending" notu yukarıda.
+
+### Git
+
+Bu oturumda, kullanıcının açık talimatıyla kod tabanı commit'lendi: `git add .` → `git commit -m "Complete GötürBeni v0.6.0 (Phase 5 & Phase 6 implementation)"` (commit `39eda08`, 121 dosya). Bu, projenin git geçmişindeki **ikinci commit**; ilk commit yalnızca `create-next-app`'in ürettiği iskeletti — Faz 0'dan bu yana yapılan tüm iş (bu oturuma kadar) hiç commit'lenmemişti. `git push` **yapılmadı**: `git remote -v` boş döndü, yani `origin` diye bir remote tanımlı değil; ayrıca yerel branch adı `master`, talimattaki `git push origin main` komutu zaten çalışmayacaktı (o isimde yerel bir branch yok). Uzak depo eklenip push istenirse ayrıca belirtilmesi gerekir.
 
 ## Faz 3 + Faz 4 Gerçek Supabase Doğrulaması (bu oturum)
 

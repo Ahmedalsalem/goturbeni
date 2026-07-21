@@ -40,6 +40,7 @@ export default async function RootLayout({
 }>) {
   const locale = await getLocale()
   const dir = isRtlLocale(locale) ? "rtl" : "ltr"
+  const t = await getTranslations("Nav")
 
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
@@ -47,8 +48,16 @@ export default async function RootLayout({
         <NextIntlClientProvider>
           <DirectionProvider direction={dir}>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+              <a
+                href="#main-content"
+                className="bg-background text-foreground focus-visible:ring-ring sr-only z-50 rounded-md px-4 py-2 text-sm font-medium focus-visible:not-sr-only focus-visible:fixed focus-visible:top-4 focus-visible:start-4 focus-visible:ring-3"
+              >
+                {t("skipToContent")}
+              </a>
               <Header />
-              <main className="flex-1">{children}</main>
+              <main id="main-content" className="flex-1">
+                {children}
+              </main>
               <Footer />
               <Toaster position="top-center" />
             </ThemeProvider>
