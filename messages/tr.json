@@ -1,0 +1,378 @@
+{
+  "Metadata": {
+    "title": "GötürBeni",
+    "description": "Şehirler arası masraf paylaşımlı yolculuk platformu."
+  },
+  "Nav": {
+    "home": "Anasayfa",
+    "rides": "Yolculuk Bul",
+    "createRide": "İlan Ver",
+    "myRides": "Benim İlanlarım",
+    "bookings": "Rezervasyonlarım",
+    "howItWorks": "Nasıl Çalışır",
+    "support": "Destek",
+    "menu": "Menü",
+    "profile": "Profil",
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "logout": "Çıkış Yap"
+  },
+  "Footer": {
+    "tagline": "Şehirler arası yolculuklarda masrafını paylaş.",
+    "rights": "Tüm hakları saklıdır."
+  },
+  "HomePage": {
+    "heroTitle": "Yolculuğunu paylaş, masrafını böl",
+    "heroSubtitle": "GötürBeni ile şehirler arası yolculuklarda güvenilir yol arkadaşları bul.",
+    "ctaFindRide": "Yolculuk Bul",
+    "ctaOfferRide": "İlan Ver"
+  },
+  "Auth": {
+    "login": {
+      "title": "Giriş Yap",
+      "description": "Hesabınıza giriş yapın.",
+      "email": "E-posta",
+      "password": "Şifre",
+      "submit": "Giriş Yap",
+      "noAccount": "Hesabınız yok mu?",
+      "registerLink": "Kayıt Ol"
+    },
+    "register": {
+      "title": "Hesap Oluştur",
+      "description": "Ücretsiz bir hesap oluşturun.",
+      "email": "E-posta",
+      "password": "Şifre",
+      "passwordHint": "En az 8 karakter.",
+      "confirmPassword": "Şifre (tekrar)",
+      "submit": "Hesap Oluştur",
+      "haveAccount": "Zaten hesabınız var mı?",
+      "loginLink": "Giriş yapın"
+    },
+    "verifyEmail": {
+      "title": "E-postanızı Kontrol Edin",
+      "description": "Hesabınızı onaylamak için size bir bağlantı gönderdik. Gelen kutunuzu (ve spam klasörünü) kontrol edin."
+    },
+    "validation": {
+      "invalidEmail": "Geçerli bir e-posta adresi girin.",
+      "passwordMin": "Şifre en az 8 karakter olmalı.",
+      "passwordRequired": "Şifre gerekli.",
+      "passwordsMismatch": "Şifreler eşleşmiyor."
+    },
+    "errors": {
+      "invalidForm": "Geçersiz form.",
+      "invalidCredentials": "E-posta veya şifre hatalı.",
+      "emailAlreadyRegistered": "Bu e-posta adresi zaten kayıtlı.",
+      "signupFailed": "Kayıt oluşturulamadı. Lütfen tekrar deneyin.",
+      "notConfigured": "Kimlik doğrulama şu anda yapılandırılmamış. Lütfen daha sonra tekrar deneyin."
+    }
+  },
+  "ProfilePage": {
+    "title": "Profil",
+    "description": "Bilgilerinizi güncelleyin.",
+    "loadError": "Profil yüklenemedi."
+  },
+  "Profile": {
+    "form": {
+      "fullName": "Ad Soyad",
+      "email": "E-posta",
+      "phone": "Telefon",
+      "bio": "Hakkımda",
+      "bioHint": "En fazla 500 karakter.",
+      "language": "Dil",
+      "changeAvatar": "Fotoğraf Yükle",
+      "save": "Kaydet",
+      "saved": "Profil güncellendi."
+    },
+    "validation": {
+      "fullNameRequired": "Ad soyad gerekli.",
+      "fullNameMax": "Ad soyad en fazla 100 karakter olmalı.",
+      "phoneMax": "Telefon en fazla 20 karakter olmalı.",
+      "bioMax": "Hakkımda en fazla 500 karakter olmalı."
+    },
+    "errors": {
+      "invalidForm": "Geçersiz form.",
+      "avatarTooLarge": "Fotoğraf en fazla 5 MB olabilir.",
+      "avatarInvalidType": "Fotoğraf PNG, JPEG veya WEBP olmalı.",
+      "avatarUploadFailed": "Fotoğraf yüklenemedi.",
+      "updateFailed": "Profil güncellenemedi."
+    }
+  },
+  "RidesPage": {
+    "title": "İlanlar",
+    "createCta": "İlan Ver",
+    "emptyTitle": "Henüz ilan yok",
+    "emptyDescription": "Şu anda aktif bir yolculuk ilanı bulunmuyor. İlk ilanı sen ver.",
+    "emptyFilteredDescription": "Bu kriterlere uygun ilan yok. Farklı bir arama deneyin.",
+    "filters": {
+      "fromLabel": "Kalkış",
+      "toLabel": "Varış",
+      "dateLabel": "Tarih",
+      "allCities": "Tümü",
+      "searchCta": "Ara",
+      "sortLabel": "Sırala",
+      "sort": {
+        "date_asc": "Tarih (Artan)",
+        "date_desc": "Tarih (Azalan)",
+        "cost_asc": "Masraf Payı (Artan)",
+        "cost_desc": "Masraf Payı (Azalan)"
+      }
+    }
+  },
+  "CreateRidePage": {
+    "title": "İlan Ver",
+    "description": "Yolculuğunun detaylarını gir."
+  },
+  "EditRidePage": {
+    "title": "İlanı Düzenle",
+    "description": "İlanının detaylarını güncelle."
+  },
+  "MyRidesPage": {
+    "title": "Benim İlanlarım",
+    "createCta": "Yeni İlan",
+    "emptyTitle": "Henüz ilanın yok",
+    "emptyDescription": "Yolculuk paylaşmaya başlamak için bir ilan oluştur."
+  },
+  "HowItWorksPage": {
+    "title": "Nasıl Çalışır?",
+    "subtitle": "GötürBeni ile şehirler arası yolculuk paylaşımı üç basit adımdan oluşur.",
+    "stepLabel": "Adım {number}",
+    "steps": {
+      "search": {
+        "title": "Yolculuğunu ara",
+        "description": "Kalkış, varış ve tarihi seç; sana uygun aktif ilanları anında listele."
+      },
+      "request": {
+        "title": "Rezervasyon yap ya da ilan ver",
+        "description": "Yolcuysan koltuk talebi oluştur; sürücüysen boş koltuklarını ilan olarak paylaş."
+      },
+      "travel": {
+        "title": "Yolculuğa çık",
+        "description": "Sürücü talebini onayladığında rezervasyonun kesinleşir, masraf paylaşımını birlikte ayarlayın."
+      }
+    },
+    "trust": {
+      "title": "Güvenilir profiller",
+      "description": "Her kullanıcının bir profili ve geçmiş ilan/rezervasyon kaydı vardır; kiminle yolculuk yaptığını görebilirsin."
+    },
+    "help": {
+      "title": "Yardıma mı ihtiyacın var?",
+      "description": "Sık sorulan sorular için Destek sayfamıza göz atabilirsin."
+    }
+  },
+  "SupportPage": {
+    "title": "Destek",
+    "subtitle": "Sık sorulan sorular ve platformun nasıl çalıştığına dair bilmen gerekenler.",
+    "faq": {
+      "booking": {
+        "question": "Rezervasyon nasıl çalışır?",
+        "answer": "Bir ilana koltuk talebi oluşturursun; talep 'Beklemede' olarak sürücüye iletilir. Sürücü onaylarsa rezervasyonun kesinleşir, reddederse koltuk etkilenmez."
+      },
+      "cancellation": {
+        "question": "Rezervasyonumu veya ilanımı iptal edebilir miyim?",
+        "answer": "Evet. Yolcu 'Benim Rezervasyonlarım' sayfasından bekleyen ya da onaylanmış bir rezervasyonu iptal edebilir; sürücü de kendi ilanını 'Benim İlanlarım' sayfasından iptal edebilir."
+      },
+      "payment": {
+        "question": "Ödeme uygulama üzerinden mi yapılıyor?",
+        "answer": "Hayır. GötürBeni bir ödeme/komisyon sistemi içermez; masraf paylaşımı sürücü ve yolcu arasında doğrudan, uygulama dışında ayarlanır."
+      },
+      "safety": {
+        "question": "Güvenlik için neler yapılıyor?",
+        "answer": "Her kullanıcının bir profili vardır ve tüm rezervasyon/ilan işlemleri hesabına kayıtlıdır. Yolculuk öncesi sürücü/yolcu profilini incelemeni öneririz."
+      }
+    }
+  },
+  "BookingsPage": {
+    "title": "Rezervasyonlarım",
+    "emptyTitle": "Henüz rezervasyonun yok",
+    "emptyDescription": "Bir yolculuk bulup rezervasyon talebi oluşturabilirsin.",
+    "chat": "Sohbet"
+  },
+  "RideBookingsPage": {
+    "title": "Rezervasyon Talepleri",
+    "description": "Bu ilana gelen rezervasyon taleplerini yönet.",
+    "emptyTitle": "Henüz rezervasyon talebi yok",
+    "emptyDescription": "Bu ilana henüz kimse rezervasyon talebinde bulunmadı.",
+    "chat": "Sohbet"
+  },
+  "ChatPage": {
+    "title": "Sohbet",
+    "passengerPicker": {
+      "title": "Yolcu Seç",
+      "description": "Sohbet etmek istediğin yolcuyu seç.",
+      "unknownPassenger": "Yolcu"
+    }
+  },
+  "Rides": {
+    "form": {
+      "departureCity": "Kalkış Şehri",
+      "arrivalCity": "Varış Şehri",
+      "selectCity": "Şehir seçin",
+      "departureDate": "Tarih",
+      "departureTime": "Saat",
+      "seatCount": "Koltuk Sayısı",
+      "costShare": "Masraf Payı (₺)",
+      "description": "Açıklama",
+      "descriptionHint": "En fazla 500 karakter.",
+      "createSubmit": "İlanı Yayınla",
+      "updateSubmit": "İlanı Güncelle"
+    },
+    "validation": {
+      "cityRequired": "Bir şehir seçin.",
+      "sameCities": "Kalkış ve varış şehri farklı olmalı.",
+      "dateRequired": "Tarih gerekli.",
+      "timeRequired": "Saat gerekli.",
+      "departureInPast": "Kalkış zamanı gelecekte olmalı.",
+      "seatCountRange": "Koltuk sayısı 1 ile 8 arasında olmalı.",
+      "costShareMin": "Masraf payı negatif olamaz.",
+      "descriptionMax": "Açıklama en fazla 500 karakter olmalı."
+    },
+    "errors": {
+      "invalidForm": "Geçersiz form.",
+      "notConfigured": "Veritabanı bağlantısı şu anda yapılandırılmamış. Lütfen daha sonra tekrar deneyin.",
+      "createFailed": "İlan oluşturulamadı. Lütfen tekrar deneyin.",
+      "updateFailed": "İlan güncellenemedi. Lütfen tekrar deneyin.",
+      "cancelFailed": "İlan iptal edilemedi. Lütfen tekrar deneyin."
+    },
+    "status": {
+      "active": "Aktif",
+      "full": "Dolu",
+      "completed": "Tamamlandı",
+      "cancelled": "İptal"
+    },
+    "card": {
+      "availableSeats": "{count} boş koltuk",
+      "unknownDriver": "Sürücü"
+    },
+    "myRides": {
+      "edit": "Düzenle",
+      "cancel": "İptal Et",
+      "confirmCancel": "Emin misiniz?",
+      "cancelled": "İlan iptal edildi.",
+      "bookings": "Rezervasyonlar"
+    }
+  },
+  "RideDetailPage": {
+    "seats": "{available} / {total} boş koltuk",
+    "descriptionLabel": "Açıklama",
+    "metaDescription": "{date} tarihli yolculuk - {cost}"
+  },
+  "Bookings": {
+    "form": {
+      "seatCount": "Koltuk Sayısı"
+    },
+    "validation": {
+      "seatCountMin": "En az 1 koltuk seçin."
+    },
+    "status": {
+      "pending": "Beklemede",
+      "approved": "Onaylandı",
+      "rejected": "Reddedildi",
+      "cancelled": "İptal Edildi"
+    },
+    "actions": {
+      "reserve": "Rezervasyon Yap",
+      "approve": "Onayla",
+      "reject": "Reddet",
+      "cancel": "İptal Et",
+      "confirmCancel": "Emin misiniz?",
+      "confirmApprove": "Onaylansın mı?",
+      "confirmReject": "Reddedilsin mi?"
+    },
+    "success": {
+      "created": "Rezervasyon talebiniz gönderildi.",
+      "approved": "Rezervasyon onaylandı.",
+      "rejected": "Rezervasyon reddedildi.",
+      "cancelled": "Rezervasyon iptal edildi."
+    },
+    "errors": {
+      "invalidForm": "Geçersiz form.",
+      "notConfigured": "Veritabanı bağlantısı şu anda yapılandırılmamış. Lütfen daha sonra tekrar deneyin.",
+      "notEnoughSeats": "Yeterli boş koltuk yok.",
+      "alreadyBooked": "Bu ilana zaten bir rezervasyon talebiniz var.",
+      "ownRide": "Kendi ilanınıza rezervasyon yapamazsınız.",
+      "rideNotActive": "Bu ilan artık aktif değil.",
+      "createFailed": "Rezervasyon oluşturulamadı. Lütfen tekrar deneyin.",
+      "approveFailed": "Rezervasyon onaylanamadı. Lütfen tekrar deneyin.",
+      "rejectFailed": "Rezervasyon reddedilemedi. Lütfen tekrar deneyin.",
+      "cancelFailed": "Rezervasyon iptal edilemedi. Lütfen tekrar deneyin."
+    },
+    "card": {
+      "seatCount": "{count} koltuk",
+      "unknownPassenger": "Yolcu"
+    }
+  },
+  "Chat": {
+    "unknownUser": "Kullanıcı",
+    "emptyTitle": "Henüz mesaj yok",
+    "emptyDescription": "Bu yolculukla ilgili ilk mesajı gönder.",
+    "form": {
+      "placeholder": "Bir mesaj yaz...",
+      "send": "Gönder"
+    },
+    "validation": {
+      "messageRequired": "Boş mesaj gönderilemez.",
+      "messageMax": "Mesaj en fazla 2000 karakter olmalı."
+    },
+    "status": {
+      "typing": "yazıyor...",
+      "seen": "Görüldü",
+      "sent": "Gönderildi"
+    },
+    "errors": {
+      "invalidForm": "Geçersiz form.",
+      "notConfigured": "Veritabanı bağlantısı şu anda yapılandırılmamış. Lütfen daha sonra tekrar deneyin.",
+      "sendFailed": "Mesaj gönderilemedi. Lütfen tekrar deneyin."
+    }
+  },
+  "Reviews": {
+    "sectionTitle": "Yorumlar",
+    "totalReviews": "{count} yorum",
+    "totalRides": "Toplam {count} yolculuk",
+    "recentReviews": "Son Yorumlar",
+    "emptyTitle": "Henüz yorum yok",
+    "emptyDescription": "Bu kullanıcı için henüz bir yorum yapılmadı.",
+    "unknownReviewer": "Kullanıcı",
+    "form": {
+      "ratingLabel": "Puan",
+      "commentLabel": "Yorum (opsiyonel)",
+      "commentHint": "En fazla 500 karakter.",
+      "submit": "Yorumu Gönder"
+    },
+    "validation": {
+      "ratingRequired": "Bir puan seçin.",
+      "commentMax": "Yorum en fazla 500 karakter olmalı."
+    },
+    "actions": {
+      "leaveReview": "Yorum Yap",
+      "alreadyReviewed": "Yorum yaptınız"
+    },
+    "success": {
+      "created": "Yorumunuz gönderildi."
+    },
+    "errors": {
+      "invalidForm": "Geçersiz form.",
+      "notConfigured": "Veritabanı bağlantısı şu anda yapılandırılmamış. Lütfen daha sonra tekrar deneyin.",
+      "notEligible": "Bu yolculuk için yorum yapamazsınız.",
+      "alreadyReviewed": "Bu yolculuk için zaten bir yorum yaptınız."
+    }
+  },
+  "NotFound": {
+    "title": "Sayfa Bulunamadı",
+    "description": "Aradığınız sayfa taşınmış ya da hiç var olmamış olabilir.",
+    "backHome": "Anasayfaya Dön"
+  },
+  "ErrorPage": {
+    "title": "Bir şeyler ters gitti",
+    "description": "Beklenmeyen bir hata oluştu.",
+    "retry": "Tekrar Dene"
+  },
+  "LocaleSwitcher": {
+    "label": "Dil"
+  },
+  "ThemeToggle": {
+    "label": "Tema",
+    "light": "Aydınlık",
+    "dark": "Karanlık",
+    "system": "Sistem"
+  }
+}

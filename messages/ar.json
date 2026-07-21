@@ -1,0 +1,378 @@
+{
+  "Metadata": {
+    "title": "GötürBeni",
+    "description": "منصة مشاركة الرحلات بين المدن بمشاركة التكاليف."
+  },
+  "Nav": {
+    "home": "الرئيسية",
+    "rides": "ابحث عن رحلة",
+    "createRide": "أضف رحلة",
+    "myRides": "رحلاتي",
+    "bookings": "حجوزاتي",
+    "howItWorks": "كيف يعمل",
+    "support": "الدعم",
+    "menu": "القائمة",
+    "profile": "الملف الشخصي",
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "logout": "تسجيل الخروج"
+  },
+  "Footer": {
+    "tagline": "شارك رحلتك بين المدن وشارك التكاليف.",
+    "rights": "جميع الحقوق محفوظة."
+  },
+  "HomePage": {
+    "heroTitle": "شارك رحلتك، شارك التكلفة",
+    "heroSubtitle": "مع GötürBeni اعثر على رفقاء سفر موثوقين لرحلاتك بين المدن.",
+    "ctaFindRide": "ابحث عن رحلة",
+    "ctaOfferRide": "أضف رحلة"
+  },
+  "Auth": {
+    "login": {
+      "title": "تسجيل الدخول",
+      "description": "سجّل الدخول إلى حسابك.",
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "submit": "تسجيل الدخول",
+      "noAccount": "ليس لديك حساب؟",
+      "registerLink": "إنشاء حساب"
+    },
+    "register": {
+      "title": "إنشاء حساب",
+      "description": "أنشئ حسابًا مجانيًا.",
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "passwordHint": "8 أحرف على الأقل.",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "submit": "إنشاء حساب",
+      "haveAccount": "هل لديك حساب بالفعل؟",
+      "loginLink": "سجّل الدخول"
+    },
+    "verifyEmail": {
+      "title": "تحقق من بريدك الإلكتروني",
+      "description": "أرسلنا لك رابطًا لتأكيد حسابك. تحقق من صندوق الوارد (ومجلد الرسائل غير المرغوب فيها)."
+    },
+    "validation": {
+      "invalidEmail": "أدخل بريدًا إلكترونيًا صالحًا.",
+      "passwordMin": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
+      "passwordRequired": "كلمة المرور مطلوبة.",
+      "passwordsMismatch": "كلمتا المرور غير متطابقتين."
+    },
+    "errors": {
+      "invalidForm": "نموذج غير صالح.",
+      "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+      "emailAlreadyRegistered": "هذا البريد الإلكتروني مسجل بالفعل.",
+      "signupFailed": "تعذر إنشاء الحساب. حاول مرة أخرى.",
+      "notConfigured": "المصادقة غير مُهيأة حاليًا. حاول مرة أخرى لاحقًا."
+    }
+  },
+  "ProfilePage": {
+    "title": "الملف الشخصي",
+    "description": "قم بتحديث معلوماتك.",
+    "loadError": "تعذر تحميل الملف الشخصي."
+  },
+  "Profile": {
+    "form": {
+      "fullName": "الاسم الكامل",
+      "email": "البريد الإلكتروني",
+      "phone": "رقم الهاتف",
+      "bio": "نبذة عني",
+      "bioHint": "500 حرف كحد أقصى.",
+      "language": "اللغة",
+      "changeAvatar": "تحميل صورة",
+      "save": "حفظ",
+      "saved": "تم تحديث الملف الشخصي."
+    },
+    "validation": {
+      "fullNameRequired": "الاسم الكامل مطلوب.",
+      "fullNameMax": "يجب ألا يتجاوز الاسم الكامل 100 حرف.",
+      "phoneMax": "يجب ألا يتجاوز رقم الهاتف 20 حرفًا.",
+      "bioMax": "يجب ألا تتجاوز النبذة 500 حرف."
+    },
+    "errors": {
+      "invalidForm": "نموذج غير صالح.",
+      "avatarTooLarge": "يجب ألا يتجاوز حجم الصورة 5 ميجابايت.",
+      "avatarInvalidType": "يجب أن تكون الصورة بصيغة PNG أو JPEG أو WEBP.",
+      "avatarUploadFailed": "تعذر تحميل الصورة.",
+      "updateFailed": "تعذر تحديث الملف الشخصي."
+    }
+  },
+  "RidesPage": {
+    "title": "الرحلات",
+    "createCta": "أضف رحلة",
+    "emptyTitle": "لا توجد رحلات بعد",
+    "emptyDescription": "لا توجد حاليًا أي رحلة نشطة. كن أول من يضيف رحلة.",
+    "emptyFilteredDescription": "لا توجد رحلات مطابقة لهذه المعايير. جرّب بحثًا مختلفًا.",
+    "filters": {
+      "fromLabel": "الانطلاق",
+      "toLabel": "الوصول",
+      "dateLabel": "التاريخ",
+      "allCities": "الكل",
+      "searchCta": "بحث",
+      "sortLabel": "الترتيب",
+      "sort": {
+        "date_asc": "التاريخ (تصاعدي)",
+        "date_desc": "التاريخ (تنازلي)",
+        "cost_asc": "المساهمة في التكلفة (تصاعدي)",
+        "cost_desc": "المساهمة في التكلفة (تنازلي)"
+      }
+    }
+  },
+  "CreateRidePage": {
+    "title": "أضف رحلة",
+    "description": "أدخل تفاصيل رحلتك."
+  },
+  "EditRidePage": {
+    "title": "تعديل الرحلة",
+    "description": "قم بتحديث تفاصيل رحلتك."
+  },
+  "MyRidesPage": {
+    "title": "رحلاتي",
+    "createCta": "رحلة جديدة",
+    "emptyTitle": "ليس لديك رحلات بعد",
+    "emptyDescription": "أنشئ رحلة لتبدأ بمشاركة تكاليف السفر."
+  },
+  "HowItWorksPage": {
+    "title": "كيف يعمل؟",
+    "subtitle": "مشاركة الرحلات بين المدن مع GötürBeni تتم عبر ثلاث خطوات بسيطة.",
+    "stepLabel": "الخطوة {number}",
+    "steps": {
+      "search": {
+        "title": "ابحث عن رحلتك",
+        "description": "اختر مدينة الانطلاق والوصول والتاريخ، وستظهر لك فورًا الرحلات النشطة المناسبة."
+      },
+      "request": {
+        "title": "احجز مقعدًا أو أضف رحلة",
+        "description": "إذا كنت راكبًا أنشئ طلب حجز؛ إذا كنت سائقًا شارك مقاعدك الفارغة كرحلة."
+      },
+      "travel": {
+        "title": "انطلق في رحلتك",
+        "description": "عندما يوافق السائق على طلبك يتأكد حجزك، ثم يتفق الطرفان على تقسيم التكلفة."
+      }
+    },
+    "trust": {
+      "title": "ملفات شخصية موثوقة",
+      "description": "لكل مستخدم ملف شخصي وسجل رحلات وحجوزات سابق، حتى تعرف مع من تسافر."
+    },
+    "help": {
+      "title": "بحاجة إلى مساعدة؟",
+      "description": "يمكنك مراجعة صفحة الدعم للأسئلة الشائعة."
+    }
+  },
+  "SupportPage": {
+    "title": "الدعم",
+    "subtitle": "الأسئلة الشائعة وما تحتاج لمعرفته حول عمل المنصة.",
+    "faq": {
+      "booking": {
+        "question": "كيف يعمل نظام الحجز؟",
+        "answer": "تُنشئ طلب حجز لمقعد في رحلة؛ يصل الطلب إلى السائق بحالة 'قيد الانتظار'. إذا وافق السائق يتأكد حجزك، وإذا رفض لا يتأثر عدد المقاعد."
+      },
+      "cancellation": {
+        "question": "هل يمكنني إلغاء حجزي أو رحلتي؟",
+        "answer": "نعم. يمكن للراكب إلغاء حجز قيد الانتظار أو تمت الموافقة عليه من صفحة 'حجوزاتي'، ويمكن للسائق إلغاء رحلته من صفحة 'رحلاتي'."
+      },
+      "payment": {
+        "question": "هل الدفع يتم عبر التطبيق؟",
+        "answer": "لا. لا يحتوي GötürBeni على نظام دفع أو عمولة؛ تقسيم التكلفة يتم مباشرة بين السائق والراكب خارج التطبيق."
+      },
+      "safety": {
+        "question": "ما هي إجراءات السلامة المتوفرة؟",
+        "answer": "لكل مستخدم ملف شخصي، وجميع عمليات الحجز والرحلات مرتبطة بحسابه. ننصح بمراجعة الملف الشخصي للسائق أو الراكب قبل الرحلة."
+      }
+    }
+  },
+  "BookingsPage": {
+    "title": "حجوزاتي",
+    "emptyTitle": "ليس لديك حجوزات بعد",
+    "emptyDescription": "ابحث عن رحلة وأنشئ طلب حجز.",
+    "chat": "محادثة"
+  },
+  "RideBookingsPage": {
+    "title": "طلبات الحجز",
+    "description": "أدر طلبات الحجز الواردة لهذه الرحلة.",
+    "emptyTitle": "لا توجد طلبات حجز بعد",
+    "emptyDescription": "لم يقدّم أحد طلب حجز لهذه الرحلة بعد.",
+    "chat": "محادثة"
+  },
+  "ChatPage": {
+    "title": "محادثة",
+    "passengerPicker": {
+      "title": "اختر راكبًا",
+      "description": "اختر الراكب الذي تريد محادثته.",
+      "unknownPassenger": "الراكب"
+    }
+  },
+  "Rides": {
+    "form": {
+      "departureCity": "مدينة الانطلاق",
+      "arrivalCity": "مدينة الوصول",
+      "selectCity": "اختر مدينة",
+      "departureDate": "التاريخ",
+      "departureTime": "الوقت",
+      "seatCount": "عدد المقاعد",
+      "costShare": "المساهمة في التكلفة (₺)",
+      "description": "الوصف",
+      "descriptionHint": "500 حرف كحد أقصى.",
+      "createSubmit": "نشر الرحلة",
+      "updateSubmit": "تحديث الرحلة"
+    },
+    "validation": {
+      "cityRequired": "اختر مدينة.",
+      "sameCities": "يجب أن تختلف مدينة الانطلاق عن مدينة الوصول.",
+      "dateRequired": "التاريخ مطلوب.",
+      "timeRequired": "الوقت مطلوب.",
+      "departureInPast": "يجب أن يكون وقت الانطلاق في المستقبل.",
+      "seatCountRange": "يجب أن يكون عدد المقاعد بين 1 و 8.",
+      "costShareMin": "لا يمكن أن تكون المساهمة في التكلفة سالبة.",
+      "descriptionMax": "يجب ألا يتجاوز الوصف 500 حرف."
+    },
+    "errors": {
+      "invalidForm": "نموذج غير صالح.",
+      "notConfigured": "الاتصال بقاعدة البيانات غير مُهيأ حاليًا. حاول مرة أخرى لاحقًا.",
+      "createFailed": "تعذر إنشاء الرحلة. حاول مرة أخرى.",
+      "updateFailed": "تعذر تحديث الرحلة. حاول مرة أخرى.",
+      "cancelFailed": "تعذر إلغاء الرحلة. حاول مرة أخرى."
+    },
+    "status": {
+      "active": "نشطة",
+      "full": "ممتلئة",
+      "completed": "مكتملة",
+      "cancelled": "ملغاة"
+    },
+    "card": {
+      "availableSeats": "{count} مقعد متاح",
+      "unknownDriver": "السائق"
+    },
+    "myRides": {
+      "edit": "تعديل",
+      "cancel": "إلغاء",
+      "confirmCancel": "هل أنت متأكد؟",
+      "cancelled": "تم إلغاء الرحلة.",
+      "bookings": "الحجوزات"
+    }
+  },
+  "RideDetailPage": {
+    "seats": "{available} / {total} مقعد متاح",
+    "descriptionLabel": "الوصف",
+    "metaDescription": "رحلة بتاريخ {date} - {cost}"
+  },
+  "Bookings": {
+    "form": {
+      "seatCount": "عدد المقاعد"
+    },
+    "validation": {
+      "seatCountMin": "اختر مقعدًا واحدًا على الأقل."
+    },
+    "status": {
+      "pending": "قيد الانتظار",
+      "approved": "تمت الموافقة",
+      "rejected": "مرفوض",
+      "cancelled": "ملغى"
+    },
+    "actions": {
+      "reserve": "احجز",
+      "approve": "موافقة",
+      "reject": "رفض",
+      "cancel": "إلغاء",
+      "confirmCancel": "هل أنت متأكد؟",
+      "confirmApprove": "هل تريد الموافقة؟",
+      "confirmReject": "هل تريد الرفض؟"
+    },
+    "success": {
+      "created": "تم إرسال طلب الحجز.",
+      "approved": "تمت الموافقة على الحجز.",
+      "rejected": "تم رفض الحجز.",
+      "cancelled": "تم إلغاء الحجز."
+    },
+    "errors": {
+      "invalidForm": "نموذج غير صالح.",
+      "notConfigured": "الاتصال بقاعدة البيانات غير مُهيأ حاليًا. حاول مرة أخرى لاحقًا.",
+      "notEnoughSeats": "لا توجد مقاعد كافية.",
+      "alreadyBooked": "لديك بالفعل طلب حجز لهذه الرحلة.",
+      "ownRide": "لا يمكنك حجز رحلتك الخاصة.",
+      "rideNotActive": "هذه الرحلة لم تعد نشطة.",
+      "createFailed": "تعذر إنشاء الحجز. حاول مرة أخرى.",
+      "approveFailed": "تعذر الموافقة على الحجز. حاول مرة أخرى.",
+      "rejectFailed": "تعذر رفض الحجز. حاول مرة أخرى.",
+      "cancelFailed": "تعذر إلغاء الحجز. حاول مرة أخرى."
+    },
+    "card": {
+      "seatCount": "{count} مقعد",
+      "unknownPassenger": "الراكب"
+    }
+  },
+  "Chat": {
+    "unknownUser": "مستخدم",
+    "emptyTitle": "لا توجد رسائل بعد",
+    "emptyDescription": "أرسل أول رسالة بخصوص هذه الرحلة.",
+    "form": {
+      "placeholder": "اكتب رسالة...",
+      "send": "إرسال"
+    },
+    "validation": {
+      "messageRequired": "لا يمكن إرسال رسالة فارغة.",
+      "messageMax": "يجب ألا تتجاوز الرسالة 2000 حرف."
+    },
+    "status": {
+      "typing": "يكتب الآن...",
+      "seen": "تمت المشاهدة",
+      "sent": "تم الإرسال"
+    },
+    "errors": {
+      "invalidForm": "نموذج غير صالح.",
+      "notConfigured": "الاتصال بقاعدة البيانات غير مُهيأ حاليًا. حاول مرة أخرى لاحقًا.",
+      "sendFailed": "تعذر إرسال الرسالة. حاول مرة أخرى."
+    }
+  },
+  "Reviews": {
+    "sectionTitle": "التقييمات",
+    "totalReviews": "{count} تقييم",
+    "totalRides": "إجمالي {count} رحلة",
+    "recentReviews": "أحدث التقييمات",
+    "emptyTitle": "لا توجد تقييمات بعد",
+    "emptyDescription": "لم يتم تقييم هذا المستخدم بعد.",
+    "unknownReviewer": "مستخدم",
+    "form": {
+      "ratingLabel": "التقييم",
+      "commentLabel": "تعليق (اختياري)",
+      "commentHint": "500 حرف كحد أقصى.",
+      "submit": "إرسال التقييم"
+    },
+    "validation": {
+      "ratingRequired": "اختر تقييمًا.",
+      "commentMax": "يجب ألا يتجاوز التعليق 500 حرف."
+    },
+    "actions": {
+      "leaveReview": "أضف تقييمًا",
+      "alreadyReviewed": "لقد قيّمت بالفعل"
+    },
+    "success": {
+      "created": "تم إرسال تقييمك."
+    },
+    "errors": {
+      "invalidForm": "نموذج غير صالح.",
+      "notConfigured": "الاتصال بقاعدة البيانات غير مُهيأ حاليًا. حاول مرة أخرى لاحقًا.",
+      "notEligible": "لا يمكنك تقييم هذه الرحلة.",
+      "alreadyReviewed": "لقد قيّمت هذه الرحلة بالفعل."
+    }
+  },
+  "NotFound": {
+    "title": "الصفحة غير موجودة",
+    "description": "الصفحة التي تبحث عنها قد تكون نُقلت أو لم تكن موجودة من الأساس.",
+    "backHome": "العودة إلى الرئيسية"
+  },
+  "ErrorPage": {
+    "title": "حدث خطأ ما",
+    "description": "حدث خطأ غير متوقع.",
+    "retry": "حاول مرة أخرى"
+  },
+  "LocaleSwitcher": {
+    "label": "اللغة"
+  },
+  "ThemeToggle": {
+    "label": "المظهر",
+    "light": "فاتح",
+    "dark": "داكن",
+    "system": "النظام"
+  }
+}
