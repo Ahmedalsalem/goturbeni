@@ -10,6 +10,7 @@ import { firstIssueMessage } from "@/lib/zod-error"
 import { getUserLocale } from "@/i18n/locale"
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
 import { getCurrentUser } from "@/lib/supabase/dal"
+import { logError } from "@/lib/logger"
 import { buildAuthSchemas, type AuthActionState } from "@/features/auth/schemas"
 
 const LOGIN_RATE_LIMIT = { limit: 10, windowMs: 5 * 60 * 1000 }
@@ -49,6 +50,7 @@ export async function signIn(_prevState: AuthActionState, formData: FormData): P
   const supabase = await createClient()
   const { error } = await supabase.auth.signInWithPassword(parsed.data)
   if (error) {
+    logError(error, "auth.signIn")
     return { error: tErrors("invalidCredentials") }
   }
   redirect("/profile")
@@ -80,6 +82,7 @@ export async function signUp(_prevState: AuthActionState, formData: FormData): P
     options: { emailRedirectTo: `${siteUrl}/auth/callback` },
   })
   if (error) {
+    logError(error, "auth.signUp")
     return {
       error: error.message === "User already registered" ? tErrors("emailAlreadyRegistered") : tErrors("signupFailed"),
     }
@@ -147,6 +150,7 @@ export async function updatePassword(_prevState: AuthActionState, formData: Form
   const supabase = await createClient()
   const { error } = await supabase.auth.updateUser({ password: parsed.data.password })
   if (error) {
+    logError(error, "auth.updatePassword")
     return { error: tErrors("resetFailed") }
   }
   redirect("/profile")

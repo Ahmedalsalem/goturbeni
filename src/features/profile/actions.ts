@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server"
 import { firstIssueMessage } from "@/lib/zod-error"
 import { getUserLocale } from "@/i18n/locale"
 import { verifySession } from "@/lib/supabase/dal"
+import { logError } from "@/lib/logger"
 import { buildProfileSchema, type ProfileActionState } from "@/features/profile/schemas"
 
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024
@@ -48,6 +49,7 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
       contentType: avatarFile.type,
     })
     if (uploadError) {
+      logError(uploadError, "profile.avatarUpload")
       return { error: tErrors("avatarUploadFailed") }
     }
 
@@ -57,18 +59,16 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
     avatarUrl = `${publicUrl}?v=${Date.now()}`
   }
 
-  const { error: updateError } = await supabase
-    .from("profiles")
-    .update({
-      full_name: parsed.data.fullName,
-      phone: parsed.data.phone ?? null,
-      bio: parsed.data.bio ?? null,
-      language: parsed.data.language,
-      ...(avatarUrl ? { avatar_url: avatarUrl } : {}),
-    })
-    .eq("id", user.id)
+  const { error: updateError } = await supabase.rpc("update_own_profile", {
+    p_full_name: parsed.data.fullName,
+    p_bio: parsed.data.bio ?? null,
+    p_language: parsed.data.language,
+    p_avatar_url: avatarUrl ?? null,
+    p_phone: parsed.data.phone ?? null,
+  })
 
   if (updateError) {
+    logError(updateError, "profile.updateProfile")
     return { error: tErrors("updateFailed") }
   }
 

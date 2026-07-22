@@ -99,7 +99,13 @@ export function RideForm({ ride }: { ride?: Ride }) {
                   value={field.value || null}
                   onValueChange={(value) => field.onChange(value ?? "")}
                 >
-                  <SelectTrigger id="departureCity" aria-label={t("departureCity")} className="w-full">
+                  <SelectTrigger
+                    id="departureCity"
+                    aria-label={t("departureCity")}
+                    aria-invalid={!!errors.departureCity}
+                    aria-describedby={errors.departureCity ? "departureCity-error" : undefined}
+                    className="w-full"
+                  >
                     <SelectValue placeholder={t("selectCity")} />
                   </SelectTrigger>
                   <SelectContent>
@@ -112,7 +118,7 @@ export function RideForm({ ride }: { ride?: Ride }) {
                 </Select>
               )}
             />
-            {errors.departureCity && <FieldError errors={[{ message: errors.departureCity.message }]} />}
+            {errors.departureCity && <FieldError id="departureCity-error" errors={[{ message: errors.departureCity.message }]} />}
           </Field>
 
           <Field>
@@ -126,7 +132,13 @@ export function RideForm({ ride }: { ride?: Ride }) {
                   value={field.value || null}
                   onValueChange={(value) => field.onChange(value ?? "")}
                 >
-                  <SelectTrigger id="arrivalCity" aria-label={t("arrivalCity")} className="w-full">
+                  <SelectTrigger
+                    id="arrivalCity"
+                    aria-label={t("arrivalCity")}
+                    aria-invalid={!!errors.arrivalCity}
+                    aria-describedby={errors.arrivalCity ? "arrivalCity-error" : undefined}
+                    className="w-full"
+                  >
                     <SelectValue placeholder={t("selectCity")} />
                   </SelectTrigger>
                   <SelectContent>
@@ -139,43 +151,78 @@ export function RideForm({ ride }: { ride?: Ride }) {
                 </Select>
               )}
             />
-            {errors.arrivalCity && <FieldError errors={[{ message: errors.arrivalCity.message }]} />}
+            {errors.arrivalCity && <FieldError id="arrivalCity-error" errors={[{ message: errors.arrivalCity.message }]} />}
           </Field>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Field>
             <FieldLabel htmlFor="departureDate">{t("departureDate")}</FieldLabel>
-            <Input id="departureDate" type="date" {...register("departureDate")} />
-            {errors.departureDate && <FieldError errors={[{ message: errors.departureDate.message }]} />}
+            <Input
+              id="departureDate"
+              type="date"
+              aria-invalid={!!errors.departureDate}
+              aria-describedby={errors.departureDate ? "departureDate-error" : undefined}
+              {...register("departureDate")}
+            />
+            {errors.departureDate && <FieldError id="departureDate-error" errors={[{ message: errors.departureDate.message }]} />}
           </Field>
 
           <Field>
             <FieldLabel htmlFor="departureTime">{t("departureTime")}</FieldLabel>
-            <Input id="departureTime" type="time" {...register("departureTime")} />
-            {errors.departureTime && <FieldError errors={[{ message: errors.departureTime.message }]} />}
+            <Input
+              id="departureTime"
+              type="time"
+              aria-invalid={!!errors.departureTime}
+              aria-describedby={errors.departureTime ? "departureTime-error" : undefined}
+              {...register("departureTime")}
+            />
+            {errors.departureTime && <FieldError id="departureTime-error" errors={[{ message: errors.departureTime.message }]} />}
           </Field>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Field>
             <FieldLabel htmlFor="seatCount">{t("seatCount")}</FieldLabel>
-            <Input id="seatCount" type="number" min={MIN_SEAT_COUNT} max={MAX_SEAT_COUNT} {...register("seatCount")} />
-            {errors.seatCount && <FieldError errors={[{ message: errors.seatCount.message }]} />}
+            <Input
+              id="seatCount"
+              type="number"
+              min={MIN_SEAT_COUNT}
+              max={MAX_SEAT_COUNT}
+              aria-invalid={!!errors.seatCount}
+              aria-describedby={errors.seatCount ? "seatCount-error" : undefined}
+              {...register("seatCount")}
+            />
+            {errors.seatCount && <FieldError id="seatCount-error" errors={[{ message: errors.seatCount.message }]} />}
           </Field>
 
           <Field>
             <FieldLabel htmlFor="costShare">{t("costShare")}</FieldLabel>
-            <Input id="costShare" type="number" min={0} step="0.01" {...register("costShare")} />
-            {errors.costShare && <FieldError errors={[{ message: errors.costShare.message }]} />}
+            <Input
+              id="costShare"
+              type="number"
+              min={0}
+              step="0.01"
+              aria-invalid={!!errors.costShare}
+              aria-describedby={errors.costShare ? "costShare-error" : undefined}
+              {...register("costShare")}
+            />
+            {errors.costShare && <FieldError id="costShare-error" errors={[{ message: errors.costShare.message }]} />}
           </Field>
         </div>
 
         <Field>
           <FieldLabel htmlFor="description">{t("description")}</FieldLabel>
-          <Textarea id="description" rows={4} maxLength={MAX_DESCRIPTION_LENGTH} {...register("description")} />
+          <Textarea
+            id="description"
+            rows={4}
+            maxLength={MAX_DESCRIPTION_LENGTH}
+            aria-invalid={!!errors.description}
+            aria-describedby={errors.description ? "description-error" : undefined}
+            {...register("description")}
+          />
           <FieldDescription>{t("descriptionHint")}</FieldDescription>
-          {errors.description && <FieldError errors={[{ message: errors.description.message }]} />}
+          {errors.description && <FieldError id="description-error" errors={[{ message: errors.description.message }]} />}
         </Field>
       </FieldGroup>
 

@@ -1,5 +1,7 @@
 import "server-only"
 
+import { cache } from "react"
+
 import { createClient } from "@/lib/supabase/server"
 import { isSupabaseConfigured } from "@/lib/supabase/is-configured"
 import type { RideSearchFilters, RideSort } from "@/features/rides/filters"
@@ -46,11 +48,14 @@ export async function getRide(rideId: string): Promise<Ride | null> {
   return data as Ride | null
 }
 
-export async function getRideWithDriver(rideId: string): Promise<RideWithDriver | null> {
+// Wrapped in React's cache() because rides/[id]/page.tsx calls this once in
+// generateMetadata and again in the page body — cache() dedupes both into a
+// single Supabase round trip per request.
+export const getRideWithDriver = cache(async (rideId: string): Promise<RideWithDriver | null> => {
   const supabase = await createClient()
   const { data } = await supabase.from("rides").select(RIDE_WITH_DRIVER_SELECT).eq("id", rideId).single()
   return data as RideWithDriver | null
-}
+})
 
 export async function getMyRides(driverId: string): Promise<RideWithDriver[]> {
   const supabase = await createClient()

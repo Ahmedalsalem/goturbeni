@@ -10,6 +10,7 @@ import { firstIssueMessage } from "@/lib/zod-error"
 import { getUserLocale } from "@/i18n/locale"
 import { verifySession } from "@/lib/supabase/dal"
 import { checkRateLimit } from "@/lib/rate-limit"
+import { logError } from "@/lib/logger"
 import { buildRideSchema, type RideActionState, type RideFormValues } from "@/features/rides/schemas"
 
 const CREATE_RIDE_RATE_LIMIT = { limit: 10, windowMs: 60 * 60 * 1000 }
@@ -60,6 +61,7 @@ export async function createRide(values: RideFormValues): Promise<RideActionStat
   })
 
   if (error) {
+    logError(error, "rides.createRide")
     return { error: tErrors("createFailed") }
   }
 
@@ -88,6 +90,7 @@ export async function updateRide(rideId: string, values: RideFormValues): Promis
     .eq("status", "active")
 
   if (error) {
+    logError(error, "rides.updateRide")
     return { error: tErrors("updateFailed") }
   }
 
@@ -111,6 +114,7 @@ export async function cancelRide(rideId: string): Promise<RideActionState> {
     .eq("driver_id", user.id)
 
   if (error) {
+    logError(error, "rides.cancelRide")
     return { error: tErrors("cancelFailed") }
   }
 

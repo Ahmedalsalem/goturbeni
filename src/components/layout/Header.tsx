@@ -14,10 +14,12 @@ import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { getCurrentUser } from "@/lib/supabase/dal"
 import { signOut } from "@/features/auth/actions"
+import { getUnreadMessages } from "@/features/chat/queries"
 
 export async function Header() {
   const t = await getTranslations("Nav")
   const user = await getCurrentUser()
+  const hasUnreadMessages = user ? (await getUnreadMessages(user.id)).count > 0 : false
 
   const links = [
     { href: "/rides", label: t("rides") },
@@ -66,11 +68,17 @@ export async function Header() {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger
-                className={buttonVariants({ variant: "outline", className: "gap-1.5 ps-3 pe-2.5" })}
+                className={buttonVariants({ variant: "outline", className: "relative gap-1.5 ps-3 pe-2.5" })}
               >
                 <User className="size-4" aria-hidden="true" />
                 {t("profile")}
                 <ChevronDown className="size-3.5 opacity-60" aria-hidden="true" />
+                {hasUnreadMessages && (
+                  <>
+                    <span className="bg-destructive ring-background absolute end-0.5 top-0.5 size-2.5 rounded-full ring-2" aria-hidden="true" />
+                    <span className="sr-only">{t("unreadMessages")}</span>
+                  </>
+                )}
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem render={<Link href="/profile" />}>

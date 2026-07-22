@@ -28,12 +28,17 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const format = await getFormatter()
   const departureAt = new Date(ride.departure_time)
 
+  const title = `${ride.departure_city} → ${ride.arrival_city} | GötürBeni`
+  const description = t("metaDescription", {
+    date: format.dateTime(departureAt, { day: "2-digit", month: "2-digit", year: "numeric" }),
+    cost: formatCostShare(ride.cost_share, await getUserLocale()),
+  })
+
   return {
-    title: `${ride.departure_city} → ${ride.arrival_city} | GötürBeni`,
-    description: t("metaDescription", {
-      date: format.dateTime(departureAt, { day: "2-digit", month: "2-digit", year: "numeric" }),
-      cost: formatCostShare(ride.cost_share, await getUserLocale()),
-    }),
+    title,
+    description,
+    openGraph: { title, description },
+    alternates: { canonical: `/rides/${id}` },
   }
 }
 

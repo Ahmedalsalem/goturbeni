@@ -70,16 +70,30 @@ export function ReviewForm({ rideId, revieweeId }: { rideId: string; revieweeId:
           <Controller
             control={control}
             name="rating"
-            render={({ field }) => <StarRatingInput value={field.value as number} onChange={field.onChange} label={t("ratingLabel")} />}
+            render={({ field }) => (
+              <StarRatingInput
+                value={field.value as number}
+                onChange={field.onChange}
+                label={t("ratingLabel")}
+                describedBy={errors.rating ? "rating-error" : undefined}
+              />
+            )}
           />
-          {errors.rating && <FieldError errors={[{ message: errors.rating.message }]} />}
+          {errors.rating && <FieldError id="rating-error" errors={[{ message: errors.rating.message }]} />}
         </Field>
 
         <Field>
           <FieldLabel htmlFor="review-comment">{t("commentLabel")}</FieldLabel>
-          <Textarea id="review-comment" rows={3} maxLength={MAX_COMMENT_LENGTH} {...register("comment")} />
+          <Textarea
+            id="review-comment"
+            rows={3}
+            maxLength={MAX_COMMENT_LENGTH}
+            aria-invalid={!!errors.comment}
+            aria-describedby={errors.comment ? "review-comment-error" : undefined}
+            {...register("comment")}
+          />
           <FieldDescription>{t("commentHint")}</FieldDescription>
-          {errors.comment && <FieldError errors={[{ message: errors.comment.message }]} />}
+          {errors.comment && <FieldError id="review-comment-error" errors={[{ message: errors.comment.message }]} />}
         </Field>
       </FieldGroup>
 

@@ -21,6 +21,7 @@ export default function robots(): MetadataRoute.Robots {
         "/rides/*/edit",
         "/rides/*/bookings",
         "/rides/*/chat",
+        "/offline",
       ],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,

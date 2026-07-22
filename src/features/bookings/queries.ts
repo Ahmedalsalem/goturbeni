@@ -29,6 +29,15 @@ export async function getRideBookings(rideId: string): Promise<BookingWithPassen
   return (data as BookingWithPassenger[] | null) ?? []
 }
 
+// Used by bookings/actions.ts to know who to notify after approve/reject —
+// the RPCs that perform those mutations return void, so the passenger id
+// isn't otherwise available in the action.
+export async function getBookingPassengerId(bookingId: string): Promise<string | null> {
+  const supabase = await createClient()
+  const { data } = await supabase.from("bookings").select("passenger_id").eq("id", bookingId).single()
+  return data?.passenger_id ?? null
+}
+
 // Only the passenger's currently active (pending/approved) booking, if any —
 // a past rejected/cancelled booking doesn't block re-booking the same ride
 // (see the partial unique index in supabase/migrations/0003_bookings.sql).

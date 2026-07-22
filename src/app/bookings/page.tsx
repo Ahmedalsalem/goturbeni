@@ -10,6 +10,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { BookingStatusBadge } from "@/features/bookings/BookingStatusBadge"
 import { CancelBookingButton } from "@/features/bookings/CancelBookingButton"
 import { getMyBookings } from "@/features/bookings/queries"
+import { getUnreadMessages } from "@/features/chat/queries"
 import { ReviewButton } from "@/features/reviews/ReviewButton"
 import { getMyReviewForRide } from "@/features/reviews/queries"
 import { verifySession } from "@/lib/supabase/dal"
@@ -29,6 +30,7 @@ export default async function BookingsPage() {
   const format = await getFormatter()
   const locale = await getUserLocale()
   const bookings = await getMyBookings(user.id)
+  const unreadMessages = await getUnreadMessages(user.id)
 
   const completedRideIds = bookings
     .filter((booking) => booking.status === "approved" && new Date(booking.ride.departure_time) < new Date())
@@ -64,9 +66,12 @@ export default async function BookingsPage() {
                   <CardFooter className="flex flex-wrap items-center gap-2">
                     <CancelBookingButton bookingId={booking.id} rideId={booking.ride.id} />
                     {booking.status === "approved" && (
-                      <Link href={`/rides/${booking.ride.id}/chat`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                      <Link href={`/rides/${booking.ride.id}/chat`} className={buttonVariants({ variant: "outline", size: "sm", className: "relative" })}>
                         <MessageCircle className="size-4" aria-hidden="true" />
                         {t("chat")}
+                        {unreadMessages.rideIds.has(booking.ride.id) && (
+                          <span className="bg-destructive ring-background absolute -end-1 -top-1 size-2.5 rounded-full ring-2" aria-hidden="true" />
+                        )}
                       </Link>
                     )}
                     {isCompleted &&

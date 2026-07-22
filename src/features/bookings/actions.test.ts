@@ -45,6 +45,19 @@ import { approveBooking, cancelBooking, createBooking, rejectBooking } from "@/f
 
 const FAKE_USER = { id: "user-1" }
 
+// Matches the .select("passenger_id").eq("id", ...).single() chain used by
+// getBookingPassengerId (called after a successful approve/reject RPC to
+// find out who to push-notify).
+function fromReturningPassengerId(passengerId: string | null) {
+  return {
+    select: () => ({
+      eq: () => ({
+        single: async () => ({ data: passengerId ? { passenger_id: passengerId } : null }),
+      }),
+    }),
+  }
+}
+
 function fakeRide(overrides: Partial<Ride> = {}): Ride {
   return {
     id: "ride-1",
@@ -145,6 +158,7 @@ describe("bookings/actions", () => {
   describe("approveBooking", () => {
     it("calls supabase.rpc with approve_booking and the booking id", async () => {
       rpcMock.mockResolvedValue({ error: null })
+      fromMock.mockReturnValue(fromReturningPassengerId("passenger-1"))
 
       await approveBooking("booking-1", "ride-1")
 
@@ -169,6 +183,7 @@ describe("bookings/actions", () => {
 
     it("succeeds and revalidates on a clean RPC call", async () => {
       rpcMock.mockResolvedValue({ error: null })
+      fromMock.mockReturnValue(fromReturningPassengerId("passenger-1"))
 
       const result = await approveBooking("booking-1", "ride-1")
 
@@ -181,6 +196,7 @@ describe("bookings/actions", () => {
   describe("rejectBooking", () => {
     it("calls supabase.rpc with reject_booking and the booking id", async () => {
       rpcMock.mockResolvedValue({ error: null })
+      fromMock.mockReturnValue(fromReturningPassengerId("passenger-1"))
 
       await rejectBooking("booking-1", "ride-1")
 

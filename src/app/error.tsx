@@ -4,12 +4,13 @@ import { useEffect } from "react"
 import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
+import { logError } from "@/lib/logger"
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   const t = useTranslations("ErrorPage")
 
   useEffect(() => {
-    console.error(error)
+    logError(error, "app.error-boundary")
   }, [error])
 
   return (

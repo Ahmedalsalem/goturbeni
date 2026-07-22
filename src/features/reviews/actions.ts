@@ -8,6 +8,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/is-configured"
 import { firstIssueMessage } from "@/lib/zod-error"
 import { getUserLocale } from "@/i18n/locale"
 import { verifySession } from "@/lib/supabase/dal"
+import { logError } from "@/lib/logger"
 import { buildReviewSchema, type ReviewActionState, type ReviewFormValues } from "@/features/reviews/schemas"
 
 async function getReviewTranslators() {
@@ -42,6 +43,9 @@ export async function createReview(rideId: string, revieweeId: string, values: R
     // 23505 = unique_violation — reviews_one_per_reviewer_per_ride. Any other
     // failure here is the "insert own review" RLS check rejecting the row
     // (not completed yet, no approved booking, or self-review attempt).
+    if (error.code !== "23505") {
+      logError(error, "reviews.createReview")
+    }
     return { error: error.code === "23505" ? tErrors("alreadyReviewed") : tErrors("notEligible") }
   }
 

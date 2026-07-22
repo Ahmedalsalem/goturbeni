@@ -9,6 +9,8 @@ import { firstIssueMessage } from "@/lib/zod-error"
 import { getUserLocale } from "@/i18n/locale"
 import { verifySession } from "@/lib/supabase/dal"
 import { checkRateLimit } from "@/lib/rate-limit"
+import { logError } from "@/lib/logger"
+import { sendPushNotification } from "@/lib/notifications"
 import { buildMessageSchema, type ChatActionState, type MessageFormValues } from "@/features/chat/schemas"
 
 const SEND_MESSAGE_RATE_LIMIT = { limit: 30, windowMs: 10 * 60 * 1000 }
@@ -45,8 +47,11 @@ export async function sendMessage(rideId: string, receiverId: string, values: Me
   })
 
   if (error) {
+    logError(error, "chat.sendMessage")
     return { error: tErrors("sendFailed") }
   }
+
+  await sendPushNotification({ type: "new_message", recipientId: receiverId, rideId })
 
   revalidatePath(`/rides/${rideId}/chat`)
   return { success: true }

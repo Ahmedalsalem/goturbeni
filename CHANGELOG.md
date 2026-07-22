@@ -2,6 +2,46 @@
 
 Bu proje [Semantic Versioning](https://semver.org/lang/tr/) kullanır.
 
+## [Unreleased]
+
+### Düzeltildi
+
+- **Kritik**: `/rides/mine` üzerinde "Rezervasyonlar" bağlantısı yalnızca `status === "active"` olan ilanlarda gösteriliyordu. Bir ilan tamamen dolduğunda (`status` `"full"`'a döndüğünde) bu bağlantı tamamen kayboluyordu — bu, sürücünün o ilanın rezervasyon yönetimine, dolayısıyla sohbete ve (yolculuk sonrası) değerlendirmeye ulaşabileceği **tek** yoldu. Sonuç: dolu bir ilanda sürücü, onaylı yolcunun gönderdiği mesajları okuyacağı sohbet sayfasına hiçbir şekilde ulaşamıyordu. Düzeltme: "Rezervasyonlar" bağlantısı artık ilan durumundan bağımsız her zaman gösteriliyor; yalnızca "Düzenle" ve "İptal Et" (RLS'in zaten yalnızca `active` ilanlarda izin verdiği işlemler) `active` durumuyla sınırlı kaldı. İki gerçek hesapla (1 koltuklu ilan, doldurulup "full" durumuna getirilerek) doğrulandı.
+
+### Eklendi
+
+- **Okunmamış mesaj rozeti**: push notification altyapısı henüz gerçek bir servise bağlı olmadığından (bkz. Faz 7), bir kullanıcının yeni bir mesaj geldiğini fark etmesinin daha önce hiçbir yolu yoktu — sohbet sayfasına kendi gitmedikçe. Üst menüdeki "Profil" açılır menüsüne (herhangi bir okunmamış mesaj varsa) ve `/bookings` ile `/rides/[id]/bookings` listelerindeki ilgili "Sohbet" bağlantısına (o ilan/yolcu için okunmamışsa) küçük kırmızı bir nokta eklendi. Yeni tablo gerekmedi — mevcut `messages.read_at` alanından türetildi. İki gerçek hesapla canlı doğrulandı: mesaj gönderilmeden önce rozet yok, gönderildikten sonra hem üst menüde hem ilgili satırda görünüyor, sohbet açılıp mesaj okunmuş sayılınca (mevcut `markMessagesRead` akışı) kayboluyor.
+
+## [1.0.0] — Faz 7 (production readiness) — 2026-07-22
+
+✅ **Canlı doğrulama tamamlandı** (2026-07-22) — `0007_profile_update_atomicity.sql` gerçek Supabase projesine (`dvpxvcvmtxsticczlpwg`) `supabase db push` ile uygulandı ve `supabase migration list` ile doğrulandı. İki gerçek hesapla (1 sürücü + 1 yolcu, Playwright ile tarayıcı üzerinden) tam uçtan uca akış doğrulandı: kayıt, giriş, profil güncelleme (telefon dahil — `update_own_profile` RPC'sini gerçek DB'ye karşı çalıştırır), avatar yükleme, ilan oluşturma, arama/filtreleme, rezervasyon talebi, onay, karşılıklı mesajlaşma, (kalkış zamanı geçtikten sonra) karşılıklı değerlendirme, profil puanının güncellenmesi, şifre sıfırlama talebi (yalnızca "bağlantı gönderildi" adımı — gerçek e-posta kutusuna erişim olmadığından bağlantıya tıklanamadı), çıkış. Test sırasında oluşturulan tüm veriler (4 test hesabı + bağlı profil/ilan/rezervasyon/mesaj/yorum satırları) `auth.users`'tan silinerek cascade ile temizlendi ve doğrulandı (0 kalıntı). Ayrıntı için [PROJECT_STATUS.md](./PROJECT_STATUS.md).
+
+⚠️ **Önemli düzeltme**: `0006_profiles_phone_privacy.sql` bu oturumun BAŞINDA zaten canlıya uygulanmış durumdaydı (önceki, bu oturumdan bağımsız bir oturumda) — dosya git'e commit'lenmemiş ama migration ledger'ında kayıtlıydı. Bu, `supabase db push --dry-run`'ın "Remote database is up to date" demesiyle ortaya çıktı. 0006'ya yapılan ilk düzenlemeler (aşağıdaki iki güvenlik maddesi) bu yüzden geri alınıp ayrı bir `0007_profile_update_atomicity.sql` migration'ına taşındı — zaten uygulanmış bir migration dosyasını sonradan düzenlemek `db push`'ın onu asla yeniden çalıştırmaması anlamına gelir.
+
+### Güvenlik
+
+- **Kritik**: `profiles` tablosundaki genel SELECT politikası (`using (true)`, `to` kısıtlaması yok) anon dahil herkesin `phone`/`phone_verified` kolonlarını okuyabilmesine izin veriyordu (RLS satır bazlı olduğu için). `phone`/`phone_verified` artık yalnızca sahibine sınırlı RLS'e sahip ayrı bir `profiles_private` tablosunda (`0006_profiles_phone_privacy.sql`, daha önceki bir oturumda canlıya uygulanmış).
+- `0007_profile_update_atomicity.sql`: (1) profil güncellemesinde `profiles` ve `profiles_private` tablolarına yapılan iki ayrı, transactional olmayan yazım (biri başarısız olursa diğerinin sessizce kalıcı olma riski) tek bir `security invoker` Postgres fonksiyonuna (`update_own_profile`) birleştirildi; (2) `profiles_private` üzerindeki "select own phone" politikasına, projenin geri kalanıyla tutarlılık için eksik olan `to authenticated` kısıtlaması eklendi (anon zaten `auth.uid()` null döndüğünden pratikte açık bir açık yoktu).
+- `next.config.ts`'e üretim güvenlik başlıkları eklendi: `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`; `poweredByHeader: false` ile `X-Powered-By` başlığı kaldırıldı.
+- `.env.example`'daki hiçbir yerde kullanılmayan (ölü) `SUPABASE_URL`/`SUPABASE_ANON_KEY` girişleri temizlendi.
+
+### Eklendi
+
+- **PWA**: `manifest.ts`, uygulama simgeleri (192/512/maskable + apple-touch-icon), `theme-color`, varsayılan OpenGraph görseli (`opengraph-image.png`). Temel düzeyde offline fallback: `public/sw.js` yalnızca `/offline` sayfasını önbelleğe alıp ağ hatasında gösterir (uygulamanın geri kalanı offline çalışmaz — Supabase'e bağımlı dinamik içerik olduğu için kapsam dışı).
+- **Push notification altyapısı** (`src/lib/notifications.ts`): rezervasyon talebi/onay/red ve yeni mesaj olayları için tip güvenli bir soyutlama; şu an no-op, gerçek bir servis (web-push/FCM/OneSignal) seçildiğinde yalnızca fonksiyon gövdesi değişecek.
+- **Monitoring hazırlığı**: `src/lib/logger.ts` tüm server action hata yollarına eklendi (önceden Supabase hataları sessizce yutuluyor, yalnızca genel çevrilmiş mesaj kullanıcıya dönüyordu); `src/instrumentation.ts` (Next.js runtime instrumentation hook'u, gelecekte Sentry/OpenTelemetry için hazır); `src/app/global-error.tsx` (root layout'ta oluşan hataları da yakalar, `error.tsx` bunu kapsamıyordu).
+- **SEO**: `metadataBase`, site geneli ve `/rides/[id]`'e özel OpenGraph etiketleri, `/rides` ve `/rides/[id]` için canonical URL (`/rides` filtre query param'larının ayrı sayfalar olarak indekslenmesini önler).
+- **Erişilebilirlik**: `RideForm` ve `ReviewForm`'daki (client-side doğrulama hatası gösteren tek iki form) tüm alanlara `aria-invalid`/`aria-describedby` bağlandı — `FieldError` zaten `role="alert"` render ediyordu ama ekran okuyucular hatayı ilgili alanla ilişkilendiremiyordu.
+
+### Performans
+
+- `getCurrentUser()`, `getProfile()`, `getRideWithDriver()` React `cache()` ile sarıldı — `/rides/[id]` sayfası bu üçünü aynı istek içinde birden fazla kez çağırıyordu (örn. `generateMetadata` + sayfa gövdesi), artık istek başına tek Supabase round-trip'i.
+
+### Bilinçli olarak yapılmayan
+
+- hreflang/alternates: uygulama tek URL + cookie tabanlı locale kullanıyor (yol tabanlı `/tr`, `/ar` değil), bu yüzden Google'ın hreflang modeli doğrudan uygulanamıyor — bu mimariyi değiştirmek yeni bir routing/URL yapısı gerektirir, kapsam dışı bırakıldı.
+- Avatarlar için `next/image`'e geçiş: tek görsel kullanım noktası (Base UI `Avatar.Image`), küçük boyut, düşük risk/getiri oranı nedeniyle değerlendirilip ertelendi — davranış değişikliği riski taşıyordu.
+
 ## [0.6.0]
 
 ⚠️ **Live Supabase verification pending** — bu sürümdeki migration'lar (`0004_messages.sql`, `0005_reviews.sql`) henüz gerçek bir Supabase projesine uygulanmadı ve gerçek hesaplarla uçtan uca doğrulanmadı. Doğrulama yalnızca yerel `npm run lint` / `npx tsc --noEmit` / `npm run build` ile yapıldı (üçü de temiz). Ayrıntı için [PROJECT_STATUS.md](./PROJECT_STATUS.md).

@@ -12,7 +12,9 @@ import { buttonVariants } from "@/components/ui/button"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("RidesPage")
-  return { title: t("title") }
+  // Canonical points at the bare path — filter query params (from/to/date/
+  // sort) shouldn't fragment this into separate indexed pages.
+  return { title: t("title"), alternates: { canonical: "/rides" } }
 }
 
 export default async function RidesPage({

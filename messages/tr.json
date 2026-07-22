@@ -14,6 +14,7 @@
     "support": "Destek",
     "menu": "Menü",
     "profile": "Profil",
+    "unreadMessages": "Okunmamış mesajınız var",
     "login": "Giriş Yap",
     "register": "Kayıt Ol",
     "logout": "Çıkış Yap"
@@ -394,6 +395,11 @@
   "ErrorPage": {
     "title": "Bir şeyler ters gitti",
     "description": "Beklenmeyen bir hata oluştu.",
+    "retry": "Tekrar Dene"
+  },
+  "Offline": {
+    "title": "İnternet bağlantısı yok",
+    "description": "Bu sayfayı görüntülemek için internet bağlantısı gerekiyor. Bağlantınızı kontrol edip tekrar deneyin.",
     "retry": "Tekrar Dene"
   },
   "LocaleSwitcher": {

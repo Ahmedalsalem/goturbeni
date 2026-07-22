@@ -13,6 +13,7 @@ import { BookingStatusBadge } from "@/features/bookings/BookingStatusBadge"
 import { BookingActions } from "@/features/bookings/BookingActions"
 import { getRide } from "@/features/rides/queries"
 import { getRideBookings } from "@/features/bookings/queries"
+import { getUnreadMessages } from "@/features/chat/queries"
 import { ReviewButton } from "@/features/reviews/ReviewButton"
 import { getMyReviewForRide } from "@/features/reviews/queries"
 import { verifySession } from "@/lib/supabase/dal"
@@ -35,6 +36,7 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
   const tCard = await getTranslations("Bookings.card")
   const tReviewActions = await getTranslations("Reviews.actions")
   const bookings = await getRideBookings(id)
+  const unreadMessages = await getUnreadMessages(user.id)
   const isRideOver = new Date(ride.departure_time) < new Date()
   // One review per (ride, reviewer) — a driver with several approved
   // passengers can only leave a single review for this ride, not one per
@@ -81,10 +83,13 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                   <CardFooter className="flex flex-wrap items-center gap-2">
                     <Link
                       href={`/rides/${id}/chat?passengerId=${booking.passenger_id}`}
-                      className={buttonVariants({ variant: "outline", size: "sm" })}
+                      className={buttonVariants({ variant: "outline", size: "sm", className: "relative" })}
                     >
                       <MessageCircle className="size-4" aria-hidden="true" />
                       {t("chat")}
+                      {unreadMessages.threadKeys.has(`${id}:${booking.passenger_id}`) && (
+                        <span className="bg-destructive ring-background absolute -end-1 -top-1 size-2.5 rounded-full ring-2" aria-hidden="true" />
+                      )}
                     </Link>
                     {isRideOver &&
                       (alreadyReviewed ? (

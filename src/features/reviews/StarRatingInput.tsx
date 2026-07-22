@@ -10,16 +10,18 @@ export function StarRatingInput({
   value,
   onChange,
   label,
+  describedBy,
 }: {
   value: number
   onChange: (value: number) => void
   label: string
+  describedBy?: string
 }) {
   const [hovered, setHovered] = useState<number | null>(null)
   const displayValue = hovered ?? value
 
   return (
-    <div role="group" aria-label={label} className="flex items-center gap-1">
+    <div role="group" aria-label={label} aria-describedby={describedBy} className="flex items-center gap-1">
       {Array.from({ length: MAX_RATING }, (_, index) => index + 1).map((star) => (
         <button
           key={star}
