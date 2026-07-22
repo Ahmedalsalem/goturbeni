@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { isValidPhoneNumber } from "libphonenumber-js"
 
 import { SUPPORTED_LOCALES } from "@/i18n/locale-config"
 
@@ -10,7 +11,7 @@ export const MAX_FULL_NAME_LENGTH = 100
 export const MAX_PHONE_LENGTH = 20
 export const MAX_BIO_LENGTH = 500
 
-type ValidationTranslator = (key: "fullNameRequired" | "fullNameMax" | "phoneMax" | "bioMax") => string
+type ValidationTranslator = (key: "fullNameRequired" | "fullNameMax" | "phoneMax" | "phoneInvalid" | "bioMax") => string
 
 export function buildProfileSchema(t: ValidationTranslator) {
   return z.object({
@@ -20,7 +21,12 @@ export function buildProfileSchema(t: ValidationTranslator) {
       .trim()
       .max(MAX_PHONE_LENGTH, t("phoneMax"))
       .optional()
-      .transform((value) => (value ? value : undefined)),
+      .transform((value) => (value ? value : undefined))
+      // Defaults to Turkish numbering when no "+<country code>" prefix is
+      // given (this platform's primary market); a leading "+" is parsed
+      // using its own country code regardless, so non-Turkish numbers
+      // (relevant for the Arabic-speaking locale) still validate correctly.
+      .refine((value) => !value || isValidPhoneNumber(value, "TR"), { message: t("phoneInvalid") }),
     bio: z
       .string()
       .trim()

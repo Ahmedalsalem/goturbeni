@@ -32,11 +32,13 @@ export default async function BookingsPage() {
   const bookings = await getMyBookings(user.id)
   const unreadMessages = await getUnreadMessages(user.id)
 
-  const completedRideIds = bookings
-    .filter((booking) => booking.status === "approved" && new Date(booking.ride.departure_time) < new Date())
-    .map((booking) => booking.ride.id)
-  const myReviews = await Promise.all(completedRideIds.map((rideId) => getMyReviewForRide(rideId, user.id)))
-  const reviewedRideIds = new Set(completedRideIds.filter((_, index) => myReviews[index]))
+  const completedBookings = bookings.filter(
+    (booking) => booking.status === "approved" && new Date(booking.ride.departure_time) < new Date()
+  )
+  const myReviews = await Promise.all(
+    completedBookings.map((booking) => getMyReviewForRide(booking.ride.id, user.id, booking.ride.driver_id))
+  )
+  const reviewedRideIds = new Set(completedBookings.filter((_, index) => myReviews[index]).map((booking) => booking.ride.id))
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">

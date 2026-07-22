@@ -34,9 +34,18 @@ export async function getReviewsForUser(userId: string, limit?: number): Promise
   return (data as ReviewWithReviewer[] | null) ?? []
 }
 
-export async function getMyReviewForRide(rideId: string, reviewerId: string): Promise<Review | null> {
+// Scoped per (ride, reviewer, reviewee) — a driver with several approved
+// passengers on the same ride reviews each one separately (see
+// 0008_reviews_per_reviewee.sql).
+export async function getMyReviewForRide(rideId: string, reviewerId: string, revieweeId: string): Promise<Review | null> {
   const supabase = await createClient()
-  const { data } = await supabase.from("reviews").select("*").eq("ride_id", rideId).eq("reviewer_id", reviewerId).maybeSingle()
+  const { data } = await supabase
+    .from("reviews")
+    .select("*")
+    .eq("ride_id", rideId)
+    .eq("reviewer_id", reviewerId)
+    .eq("reviewed_user_id", revieweeId)
+    .maybeSingle()
   return data as Review | null
 }
 

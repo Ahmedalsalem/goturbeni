@@ -115,6 +115,7 @@
       "fullNameRequired": "Ad soyad gerekli.",
       "fullNameMax": "Ad soyad en fazla 100 karakter olmalı.",
       "phoneMax": "Telefon en fazla 20 karakter olmalı.",
+      "phoneInvalid": "Geçerli bir telefon numarası girin (örn. 05XX XXX XX XX veya +90 5XX XXX XX XX).",
       "bioMax": "Hakkımda en fazla 500 karakter olmalı."
     },
     "errors": {

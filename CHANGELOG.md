@@ -4,6 +4,14 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) kullanır.
 
 ## [Unreleased]
 
+### Eklendi
+
+- **Telefon numarası format doğrulaması**: `profiles_private.phone` artık `libphonenumber-js` ile gerçek bir numara olup olmadığı kontrol ediliyor (uzunluk kontrolüne ek olarak). Ülke kodu belirtilmemişse Türkiye numarası (`TR`) varsayılır; `+` ile başlayan numaralar kendi ülke koduna göre doğrulanır (Arapça yerelindeki kullanıcılar için de doğru çalışır). Yeni test dosyası: `src/features/profile/schemas.test.ts`.
+
+### Düzeltildi
+
+- **Bir sürücü, birden fazla onaylanmış yolcusu olan bir ilanda yalnızca birini değerlendirebiliyordu**: `reviews` tablosundaki `(ride_id, reviewer_id)` unique index'i, kuralı yanlışlıkla "yolculuk başına tek yorum" olarak uyguluyordu — oysa asıl kural (RLS `insert own review` politikasının zaten varsaydığı gibi) "yolculukta aynı kişi için tek yorum" olmalıydı. Index `(ride_id, reviewer_id, reviewed_user_id)`'e genişletildi (`0008_reviews_per_reviewee.sql`); `getMyReviewForRide` artık `revieweeId` parametresi alıyor, `/rides/[id]/bookings` sayfası "yorum yaptın mı" kontrolünü ilan bazında değil yolcu bazında yapıyor.
+
 ### Düzeltildi
 
 - **Kritik**: `/rides/mine` üzerinde "Rezervasyonlar" bağlantısı yalnızca `status === "active"` olan ilanlarda gösteriliyordu. Bir ilan tamamen dolduğunda (`status` `"full"`'a döndüğünde) bu bağlantı tamamen kayboluyordu — bu, sürücünün o ilanın rezervasyon yönetimine, dolayısıyla sohbete ve (yolculuk sonrası) değerlendirmeye ulaşabileceği **tek** yoldu. Sonuç: dolu bir ilanda sürücü, onaylı yolcunun gönderdiği mesajları okuyacağı sohbet sayfasına hiçbir şekilde ulaşamıyordu. Düzeltme: "Rezervasyonlar" bağlantısı artık ilan durumundan bağımsız her zaman gösteriliyor; yalnızca "Düzenle" ve "İptal Et" (RLS'in zaten yalnızca `active` ilanlarda izin verdiği işlemler) `active` durumuyla sınırlı kaldı. İki gerçek hesapla (1 koltuklu ilan, doldurulup "full" durumuna getirilerek) doğrulandı.

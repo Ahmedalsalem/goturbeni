@@ -40,9 +40,9 @@ export async function createReview(rideId: string, revieweeId: string, values: R
   })
 
   if (error) {
-    // 23505 = unique_violation — reviews_one_per_reviewer_per_ride. Any other
-    // failure here is the "insert own review" RLS check rejecting the row
-    // (not completed yet, no approved booking, or self-review attempt).
+    // 23505 = unique_violation — reviews_one_per_reviewer_per_reviewee_per_ride.
+    // Any other failure here is the "insert own review" RLS check rejecting
+    // the row (not completed yet, no approved booking, or self-review attempt).
     if (error.code !== "23505") {
       logError(error, "reviews.createReview")
     }

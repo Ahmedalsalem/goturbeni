@@ -38,10 +38,14 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
   const bookings = await getRideBookings(id)
   const unreadMessages = await getUnreadMessages(user.id)
   const isRideOver = new Date(ride.departure_time) < new Date()
-  // One review per (ride, reviewer) — a driver with several approved
-  // passengers can only leave a single review for this ride, not one per
-  // passenger. Once it exists, every row shows "already reviewed".
-  const existingReview = isRideOver ? await getMyReviewForRide(id, user.id) : null
+  // One review per (ride, reviewer, reviewee) — a driver with several
+  // approved passengers reviews each one separately, so this is checked
+  // per passenger rather than once for the whole ride.
+  const approvedBookings = bookings.filter((booking) => booking.status === "approved")
+  const myReviews = isRideOver
+    ? await Promise.all(approvedBookings.map((booking) => getMyReviewForRide(id, user.id, booking.passenger_id)))
+    : []
+  const reviewedPassengerIds = new Set(approvedBookings.filter((_, index) => myReviews[index]).map((booking) => booking.passenger_id))
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
@@ -58,7 +62,7 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
             const passengerName = booking.passenger?.full_name ?? tCard("unknownPassenger")
             const passengerInitials = passengerName.slice(0, 2).toUpperCase()
             const isApproved = booking.status === "approved"
-            const alreadyReviewed = Boolean(existingReview)
+            const alreadyReviewed = reviewedPassengerIds.has(booking.passenger_id)
 
             return (
               <Card key={booking.id}>
