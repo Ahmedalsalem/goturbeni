@@ -1,6 +1,7 @@
 import { z } from "zod"
 
 import { TURKISH_PROVINCES } from "@/utils/turkish-provinces"
+import { parseIstanbulDateTime } from "@/utils/istanbul-time"
 
 export const MIN_SEAT_COUNT = 1
 export const MAX_SEAT_COUNT = 8
@@ -44,7 +45,7 @@ export function buildRideSchema(t: ValidationTranslator) {
     })
     .refine(
       (data) => {
-        const departureAt = new Date(`${data.departureDate}T${data.departureTime}`)
+        const departureAt = parseIstanbulDateTime(data.departureDate, data.departureTime)
         return departureAt.getTime() > Date.now()
       },
       { message: t("departureInPast"), path: ["departureTime"] }

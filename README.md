@@ -47,6 +47,7 @@ Türkiye'de şehirler arası masraf paylaşımı esaslı yolculuk platformu (Bla
 - **Çift katmanlı yetkilendirme**: `middleware.ts` ucuz, cookie tabanlı bir ön kontrol yapar (asıl güvenlik sınırı değildir); her korumalı sayfa ayrıca sunucu tarafında `verifySession()` çağırır. Veritabanı seviyesinde de RLS politikaları aynı sahiplik kuralını tekrar uygular (bkz. "RLS Yapısı") — üç katman da bağımsız olarak sahiplik kontrolü yapar.
 - **Server Actions + Zod**: Tüm yazma işlemleri (`actions.ts`) sunucu tarafında Zod ile doğrulanır; formlar `useActionState` (auth/profil) veya `react-hook-form` + zod resolver (ilan formu) kullanır. Veritabanı `check` kısıtlamaları, Zod doğrulamasının bir savunma-derinliği yedeği olarak şemada da tekrarlanır (bkz. migration dosyalarındaki yorumlar).
 - **i18n**: `next-intl`, cookie tabanlı locale (`src/i18n/`), `messages/tr.json` ve `messages/ar.json` (anahtar sayısı birebir eşleşir).
+- **Sabit saat dilimi (`Europe/Istanbul`)**: uygulama tek bir hedef saat dilimi varsayar, çalışma zamanının kendi varsayılanına (yerelde geliştiricinin makinesi, production'da Vercel'in UTC'si) **hiç** güvenmez. İlan kalkış tarihi/saati oluşturma ve gösterimi `src/utils/istanbul-time.ts` üzerinden geçer (Türkiye 2016'dan beri DST kullanmıyor, bu yüzden sabit bir `+03:00` ofseti yeterli ve kesin); `next-intl`'in `timeZone` ayarı da (`src/i18n/request.ts`) tüm `format.dateTime` gösterimlerini aynı şekilde sabitler. Bkz. CHANGELOG → "Kritik — saat dilimi" için bu olmadan yaşanan gerçek production hatası.
 
 ## Klasör Yapısı
 

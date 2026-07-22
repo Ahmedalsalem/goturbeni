@@ -22,25 +22,8 @@ import {
   type RideFormValues,
 } from "@/features/rides/schemas"
 import { TURKISH_PROVINCES } from "@/utils/turkish-provinces"
+import { toIstanbulDateInputValue, toIstanbulTimeInputValue } from "@/utils/istanbul-time"
 import type { Ride } from "@/types/ride"
-
-// Both derive from the Date object's local-time getters (not a UTC string
-// slice) so the date and time inputs always describe the same instant —
-// mixing a UTC-sliced date with a local-time time can show the wrong
-// calendar day near a midnight UTC boundary. This also matches how the two
-// fields are recombined on submit (`new Date(`${date}T${time}`)`, which the
-// JS Date constructor interprets as local time).
-function toDateInputValue(iso: string): string {
-  const date = new Date(iso)
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, "0")
-  const day = String(date.getDate()).padStart(2, "0")
-  return `${year}-${month}-${day}`
-}
-
-function toTimeInputValue(iso: string): string {
-  return new Date(iso).toTimeString().slice(0, 5)
-}
 
 export function RideForm({ ride }: { ride?: Ride }) {
   const t = useTranslations("Rides.form")
@@ -62,8 +45,8 @@ export function RideForm({ ride }: { ride?: Ride }) {
     defaultValues: {
       departureCity: (ride?.departure_city as RideFormInput["departureCity"]) ?? ("" as RideFormInput["departureCity"]),
       arrivalCity: (ride?.arrival_city as RideFormInput["arrivalCity"]) ?? ("" as RideFormInput["arrivalCity"]),
-      departureDate: ride ? toDateInputValue(ride.departure_time) : "",
-      departureTime: ride ? toTimeInputValue(ride.departure_time) : "",
+      departureDate: ride ? toIstanbulDateInputValue(ride.departure_time) : "",
+      departureTime: ride ? toIstanbulTimeInputValue(ride.departure_time) : "",
       seatCount: ride?.seat_count ?? MIN_SEAT_COUNT,
       costShare: ride?.cost_share ?? 0,
       description: ride?.description ?? undefined,

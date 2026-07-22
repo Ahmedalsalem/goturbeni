@@ -11,6 +11,7 @@ import { getUserLocale } from "@/i18n/locale"
 import { verifySession } from "@/lib/supabase/dal"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { logError } from "@/lib/logger"
+import { parseIstanbulDateTime } from "@/utils/istanbul-time"
 import { buildRideSchema, type RideActionState, type RideFormValues } from "@/features/rides/schemas"
 
 const CREATE_RIDE_RATE_LIMIT = { limit: 10, windowMs: 60 * 60 * 1000 }
@@ -29,7 +30,7 @@ function buildRideRow(parsed: RideFormValues) {
   return {
     departure_city: parsed.departureCity,
     arrival_city: parsed.arrivalCity,
-    departure_time: new Date(`${parsed.departureDate}T${parsed.departureTime}`).toISOString(),
+    departure_time: parseIstanbulDateTime(parsed.departureDate, parsed.departureTime).toISOString(),
     seat_count: parsed.seatCount,
     available_seats: parsed.seatCount,
     cost_share: parsed.costShare,
