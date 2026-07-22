@@ -20,7 +20,10 @@
   },
   "Footer": {
     "tagline": "Şehirler arası yolculuklarda masrafını paylaş.",
-    "rights": "Tüm hakları saklıdır."
+    "rights": "Tüm hakları saklıdır.",
+    "privacyLink": "Gizlilik Politikası",
+    "termsLink": "Kullanım Şartları",
+    "kvkkLink": "KVKK Aydınlatma Metni"
   },
   "HomePage": {
     "heroTitle": "Yolculuğunu paylaş, masrafını böl",
@@ -36,7 +39,8 @@
       "password": "Şifre",
       "submit": "Giriş Yap",
       "noAccount": "Hesabınız yok mu?",
-      "registerLink": "Kayıt Ol"
+      "registerLink": "Kayıt Ol",
+      "forgotPasswordLink": "Şifremi unuttum mu?"
     },
     "register": {
       "title": "Hesap Oluştur",
@@ -64,7 +68,29 @@
       "invalidCredentials": "E-posta veya şifre hatalı.",
       "emailAlreadyRegistered": "Bu e-posta adresi zaten kayıtlı.",
       "signupFailed": "Kayıt oluşturulamadı. Lütfen tekrar deneyin.",
-      "notConfigured": "Kimlik doğrulama şu anda yapılandırılmamış. Lütfen daha sonra tekrar deneyin."
+      "notConfigured": "Kimlik doğrulama şu anda yapılandırılmamış. Lütfen daha sonra tekrar deneyin.",
+      "tooManyRequests": "Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin.",
+      "resetFailed": "Şifre güncellenemedi. Lütfen tekrar deneyin.",
+      "sessionExpired": "Oturum süresi doldu. Lütfen yeni bir sıfırlama bağlantısı isteyin."
+    },
+    "forgotPassword": {
+      "title": "Şifrenizi mi Unuttunuz?",
+      "description": "E-posta adresinizi girin, size şifre sıfırlama bağlantısı gönderelim.",
+      "email": "E-posta",
+      "submit": "Sıfırlama Bağlantısı Gönder",
+      "backToLogin": "Giriş sayfasına dön",
+      "successTitle": "Bağlantı gönderildi",
+      "successDescription": "Bu e-posta adresine kayıtlı bir hesap varsa, şifre sıfırlama bağlantısını gönderdik. Gelen kutunuzu (ve spam klasörünü) kontrol edin."
+    },
+    "resetPassword": {
+      "title": "Yeni Şifre Belirle",
+      "description": "Hesabınız için yeni bir şifre oluşturun.",
+      "password": "Yeni Şifre",
+      "passwordHint": "En az 8 karakter.",
+      "confirmPassword": "Yeni Şifre (tekrar)",
+      "submit": "Şifreyi Güncelle",
+      "invalidLink": "Bu bağlantı geçersiz veya süresi dolmuş. Lütfen yeni bir sıfırlama bağlantısı isteyin.",
+      "requestNewLink": "Yeni bağlantı iste"
     }
   },
   "ProfilePage": {
@@ -232,7 +258,8 @@
       "notConfigured": "Veritabanı bağlantısı şu anda yapılandırılmamış. Lütfen daha sonra tekrar deneyin.",
       "createFailed": "İlan oluşturulamadı. Lütfen tekrar deneyin.",
       "updateFailed": "İlan güncellenemedi. Lütfen tekrar deneyin.",
-      "cancelFailed": "İlan iptal edilemedi. Lütfen tekrar deneyin."
+      "cancelFailed": "İlan iptal edilemedi. Lütfen tekrar deneyin.",
+      "tooManyRequests": "Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin."
     },
     "status": {
       "active": "Aktif",
@@ -295,7 +322,8 @@
       "createFailed": "Rezervasyon oluşturulamadı. Lütfen tekrar deneyin.",
       "approveFailed": "Rezervasyon onaylanamadı. Lütfen tekrar deneyin.",
       "rejectFailed": "Rezervasyon reddedilemedi. Lütfen tekrar deneyin.",
-      "cancelFailed": "Rezervasyon iptal edilemedi. Lütfen tekrar deneyin."
+      "cancelFailed": "Rezervasyon iptal edilemedi. Lütfen tekrar deneyin.",
+      "tooManyRequests": "Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin."
     },
     "card": {
       "seatCount": "{count} koltuk",
@@ -322,7 +350,8 @@
     "errors": {
       "invalidForm": "Geçersiz form.",
       "notConfigured": "Veritabanı bağlantısı şu anda yapılandırılmamış. Lütfen daha sonra tekrar deneyin.",
-      "sendFailed": "Mesaj gönderilemedi. Lütfen tekrar deneyin."
+      "sendFailed": "Mesaj gönderilemedi. Lütfen tekrar deneyin.",
+      "tooManyRequests": "Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin."
     }
   },
   "Reviews": {
@@ -375,5 +404,227 @@
     "light": "Aydınlık",
     "dark": "Karanlık",
     "system": "Sistem"
+  },
+  "Legal": {
+    "terms": {
+      "title": "Kullanım Şartları",
+      "intro": "Bu Kullanım Şartları, GötürBeni platformunu (“Platform”) kullanan sürücüler ve yolcular için geçerli olan kuralları düzenler. Platformu kullanarak bu şartları kabul etmiş sayılırsınız.",
+      "sections": {
+        "service": {
+          "heading": "Hizmetin Tanımı",
+          "body": [
+            "GötürBeni, şehirler arası yolculuklarda araç sahibi sürücüler ile aynı güzergâhta seyahat etmek isteyen yolcuları bir araya getiren bir eşleştirme platformudur.",
+            "Platform bir taksi işletmecisi, ticari yolcu taşımacılığı firması ya da seyahat acentesi değildir; sürücüler kendi araçlarıyla, masraf paylaşımı esasına dayalı olarak yolculuk düzenler.",
+            "Platform şu anda yolculuklardan herhangi bir komisyon veya hizmet bedeli almamaktadır."
+          ],
+          "items": []
+        },
+        "obligations": {
+          "heading": "Kullanıcı Yükümlülükleri",
+          "body": [
+            "Platforma kayıt olurken verdiğiniz ad, e-posta, telefon numarası ve diğer profil bilgilerinin doğru, güncel ve size ait olduğunu kabul edersiniz.",
+            "Aşağıdaki davranışlar yasaktır:"
+          ],
+          "items": [
+            "Koltukların ticari amaçla, kâr elde etmek için üçüncü kişilere yeniden satılması",
+            "Sahte, yanıltıcı veya başkasına ait kimlik/iletişim bilgisi kullanılması",
+            "Diğer kullanıcılara karşı taciz, ayrımcılık veya tehdit içeren davranışlarda bulunulması",
+            "Platformun amacı dışında (reklam, spam, dolandırıcılık vb.) kullanılması"
+          ]
+        },
+        "booking": {
+          "heading": "Rezervasyon ve İptal Politikası",
+          "body": [
+            "Yolcular bir yolculuk ilanına koltuk talebinde bulunur; sürücü bu talebi onaylayabilir veya reddedebilir. Onaylanan bir rezervasyon, yolculuk gerçekleşmeden önce sürücü veya yolcu tarafından iptal edilebilir.",
+            "Platform üzerinde şu anda bir ödeme altyapısı bulunmamaktadır. Yolculuk masrafının (yakıt, yol vb.) paylaşımı, sürücü ve yolcu arasında doğrudan, Platform dışında kararlaştırılır ve tahsil edilir.",
+            "Platform, kullanıcılar arasındaki masraf paylaşımı anlaşmazlıklarına taraf değildir ve bu konudaki ödeme veya iade süreçlerinden sorumlu tutulamaz."
+          ],
+          "items": []
+        },
+        "liability": {
+          "heading": "Sorumluluğun Sınırlandırılması",
+          "body": [
+            "GötürBeni yalnızca sürücü ve yolcuları buluşturan bir aracı platformdur; taraflar arasında kurulan yolculuk ilişkisinin tarafı değildir.",
+            "Sürücülerin araç kullanımı, trafik kurallarına uyumu, sigorta yükümlülükleri ve yolculuk sırasındaki davranışlarından; yolcuların davranışlarından Platform sorumlu tutulamaz.",
+            "Platform, kullanıcılar arasında gerçekleşen yolculuklar sırasında meydana gelebilecek kaza, gecikme, mal/can kaybı veya diğer zararlardan yasal olarak sorumlu değildir. Kullanıcılar yolculuğa kendi rızalarıyla ve kendi sorumluluklarında katılır."
+          ],
+          "items": []
+        },
+        "termination": {
+          "heading": "Hesap Askıya Alma ve Fesih",
+          "body": [
+            "Bu şartların ihlali, güvenlik endişesi veya diğer kullanıcılardan gelen şikâyetler halinde GötürBeni, önceden bildirimde bulunarak veya bulunmaksızın bir hesabı geçici olarak askıya alma veya kalıcı olarak kapatma hakkını saklı tutar.",
+            "Kullanıcılar hesaplarını istedikleri zaman kapatabilir."
+          ],
+          "items": []
+        },
+        "disputes": {
+          "heading": "Uyuşmazlıkların Çözümü ve Uygulanacak Hukuk",
+          "body": [
+            "Bu Kullanım Şartları Türkiye Cumhuriyeti kanunlarına tabidir. Bu şartlardan doğabilecek uyuşmazlıklarda Türk mahkemeleri ve icra daireleri yetkilidir.",
+            "Kullanıcılar arasındaki anlaşmazlıklarda öncelikle dostane çözüm yollarının denenmesi tavsiye edilir."
+          ],
+          "items": []
+        },
+        "contact": {
+          "heading": "İletişim",
+          "body": [
+            "Bu Kullanım Şartları hakkındaki sorularınız için bizimle [İletişim E-postası] adresinden iletişime geçebilirsiniz."
+          ],
+          "items": []
+        }
+      }
+    },
+    "privacy": {
+      "title": "Gizlilik Politikası",
+      "intro": "Bu Gizlilik Politikası, GötürBeni platformunu kullanırken hangi kişisel verilerinizin toplandığını, nasıl kullanıldığını ve haklarınızı açıklar.",
+      "sections": {
+        "dataCollected": {
+          "heading": "Toplanan Veriler",
+          "body": [
+            "Platforma kayıt olduğunuzda ve platformu kullandığınızda aşağıdaki kişisel verileri işliyoruz:"
+          ],
+          "items": [
+            "Kimlik ve iletişim bilgileri: ad soyad, e-posta adresi, telefon numarası",
+            "Profil bilgileri: profil fotoğrafı, kısa biyografi",
+            "Yolculuk verileri: kalkış ve varış şehri, tarih, koltuk sayısı, masraf paylaşım tutarı",
+            "İletişim verileri: sürücü ve yolcu arasında uygulama içinde gönderilen mesajlar",
+            "Değerlendirme verileri: diğer kullanıcılara verdiğiniz veya onlardan aldığınız puanlar ve yorumlar"
+          ]
+        },
+        "purposes": {
+          "heading": "İşlenme Amaçları",
+          "body": [
+            "Kişisel verileriniz aşağıdaki amaçlarla işlenir:"
+          ],
+          "items": [
+            "Rezervasyon taleplerinin oluşturulması, onaylanması ve yönetilmesi",
+            "Sürücü ve yolcunun birbiriyle iletişim kurabilmesinin sağlanması",
+            "Kullanıcı güveni ve platform güvenliğinin sağlanması amacıyla değerlendirme/puanlama sisteminin işletilmesi",
+            "Hesabınızın oluşturulması ve yönetilmesi"
+          ]
+        },
+        "storage": {
+          "heading": "Verilerin Saklanması",
+          "body": [
+            "Verileriniz, altyapı sağlayıcımız Supabase üzerinde barındırılmaktadır. Supabase'in sunucuları Türkiye dışında bulunabilir; bu durumda verileriniz yurt dışına aktarılmış olur. Bu husus, uluslararası veri aktarımı olarak açıkça beyan edilir.",
+            "Verileriniz, sektör standardı güvenlik önlemleriyle (şifreli bağlantı, erişim kontrolü) korunur."
+          ],
+          "items": []
+        },
+        "retention": {
+          "heading": "Saklama Süresi",
+          "body": [
+            "Kişisel verileriniz, hesabınız aktif olduğu sürece ve yukarıda belirtilen amaçların gerektirdiği süre boyunca saklanır. Hesabınızı sildiğinizde verileriniz, yasal saklama yükümlülükleri saklı kalmak kaydıyla makul bir süre içinde silinir veya anonim hale getirilir."
+          ],
+          "items": []
+        },
+        "rights": {
+          "heading": "Haklarınız",
+          "body": [
+            "Kişisel verilerinizin işlenip işlenmediğini öğrenme, verilerinize erişim talep etme, yanlış veya eksik verilerin düzeltilmesini isteme ve mevzuatın izin verdiği hallerde verilerinizin silinmesini talep etme hakkına sahipsiniz.",
+            "Türkiye'de yerleşik kullanıcılar için KVKK kapsamındaki haklarınızın tam listesine /kvkk sayfasından ulaşabilirsiniz."
+          ],
+          "items": []
+        },
+        "cookies": {
+          "heading": "Çerezler",
+          "body": [
+            "Platform, dil tercihinizi hatırlamak için NEXT_LOCALE adlı bir çerez ve oturumunuzu açık tutmak için Supabase kimlik doğrulama çerezlerini kullanır.",
+            "Platform herhangi bir analiz (analytics) veya reklam amaçlı çerez kullanmamaktadır."
+          ],
+          "items": []
+        },
+        "contact": {
+          "heading": "İletişim",
+          "body": [
+            "Gizlilik uygulamalarımız hakkındaki sorularınız için [İletişim E-postası] adresinden bize ulaşabilirsiniz."
+          ],
+          "items": []
+        }
+      }
+    },
+    "kvkk": {
+      "title": "KVKK Aydınlatma Metni",
+      "intro": "İşbu Aydınlatma Metni, 6698 sayılı Kişisel Verilerin Korunması Kanunu'nun (“KVKK”) 10. maddesi uyarınca, GötürBeni platformu tarafından işlenen kişisel verileriniz hakkında sizi bilgilendirmek amacıyla hazırlanmıştır.",
+      "sections": {
+        "controller": {
+          "heading": "Veri Sorumlusunun Kimliği",
+          "body": [
+            "Kişisel verileriniz, veri sorumlusu sıfatıyla [Şirket Unvanı] (“Şirket”) tarafından, aşağıda açıklanan amaç ve kapsamda işlenmektedir.",
+            "Adres: [Şirket Adresi]",
+            "MERSİS No: [MERSİS No]",
+            "İletişim: [İletişim E-postası]"
+          ],
+          "items": []
+        },
+        "categories": {
+          "heading": "İşlenen Kişisel Veri Kategorileri",
+          "body": [
+            "Platform üzerinden aşağıdaki kategorilerde kişisel verileriniz işlenmektedir:"
+          ],
+          "items": [
+            "Kimlik verisi: ad, soyad",
+            "İletişim verisi: e-posta adresi, telefon numarası",
+            "Konum/seyahat verisi: kalkış ve varış şehri, yolculuk tarihi, koltuk sayısı, masraf paylaşım tutarı",
+            "İşlem güvenliği verisi: hesap oluşturma ve oturum açma kayıtları, IP adresi ve benzeri teknik erişim bilgileri"
+          ]
+        },
+        "purposes": {
+          "heading": "Kişisel Verilerin İşlenme Amaçları",
+          "body": [
+            "Kişisel verileriniz; üyelik ve hesap yönetiminin sağlanması, yolculuk rezervasyon süreçlerinin (talep, onay, ret, iptal) yürütülmesi, sürücü ve yolcu arasında iletişimin sağlanması, kullanıcı ve platform güvenliğinin sağlanması ile değerlendirme/puanlama sisteminin işletilmesi amaçlarıyla işlenmektedir."
+          ],
+          "items": []
+        },
+        "legalBasis": {
+          "heading": "Kişisel Veri İşlemenin Hukuki Sebebi",
+          "body": [
+            "Kişisel verileriniz, KVKK'nın 5/2 maddesinde yer alan “bir sözleşmenin kurulması veya ifasıyla doğrudan doğruya ilgili olması kaydıyla sözleşmenin taraflarına ait kişisel verilerin işlenmesinin gerekli olması” ve “ilgili kişinin temel hak ve özgürlüklerine zarar vermemek kaydıyla veri sorumlusunun meşru menfaatleri için veri işlenmesinin zorunlu olması” hukuki sebeplerine dayanılarak işlenmektedir."
+          ],
+          "items": []
+        },
+        "collectionMethod": {
+          "heading": "Kişisel Verilerin Toplanma Yöntemi",
+          "body": [
+            "Kişisel verileriniz, elektronik ortamda, GötürBeni web uygulaması üzerinden kayıt formu, profil düzenleme, yolculuk ilanı oluşturma, rezervasyon ve mesajlaşma işlemleri sırasında doğrudan sizin tarafınızdan sağlanan bilgiler yoluyla otomatik olarak toplanmaktadır."
+          ],
+          "items": []
+        },
+        "transfer": {
+          "heading": "Kişisel Verilerin Aktarımı",
+          "body": [
+            "Kişisel verileriniz, platformun teknik altyapısını sağlayan Supabase hizmeti üzerinde barındırılmaktadır. Supabase'in sunucu altyapısı Türkiye dışında yer alabileceğinden, kişisel verileriniz KVKK'nın 9. maddesi kapsamında yurt dışına aktarılabilmektedir.",
+            "Bu aktarım, KVKK'nın 9. maddesinde öngörülen şartlara (açık rıza veya Kişisel Verileri Koruma Kurulu tarafından yeterli korumaya sahip olduğu ilan edilen ülkeler ya da yeterli korumanın yazılı taahhüt yoluyla sağlanması) uygun şekilde gerçekleştirilir."
+          ],
+          "items": []
+        },
+        "rights": {
+          "heading": "KVKK Madde 11 Uyarınca Haklarınız",
+          "body": [
+            "KVKK'nın 11. maddesi uyarınca herkes, veri sorumlusuna başvurarak kendisiyle ilgili aşağıdaki haklara sahiptir:"
+          ],
+          "items": [
+            "Kişisel verisinin işlenip işlenmediğini öğrenme",
+            "Kişisel verileri işlenmişse buna ilişkin bilgi talep etme",
+            "Kişisel verilerin işlenme amacını ve bunların amacına uygun kullanılıp kullanılmadığını öğrenme",
+            "Yurt içinde veya yurt dışında kişisel verilerin aktarıldığı üçüncü kişileri bilme",
+            "Kişisel verilerin eksik veya yanlış işlenmiş olması hâlinde bunların düzeltilmesini isteme",
+            "KVKK'nın 7. maddesinde öngörülen şartlar çerçevesinde kişisel verilerin silinmesini veya yok edilmesini isteme",
+            "Düzeltme ve silme/yok etme taleplerinin, kişisel verilerin aktarıldığı üçüncü kişilere bildirilmesini isteme",
+            "İşlenen verilerin münhasıran otomatik sistemler vasıtasıyla analiz edilmesi suretiyle kişinin aleyhine bir sonucun ortaya çıkmasına itiraz etme",
+            "Kişisel verilerin kanuna aykırı olarak işlenmesi sebebiyle zarara uğraması hâlinde zararın giderilmesini talep etme"
+          ]
+        },
+        "application": {
+          "heading": "Başvuru Yöntemi",
+          "body": [
+            "Yukarıda sayılan haklarınızı kullanmak amacıyla taleplerinizi, kimliğinizi tespit edici belgelerle birlikte [Şirket Adresi] adresine yazılı olarak iletebilir veya [İletişim E-postası] adresine güvenli elektronik imza, mobil imza ya da tarafınızca Şirkete daha önce bildirilen ve sistemimizde kayıtlı bulunan elektronik posta adresini kullanarak başvurabilirsiniz.",
+            "Başvurunuz, KVKK'nın 13. maddesi uyarınca en geç 30 gün içinde ücretsiz olarak sonuçlandırılır; ancak işlemin ayrıca bir maliyet gerektirmesi hâlinde Kişisel Verileri Koruma Kurulunca belirlenen tarifedeki ücret alınabilir."
+          ],
+          "items": []
+        }
+      }
+    }
   }
 }

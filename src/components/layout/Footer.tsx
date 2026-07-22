@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { getTranslations } from "next-intl/server"
 import { CarFront } from "lucide-react"
 
@@ -13,6 +14,17 @@ export async function Footer() {
           GötürBeni
         </div>
         <p className="text-muted-foreground text-sm">{t("tagline")}</p>
+        <nav className="flex items-center gap-4 text-sm">
+          <Link href="/privacy" className="text-muted-foreground hover:text-foreground">
+            {t("privacyLink")}
+          </Link>
+          <Link href="/terms" className="text-muted-foreground hover:text-foreground">
+            {t("termsLink")}
+          </Link>
+          <Link href="/kvkk" className="text-muted-foreground hover:text-foreground">
+            {t("kvkkLink")}
+          </Link>
+        </nav>
         <p className="text-muted-foreground text-sm">
           © {year} GötürBeni — {t("rights")}
         </p>

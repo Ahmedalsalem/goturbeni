@@ -1,6 +1,7 @@
 "use client"
 
 import { useActionState } from "react"
+import Link from "next/link"
 import { Loader2, LogIn } from "lucide-react"
 import { useTranslations } from "next-intl"
 
@@ -30,7 +31,12 @@ export function LoginForm() {
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="password">{t("password")}</FieldLabel>
+          <div className="flex items-center justify-between">
+            <FieldLabel htmlFor="password">{t("password")}</FieldLabel>
+            <Link href="/forgot-password" className="text-muted-foreground hover:text-foreground text-sm font-medium underline underline-offset-4">
+              {t("forgotPasswordLink")}
+            </Link>
+          </div>
           <Input id="password" name="password" type="password" autoComplete="current-password" required />
         </Field>
       </FieldGroup>

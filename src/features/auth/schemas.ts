@@ -29,5 +29,19 @@ export function buildAuthSchemas(t: ValidationTranslator) {
       path: ["confirmPassword"],
     })
 
-  return { signInSchema, signUpSchema }
+  const forgotPasswordSchema = z.object({
+    email: emailSchema,
+  })
+
+  const resetPasswordSchema = z
+    .object({
+      password: passwordSchema,
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t("passwordsMismatch"),
+      path: ["confirmPassword"],
+    })
+
+  return { signInSchema, signUpSchema, forgotPasswordSchema, resetPasswordSchema }
 }

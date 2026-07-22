@@ -8,7 +8,10 @@ import { isSupabaseConfigured } from "@/lib/supabase/is-configured"
 import { firstIssueMessage } from "@/lib/zod-error"
 import { getUserLocale } from "@/i18n/locale"
 import { verifySession } from "@/lib/supabase/dal"
+import { checkRateLimit } from "@/lib/rate-limit"
 import { buildMessageSchema, type ChatActionState, type MessageFormValues } from "@/features/chat/schemas"
+
+const SEND_MESSAGE_RATE_LIMIT = { limit: 30, windowMs: 10 * 60 * 1000 }
 
 async function getChatTranslators() {
   const locale = await getUserLocale()
@@ -29,6 +32,10 @@ export async function sendMessage(rideId: string, receiverId: string, values: Me
   }
 
   const user = await verifySession()
+  if (!checkRateLimit(`send-message:${user.id}`, SEND_MESSAGE_RATE_LIMIT.limit, SEND_MESSAGE_RATE_LIMIT.windowMs)) {
+    return { error: tErrors("tooManyRequests") }
+  }
+
   const supabase = await createClient()
   const { error } = await supabase.from("messages").insert({
     ride_id: rideId,

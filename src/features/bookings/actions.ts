@@ -8,8 +8,11 @@ import { isSupabaseConfigured } from "@/lib/supabase/is-configured"
 import { firstIssueMessage } from "@/lib/zod-error"
 import { getUserLocale } from "@/i18n/locale"
 import { verifySession } from "@/lib/supabase/dal"
+import { checkRateLimit } from "@/lib/rate-limit"
 import { getRide } from "@/features/rides/queries"
 import { buildBookingSchema, type BookingActionState, type BookingFormValues } from "@/features/bookings/schemas"
+
+const CREATE_BOOKING_RATE_LIMIT = { limit: 20, windowMs: 60 * 60 * 1000 }
 
 async function getBookingTranslators() {
   const locale = await getUserLocale()
@@ -30,6 +33,10 @@ export async function createBooking(rideId: string, values: BookingFormValues): 
   }
 
   const user = await verifySession()
+  if (!checkRateLimit(`create-booking:${user.id}`, CREATE_BOOKING_RATE_LIMIT.limit, CREATE_BOOKING_RATE_LIMIT.windowMs)) {
+    return { error: tErrors("tooManyRequests") }
+  }
+
   const ride = await getRide(rideId)
   if (!ride || ride.status !== "active") {
     return { error: tErrors("rideNotActive") }

@@ -9,7 +9,10 @@ import { isSupabaseConfigured } from "@/lib/supabase/is-configured"
 import { firstIssueMessage } from "@/lib/zod-error"
 import { getUserLocale } from "@/i18n/locale"
 import { verifySession } from "@/lib/supabase/dal"
+import { checkRateLimit } from "@/lib/rate-limit"
 import { buildRideSchema, type RideActionState, type RideFormValues } from "@/features/rides/schemas"
+
+const CREATE_RIDE_RATE_LIMIT = { limit: 10, windowMs: 60 * 60 * 1000 }
 
 async function getRideTranslators() {
   const locale = await getUserLocale()
@@ -45,6 +48,10 @@ export async function createRide(values: RideFormValues): Promise<RideActionStat
   }
 
   const user = await verifySession()
+  if (!checkRateLimit(`create-ride:${user.id}`, CREATE_RIDE_RATE_LIMIT.limit, CREATE_RIDE_RATE_LIMIT.windowMs)) {
+    return { error: tErrors("tooManyRequests") }
+  }
+
   const supabase = await createClient()
 
   const { error } = await supabase.from("rides").insert({
