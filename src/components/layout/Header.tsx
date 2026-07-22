@@ -61,6 +61,16 @@ export async function Header() {
                   {link.label}
                 </DropdownMenuItem>
               ))}
+              {/* Auth actions collapse into this mobile menu too — the
+                  standalone login/register links below are hidden below sm
+                  purely to stop the header overflowing on narrow screens. */}
+              {!user && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem render={<Link href="/login" />}>{t("login")}</DropdownMenuItem>
+                  <DropdownMenuItem render={<Link href="/register" />}>{t("register")}</DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
           <LocaleSwitcher />
@@ -69,9 +79,10 @@ export async function Header() {
             <DropdownMenu>
               <DropdownMenuTrigger
                 className={buttonVariants({ variant: "outline", className: "relative gap-1.5 ps-3 pe-2.5" })}
+                aria-label={t("profile")}
               >
                 <User className="size-4" aria-hidden="true" />
-                {t("profile")}
+                <span className="hidden sm:inline">{t("profile")}</span>
                 <ChevronDown className="size-3.5 opacity-60" aria-hidden="true" />
                 {hasUnreadMessages && (
                   <>
@@ -102,14 +113,14 @@ export async function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <>
+            <div className="hidden items-center gap-1.5 sm:flex">
               <Link href="/login" className={buttonVariants({ variant: "ghost" })}>
                 {t("login")}
               </Link>
               <Link href="/register" className={buttonVariants()}>
                 {t("register")}
               </Link>
-            </>
+            </div>
           )}
         </div>
       </div>

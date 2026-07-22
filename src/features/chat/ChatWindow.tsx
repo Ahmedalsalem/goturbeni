@@ -30,15 +30,23 @@ export function ChatWindow({
   const [messages, setMessages] = useState(initialMessages)
   const [counterpartTyping, setCounterpartTyping] = useState(false)
   const [isSending, startTransition] = useTransition()
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
   const supabaseRef = useRef(createClient())
   const typingChannelRef = useRef<ReturnType<(typeof supabaseRef)["current"]["channel"]> | null>(null)
 
   const counterpartName = counterpart.full_name ?? t("unknownUser")
   const counterpartInitials = counterpartName.slice(0, 2).toUpperCase()
 
+  // Scrolling the container's own scrollTop (rather than calling
+  // scrollIntoView() on a bottom sentinel) keeps this confined to the
+  // messages pane — scrollIntoView() bubbles up through ancestor scroll
+  // containers, which on short mobile viewports scrolled the whole page and
+  // pushed the counterpart header behind the site's sticky header.
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
+    const container = scrollContainerRef.current
+    if (container) {
+      container.scrollTop = container.scrollHeight
+    }
   }, [messages])
 
   // Mark the counterpart's messages as seen whenever the thread updates and
@@ -132,13 +140,12 @@ export function ChatWindow({
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-4">
+      <div ref={scrollContainerRef} className="flex flex-1 flex-col gap-3 overflow-y-auto scroll-smooth p-4">
         {messages.length === 0 ? (
           <EmptyState icon={MessageCircle} title={t("emptyTitle")} description={t("emptyDescription")} />
         ) : (
           messages.map((message) => <MessageBubble key={message.id} message={message} isOwn={message.sender_id === currentUserId} />)
         )}
-        <div ref={bottomRef} />
       </div>
 
       <MessageInput onSend={handleSend} onTyping={handleTyping} disabled={isSending} />
