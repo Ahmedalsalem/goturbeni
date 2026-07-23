@@ -135,8 +135,14 @@
     "filters": {
       "fromLabel": "الانطلاق",
       "toLabel": "الوصول",
+      "fromDistrictLabel": "منطقة الانطلاق",
+      "toDistrictLabel": "منطقة الوصول",
       "dateLabel": "التاريخ",
       "allCities": "الكل",
+      "allDistricts": "الكل",
+      "selectCityFirst": "اختر المدينة أولاً",
+      "noResults": "لا توجد نتائج",
+      "clearSelection": "مسح الاختيار",
       "searchCta": "بحث",
       "sortLabel": "الترتيب",
       "sort": {
@@ -235,7 +241,14 @@
     "form": {
       "departureCity": "مدينة الانطلاق",
       "arrivalCity": "مدينة الوصول",
-      "selectCity": "اختر مدينة",
+      "departureDistrict": "منطقة الانطلاق",
+      "arrivalDistrict": "منطقة الوصول",
+      "selectCity": "ابحث عن مدينة أو اخترها",
+      "selectDistrict": "ابحث عن منطقة أو اخترها",
+      "selectCityFirst": "اختر مدينة أولاً",
+      "noResults": "لا توجد نتائج.",
+      "clearSelection": "مسح التحديد",
+      "optional": "(اختياري)",
       "departureDate": "التاريخ",
       "departureTime": "الوقت",
       "seatCount": "عدد المقاعد",
@@ -248,6 +261,7 @@
     "validation": {
       "cityRequired": "اختر مدينة.",
       "sameCities": "يجب أن تختلف مدينة الانطلاق عن مدينة الوصول.",
+      "districtInvalid": "اختر منطقة صالحة تابعة للمدينة المختارة.",
       "dateRequired": "التاريخ مطلوب.",
       "timeRequired": "الوقت مطلوب.",
       "departureInPast": "يجب أن يكون وقت الانطلاق في المستقبل.",

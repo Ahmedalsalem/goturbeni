@@ -11,7 +11,18 @@ import { Field, FieldGroup, FieldLabel, FieldDescription, FieldError } from "@/c
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Combobox,
+  ComboboxClear,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxInputGroup,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxTrigger,
+  ComboboxTriggerGroup,
+} from "@/components/ui/combobox"
 import { createRide, updateRide } from "@/features/rides/actions"
 import {
   buildRideSchema,
@@ -22,6 +33,7 @@ import {
   type RideFormValues,
 } from "@/features/rides/schemas"
 import { TURKISH_PROVINCES } from "@/utils/turkish-provinces"
+import { TURKISH_PROVINCE_DISTRICTS } from "@/utils/turkish-districts"
 import { toIstanbulDateInputValue, toIstanbulTimeInputValue } from "@/utils/istanbul-time"
 import type { Ride } from "@/types/ride"
 
@@ -34,17 +46,21 @@ export function RideForm({ ride }: { ride?: Ride }) {
     control,
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<RideFormInput, unknown, RideFormValues>({
     resolver: zodResolver(buildRideSchema(tValidation)),
-    // The city Selects are controlled (Controller passes `value` explicitly),
-    // so they need a defined value from the first render — leaving
-    // departureCity/arrivalCity as `undefined` on create flips Base UI's
-    // Select from uncontrolled to controlled after the first selection and
-    // triggers a React warning.
+    // The city/district Comboboxes are controlled (Controller passes `value`
+    // explicitly), so they need a defined value from the first render —
+    // leaving them as `undefined` on create flips Base UI's Combobox from
+    // uncontrolled to controlled after the first selection and triggers a
+    // React warning.
     defaultValues: {
       departureCity: (ride?.departure_city as RideFormInput["departureCity"]) ?? ("" as RideFormInput["departureCity"]),
       arrivalCity: (ride?.arrival_city as RideFormInput["arrivalCity"]) ?? ("" as RideFormInput["arrivalCity"]),
+      departureDistrict: ride?.departure_district ?? "",
+      arrivalDistrict: ride?.arrival_district ?? "",
       departureDate: ride ? toIstanbulDateInputValue(ride.departure_time) : "",
       departureTime: ride ? toIstanbulTimeInputValue(ride.departure_time) : "",
       seatCount: ride?.seat_count ?? MIN_SEAT_COUNT,
@@ -52,6 +68,14 @@ export function RideForm({ ride }: { ride?: Ride }) {
       description: ride?.description ?? undefined,
     },
   })
+
+  // District options narrow to whichever city is currently selected; reset
+  // the district whenever its city changes since a district from the
+  // previous city is no longer valid (see schemas.ts's districtInvalid check).
+  const departureCity = watch("departureCity")
+  const arrivalCity = watch("arrivalCity")
+  const departureDistricts = departureCity ? (TURKISH_PROVINCE_DISTRICTS[departureCity] ?? []) : []
+  const arrivalDistricts = arrivalCity ? (TURKISH_PROVINCE_DISTRICTS[arrivalCity] ?? []) : []
 
   async function onSubmit(values: RideFormValues) {
     setServerError(null)
@@ -77,28 +101,31 @@ export function RideForm({ ride }: { ride?: Ride }) {
               control={control}
               name="departureCity"
               render={({ field }) => (
-                <Select
-                  name={field.name}
+                <Combobox
+                  items={TURKISH_PROVINCES}
                   value={field.value || null}
-                  onValueChange={(value) => field.onChange(value ?? "")}
+                  onValueChange={(value) => {
+                    field.onChange(value ?? "")
+                    setValue("departureDistrict", "")
+                  }}
                 >
-                  <SelectTrigger
-                    id="departureCity"
-                    aria-label={t("departureCity")}
-                    aria-invalid={!!errors.departureCity}
-                    aria-describedby={errors.departureCity ? "departureCity-error" : undefined}
-                    className="w-full"
-                  >
-                    <SelectValue placeholder={t("selectCity")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TURKISH_PROVINCES.map((city) => (
-                      <SelectItem key={city} value={city}>
-                        {city}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <ComboboxInputGroup>
+                    <ComboboxInput
+                      id="departureCity"
+                      placeholder={t("selectCity")}
+                      aria-invalid={!!errors.departureCity}
+                      aria-describedby={errors.departureCity ? "departureCity-error" : undefined}
+                    />
+                    <ComboboxTriggerGroup>
+                      <ComboboxClear aria-label={t("clearSelection")} />
+                      <ComboboxTrigger aria-label={t("departureCity")} />
+                    </ComboboxTriggerGroup>
+                  </ComboboxInputGroup>
+                  <ComboboxContent>
+                    <ComboboxEmpty>{t("noResults")}</ComboboxEmpty>
+                    <ComboboxList>{(city: string) => <ComboboxItem key={city} value={city}>{city}</ComboboxItem>}</ComboboxList>
+                  </ComboboxContent>
+                </Combobox>
               )}
             />
             {errors.departureCity && <FieldError id="departureCity-error" errors={[{ message: errors.departureCity.message }]} />}
@@ -110,31 +137,122 @@ export function RideForm({ ride }: { ride?: Ride }) {
               control={control}
               name="arrivalCity"
               render={({ field }) => (
-                <Select
-                  name={field.name}
+                <Combobox
+                  items={TURKISH_PROVINCES}
                   value={field.value || null}
-                  onValueChange={(value) => field.onChange(value ?? "")}
+                  onValueChange={(value) => {
+                    field.onChange(value ?? "")
+                    setValue("arrivalDistrict", "")
+                  }}
                 >
-                  <SelectTrigger
-                    id="arrivalCity"
-                    aria-label={t("arrivalCity")}
-                    aria-invalid={!!errors.arrivalCity}
-                    aria-describedby={errors.arrivalCity ? "arrivalCity-error" : undefined}
-                    className="w-full"
-                  >
-                    <SelectValue placeholder={t("selectCity")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TURKISH_PROVINCES.map((city) => (
-                      <SelectItem key={city} value={city}>
-                        {city}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <ComboboxInputGroup>
+                    <ComboboxInput
+                      id="arrivalCity"
+                      placeholder={t("selectCity")}
+                      aria-invalid={!!errors.arrivalCity}
+                      aria-describedby={errors.arrivalCity ? "arrivalCity-error" : undefined}
+                    />
+                    <ComboboxTriggerGroup>
+                      <ComboboxClear aria-label={t("clearSelection")} />
+                      <ComboboxTrigger aria-label={t("arrivalCity")} />
+                    </ComboboxTriggerGroup>
+                  </ComboboxInputGroup>
+                  <ComboboxContent>
+                    <ComboboxEmpty>{t("noResults")}</ComboboxEmpty>
+                    <ComboboxList>{(city: string) => <ComboboxItem key={city} value={city}>{city}</ComboboxItem>}</ComboboxList>
+                  </ComboboxContent>
+                </Combobox>
               )}
             />
             {errors.arrivalCity && <FieldError id="arrivalCity-error" errors={[{ message: errors.arrivalCity.message }]} />}
+          </Field>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field>
+            <FieldLabel htmlFor="departureDistrict">
+              {t("departureDistrict")} <span className="text-muted-foreground font-normal">{t("optional")}</span>
+            </FieldLabel>
+            <Controller
+              control={control}
+              name="departureDistrict"
+              render={({ field }) => (
+                <Combobox
+                  items={departureDistricts}
+                  value={field.value || null}
+                  onValueChange={(value) => field.onChange(value ?? "")}
+                  disabled={departureDistricts.length === 0}
+                >
+                  <ComboboxInputGroup>
+                    <ComboboxInput
+                      id="departureDistrict"
+                      placeholder={departureCity ? t("selectDistrict") : t("selectCityFirst")}
+                      aria-invalid={!!errors.departureDistrict}
+                      aria-describedby={errors.departureDistrict ? "departureDistrict-error" : undefined}
+                    />
+                    <ComboboxTriggerGroup>
+                      <ComboboxClear aria-label={t("clearSelection")} />
+                      <ComboboxTrigger aria-label={t("departureDistrict")} />
+                    </ComboboxTriggerGroup>
+                  </ComboboxInputGroup>
+                  <ComboboxContent>
+                    <ComboboxEmpty>{t("noResults")}</ComboboxEmpty>
+                    <ComboboxList>
+                      {(district: string) => (
+                        <ComboboxItem key={district} value={district}>
+                          {district}
+                        </ComboboxItem>
+                      )}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </Combobox>
+              )}
+            />
+            {errors.departureDistrict && (
+              <FieldError id="departureDistrict-error" errors={[{ message: errors.departureDistrict.message }]} />
+            )}
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="arrivalDistrict">
+              {t("arrivalDistrict")} <span className="text-muted-foreground font-normal">{t("optional")}</span>
+            </FieldLabel>
+            <Controller
+              control={control}
+              name="arrivalDistrict"
+              render={({ field }) => (
+                <Combobox
+                  items={arrivalDistricts}
+                  value={field.value || null}
+                  onValueChange={(value) => field.onChange(value ?? "")}
+                  disabled={arrivalDistricts.length === 0}
+                >
+                  <ComboboxInputGroup>
+                    <ComboboxInput
+                      id="arrivalDistrict"
+                      placeholder={arrivalCity ? t("selectDistrict") : t("selectCityFirst")}
+                      aria-invalid={!!errors.arrivalDistrict}
+                      aria-describedby={errors.arrivalDistrict ? "arrivalDistrict-error" : undefined}
+                    />
+                    <ComboboxTriggerGroup>
+                      <ComboboxClear aria-label={t("clearSelection")} />
+                      <ComboboxTrigger aria-label={t("arrivalDistrict")} />
+                    </ComboboxTriggerGroup>
+                  </ComboboxInputGroup>
+                  <ComboboxContent>
+                    <ComboboxEmpty>{t("noResults")}</ComboboxEmpty>
+                    <ComboboxList>
+                      {(district: string) => (
+                        <ComboboxItem key={district} value={district}>
+                          {district}
+                        </ComboboxItem>
+                      )}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </Combobox>
+              )}
+            />
+            {errors.arrivalDistrict && <FieldError id="arrivalDistrict-error" errors={[{ message: errors.arrivalDistrict.message }]} />}
           </Field>
         </div>
 

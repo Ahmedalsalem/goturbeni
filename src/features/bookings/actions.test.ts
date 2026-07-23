@@ -64,6 +64,8 @@ function fakeRide(overrides: Partial<Ride> = {}): Ride {
     driver_id: "driver-1",
     departure_city: "Ankara",
     arrival_city: "İstanbul",
+    departure_district: null,
+    arrival_district: null,
     departure_time: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
     seat_count: 4,
     available_seats: 3,

@@ -31,6 +31,12 @@ export async function getRides(filters?: RideSearchFilters): Promise<RideWithDri
   if (filters?.to) {
     query = query.eq("arrival_city", filters.to)
   }
+  if (filters?.fromDistrict) {
+    query = query.eq("departure_district", filters.fromDistrict)
+  }
+  if (filters?.toDistrict) {
+    query = query.eq("arrival_district", filters.toDistrict)
+  }
   if (filters?.date) {
     query = query.gte("departure_time", `${filters.date}T00:00:00`).lte("departure_time", `${filters.date}T23:59:59.999`)
   }

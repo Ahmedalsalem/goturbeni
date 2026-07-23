@@ -26,9 +26,9 @@ export async function RideCard({ ride, actions }: { ride: RideWithDriver; action
           className="flex items-center gap-2 text-lg font-semibold tracking-tight hover:text-primary"
         >
           <MapPin className="text-muted-foreground size-4" aria-hidden="true" />
-          {ride.departure_city}
+          {ride.departure_district ? `${ride.departure_city} (${ride.departure_district})` : ride.departure_city}
           <ArrowRight className="text-muted-foreground size-4 rtl:-scale-x-100" aria-hidden="true" />
-          {ride.arrival_city}
+          {ride.arrival_district ? `${ride.arrival_city} (${ride.arrival_district})` : ride.arrival_city}
         </Link>
         <RideStatusBadge status={ride.status} />
       </CardHeader>

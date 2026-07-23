@@ -135,8 +135,14 @@
     "filters": {
       "fromLabel": "Kalkış",
       "toLabel": "Varış",
+      "fromDistrictLabel": "Kalkış İlçesi",
+      "toDistrictLabel": "Varış İlçesi",
       "dateLabel": "Tarih",
       "allCities": "Tümü",
+      "allDistricts": "Tümü",
+      "selectCityFirst": "Önce şehir seçin",
+      "noResults": "Sonuç bulunamadı",
+      "clearSelection": "Seçimi temizle",
       "searchCta": "Ara",
       "sortLabel": "Sırala",
       "sort": {
@@ -235,7 +241,14 @@
     "form": {
       "departureCity": "Kalkış Şehri",
       "arrivalCity": "Varış Şehri",
-      "selectCity": "Şehir seçin",
+      "departureDistrict": "Kalkış İlçesi",
+      "arrivalDistrict": "Varış İlçesi",
+      "selectCity": "Şehir ara veya seç",
+      "selectDistrict": "İlçe ara veya seç",
+      "selectCityFirst": "Önce şehir seçin",
+      "noResults": "Sonuç bulunamadı.",
+      "clearSelection": "Seçimi temizle",
+      "optional": "(opsiyonel)",
       "departureDate": "Tarih",
       "departureTime": "Saat",
       "seatCount": "Koltuk Sayısı",
@@ -248,6 +261,7 @@
     "validation": {
       "cityRequired": "Bir şehir seçin.",
       "sameCities": "Kalkış ve varış şehri farklı olmalı.",
+      "districtInvalid": "Seçili şehre ait geçerli bir ilçe seçin.",
       "dateRequired": "Tarih gerekli.",
       "timeRequired": "Saat gerekli.",
       "departureInPast": "Kalkış zamanı gelecekte olmalı.",

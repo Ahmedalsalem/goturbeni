@@ -95,4 +95,25 @@ describe("buildRideSchema", () => {
       expect(result.data.description).toBeUndefined()
     }
   })
+
+  it("accepts a district that belongs to its city", () => {
+    const result = schema.safeParse(validRide({ departureDistrict: "Çankaya" }))
+    expect(result.success).toBe(true)
+  })
+
+  it("rejects a district that doesn't belong to its city", () => {
+    const result = schema.safeParse(validRide({ departureDistrict: "Kadıköy" }))
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues[0].path).toEqual(["departureDistrict"])
+    }
+  })
+
+  it("treats an empty district as no selection", () => {
+    const result = schema.safeParse(validRide({ departureDistrict: "" }))
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.departureDistrict).toBeUndefined()
+    }
+  })
 })

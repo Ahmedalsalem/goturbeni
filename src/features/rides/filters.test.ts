@@ -38,4 +38,19 @@ describe("parseRideSearchParams", () => {
     const result = parseRideSearchParams({ from: ["Ankara", "İstanbul"] })
     expect(result.from).toBe("Ankara")
   })
+
+  it("keeps a district that belongs to its resolved city", () => {
+    const result = parseRideSearchParams({ from: "Ankara", fromDistrict: "Çankaya" })
+    expect(result.fromDistrict).toBe("Çankaya")
+  })
+
+  it("drops a district that doesn't belong to the resolved city", () => {
+    const result = parseRideSearchParams({ from: "Ankara", fromDistrict: "Kadıköy" })
+    expect(result.fromDistrict).toBeUndefined()
+  })
+
+  it("drops a district when its city was dropped as invalid", () => {
+    const result = parseRideSearchParams({ from: "Atlantis", fromDistrict: "Çankaya" })
+    expect(result.fromDistrict).toBeUndefined()
+  })
 })

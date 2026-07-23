@@ -28,7 +28,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const format = await getFormatter()
   const departureAt = new Date(ride.departure_time)
 
-  const title = `${ride.departure_city} → ${ride.arrival_city} | GötürBeni`
+  const departureLabel = ride.departure_district ? `${ride.departure_city} (${ride.departure_district})` : ride.departure_city
+  const arrivalLabel = ride.arrival_district ? `${ride.arrival_city} (${ride.arrival_district})` : ride.arrival_city
+  const title = `${departureLabel} → ${arrivalLabel} | GötürBeni`
   const description = t("metaDescription", {
     date: format.dateTime(departureAt, { day: "2-digit", month: "2-digit", year: "numeric" }),
     cost: formatCostShare(ride.cost_share, await getUserLocale()),
@@ -72,9 +74,9 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
         <CardHeader className="flex items-center justify-between gap-4">
           <h1 className="flex items-center gap-2 text-xl font-semibold">
             <MapPin className="text-muted-foreground size-5" aria-hidden="true" />
-            {ride.departure_city}
+            {ride.departure_district ? `${ride.departure_city} (${ride.departure_district})` : ride.departure_city}
             <ArrowRight className="text-muted-foreground size-5 rtl:-scale-x-100" aria-hidden="true" />
-            {ride.arrival_city}
+            {ride.arrival_district ? `${ride.arrival_city} (${ride.arrival_district})` : ride.arrival_city}
           </h1>
           <RideStatusBadge status={ride.status} />
         </CardHeader>

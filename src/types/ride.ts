@@ -5,6 +5,8 @@ export interface Ride {
   driver_id: string
   departure_city: string
   arrival_city: string
+  departure_district: string | null
+  arrival_district: string | null
   departure_time: string
   seat_count: number
   available_seats: number
