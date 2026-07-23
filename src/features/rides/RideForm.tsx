@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { Loader2, Send } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -33,6 +33,7 @@ import {
   type RideFormValues,
 } from "@/features/rides/schemas"
 import { TURKISH_PROVINCES } from "@/utils/turkish-provinces"
+import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 import { TURKISH_PROVINCE_DISTRICTS } from "@/utils/turkish-districts"
 import { toIstanbulDateInputValue, toIstanbulTimeInputValue } from "@/utils/istanbul-time"
 import type { Ride } from "@/types/ride"
@@ -40,6 +41,7 @@ import type { Ride } from "@/types/ride"
 export function RideForm({ ride }: { ride?: Ride }) {
   const t = useTranslations("Rides.form")
   const tValidation = useTranslations("Rides.validation")
+  const locale = useLocale()
   const [serverError, setServerError] = useState<string | null>(null)
 
   const {
@@ -104,6 +106,7 @@ export function RideForm({ ride }: { ride?: Ride }) {
                 <Combobox
                   items={TURKISH_PROVINCES}
                   value={field.value || null}
+                  itemToStringLabel={(city) => getProvinceDisplayName(city, locale)}
                   onValueChange={(value) => {
                     field.onChange(value ?? "")
                     setValue("departureDistrict", "")
@@ -123,7 +126,13 @@ export function RideForm({ ride }: { ride?: Ride }) {
                   </ComboboxInputGroup>
                   <ComboboxContent>
                     <ComboboxEmpty>{t("noResults")}</ComboboxEmpty>
-                    <ComboboxList>{(city: string) => <ComboboxItem key={city} value={city}>{city}</ComboboxItem>}</ComboboxList>
+                    <ComboboxList>
+                      {(city: string) => (
+                        <ComboboxItem key={city} value={city}>
+                          {getProvinceDisplayName(city, locale)}
+                        </ComboboxItem>
+                      )}
+                    </ComboboxList>
                   </ComboboxContent>
                 </Combobox>
               )}
@@ -140,6 +149,7 @@ export function RideForm({ ride }: { ride?: Ride }) {
                 <Combobox
                   items={TURKISH_PROVINCES}
                   value={field.value || null}
+                  itemToStringLabel={(city) => getProvinceDisplayName(city, locale)}
                   onValueChange={(value) => {
                     field.onChange(value ?? "")
                     setValue("arrivalDistrict", "")
@@ -159,7 +169,13 @@ export function RideForm({ ride }: { ride?: Ride }) {
                   </ComboboxInputGroup>
                   <ComboboxContent>
                     <ComboboxEmpty>{t("noResults")}</ComboboxEmpty>
-                    <ComboboxList>{(city: string) => <ComboboxItem key={city} value={city}>{city}</ComboboxItem>}</ComboboxList>
+                    <ComboboxList>
+                      {(city: string) => (
+                        <ComboboxItem key={city} value={city}>
+                          {getProvinceDisplayName(city, locale)}
+                        </ComboboxItem>
+                      )}
+                    </ComboboxList>
                   </ComboboxContent>
                 </Combobox>
               )}

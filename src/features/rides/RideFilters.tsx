@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { ArrowUpDown, CalendarDays, MapPin, Search } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -23,6 +23,7 @@ import {
   ComboboxTriggerGroup,
 } from "@/components/ui/combobox"
 import { TURKISH_PROVINCES, type TurkishProvince } from "@/utils/turkish-provinces"
+import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 import { TURKISH_PROVINCE_DISTRICTS } from "@/utils/turkish-districts"
 import { RIDE_SORT_OPTIONS, type RideSearchFilters, type RideSort } from "@/features/rides/filters"
 
@@ -62,6 +63,7 @@ export function RideFilters({
   variant?: "hero" | "bar"
 }) {
   const t = useTranslations("RidesPage.filters")
+  const locale = useLocale()
   const router = useRouter()
 
   const [from, setFrom] = useState<TurkishProvince | null>(initial.from ?? null)
@@ -116,6 +118,7 @@ export function RideFilters({
         <Combobox
           items={TURKISH_PROVINCES}
           value={from}
+          itemToStringLabel={(city) => getProvinceDisplayName(city, locale)}
           onValueChange={(value) => {
             setFrom(value as TurkishProvince | null)
             setFromDistrict(null)
@@ -131,7 +134,13 @@ export function RideFilters({
           </ComboboxInputGroup>
           <ComboboxContent>
             <ComboboxEmpty>{t("noResults")}</ComboboxEmpty>
-            <ComboboxList>{(city: string) => <ComboboxItem key={city} value={city}>{city}</ComboboxItem>}</ComboboxList>
+            <ComboboxList>
+              {(city: string) => (
+                <ComboboxItem key={city} value={city}>
+                  {getProvinceDisplayName(city, locale)}
+                </ComboboxItem>
+              )}
+            </ComboboxList>
           </ComboboxContent>
         </Combobox>
       </Field>
@@ -170,6 +179,7 @@ export function RideFilters({
         <Combobox
           items={TURKISH_PROVINCES}
           value={to}
+          itemToStringLabel={(city) => getProvinceDisplayName(city, locale)}
           onValueChange={(value) => {
             setTo(value as TurkishProvince | null)
             setToDistrict(null)
@@ -185,7 +195,13 @@ export function RideFilters({
           </ComboboxInputGroup>
           <ComboboxContent>
             <ComboboxEmpty>{t("noResults")}</ComboboxEmpty>
-            <ComboboxList>{(city: string) => <ComboboxItem key={city} value={city}>{city}</ComboboxItem>}</ComboboxList>
+            <ComboboxList>
+              {(city: string) => (
+                <ComboboxItem key={city} value={city}>
+                  {getProvinceDisplayName(city, locale)}
+                </ComboboxItem>
+              )}
+            </ComboboxList>
           </ComboboxContent>
         </Combobox>
       </Field>

@@ -15,6 +15,7 @@ import { ReviewButton } from "@/features/reviews/ReviewButton"
 import { getMyReviewForRide } from "@/features/reviews/queries"
 import { verifySession } from "@/lib/supabase/dal"
 import { formatCostShare } from "@/utils/currency"
+import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 import { getUserLocale } from "@/i18n/locale"
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -55,7 +56,7 @@ export default async function BookingsPage() {
               <Card key={booking.id}>
                 <CardHeader className="flex items-center justify-between gap-4">
                   <Link href={`/rides/${booking.ride.id}`} className="font-semibold hover:underline">
-                    {booking.ride.departure_city} → {booking.ride.arrival_city}
+                    {getProvinceDisplayName(booking.ride.departure_city, locale)} → {getProvinceDisplayName(booking.ride.arrival_city, locale)}
                   </Link>
                   <BookingStatusBadge status={booking.status} />
                 </CardHeader>

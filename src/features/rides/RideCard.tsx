@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { RideStatusBadge } from "@/features/rides/RideStatusBadge"
 import { formatCostShare } from "@/utils/currency"
+import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 import { getUserLocale } from "@/i18n/locale"
 import type { RideWithDriver } from "@/types/ride"
 
@@ -17,6 +18,8 @@ export async function RideCard({ ride, actions }: { ride: RideWithDriver; action
   const departureAt = new Date(ride.departure_time)
   const driverName = ride.driver?.full_name ?? t("unknownDriver")
   const driverInitials = driverName.slice(0, 2).toUpperCase()
+  const departureCity = getProvinceDisplayName(ride.departure_city, locale)
+  const arrivalCity = getProvinceDisplayName(ride.arrival_city, locale)
 
   return (
     <Card className="ring-foreground/5 border-0 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg hover:shadow-foreground/5">
@@ -26,9 +29,9 @@ export async function RideCard({ ride, actions }: { ride: RideWithDriver; action
           className="flex items-center gap-2 text-lg font-semibold tracking-tight hover:text-primary"
         >
           <MapPin className="text-muted-foreground size-4" aria-hidden="true" />
-          {ride.departure_district ? `${ride.departure_city} (${ride.departure_district})` : ride.departure_city}
+          {ride.departure_district ? `${departureCity} (${ride.departure_district})` : departureCity}
           <ArrowRight className="text-muted-foreground size-4 rtl:-scale-x-100" aria-hidden="true" />
-          {ride.arrival_district ? `${ride.arrival_city} (${ride.arrival_district})` : ride.arrival_city}
+          {ride.arrival_district ? `${arrivalCity} (${ride.arrival_district})` : arrivalCity}
         </Link>
         <RideStatusBadge status={ride.status} />
       </CardHeader>

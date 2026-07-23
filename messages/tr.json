@@ -19,6 +19,22 @@
     "register": "Kayıt Ol",
     "logout": "Çıkış Yap"
   },
+  "Push": {
+    "enable": "Bildirimleri Aç",
+    "disable": "Bildirimleri Kapat",
+    "permissionDenied": "Bildirim izni reddedildi.",
+    "subscribeError": "Bildirimler etkinleştirilemedi.",
+    "notifications": {
+      "bookingRequestedTitle": "Yeni rezervasyon talebi",
+      "bookingRequestedBody": "İlanınıza yeni bir rezervasyon talebi geldi.",
+      "bookingApprovedTitle": "Rezervasyonunuz onaylandı",
+      "bookingApprovedBody": "Rezervasyon talebiniz onaylandı.",
+      "bookingRejectedTitle": "Rezervasyonunuz reddedildi",
+      "bookingRejectedBody": "Rezervasyon talebiniz reddedildi.",
+      "newMessageTitle": "Yeni mesaj",
+      "newMessageBody": "Yeni bir mesajınız var."
+    }
+  },
   "Footer": {
     "tagline": "Şehirler arası yolculuklarda masrafını paylaş.",
     "rights": "Tüm hakları saklıdır.",
@@ -110,6 +126,18 @@
       "changeAvatar": "Fotoğraf Yükle",
       "save": "Kaydet",
       "saved": "Profil güncellendi."
+    },
+    "phone": {
+      "verified": "Doğrulandı",
+      "verifyCta": "Telefonu Doğrula",
+      "codeSentTitle": "Doğrulama kodu gönderildi.",
+      "codeLabel": "Doğrulama Kodu",
+      "confirmCta": "Kodu Onayla",
+      "cancelCta": "Vazgeç",
+      "verifySuccess": "Telefon numaranız doğrulandı.",
+      "noPhoneSaved": "Doğrulamadan önce telefon numaranızı kaydedin.",
+      "sendError": "Kod gönderilemedi. Lütfen tekrar deneyin.",
+      "verifyError": "Kod hatalı veya süresi dolmuş."
     },
     "validation": {
       "fullNameRequired": "Ad soyad gerekli.",

@@ -19,6 +19,22 @@
     "register": "إنشاء حساب",
     "logout": "تسجيل الخروج"
   },
+  "Push": {
+    "enable": "تفعيل الإشعارات",
+    "disable": "إيقاف الإشعارات",
+    "permissionDenied": "تم رفض إذن الإشعارات.",
+    "subscribeError": "تعذر تفعيل الإشعارات.",
+    "notifications": {
+      "bookingRequestedTitle": "طلب حجز جديد",
+      "bookingRequestedBody": "وصل طلب حجز جديد لرحلتك.",
+      "bookingApprovedTitle": "تمت الموافقة على حجزك",
+      "bookingApprovedBody": "تمت الموافقة على طلب حجزك.",
+      "bookingRejectedTitle": "تم رفض حجزك",
+      "bookingRejectedBody": "تم رفض طلب حجزك.",
+      "newMessageTitle": "رسالة جديدة",
+      "newMessageBody": "لديك رسالة جديدة."
+    }
+  },
   "Footer": {
     "tagline": "شارك رحلتك بين المدن وشارك التكاليف.",
     "rights": "جميع الحقوق محفوظة.",
@@ -110,6 +126,18 @@
       "changeAvatar": "تحميل صورة",
       "save": "حفظ",
       "saved": "تم تحديث الملف الشخصي."
+    },
+    "phone": {
+      "verified": "تم التحقق",
+      "verifyCta": "تحقق من رقم الهاتف",
+      "codeSentTitle": "تم إرسال رمز التحقق.",
+      "codeLabel": "رمز التحقق",
+      "confirmCta": "تأكيد الرمز",
+      "cancelCta": "إلغاء",
+      "verifySuccess": "تم التحقق من رقم هاتفك.",
+      "noPhoneSaved": "يرجى حفظ رقم هاتفك قبل التحقق منه.",
+      "sendError": "تعذر إرسال الرمز. حاول مرة أخرى.",
+      "verifyError": "الرمز غير صحيح أو منتهي الصلاحية."
     },
     "validation": {
       "fullNameRequired": "الاسم الكامل مطلوب.",

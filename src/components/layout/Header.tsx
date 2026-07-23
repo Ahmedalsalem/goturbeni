@@ -15,6 +15,7 @@ import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { getCurrentUser } from "@/lib/supabase/dal"
 import { signOut } from "@/features/auth/actions"
 import { getUnreadMessages } from "@/features/chat/queries"
+import { PushNotificationToggle } from "@/features/push/PushNotificationToggle"
 
 export async function Header() {
   const t = await getTranslations("Nav")
@@ -75,6 +76,7 @@ export async function Header() {
           </DropdownMenu>
           <LocaleSwitcher />
           <ThemeToggle />
+          {user && <PushNotificationToggle />}
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger

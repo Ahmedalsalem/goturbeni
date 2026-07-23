@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { updateProfile } from "@/features/profile/actions"
+import { PhoneVerification } from "@/features/profile/PhoneVerification"
 import {
   initialProfileActionState,
   MAX_BIO_LENGTH,
@@ -109,6 +110,7 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
             defaultValue={initialProfile.phone ?? ""}
             maxLength={MAX_PHONE_LENGTH}
           />
+          <PhoneVerification phone={profile.phone} verified={profile.phone_verified} />
         </Field>
 
         <Field>

@@ -14,6 +14,7 @@ import { ReviewSection } from "@/features/reviews/ReviewSection"
 import { getReviewStats } from "@/features/reviews/queries"
 import { StarRating } from "@/features/reviews/StarRating"
 import { formatCostShare } from "@/utils/currency"
+import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 import { getUserLocale } from "@/i18n/locale"
 import { getCurrentUser } from "@/lib/supabase/dal"
 
@@ -26,14 +27,17 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   const t = await getTranslations("RideDetailPage")
   const format = await getFormatter()
+  const locale = await getUserLocale()
   const departureAt = new Date(ride.departure_time)
+  const departureCity = getProvinceDisplayName(ride.departure_city, locale)
+  const arrivalCity = getProvinceDisplayName(ride.arrival_city, locale)
 
-  const departureLabel = ride.departure_district ? `${ride.departure_city} (${ride.departure_district})` : ride.departure_city
-  const arrivalLabel = ride.arrival_district ? `${ride.arrival_city} (${ride.arrival_district})` : ride.arrival_city
+  const departureLabel = ride.departure_district ? `${departureCity} (${ride.departure_district})` : departureCity
+  const arrivalLabel = ride.arrival_district ? `${arrivalCity} (${ride.arrival_district})` : arrivalCity
   const title = `${departureLabel} → ${arrivalLabel} | GötürBeni`
   const description = t("metaDescription", {
     date: format.dateTime(departureAt, { day: "2-digit", month: "2-digit", year: "numeric" }),
-    cost: formatCostShare(ride.cost_share, await getUserLocale()),
+    cost: formatCostShare(ride.cost_share, locale),
   })
 
   return {
@@ -67,6 +71,8 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
   const driverName = ride.driver?.full_name ?? tCard("unknownDriver")
   const driverInitials = driverName.slice(0, 2).toUpperCase()
   const canBook = user && user.id !== ride.driver_id && ride.status === "active"
+  const departureCity = getProvinceDisplayName(ride.departure_city, locale)
+  const arrivalCity = getProvinceDisplayName(ride.arrival_city, locale)
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
@@ -74,9 +80,9 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
         <CardHeader className="flex items-center justify-between gap-4">
           <h1 className="flex items-center gap-2 text-xl font-semibold">
             <MapPin className="text-muted-foreground size-5" aria-hidden="true" />
-            {ride.departure_district ? `${ride.departure_city} (${ride.departure_district})` : ride.departure_city}
+            {ride.departure_district ? `${departureCity} (${ride.departure_district})` : departureCity}
             <ArrowRight className="text-muted-foreground size-5 rtl:-scale-x-100" aria-hidden="true" />
-            {ride.arrival_district ? `${ride.arrival_city} (${ride.arrival_district})` : ride.arrival_city}
+            {ride.arrival_district ? `${arrivalCity} (${ride.arrival_district})` : arrivalCity}
           </h1>
           <RideStatusBadge status={ride.status} />
         </CardHeader>

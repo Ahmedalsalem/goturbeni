@@ -24,7 +24,7 @@ Türkiye'de şehirler arası masraf paylaşımı esaslı yolculuk platformu (Bla
 - **Tema**: Açık/koyu mod (next-themes).
 - **Misafir modu**: Supabase kimlik bilgileri boşken bile herkese açık sayfalar (`/`, `/rides`, `/rides/[id]`) çalışır; korumalı sayfalar `/login`'e yönlendirir.
 - **PWA**: `manifest.webmanifest`, uygulama ikonları, `theme-color`, temel düzeyde offline fallback (`public/sw.js` yalnızca `/offline` sayfasını önbelleğe alır).
-- **Okunmamış mesaj bildirimi**: gerçek bir push notification servisi yok (yalnızca soyutlama, `src/lib/notifications.ts`), bunun yerine üst menüde ve rezervasyon listelerinde `messages.read_at`'ten türetilen küçük bir kırmızı rozet kullanıcıyı yeni mesajdan haberdar eder.
+- **Push notification**: booking/chat olayları Web Push (VAPID) ile gerçek tarayıcı bildirimleri gönderir (`src/lib/notifications.ts`, `web-push` kütüphanesi, üçüncü parti hesap gerekmez — bkz. `.env.example`). Bunun yanında üst menüde ve rezervasyon listelerinde `messages.read_at`'ten türetilen küçük bir kırmızı rozet de kullanıcıyı yeni mesajdan haberdar eder.
 - **Rate limiting**: kayıt, giriş, şifre sıfırlama, ilan/rezervasyon/mesaj oluşturma işlemleri IP/kullanıcı bazlı, process-memory'de tutulan bir sabit-pencere limitleyiciyle (`src/lib/rate-limit.ts`) korunur.
 - **Production hardening**: güvenlik başlıkları (`X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, vb.), merkezi hata loglama (`src/lib/logger.ts`), gelecekte bir APM/Sentry entegrasyonu için hazır `instrumentation.ts` hook'u, `metadataBase`/OpenGraph/canonical URL'lerle SEO.
 
@@ -85,11 +85,11 @@ src/
     zod-error.ts               # paylaşılan zod hata mesajı yardımcı fonksiyonu
     rate-limit.ts              # process-memory sabit-pencere rate limiter
     logger.ts                  # merkezi hata loglama (Sentry vb. için tek entegrasyon noktası)
-    notifications.ts           # push notification soyutlaması (şu an no-op)
+    notifications.ts           # Web Push (VAPID) ile gerçek push notification gönderimi
   instrumentation.ts           # gelecekte bir APM/monitoring servisi için Next.js hook'u
   i18n/                       # locale-config.ts, locale.ts, request.ts
   types/                      # profile.ts, ride.ts, booking.ts, message.ts, review.ts
-  utils/                      # turkish-provinces.ts (81 il), currency.ts
+  utils/                      # turkish-provinces.ts (81 il) + turkish-provinces-ar.ts (AR görünen adları), currency.ts
   middleware.ts               # Supabase session refresh + korumalı rota kontrolü
 messages/                      # tr.json, ar.json
 public/
@@ -200,7 +200,7 @@ Ayrıca `bookings (ride_id, passenger_id)` üzerinde bir **partial unique index*
 
 `reviews.insert own review` politikası — `approve_booking`/`reject_booking`/`cancel_booking`'in aksine — bir `security definer` RPC'ye değil doğrudan RLS `with check` ifadesine dayanır: booking onay akışının aksine burada bir race condition riski yoktur (aynı anda iki yorumun çakışıp veri bütünlüğünü bozacağı bir senaryo yok), bu yüzden düz bir `exists` alt sorgusu yeterlidir.
 
-**"Tamamlandı" nasıl hesaplanıyor?** `rides.status` hiçbir zaman otomatik olarak `'completed'`'e geçmediği için (bkz. Bilinen Sınırlamalar), hem `reviews`'ın RLS `with check`'i hem de `getCompletedRidesCount`/booking sayfalarındaki "yorum yap" görünürlüğü, `rides.departure_time < now()` karşılaştırmasını doğrudan kullanır — ayrı bir zamanlanmış görev veya durum geçişi gerekmez.
+**"Tamamlandı" nasıl hesaplanıyor?** `rides.status`, kalkış saati geçtiğinde artık `0011_ride_auto_complete.sql`'deki bir **pg_cron** job'uyla (her dakika, `security definer` bir fonksiyon üzerinden) otomatik olarak `'completed'`'e geçiyor. Bunun yanında `reviews`'ın RLS `with check`'i ve `getCompletedRidesCount`/booking sayfalarındaki "yorum yap" görünürlüğü hâlâ `rides.departure_time < now()` karşılaştırmasını doğrudan kullanır — bu, cron'un her dakikalık gecikmesini beklemeden anlık doğru sonuç verir; `status` sütunu asıl olarak ilan listesi/rozet gösterimi için gerçeğe yaklaştırılmıştır.
 
 ## Realtime Mimarisi
 
@@ -256,23 +256,18 @@ Proje Vercel'e deploy edilmeye hazırdır ve GitHub'a bağlı sürekli deploy il
 ## Bilinen Sınırlamalar
 
 - **KVKK/Gizlilik Politikası/Kullanım Şartları sayfalarında doldurulmamış yer tutucular var**: `messages/{tr,ar}.json`'daki `Legal` bölümünde `[Şirket Unvanı]`, `[Şirket Adresi]` (2 yerde), `[MERSİS No]`, `[İletişim E-postası]` (4 yerde) hâlâ gerçek şirket bilgileriyle değiştirilmedi. Bu gerçek yasal belgeler için üretim öncesi doldurulması gerekir.
-- **Tamamlandı (`completed`) durumuna otomatik geçiş yok**: bir ilanın kalkış zamanı geçtiğinde durumunu otomatik olarak `completed`'e çeviren bir zamanlanmış görev (cron/scheduled function) yok; bu durum şemada ve rozet olarak destekleniyor ama hiçbir akış onu tetiklemiyor — "tamamlandı" mantığı bunun yerine `departure_time < now()` karşılaştırmasına dayanır (bkz. RLS Yapısı).
-- **Şehir arama alanlarında autocomplete yok**: hem ilan formunda hem `/rides` filtrelerinde 81 il düz bir dropdown ile seçiliyor (harita/Mapbox tabanlı autocomplete kapsam dışı bırakıldı).
-- **İl isimleri yalnızca Türkçe**: `src/utils/turkish-provinces.ts` Arapça arayüzde de çevrilmiyor (şehir özel adları için beklenen davranış, "GötürBeni" marka adı gibi).
-- **Telefon numarası doğrulanmış (verified) sayılmıyor**: `libphonenumber-js` ile gerçek bir numara olduğu doğrulanır (`profiles_private.phone`), ama bu yalnızca format doğrulamasıdır — `phone_verified` alanı şemada var ama SMS/OTP tabanlı bir sahiplik doğrulama akışı hâlâ bağlı değil.
+- **Telefon SMS/OTP doğrulaması, gerçek bir SMS sağlayıcısı gerektirir**: doğrulama akışının kodu tamamlanmıştır (Supabase Auth'un `phone_change` OTP akışı — bkz. `src/features/profile/actions.ts` → `sendPhoneVerificationCode`/`verifyPhoneVerificationCode`, `src/features/profile/PhoneVerification.tsx`), ama gerçekten SMS gönderebilmesi için Supabase projesinde bir sağlayıcının (Twilio/MessageBird/Vonage) yapılandırılması gerekir (bkz. `supabase/config.toml` → `[auth.sms.twilio]`) — bu adım üretim öncesi ayrıca yapılmalı, bu repoda otomatik değildir.
 - **`npm audit`**: 6 uyarı (4 orta, 2 yüksek), hepsi transitive — Next.js'in kendi bundle'ındaki eski `postcss`/`sharp` (uygulama `next/image` kullanmıyor, gerçek maruziyet düşük) ve `shadcn` CLI'ın (dev-only) bağımlılık zinciri. Önerilen otomatik düzeltme Next.js'i 9.x'e düşürüyor (kabul edilemez bir regresyon), bu yüzden bilinçli olarak dokunulmadı.
-- **Push notification altyapısı var, gerçek bir servise bağlı değil**: `src/lib/notifications.ts` şu an no-op — booking/chat olaylarında çağrılıyor ama hiçbir yere göndermiyor. Bunun yerine üst menüde ve rezervasyon listelerinde `messages.read_at`'ten türetilen bir okunmamış-mesaj rozeti var; sekme kapalıyken/uygulama açık değilken hâlâ bildirim yok.
 - **Mesajlar düzenlenemez/silinemez**, yorumlar da aynı şekilde immutable'dır — her iki tablo için de kasıtlı olarak `update`/`delete` (review) veya sınırlı `update` (yalnızca `read_at`, message) dışında bir değişiklik yolu yoktur.
 - **hreflang/alternates yok**: uygulama tek URL + cookie tabanlı locale kullanıyor (yol tabanlı `/tr`, `/ar` değil), standart hreflang modeli bu mimariye uygulanamıyor.
+
+Faz 7'de burada listelenen ve Faz 8'de çözülen maddeler (ilan durumunun otomatik `completed`'e geçmesi, şehir aramasında autocomplete, Arapça arayüzde il isimleri, push notification altyapısının gerçek bir servise (Web Push/VAPID) bağlanması) artık yukarıdaki listede değil — ayrıntı için CHANGELOG'a bakın.
 
 Ayrıntılı canlı doğrulama kaydı için [PROJECT_STATUS.md](./PROJECT_STATUS.md), production hazırlık denetiminin tam listesi için [CHANGELOG.md](./CHANGELOG.md) dosyalarına bakın.
 
 ## Roadmap
 
-- Gerçek bir push notification servisi (web-push/FCM/OneSignal) entegrasyonu
-- Harita/autocomplete tabanlı şehir seçimi
 - Ödeme/komisyon sistemi
-- Telefon doğrulama
 - Admin paneli / Dashboard / Analytics
 
 Bu liste yalnızca bilgilendirme amaçlıdır; bu maddelerden hiçbiri ayrı bir talimat verilmeden geliştirilmeyecektir.
