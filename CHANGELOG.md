@@ -4,6 +4,10 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) kullanır.
 
 ## [Unreleased]
 
+### Bakım
+
+- **Next.js 15.5.20 → 15.5.21** (`npm@10.8.2 install next@15.5.21 --save-exact`, CI'ın kullandığı npm sürümüyle — bkz. daha önceki lockfile drift notları). `npm audit`'in bir önceki denetimde önerdiği "next@15.5.21 kurulumu yeterli" değerlendirmesi **yanlış çıktı**: bu sürüme geçtikten sonra bile `postcss`/`sharp` uyarıları aynen duruyor, `npm audit fix --force` hâlâ tek çözüm olarak `next@9.3.3`'e düşmeyi öneriyor (kabul edilemez). Yükseltme yine de kendi başına faydalı (güncel patch) olduğu için tutuldu, ama `npm audit` sonucu **değişmedi** — bilinen sınırlama olarak kalıyor.
+
 ### Eklendi
 
 - **Telefon numarası format doğrulaması**: `profiles_private.phone` artık `libphonenumber-js` ile gerçek bir numara olup olmadığı kontrol ediliyor (uzunluk kontrolüne ek olarak). Ülke kodu belirtilmemişse Türkiye numarası (`TR`) varsayılır; `+` ile başlayan numaralar kendi ülke koduna göre doğrulanır (Arapça yerelindeki kullanıcılar için de doğru çalışır). Yeni test dosyası: `src/features/profile/schemas.test.ts`.
