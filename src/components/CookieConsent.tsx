@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Script from "next/script"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 
@@ -11,12 +10,21 @@ const STORAGE_KEY = "cookie-consent"
 
 type Consent = "accepted" | "rejected" | null
 
+// Calls the window.gtag() the root layout's inline script defines
+// unconditionally (so Search Console's Analytics verification can find the
+// snippet in the raw HTML). gtag('consent', 'update', ...) is the documented
+// Consent Mode v2 API — pushing a raw array to dataLayer directly doesn't
+// reliably reach gtag.js's internal consent state.
+function updateAnalyticsConsent(granted: boolean) {
+  const w = window as unknown as { gtag?: (...args: unknown[]) => void }
+  w.gtag?.("consent", "update", { analytics_storage: granted ? "granted" : "denied" })
+}
+
 // Gates analytics cookies (GA) behind explicit user consent, as required by
-// KVKK for non-essential cookies. The gtag.js loader itself is inert (just
-// defines window.dataLayer/gtag, sets no cookies) and is loaded unconditionally
-// from the root layout so Search Console's Analytics verification can find it;
-// this component only fires the gtag('config', ...) call that actually starts
-// tracking and writing cookies, and only once consent is "accepted" — either
+// KVKK for non-essential cookies. gtag('config', ...) itself runs
+// unconditionally from the root layout (Consent Mode v2 default: denied),
+// so GA operates cookieless with no persistent identifiers until this
+// component calls gtag('consent', 'update', ...) with "granted" — either
 // just now or from a prior visit's stored choice.
 export function CookieConsent({ gaMeasurementId }: { gaMeasurementId?: string }) {
   const t = useTranslations("CookieConsent")
@@ -28,26 +36,22 @@ export function CookieConsent({ gaMeasurementId }: { gaMeasurementId?: string })
     const stored = window.localStorage.getItem(STORAGE_KEY)
     if (stored === "accepted" || stored === "rejected") {
       setConsent(stored)
+      if (gaMeasurementId && stored === "accepted") {
+        updateAnalyticsConsent(true)
+      }
     }
-  }, [])
+  }, [gaMeasurementId])
 
   const decide = (value: "accepted" | "rejected") => {
     window.localStorage.setItem(STORAGE_KEY, value)
     setConsent(value)
+    if (gaMeasurementId) {
+      updateAnalyticsConsent(value === "accepted")
+    }
   }
 
   return (
     <>
-      {gaMeasurementId && consent === "accepted" && (
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${gaMeasurementId}');
-          `}
-        </Script>
-      )}
       {mounted && consent === null && (
         <div
           role="region"
