@@ -22,11 +22,19 @@ export const getCurrentUser = cache(async () => {
 })
 
 // Use on pages that require a signed-in user (e.g. /profile) — redirects to
-// /login if there's no session.
+// /login if there's no session. Also enforces suspension here (not in
+// getCurrentUser, which is also used for public pages like / and /rides that
+// suspended users must still be able to browse) — redirects to /suspended
+// instead of letting a protected page render for a suspended account.
 export async function verifySession() {
   const user = await getCurrentUser()
   if (!user) {
     redirect("/login")
+  }
+  const supabase = await createClient()
+  const { data: suspended } = await supabase.rpc("is_suspended", { p_user_id: user.id })
+  if (suspended) {
+    redirect("/suspended")
   }
   return user
 }

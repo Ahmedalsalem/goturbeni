@@ -15,6 +15,7 @@
     "menu": "Menü",
     "profile": "Profil",
     "unreadMessages": "Okunmamış mesajınız var",
+    "admin": "Yönetim Paneli",
     "login": "Giriş Yap",
     "register": "Kayıt Ol",
     "logout": "Çıkış Yap"
@@ -464,6 +465,67 @@
       "actionFailed": "İşlem gerçekleştirilemedi. Lütfen tekrar deneyin."
     }
   },
+  "Admin": {
+    "nav": {
+      "analytics": "Analytics",
+      "users": "Kullanıcılar",
+      "rides": "İlanlar",
+      "backToSite": "Siteye Dön"
+    },
+    "analytics": {
+      "title": "Analytics",
+      "description": "Platformun genel durumuna dair özet istatistikler.",
+      "totalUsers": "Toplam Kullanıcı",
+      "totalRides": "Toplam İlan",
+      "totalBookings": "Toplam Rezervasyon",
+      "usersLast7Days": "Son 7 Günde Katılan",
+      "usersLast30Days": "Son 30 Günde Katılan",
+      "ridesLast7Days": "Son 7 Günde Verilen İlan",
+      "ridesLast30Days": "Son 30 Günde Verilen İlan",
+      "bookingsByStatusTitle": "Duruma Göre Rezervasyonlar",
+      "ridesTrendTitle": "Son 7 Gün — Verilen İlan Sayısı"
+    },
+    "users": {
+      "title": "Kullanıcılar",
+      "description": "Kullanıcıları görüntüle, askıya al veya askıyı kaldır.",
+      "emptyTitle": "Henüz kullanıcı yok",
+      "emptyDescription": "Platforma henüz kimse kayıt olmadı.",
+      "unknownUser": "Kullanıcı",
+      "thatsYou": "Bu sizsiniz",
+      "adminBadge": "Admin",
+      "suspendedBadge": "Askıya Alındı",
+      "phoneVerified": "Telefon Doğrulandı",
+      "phoneUnverified": "Telefon Doğrulanmadı",
+      "phoneUnknown": "Telefon Durumu Gizli",
+      "verificationStatus": {
+        "unverified": "Doğrulanmadı",
+        "pending": "Beklemede",
+        "verified": "Doğrulandı"
+      },
+      "suspend": "Askıya Al",
+      "unsuspend": "Askıyı Kaldır",
+      "confirmToggle": "Emin misiniz?",
+      "suspendSuccess": "Kullanıcı askıya alındı.",
+      "unsuspendSuccess": "Kullanıcının askısı kaldırıldı."
+    },
+    "rides": {
+      "title": "İlanlar",
+      "description": "Tüm ilanları görüntüle, gerekirse kaldır.",
+      "emptyTitle": "Henüz ilan yok",
+      "emptyDescription": "Platformda henüz bir ilan oluşturulmadı.",
+      "unknownDriver": "Sürücü",
+      "cancel": "Kaldır",
+      "confirmCancel": "Bu ilan kaldırılsın mı?",
+      "cancelSuccess": "İlan kaldırıldı."
+    },
+    "errors": {
+      "notConfigured": "Veritabanı bağlantısı şu anda yapılandırılmamış. Lütfen daha sonra tekrar deneyin.",
+      "notAdmin": "Bu işlem için yönetici yetkiniz yok.",
+      "cannotSuspendSelf": "Kendi hesabınızı askıya alamazsınız.",
+      "rideNotCancellable": "Bu ilan artık kaldırılamaz.",
+      "actionFailed": "İşlem gerçekleştirilemedi. Lütfen tekrar deneyin."
+    }
+  },
   "NotFound": {
     "title": "Sayfa Bulunamadı",
     "description": "Aradığınız sayfa taşınmış ya da hiç var olmamış olabilir.",
@@ -478,6 +540,10 @@
     "title": "İnternet bağlantısı yok",
     "description": "Bu sayfayı görüntülemek için internet bağlantısı gerekiyor. Bağlantınızı kontrol edip tekrar deneyin.",
     "retry": "Tekrar Dene"
+  },
+  "SuspendedPage": {
+    "title": "Hesabınız Askıya Alındı",
+    "description": "Hesabınız bir yönetici tarafından askıya alındı. Bu süre boyunca yeni ilan veremez, rezervasyon yapamaz, mesaj gönderemez veya yorum yapamazsınız. Daha fazla bilgi için destek ekibiyle iletişime geçin."
   },
   "LocaleSwitcher": {
     "label": "Dil"

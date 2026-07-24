@@ -53,6 +53,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/create-ride") ||
     pathname.startsWith("/rides/mine") ||
     pathname.startsWith("/bookings") ||
+    pathname.startsWith("/admin") ||
     /^\/rides\/[^/]+\/edit$/.test(pathname) ||
     /^\/rides\/[^/]+\/bookings$/.test(pathname) ||
     /^\/rides\/[^/]+\/chat$/.test(pathname)

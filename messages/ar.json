@@ -15,6 +15,7 @@
     "menu": "القائمة",
     "profile": "الملف الشخصي",
     "unreadMessages": "لديك رسالة غير مقروءة",
+    "admin": "لوحة الإدارة",
     "login": "تسجيل الدخول",
     "register": "إنشاء حساب",
     "logout": "تسجيل الخروج"
@@ -464,6 +465,67 @@
       "actionFailed": "تعذر تنفيذ العملية. حاول مرة أخرى."
     }
   },
+  "Admin": {
+    "nav": {
+      "analytics": "Analytics",
+      "users": "المستخدمون",
+      "rides": "الرحلات",
+      "backToSite": "العودة إلى الموقع"
+    },
+    "analytics": {
+      "title": "Analytics",
+      "description": "إحصاءات موجزة عن الحالة العامة للمنصة.",
+      "totalUsers": "إجمالي المستخدمين",
+      "totalRides": "إجمالي الرحلات",
+      "totalBookings": "إجمالي الحجوزات",
+      "usersLast7Days": "مستخدمون جدد خلال 7 أيام",
+      "usersLast30Days": "مستخدمون جدد خلال 30 يومًا",
+      "ridesLast7Days": "رحلات مُضافة خلال 7 أيام",
+      "ridesLast30Days": "رحلات مُضافة خلال 30 يومًا",
+      "bookingsByStatusTitle": "الحجوزات حسب الحالة",
+      "ridesTrendTitle": "آخر 7 أيام — عدد الرحلات المُضافة"
+    },
+    "users": {
+      "title": "المستخدمون",
+      "description": "عرض المستخدمين، وتعليق حساباتهم أو إعادة تفعيلها.",
+      "emptyTitle": "لا يوجد مستخدمون بعد",
+      "emptyDescription": "لم يسجّل أحد في المنصة بعد.",
+      "unknownUser": "مستخدم",
+      "thatsYou": "هذا أنت",
+      "adminBadge": "مسؤول",
+      "suspendedBadge": "معلّق",
+      "phoneVerified": "الهاتف موثّق",
+      "phoneUnverified": "الهاتف غير موثّق",
+      "phoneUnknown": "حالة الهاتف مخفية",
+      "verificationStatus": {
+        "unverified": "غير موثّق",
+        "pending": "قيد الانتظار",
+        "verified": "موثّق"
+      },
+      "suspend": "تعليق",
+      "unsuspend": "إلغاء التعليق",
+      "confirmToggle": "هل أنت متأكد؟",
+      "suspendSuccess": "تم تعليق المستخدم.",
+      "unsuspendSuccess": "تم إلغاء تعليق المستخدم."
+    },
+    "rides": {
+      "title": "الرحلات",
+      "description": "عرض جميع الرحلات، وإلغاؤها عند الحاجة.",
+      "emptyTitle": "لا توجد رحلات بعد",
+      "emptyDescription": "لم يتم إنشاء أي رحلة في المنصة بعد.",
+      "unknownDriver": "سائق",
+      "cancel": "إلغاء",
+      "confirmCancel": "هل تريد إلغاء هذه الرحلة؟",
+      "cancelSuccess": "تم إلغاء الرحلة."
+    },
+    "errors": {
+      "notConfigured": "الاتصال بقاعدة البيانات غير مُهيأ حاليًا. حاول مرة أخرى لاحقًا.",
+      "notAdmin": "ليست لديك صلاحية المسؤول لهذا الإجراء.",
+      "cannotSuspendSelf": "لا يمكنك تعليق حسابك الخاص.",
+      "rideNotCancellable": "لم يعد بالإمكان إلغاء هذه الرحلة.",
+      "actionFailed": "تعذر تنفيذ العملية. حاول مرة أخرى."
+    }
+  },
   "NotFound": {
     "title": "الصفحة غير موجودة",
     "description": "الصفحة التي تبحث عنها قد تكون نُقلت أو لم تكن موجودة من الأساس.",
@@ -478,6 +540,10 @@
     "title": "لا يوجد اتصال بالإنترنت",
     "description": "تحتاج إلى اتصال بالإنترنت لعرض هذه الصفحة. يرجى التحقق من اتصالك والمحاولة مرة أخرى.",
     "retry": "حاول مرة أخرى"
+  },
+  "SuspendedPage": {
+    "title": "تم تعليق حسابك",
+    "description": "قام أحد المسؤولين بتعليق حسابك. خلال هذه الفترة لا يمكنك إضافة رحلة جديدة أو إجراء حجز أو إرسال رسالة أو كتابة تقييم. للمزيد من المعلومات يرجى التواصل مع فريق الدعم."
   },
   "LocaleSwitcher": {
     "label": "اللغة"

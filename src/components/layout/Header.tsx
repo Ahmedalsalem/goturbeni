@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { getTranslations } from "next-intl/server"
-import { CalendarCheck, CarFront, ChevronDown, LogOut, Menu, User } from "lucide-react"
+import { CalendarCheck, CarFront, ChevronDown, LogOut, Menu, ShieldCheck, User } from "lucide-react"
 
 import { buttonVariants } from "@/components/ui/button"
 import {
@@ -15,6 +15,7 @@ import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { getCurrentUser } from "@/lib/supabase/dal"
 import { signOut } from "@/features/auth/actions"
+import { checkIsAdmin } from "@/features/admin/queries"
 import { getUnreadMessages } from "@/features/chat/queries"
 import { PushNotificationToggle } from "@/features/push/PushNotificationToggle"
 
@@ -22,6 +23,7 @@ export async function Header() {
   const t = await getTranslations("Nav")
   const user = await getCurrentUser()
   const hasUnreadMessages = user ? (await getUnreadMessages(user.id)).count > 0 : false
+  const isAdmin = user ? await checkIsAdmin(user.id) : false
 
   const links = [
     { href: "/rides", label: t("rides") },
@@ -105,6 +107,11 @@ export async function Header() {
                 <DropdownMenuItem render={<Link href="/bookings" />}>
                   <CalendarCheck /> {t("bookings")}
                 </DropdownMenuItem>
+                {isAdmin && (
+                  <DropdownMenuItem render={<Link href="/admin" />}>
+                    <ShieldCheck /> {t("admin")}
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <form action={signOut}>
                   <button
