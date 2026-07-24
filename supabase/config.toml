@@ -286,10 +286,17 @@ max_frequency = "5s"
 # uri = "pg-functions://<database>/<schema>/<hook_name>"
 
 # Configure one of the supported SMS providers: `twilio`, `twilio_verify`, `messagebird`, `textlocal`, `vonage`.
-[auth.sms.twilio]
-enabled = false
-account_sid = ""
-message_service_sid = ""
+# Twilio Verify (not plain Twilio Messaging) — Turkey has no self-service local
+# number/Alphanumeric Sender ID support in the standard Twilio Messaging
+# product, so OTP delivery goes through Twilio's Verify service instead, which
+# picks a deliverable channel per destination country on its own.
+[auth.sms.twilio_verify]
+enabled = true
+# GitHub push protection flags Twilio Account/Verify Service SIDs as secrets
+# even though they aren't sensitive alone — kept out of git via env substitution
+# like auth_token below, rather than fighting the scanner.
+account_sid = "env(SUPABASE_AUTH_SMS_TWILIO_ACCOUNT_SID)"
+message_service_sid = "env(SUPABASE_AUTH_SMS_TWILIO_VERIFY_SERVICE_SID)"
 # DO NOT commit your Twilio auth token to git. Use environment variable substitution instead:
 auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
 
