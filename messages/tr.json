@@ -47,7 +47,7 @@
     "kvkkLink": "KVKK Aydınlatma Metni"
   },
   "HomePage": {
-    "heroTitle": "Yolculuğunu paylaş, masrafını böl",
+    "heroTitle": "GötürBeni ile yolculuğunu paylaş, masrafını böl",
     "heroSubtitle": "GötürBeni ile şehirler arası yolculuklarda güvenilir yol arkadaşları bul.",
     "ctaFindRide": "Yolculuk Bul",
     "ctaOfferRide": "İlan Ver",
@@ -547,12 +547,6 @@
   },
   "LocaleSwitcher": {
     "label": "Dil"
-  },
-  "ThemeToggle": {
-    "label": "Tema",
-    "light": "Aydınlık",
-    "dark": "Karanlık",
-    "system": "Sistem"
   },
   "CookieConsent": {
     "label": "Çerez onayı",

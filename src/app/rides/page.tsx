@@ -13,11 +13,15 @@ import { languageAlternates } from "@/i18n/hreflang"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("RidesPage")
+  const title = t("title")
+  const description = t("metaDescription")
   // Canonical points at the bare path — filter query params (from/to/date/
   // sort) shouldn't fragment this into separate indexed pages.
   return {
-    title: t("title"),
-    description: t("metaDescription"),
+    title,
+    description,
+    openGraph: { title, description },
+    twitter: { title, description },
     alternates: { canonical: "/rides", languages: languageAlternates("/rides") },
   }
 }

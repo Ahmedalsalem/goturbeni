@@ -7,9 +7,13 @@ import { languageAlternates } from "@/i18n/hreflang"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Legal.kvkk")
+  const title = t("title")
+  const description = t("intro")
   return {
-    title: t("title"),
-    description: t("intro"),
+    title,
+    description,
+    openGraph: { title, description },
+    twitter: { title, description },
     alternates: { canonical: "/kvkk", languages: languageAlternates("/kvkk") },
   }
 }

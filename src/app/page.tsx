@@ -31,7 +31,7 @@ export default function HomePage() {
       />
       <div
         aria-hidden="true"
-        className="bg-primary/15 pointer-events-none absolute start-1/2 top-[-12rem] -z-10 size-[42rem] -translate-x-1/2 rounded-full blur-3xl dark:opacity-20"
+        className="bg-primary/15 pointer-events-none absolute start-1/2 top-[-12rem] -z-10 size-[42rem] -translate-x-1/2 rounded-full blur-3xl"
       />
       <HomeHero />
     </div>

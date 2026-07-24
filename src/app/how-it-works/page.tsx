@@ -7,9 +7,13 @@ import { languageAlternates } from "@/i18n/hreflang"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("HowItWorksPage")
+  const title = t("title")
+  const description = t("subtitle")
   return {
-    title: t("title"),
-    description: t("subtitle"),
+    title,
+    description,
+    openGraph: { title, description },
+    twitter: { title, description },
     alternates: { canonical: "/how-it-works", languages: languageAlternates("/how-it-works") },
   }
 }

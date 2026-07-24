@@ -47,7 +47,7 @@
     "kvkkLink": "بيان KVKK"
   },
   "HomePage": {
-    "heroTitle": "شارك رحلتك، شارك التكلفة",
+    "heroTitle": "مع GötürBeni: شارك رحلتك، شارك التكلفة",
     "heroSubtitle": "مع GötürBeni اعثر على رفقاء سفر موثوقين لرحلاتك بين المدن.",
     "ctaFindRide": "ابحث عن رحلة",
     "ctaOfferRide": "أضف رحلة",
@@ -547,12 +547,6 @@
   },
   "LocaleSwitcher": {
     "label": "اللغة"
-  },
-  "ThemeToggle": {
-    "label": "المظهر",
-    "light": "فاتح",
-    "dark": "داكن",
-    "system": "النظام"
   },
   "CookieConsent": {
     "label": "موافقة ملفات تعريف الارتباط",
