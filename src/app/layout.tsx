@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { headers } from "next/headers"
-import Script from "next/script"
 import { NextIntlClientProvider } from "next-intl"
 import { getLocale, getTranslations } from "next-intl/server"
 import { DirectionProvider } from "@base-ui/react/direction-provider"
@@ -117,9 +116,12 @@ export default async function RootLayout({
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
-        {GA_MEASUREMENT_ID && (
-          <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} strategy="beforeInteractive" />
-        )}
+        {/* Plain <script>, not next/script — next/script's beforeInteractive strategy
+            only emits a <link rel="preload"> in the server-rendered HTML and injects
+            the real <script src> client-side, which Search Console's non-JS GA
+            verification crawler never sees. A native tag renders an actual
+            <script src> in the initial HTML so that check can find it. */}
+        {GA_MEASUREMENT_ID && <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} />}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
         <NextIntlClientProvider>
           <DirectionProvider direction={dir}>
