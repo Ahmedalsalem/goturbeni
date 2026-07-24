@@ -258,13 +258,14 @@ Proje Vercel'e deploy edilmeye hazırdır ve GitHub'a bağlı sürekli deploy il
 ## Bilinen Sınırlamalar
 
 - **KVKK/Gizlilik Politikası/Kullanım Şartları sayfalarında doldurulmamış yer tutucular var**: `messages/{tr,ar}.json`'daki `Legal` bölümünde `[Şirket Unvanı]`, `[Şirket Adresi]` (2 yerde), `[MERSİS No]`, `[İletişim E-postası]` (4 yerde) hâlâ gerçek şirket bilgileriyle değiştirilmedi. Bu gerçek yasal belgeler için üretim öncesi doldurulması gerekir.
-- **Telefon SMS/OTP doğrulaması, gerçek bir SMS sağlayıcısı gerektirir**: doğrulama akışının kodu tamamlanmıştır (Supabase Auth'un `phone_change` OTP akışı — bkz. `src/features/profile/actions.ts` → `sendPhoneVerificationCode`/`verifyPhoneVerificationCode`, `src/features/profile/PhoneVerification.tsx`), ama gerçekten SMS gönderebilmesi için Supabase projesinde bir sağlayıcının (Twilio/MessageBird/Vonage) yapılandırılması gerekir (bkz. `supabase/config.toml` → `[auth.sms.twilio]`) — bu adım üretim öncesi ayrıca yapılmalı, bu repoda otomatik değildir.
 - **PWA'nın "yükle" düğmesi**: tarayıcının `beforeinstallprompt` olayını yakalayan özel bir düğme var (`src/components/layout/InstallAppButton.tsx`), ama iOS Safari bu olayı hiç ateşlemez — o platformda düğme kasıtlı olarak hiç görünmez, kullanıcı yine native "Ana Ekrana Ekle" akışına yönlendirilir.
 - **Harita/GPS tabanlı konum seçimi**: `src/features/rides/LocationPicker.tsx`, Leaflet + OpenStreetMap Nominatim ile "konumumu kullan" ve sürüklenebilir işaretçili bir harita sunar; sonuç her zaman kapalı il/ilçe sözlüğüyle (`TURKISH_PROVINCES`/`TURKISH_PROVINCE_DISTRICTS`) eşleştirilir (`src/utils/match-turkish-location.ts`) — eşleşme bulunamazsa kullanıcı mevcut açılır listeye yönlendirilir, asla sözlük dışı bir değer yazılmaz. Şu an yalnızca ilan oluşturma/düzenleme formunda var; arama filtrelerine (`RideFilters.tsx`) eklenmedi (dar yatay filtre çubuğuna görsel regresyon riski olmadan sığdırılamadı).
 
 Faz 7'de burada listelenen ve Faz 8'de çözülen maddeler (ilan durumunun otomatik `completed`'e geçmesi, şehir aramasında autocomplete, Arapça arayüzde il isimleri, push notification altyapısının gerçek bir servise (Web Push/VAPID) bağlanması) artık yukarıdaki listede değil — ayrıntı için CHANGELOG'a bakın.
 
 Faz 9'da çözülen maddeler (artık bu listede değil): `npm audit` (6 uyarı → 0, Next.js sürümü değişmeden — bkz. Environment Variables altındaki not yerine [CHANGELOG.md](./CHANGELOG.md)), mesaj/yorumların 15 dakikalık pencerede düzenlenebilir/silinebilir olması, self-referencing hreflang etiketleri.
+
+Sonrasında çözülen bir madde (artık bu listede değil): **telefon SMS/OTP doğrulaması** — Supabase projesi Twilio Verify ile yapılandırıldı (`supabase/config.toml` → `[auth.sms.twilio_verify]`), gerçek bir telefon numarasıyla uçtan uca doğrulandı (SMS gerçekten ulaştı, kod doğrulandı).
 
 Ayrıntılı canlı doğrulama kaydı için [PROJECT_STATUS.md](./PROJECT_STATUS.md), production hazırlık denetiminin tam listesi için [CHANGELOG.md](./CHANGELOG.md) dosyalarına bakın.
 

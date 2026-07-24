@@ -4,6 +4,10 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) kullanır.
 
 ## [Unreleased]
 
+### Eklendi
+
+- **Telefon SMS/OTP doğrulaması canlıya alındı**: Supabase projesi Twilio Verify SMS sağlayıcısıyla yapılandırıldı (`supabase/config.toml` → `[auth.sms.twilio_verify]`, Supabase Dashboard → Authentication → Providers → Phone üzerinden). Türkiye'de standart Twilio Messaging ürününde self-servis yerel numara/Alphanumeric Sender ID desteği olmadığından Twilio Verify kullanıldı. Gerçek bir telefon numarasıyla uçtan uca doğrulandı: SMS ulaştı, kod doğrulandı.
+
 ### Bakım
 
 - **Next.js 15.5.20 → 15.5.21** (`npm@10.8.2 install next@15.5.21 --save-exact`, CI'ın kullandığı npm sürümüyle — bkz. daha önceki lockfile drift notları). `npm audit`'in bir önceki denetimde önerdiği "next@15.5.21 kurulumu yeterli" değerlendirmesi **yanlış çıktı**: bu sürüme geçtikten sonra bile `postcss`/`sharp` uyarıları aynen duruyor, `npm audit fix --force` hâlâ tek çözüm olarak `next@9.3.3`'e düşmeyi öneriyor (kabul edilemez). Yükseltme yine de kendi başına faydalı (güncel patch) olduğu için tutuldu, ama `npm audit` sonucu **değişmedi** — bilinen sınırlama olarak kalıyor.
