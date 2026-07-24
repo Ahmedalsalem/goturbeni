@@ -42,7 +42,7 @@ test.describe.serial("booking, chat, and review flow", () => {
     rideId = await createRide(driverPage, {
       departureCity: "Ankara",
       arrivalCity: "İstanbul",
-      minutesAhead: 5,
+      minutesAhead: 30,
       seatCount: 2,
       costShare: 100,
     })

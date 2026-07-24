@@ -45,7 +45,7 @@ test.describe.serial("double-booking protection", () => {
     rideId = await createRide(driverPage, {
       departureCity: "İzmir",
       arrivalCity: "Antalya",
-      minutesAhead: 5,
+      minutesAhead: 30,
       seatCount: 1,
       costShare: 50,
     })
