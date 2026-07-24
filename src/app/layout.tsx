@@ -115,40 +115,43 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col">
-        {/* Plain <script> tags, not next/script — next/script's beforeInteractive
-            strategy only emits a <link rel="preload"> in the server-rendered HTML
-            and injects the real tags client-side, invisible to Search Console's
-            non-JS GA verification crawler. Native tags render literally in the
-            initial HTML <head> so that check can find them.
+      {/* Plain <script> tags, not next/script — next/script's beforeInteractive
+          strategy only emits a <link rel="preload"> in the server-rendered HTML
+          and injects the real tags client-side, invisible to Search Console's
+          non-JS GA verification crawler. Native tags render literally in the
+          initial HTML <head> so that check can find them. Placed inside an
+          explicit <head> (merged by Next.js with the Metadata-generated head)
+          because GA's site-ownership check requires the snippet to live in
+          <head>, not <body>.
 
-            gtag('config', ...) fires unconditionally (GSC's Analytics verification
-            requires it in the raw page source), but Consent Mode v2 defaults
-            analytics_storage to 'denied' first — GA runs in cookieless/modeled
-            mode with no persistent identifiers until CookieConsent below calls
-            gtag('consent', 'update', ...) after the user accepts, preserving the
-            KVKK consent requirement for non-essential cookies. */}
-        {GA_MEASUREMENT_ID && (
-          <>
-            <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} />
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
-                  window.dataLayer = window.dataLayer || [];
-                  function gtag(){dataLayer.push(arguments);}
-                  gtag('consent', 'default', {
-                    'ad_storage': 'denied',
-                    'ad_user_data': 'denied',
-                    'ad_personalization': 'denied',
-                    'analytics_storage': 'denied'
-                  });
-                  gtag('js', new Date());
-                  gtag('config', '${GA_MEASUREMENT_ID}');
-                `,
-              }}
-            />
-          </>
-        )}
+          gtag('config', ...) fires unconditionally (GSC's Analytics verification
+          requires it in the raw page source), but Consent Mode v2 defaults
+          analytics_storage to 'denied' first — GA runs in cookieless/modeled
+          mode with no persistent identifiers until CookieConsent below calls
+          gtag('consent', 'update', ...) after the user accepts, preserving the
+          KVKK consent requirement for non-essential cookies. */}
+      {GA_MEASUREMENT_ID && (
+        <head>
+          <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('consent', 'default', {
+                  'ad_storage': 'denied',
+                  'ad_user_data': 'denied',
+                  'ad_personalization': 'denied',
+                  'analytics_storage': 'denied'
+                });
+                gtag('js', new Date());
+                gtag('config', '${GA_MEASUREMENT_ID}');
+              `,
+            }}
+          />
+        </head>
+      )}
+      <body className="flex min-h-full flex-col">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
         <NextIntlClientProvider>
           <DirectionProvider direction={dir}>
