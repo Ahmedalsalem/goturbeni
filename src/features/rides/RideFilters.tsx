@@ -26,6 +26,7 @@ import { TURKISH_PROVINCES, type TurkishProvince } from "@/utils/turkish-provinc
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 import { TURKISH_PROVINCE_DISTRICTS } from "@/utils/turkish-districts"
 import { RIDE_SORT_OPTIONS, type RideSearchFilters, type RideSort } from "@/features/rides/filters"
+import { LocationPicker } from "@/features/rides/LocationPicker"
 
 // Sort is applied instantly (no confirmation needed); from/to/date wait for
 // the search button so an in-progress date pick doesn't navigate mid-edit.
@@ -143,6 +144,12 @@ export function RideFilters({
             </ComboboxList>
           </ComboboxContent>
         </Combobox>
+        <LocationPicker
+          onLocationResolved={(province, district) => {
+            setFrom(province)
+            setFromDistrict(district)
+          }}
+        />
       </Field>
 
       <Field className="sm:w-48">
@@ -204,6 +211,12 @@ export function RideFilters({
             </ComboboxList>
           </ComboboxContent>
         </Combobox>
+        <LocationPicker
+          onLocationResolved={(province, district) => {
+            setTo(province)
+            setToDistrict(district)
+          }}
+        />
       </Field>
 
       <Field className="sm:w-48">

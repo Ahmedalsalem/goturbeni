@@ -34,7 +34,7 @@ export async function sendMessage(rideId: string, receiverId: string, values: Me
   }
 
   const user = await verifySession()
-  if (!checkRateLimit(`send-message:${user.id}`, SEND_MESSAGE_RATE_LIMIT.limit, SEND_MESSAGE_RATE_LIMIT.windowMs)) {
+  if (!(await checkRateLimit(`send-message:${user.id}`, SEND_MESSAGE_RATE_LIMIT.limit, SEND_MESSAGE_RATE_LIMIT.windowMs))) {
     return { error: tErrors("tooManyRequests") }
   }
 

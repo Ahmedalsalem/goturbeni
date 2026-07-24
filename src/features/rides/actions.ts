@@ -52,7 +52,7 @@ export async function createRide(values: RideFormValues): Promise<RideActionStat
   }
 
   const user = await verifySession()
-  if (!checkRateLimit(`create-ride:${user.id}`, CREATE_RIDE_RATE_LIMIT.limit, CREATE_RIDE_RATE_LIMIT.windowMs)) {
+  if (!(await checkRateLimit(`create-ride:${user.id}`, CREATE_RIDE_RATE_LIMIT.limit, CREATE_RIDE_RATE_LIMIT.windowMs))) {
     return { error: tErrors("tooManyRequests") }
   }
 

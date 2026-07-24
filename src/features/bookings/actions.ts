@@ -36,7 +36,7 @@ export async function createBooking(rideId: string, values: BookingFormValues): 
   }
 
   const user = await verifySession()
-  if (!checkRateLimit(`create-booking:${user.id}`, CREATE_BOOKING_RATE_LIMIT.limit, CREATE_BOOKING_RATE_LIMIT.windowMs)) {
+  if (!(await checkRateLimit(`create-booking:${user.id}`, CREATE_BOOKING_RATE_LIMIT.limit, CREATE_BOOKING_RATE_LIMIT.windowMs))) {
     return { error: tErrors("tooManyRequests") }
   }
 

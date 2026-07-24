@@ -126,6 +126,7 @@ npm run dev
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase proje URL'i (tarayıcı + sunucu) |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon/public key (tarayıcı + sunucu) |
 | `NEXT_PUBLIC_SITE_URL` | Deploy edilen gerçek domain (`https://...`) — `sitemap.ts`/`robots.ts`/`metadataBase`/canonical URL'ler bunu kullanır. **Boşsa (veya production'da ayarlanmamışsa) sitemap, robots.txt ve OpenGraph görselleri `http://localhost:3000` gösterir** — production'da mutlaka ayarlanmalı. |
+| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Rate limiter'ın (`src/lib/rate-limit.ts`) çoklu-instance production'da paylaşılan durumu için kullandığı Upstash Redis REST kimlik bilgileri (ücretsiz katman: [console.upstash.com](https://console.upstash.com)). **Production'da zorunlu** — eksikse ilk rate-limit'li istekte (giriş/kayıt/ilan/rezervasyon/mesaj) hata fırlatılır; yerelde boşken process-memory limiter'a düşer. |
 
 Uygulama kodu yalnızca `NEXT_PUBLIC_*` değişkenlerini okur (`src/lib/supabase/*`, `src/app/sitemap.ts`, `src/app/robots.ts`, `src/app/layout.tsx`). **`service_role` anahtarı hiçbir yerde kullanılmaz ve bu projede gerekmez** — tüm sunucu tarafı erişim, oturum sahibinin RLS'e tabi anon/authenticated bağlamıyla yapılır.
 
@@ -259,19 +260,16 @@ Proje Vercel'e deploy edilmeye hazırdır ve GitHub'a bağlı sürekli deploy il
 
 - **KVKK/Gizlilik Politikası/Kullanım Şartları sayfalarında doldurulmamış yer tutucular var**: `messages/{tr,ar}.json`'daki `Legal` bölümünde `[Şirket Unvanı]`, `[Şirket Adresi]` (2 yerde), `[MERSİS No]`, `[İletişim E-postası]` (4 yerde) hâlâ gerçek şirket bilgileriyle değiştirilmedi. Bu gerçek yasal belgeler için üretim öncesi doldurulması gerekir.
 - **PWA'nın "yükle" düğmesi**: tarayıcının `beforeinstallprompt` olayını yakalayan özel bir düğme var (`src/components/layout/InstallAppButton.tsx`), ama iOS Safari bu olayı hiç ateşlemez — o platformda düğme kasıtlı olarak hiç görünmez, kullanıcı yine native "Ana Ekrana Ekle" akışına yönlendirilir.
-- **Harita/GPS tabanlı konum seçimi**: `src/features/rides/LocationPicker.tsx`, Leaflet + OpenStreetMap Nominatim ile "konumumu kullan" ve sürüklenebilir işaretçili bir harita sunar; sonuç her zaman kapalı il/ilçe sözlüğüyle (`TURKISH_PROVINCES`/`TURKISH_PROVINCE_DISTRICTS`) eşleştirilir (`src/utils/match-turkish-location.ts`) — eşleşme bulunamazsa kullanıcı mevcut açılır listeye yönlendirilir, asla sözlük dışı bir değer yazılmaz. Şu an yalnızca ilan oluşturma/düzenleme formunda var; arama filtrelerine (`RideFilters.tsx`) eklenmedi (dar yatay filtre çubuğuna görsel regresyon riski olmadan sığdırılamadı).
-
 Faz 7'de burada listelenen ve Faz 8'de çözülen maddeler (ilan durumunun otomatik `completed`'e geçmesi, şehir aramasında autocomplete, Arapça arayüzde il isimleri, push notification altyapısının gerçek bir servise (Web Push/VAPID) bağlanması) artık yukarıdaki listede değil — ayrıntı için CHANGELOG'a bakın.
 
 Faz 9'da çözülen maddeler (artık bu listede değil): `npm audit` (6 uyarı → 0, Next.js sürümü değişmeden — bkz. Environment Variables altındaki not yerine [CHANGELOG.md](./CHANGELOG.md)), mesaj/yorumların 15 dakikalık pencerede düzenlenebilir/silinebilir olması, self-referencing hreflang etiketleri.
 
-Sonrasında çözülen bir madde (artık bu listede değil): **telefon SMS/OTP doğrulaması** — Supabase projesi Twilio Verify ile yapılandırıldı (`supabase/config.toml` → `[auth.sms.twilio_verify]`), gerçek bir telefon numarasıyla uçtan uca doğrulandı (SMS gerçekten ulaştı, kod doğrulandı).
+Sonrasında çözülen maddeler (artık bu listede değil): **telefon SMS/OTP doğrulaması** — Supabase projesi Twilio Verify ile yapılandırıldı (`supabase/config.toml` → `[auth.sms.twilio_verify]`), gerçek bir telefon numarasıyla uçtan uca doğrulandı (SMS gerçekten ulaştı, kod doğrulandı); **arama filtrelerinde harita/GPS konum seçimi** — `RideFilters.tsx`'e de `LocationPicker` eklendi (kalkış/varış alanlarının her ikisi için), ilan formuyla aynı bileşen ve aynı il/ilçe sözlüğü eşleştirme mantığı kullanılıyor.
 
 Ayrıntılı canlı doğrulama kaydı için [PROJECT_STATUS.md](./PROJECT_STATUS.md), production hazırlık denetiminin tam listesi için [CHANGELOG.md](./CHANGELOG.md) dosyalarına bakın.
 
 ## Roadmap
 
 - Ödeme/komisyon sistemi
-- Admin paneli / Dashboard / Analytics
 
 Bu liste yalnızca bilgilendirme amaçlıdır; bu maddelerden hiçbiri ayrı bir talimat verilmeden geliştirilmeyecektir.

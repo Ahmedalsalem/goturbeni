@@ -36,7 +36,7 @@ export async function signIn(_prevState: AuthActionState, formData: FormData): P
     return { error: tErrors("notConfigured") }
   }
   const ip = await getClientIp()
-  if (!checkRateLimit(`signin:${ip}`, LOGIN_RATE_LIMIT.limit, LOGIN_RATE_LIMIT.windowMs)) {
+  if (!(await checkRateLimit(`signin:${ip}`, LOGIN_RATE_LIMIT.limit, LOGIN_RATE_LIMIT.windowMs))) {
     return { error: tErrors("tooManyRequests") }
   }
   const parsed = schemas.signInSchema.safeParse({
@@ -62,7 +62,7 @@ export async function signUp(_prevState: AuthActionState, formData: FormData): P
     return { error: tErrors("notConfigured") }
   }
   const ip = await getClientIp()
-  if (!checkRateLimit(`signup:${ip}`, SIGNUP_RATE_LIMIT.limit, SIGNUP_RATE_LIMIT.windowMs)) {
+  if (!(await checkRateLimit(`signup:${ip}`, SIGNUP_RATE_LIMIT.limit, SIGNUP_RATE_LIMIT.windowMs))) {
     return { error: tErrors("tooManyRequests") }
   }
   const parsed = schemas.signUpSchema.safeParse({
@@ -105,7 +105,7 @@ export async function requestPasswordReset(_prevState: AuthActionState, formData
     return { error: tErrors("notConfigured") }
   }
   const ip = await getClientIp()
-  if (!checkRateLimit(`reset:${ip}`, PASSWORD_RESET_RATE_LIMIT.limit, PASSWORD_RESET_RATE_LIMIT.windowMs)) {
+  if (!(await checkRateLimit(`reset:${ip}`, PASSWORD_RESET_RATE_LIMIT.limit, PASSWORD_RESET_RATE_LIMIT.windowMs))) {
     return { error: tErrors("tooManyRequests") }
   }
   const parsed = schemas.forgotPasswordSchema.safeParse({
