@@ -12,8 +12,12 @@ const STORAGE_KEY = "cookie-consent"
 type Consent = "accepted" | "rejected" | null
 
 // Gates analytics cookies (GA) behind explicit user consent, as required by
-// KVKK for non-essential cookies. The GA scripts only render once consent is
-// "accepted" — either just now or from a prior visit's stored choice.
+// KVKK for non-essential cookies. The gtag.js loader itself is inert (just
+// defines window.dataLayer/gtag, sets no cookies) and is loaded unconditionally
+// from the root layout so Search Console's Analytics verification can find it;
+// this component only fires the gtag('config', ...) call that actually starts
+// tracking and writing cookies, and only once consent is "accepted" — either
+// just now or from a prior visit's stored choice.
 export function CookieConsent({ gaMeasurementId }: { gaMeasurementId?: string }) {
   const t = useTranslations("CookieConsent")
   const [consent, setConsent] = useState<Consent>(null)
@@ -35,17 +39,14 @@ export function CookieConsent({ gaMeasurementId }: { gaMeasurementId?: string })
   return (
     <>
       {gaMeasurementId && consent === "accepted" && (
-        <>
-          <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`} strategy="afterInteractive" />
-          <Script id="google-analytics" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${gaMeasurementId}');
-            `}
-          </Script>
-        </>
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${gaMeasurementId}');
+          `}
+        </Script>
       )}
       {mounted && consent === null && (
         <div
