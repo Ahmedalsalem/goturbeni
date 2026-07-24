@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server"
 import { MessageSquare } from "lucide-react"
 
 import { EmptyState } from "@/components/EmptyState"
+import { getCurrentUser } from "@/lib/supabase/dal"
 import { ReviewCard } from "@/features/reviews/ReviewCard"
 import { StarRating } from "@/features/reviews/StarRating"
 import { getReviewsForUser, getReviewStats } from "@/features/reviews/queries"
@@ -10,7 +11,7 @@ import { getReviewsForUser, getReviewStats } from "@/features/reviews/queries"
 // yorumlar", limited list) — see Faz 6 spec.
 export async function ReviewSection({ userId, limit, hideStats }: { userId: string; limit?: number; hideStats?: boolean }) {
   const t = await getTranslations("Reviews")
-  const [stats, reviews] = await Promise.all([getReviewStats(userId), getReviewsForUser(userId, limit)])
+  const [stats, reviews, currentUser] = await Promise.all([getReviewStats(userId), getReviewsForUser(userId, limit), getCurrentUser()])
 
   return (
     <div className="flex flex-col gap-4">
@@ -31,7 +32,7 @@ export async function ReviewSection({ userId, limit, hideStats }: { userId: stri
       ) : (
         <div className="flex flex-col">
           {reviews.map((review) => (
-            <ReviewCard key={review.id} review={review} unknownLabel={t("unknownReviewer")} />
+            <ReviewCard key={review.id} review={review} unknownLabel={t("unknownReviewer")} isOwn={review.reviewer_id === currentUser?.id} />
           ))}
         </div>
       )}

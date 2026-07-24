@@ -55,3 +55,70 @@ export async function createReview(rideId: string, revieweeId: string, values: R
   revalidatePath("/profile")
   return { success: true }
 }
+
+// Reviewer-only edit, within the 15-minute window enforced by the edit_review
+// RPC (see supabase/migrations/0013_editable_messages_reviews.sql). No rate
+// limit here (unlike createReview): edits are bounded by the fixed window per
+// review and serialized by the RPC's row lock.
+export async function updateReview(reviewId: string, rideId: string, values: ReviewFormValues): Promise<ReviewActionState> {
+  const { schema, tErrors } = await getReviewTranslators()
+  if (!isSupabaseConfigured()) {
+    return { error: tErrors("notConfigured") }
+  }
+
+  const parsed = schema.safeParse(values)
+  if (!parsed.success) {
+    return { error: firstIssueMessage(parsed.error, tErrors("invalidForm")) }
+  }
+
+  await verifySession()
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("edit_review", {
+    p_review_id: reviewId,
+    p_new_rating: parsed.data.rating,
+    p_new_comment: parsed.data.comment ?? null,
+  })
+
+  if (error) {
+    const expired = error.message.includes("edit_window_expired")
+    if (!expired) {
+      logError(error, "reviews.updateReview")
+    }
+    return { error: expired ? tErrors("editWindowExpired") : tErrors("actionFailed") }
+  }
+
+  revalidatePath(`/rides/${rideId}`)
+  revalidatePath("/bookings")
+  revalidatePath(`/rides/${rideId}/bookings`)
+  revalidatePath("/profile")
+  return { success: true }
+}
+
+// Reviewer-only soft delete, same 15-minute window as updateReview. The row
+// itself is kept (see soft_delete_review) but getReviewStats/getReviewsForUser
+// exclude it once deleted_at is set — a deleted review no longer counts
+// toward the reviewee's average rating or review count.
+export async function deleteReview(reviewId: string, rideId: string): Promise<ReviewActionState> {
+  const { tErrors } = await getReviewTranslators()
+  if (!isSupabaseConfigured()) {
+    return { error: tErrors("notConfigured") }
+  }
+
+  await verifySession()
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("soft_delete_review", { p_review_id: reviewId })
+
+  if (error) {
+    const expired = error.message.includes("edit_window_expired")
+    if (!expired) {
+      logError(error, "reviews.deleteReview")
+    }
+    return { error: expired ? tErrors("editWindowExpired") : tErrors("actionFailed") }
+  }
+
+  revalidatePath(`/rides/${rideId}`)
+  revalidatePath("/bookings")
+  revalidatePath(`/rides/${rideId}/bookings`)
+  revalidatePath("/profile")
+  return { success: true }
+}

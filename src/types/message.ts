@@ -6,4 +6,6 @@ export interface Message {
   message: string
   created_at: string
   read_at: string | null
+  edited_at: string | null
+  deleted_at: string | null
 }

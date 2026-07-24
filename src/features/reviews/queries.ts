@@ -9,7 +9,7 @@ const REVIEW_WITH_REVIEWER_SELECT = "*, reviewer:profiles!reviews_reviewer_id_fk
 
 export async function getReviewStats(userId: string): Promise<ReviewStats> {
   const supabase = await createClient()
-  const { data } = await supabase.from("reviews").select("rating").eq("reviewed_user_id", userId)
+  const { data } = await supabase.from("reviews").select("rating").eq("reviewed_user_id", userId).is("deleted_at", null)
   const ratings = (data as { rating: number }[] | null) ?? []
 
   if (ratings.length === 0) {
@@ -25,6 +25,7 @@ export async function getReviewsForUser(userId: string, limit?: number): Promise
     .from("reviews")
     .select(REVIEW_WITH_REVIEWER_SELECT)
     .eq("reviewed_user_id", userId)
+    .is("deleted_at", null)
     .order("created_at", { ascending: false })
   if (limit) {
     query = query.limit(limit)

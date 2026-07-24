@@ -57,6 +57,63 @@ export async function sendMessage(rideId: string, receiverId: string, values: Me
   return { success: true }
 }
 
+// Sender-only edit, within the 15-minute window enforced by the edit_message
+// RPC (see supabase/migrations/0013_editable_messages_reviews.sql). No rate
+// limit here (unlike sendMessage): edits are bounded by the fixed window per
+// message and serialized by the RPC's row lock, so the abuse surface is much
+// smaller than unbounded message creation.
+export async function editMessage(rideId: string, messageId: string, newText: string): Promise<ChatActionState> {
+  const { schema, tErrors } = await getChatTranslators()
+  if (!isSupabaseConfigured()) {
+    return { error: tErrors("notConfigured") }
+  }
+
+  const parsed = schema.safeParse({ message: newText })
+  if (!parsed.success) {
+    return { error: firstIssueMessage(parsed.error, tErrors("invalidForm")) }
+  }
+
+  await verifySession()
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("edit_message", { p_message_id: messageId, p_new_text: parsed.data.message })
+
+  if (error) {
+    const expired = error.message.includes("edit_window_expired")
+    if (!expired) {
+      logError(error, "chat.editMessage")
+    }
+    return { error: expired ? tErrors("editWindowExpired") : tErrors("actionFailed") }
+  }
+
+  revalidatePath(`/rides/${rideId}/chat`)
+  return { success: true }
+}
+
+// Sender-only soft delete, same 15-minute window as editMessage. The row
+// itself is kept (see soft_delete_message) — MessageBubble renders a
+// placeholder once message.deleted_at is set.
+export async function deleteMessage(rideId: string, messageId: string): Promise<ChatActionState> {
+  const { tErrors } = await getChatTranslators()
+  if (!isSupabaseConfigured()) {
+    return { error: tErrors("notConfigured") }
+  }
+
+  await verifySession()
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("soft_delete_message", { p_message_id: messageId })
+
+  if (error) {
+    const expired = error.message.includes("edit_window_expired")
+    if (!expired) {
+      logError(error, "chat.deleteMessage")
+    }
+    return { error: expired ? tErrors("editWindowExpired") : tErrors("actionFailed") }
+  }
+
+  revalidatePath(`/rides/${rideId}/chat`)
+  return { success: true }
+}
+
 // Called by ChatWindow whenever the counterpart's unread messages come into
 // view — flips read_at so the sender's bubble shows a "seen" indicator.
 // Covered by the "update own received message" RLS policy (0004_messages.sql).

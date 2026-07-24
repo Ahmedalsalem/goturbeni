@@ -35,6 +35,9 @@
       "newMessageBody": "Yeni bir mesajınız var."
     }
   },
+  "Pwa": {
+    "install": "Uygulamayı Yükle"
+  },
   "Footer": {
     "tagline": "Şehirler arası yolculuklarda masrafını paylaş.",
     "rights": "Tüm hakları saklıdır.",
@@ -280,6 +283,14 @@
       "noResults": "Sonuç bulunamadı.",
       "clearSelection": "Seçimi temizle",
       "optional": "(opsiyonel)",
+      "useMyLocation": "Konumumu Kullan",
+      "detectingLocation": "Konum algılanıyor...",
+      "locationDenied": "Konum izni reddedildi.",
+      "locationUnavailable": "Konum alınamadı. Lütfen tekrar deneyin.",
+      "locationNoMatch": "Konumunuz otomatik olarak eşleştirilemedi, lütfen listeden seçin.",
+      "showMap": "Haritada Seç",
+      "hideMap": "Haritayı Gizle",
+      "mapInstructions": "Konumunu ayarlamak için haritadaki işaretçiyi sürükle.",
       "departureDate": "Tarih",
       "departureTime": "Saat",
       "seatCount": "Koltuk Sayısı",
@@ -394,11 +405,22 @@
       "seen": "Görüldü",
       "sent": "Gönderildi"
     },
+    "actions": {
+      "edit": "Düzenle",
+      "delete": "Sil",
+      "confirmDelete": "Bu mesajı silmek istediğinize emin misiniz?",
+      "cancel": "Vazgeç",
+      "save": "Kaydet",
+      "edited": "(düzenlendi)",
+      "deletedPlaceholder": "Bu mesaj silindi."
+    },
     "errors": {
       "invalidForm": "Geçersiz form.",
       "notConfigured": "Veritabanı bağlantısı şu anda yapılandırılmamış. Lütfen daha sonra tekrar deneyin.",
       "sendFailed": "Mesaj gönderilemedi. Lütfen tekrar deneyin.",
-      "tooManyRequests": "Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin."
+      "tooManyRequests": "Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin.",
+      "editWindowExpired": "Düzenleme süresi doldu (15 dakika).",
+      "actionFailed": "İşlem gerçekleştirilemedi. Lütfen tekrar deneyin."
     }
   },
   "Reviews": {
@@ -421,7 +443,14 @@
     },
     "actions": {
       "leaveReview": "Yorum Yap",
-      "alreadyReviewed": "Yorum yaptınız"
+      "alreadyReviewed": "Yorum yaptınız",
+      "edit": "Düzenle",
+      "delete": "Sil",
+      "confirmDelete": "Bu yorumu silmek istediğinize emin misiniz?",
+      "cancel": "Vazgeç",
+      "save": "Kaydet",
+      "edited": "(düzenlendi)",
+      "deletedPlaceholder": "Bu yorum silindi."
     },
     "success": {
       "created": "Yorumunuz gönderildi."
@@ -430,7 +459,9 @@
       "invalidForm": "Geçersiz form.",
       "notConfigured": "Veritabanı bağlantısı şu anda yapılandırılmamış. Lütfen daha sonra tekrar deneyin.",
       "notEligible": "Bu yolculuk için yorum yapamazsınız.",
-      "alreadyReviewed": "Bu yolculuk için zaten bir yorum yaptınız."
+      "alreadyReviewed": "Bu yolculuk için zaten bir yorum yaptınız.",
+      "editWindowExpired": "Düzenleme süresi doldu (15 dakika).",
+      "actionFailed": "İşlem gerçekleştirilemedi. Lütfen tekrar deneyin."
     }
   },
   "NotFound": {

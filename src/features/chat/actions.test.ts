@@ -31,13 +31,15 @@ vi.mock("next-intl/server", () => ({
   getTranslations: async ({ namespace }: { namespace: string }) => (key: string) => `${namespace}.${key}`,
 }))
 
-import { sendMessage } from "@/features/chat/actions"
+import { deleteMessage, editMessage, sendMessage } from "@/features/chat/actions"
 
 describe("chat/actions sendMessage", () => {
+  const rpcMock = vi.fn()
+
   beforeEach(() => {
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://example.supabase.co")
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "anon-key")
-    createClientMock.mockResolvedValue({ from: fromMock })
+    createClientMock.mockResolvedValue({ from: fromMock, rpc: rpcMock })
   })
 
   afterEach(() => {
@@ -89,5 +91,94 @@ describe("chat/actions sendMessage", () => {
     const result = await sendMessage("ride-1", "receiver-1", { message: "hello" })
 
     expect(result.error).toBe("Chat.errors.sendFailed")
+  })
+})
+
+describe("chat/actions editMessage", () => {
+  const rpcMock = vi.fn()
+
+  beforeEach(() => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://example.supabase.co")
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "anon-key")
+    verifySessionMock.mockResolvedValue({ id: "sender-1" })
+    createClientMock.mockResolvedValue({ from: fromMock, rpc: rpcMock })
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.clearAllMocks()
+  })
+
+  it("calls edit_message with the trimmed text and succeeds", async () => {
+    rpcMock.mockResolvedValue({ error: null })
+
+    const result = await editMessage("ride-1", "message-1", "  edited text  ")
+
+    expect(result).toEqual({ success: true })
+    expect(rpcMock).toHaveBeenCalledWith("edit_message", { p_message_id: "message-1", p_new_text: "edited text" })
+  })
+
+  it("rejects an empty edit without calling the RPC", async () => {
+    const result = await editMessage("ride-1", "message-1", "   ")
+
+    expect(result.error).toBe("Chat.validation.messageRequired")
+    expect(rpcMock).not.toHaveBeenCalled()
+  })
+
+  it("maps an edit_window_expired RPC error to editWindowExpired", async () => {
+    rpcMock.mockResolvedValue({ error: { message: "edit_window_expired" } })
+
+    const result = await editMessage("ride-1", "message-1", "too late")
+
+    expect(result.error).toBe("Chat.errors.editWindowExpired")
+  })
+
+  it("maps any other RPC error to actionFailed", async () => {
+    rpcMock.mockResolvedValue({ error: { message: "not_message_sender" } })
+
+    const result = await editMessage("ride-1", "message-1", "not mine")
+
+    expect(result.error).toBe("Chat.errors.actionFailed")
+  })
+})
+
+describe("chat/actions deleteMessage", () => {
+  const rpcMock = vi.fn()
+
+  beforeEach(() => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://example.supabase.co")
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "anon-key")
+    verifySessionMock.mockResolvedValue({ id: "sender-1" })
+    createClientMock.mockResolvedValue({ from: fromMock, rpc: rpcMock })
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.clearAllMocks()
+  })
+
+  it("calls soft_delete_message and succeeds", async () => {
+    rpcMock.mockResolvedValue({ error: null })
+
+    const result = await deleteMessage("ride-1", "message-1")
+
+    expect(result).toEqual({ success: true })
+    expect(rpcMock).toHaveBeenCalledWith("soft_delete_message", { p_message_id: "message-1" })
+  })
+
+  it("maps an edit_window_expired RPC error to editWindowExpired", async () => {
+    rpcMock.mockResolvedValue({ error: { message: "edit_window_expired" } })
+
+    const result = await deleteMessage("ride-1", "message-1")
+
+    expect(result.error).toBe("Chat.errors.editWindowExpired")
+  })
+
+  it("maps any other RPC error to actionFailed", async () => {
+    rpcMock.mockResolvedValue({ error: { message: "message_deleted" } })
+
+    const result = await deleteMessage("ride-1", "message-1")
+
+    expect(result.error).toBe("Chat.errors.actionFailed")
   })
 })

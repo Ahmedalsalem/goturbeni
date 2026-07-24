@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
+import { headers } from "next/headers"
 import { NextIntlClientProvider } from "next-intl"
 import { getLocale, getTranslations } from "next-intl/server"
 import { DirectionProvider } from "@base-ui/react/direction-provider"
@@ -33,7 +34,8 @@ export const viewport: Viewport = {
 const OG_LOCALES: Record<string, string> = { tr: "tr_TR", ar: "ar_AR" }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const [t, locale] = await Promise.all([getTranslations("Metadata"), getLocale()])
+  const [t, locale, requestHeaders] = await Promise.all([getTranslations("Metadata"), getLocale(), headers()])
+  const pathname = requestHeaders.get("x-pathname") ?? "/"
 
   return {
     metadataBase: new URL(SITE_URL),
@@ -42,6 +44,14 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s | ${t("title")}`,
     },
     description: t("description"),
+    alternates: {
+      canonical: pathname,
+      languages: {
+        tr: pathname,
+        ar: pathname,
+        "x-default": pathname,
+      },
+    },
     openGraph: {
       title: t("title"),
       description: t("description"),

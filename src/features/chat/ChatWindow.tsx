@@ -144,7 +144,9 @@ export function ChatWindow({
         {messages.length === 0 ? (
           <EmptyState icon={MessageCircle} title={t("emptyTitle")} description={t("emptyDescription")} />
         ) : (
-          messages.map((message) => <MessageBubble key={message.id} message={message} isOwn={message.sender_id === currentUserId} />)
+          messages.map((message) => (
+            <MessageBubble key={message.id} message={message} isOwn={message.sender_id === currentUserId} rideId={rideId} />
+          ))
         )}
       </div>
 

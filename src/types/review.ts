@@ -6,6 +6,8 @@ export interface Review {
   rating: number
   comment: string | null
   created_at: string
+  edited_at: string | null
+  deleted_at: string | null
 }
 
 export interface ReviewWithReviewer extends Review {

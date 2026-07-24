@@ -24,6 +24,7 @@ import {
   ComboboxTriggerGroup,
 } from "@/components/ui/combobox"
 import { createRide, updateRide } from "@/features/rides/actions"
+import { LocationPicker } from "@/features/rides/LocationPicker"
 import {
   buildRideSchema,
   MAX_DESCRIPTION_LENGTH,
@@ -137,6 +138,12 @@ export function RideForm({ ride }: { ride?: Ride }) {
                 </Combobox>
               )}
             />
+            <LocationPicker
+              onLocationResolved={(province, district) => {
+                setValue("departureCity", province)
+                setValue("departureDistrict", district ?? "")
+              }}
+            />
             {errors.departureCity && <FieldError id="departureCity-error" errors={[{ message: errors.departureCity.message }]} />}
           </Field>
 
@@ -179,6 +186,12 @@ export function RideForm({ ride }: { ride?: Ride }) {
                   </ComboboxContent>
                 </Combobox>
               )}
+            />
+            <LocationPicker
+              onLocationResolved={(province, district) => {
+                setValue("arrivalCity", province)
+                setValue("arrivalDistrict", district ?? "")
+              }}
             />
             {errors.arrivalCity && <FieldError id="arrivalCity-error" errors={[{ message: errors.arrivalCity.message }]} />}
           </Field>

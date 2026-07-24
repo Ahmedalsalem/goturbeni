@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { InstallAppButton } from "@/components/layout/InstallAppButton"
 import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { getCurrentUser } from "@/lib/supabase/dal"
@@ -76,6 +77,7 @@ export async function Header() {
           </DropdownMenu>
           <LocaleSwitcher />
           <ThemeToggle />
+          <InstallAppButton />
           {user && <PushNotificationToggle />}
           {user ? (
             <DropdownMenu>

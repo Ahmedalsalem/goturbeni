@@ -35,6 +35,9 @@
       "newMessageBody": "لديك رسالة جديدة."
     }
   },
+  "Pwa": {
+    "install": "تثبيت التطبيق"
+  },
   "Footer": {
     "tagline": "شارك رحلتك بين المدن وشارك التكاليف.",
     "rights": "جميع الحقوق محفوظة.",
@@ -280,6 +283,14 @@
       "noResults": "لا توجد نتائج.",
       "clearSelection": "مسح التحديد",
       "optional": "(اختياري)",
+      "useMyLocation": "استخدم موقعي",
+      "detectingLocation": "جارٍ تحديد الموقع...",
+      "locationDenied": "تم رفض إذن الموقع.",
+      "locationUnavailable": "تعذر تحديد الموقع. حاول مرة أخرى.",
+      "locationNoMatch": "تعذر مطابقة موقعك تلقائيًا، الرجاء الاختيار من القائمة.",
+      "showMap": "اختر من الخريطة",
+      "hideMap": "إخفاء الخريطة",
+      "mapInstructions": "اسحب المؤشر على الخريطة لضبط موقعك.",
       "departureDate": "التاريخ",
       "departureTime": "الوقت",
       "seatCount": "عدد المقاعد",
@@ -394,11 +405,22 @@
       "seen": "تمت المشاهدة",
       "sent": "تم الإرسال"
     },
+    "actions": {
+      "edit": "تعديل",
+      "delete": "حذف",
+      "confirmDelete": "هل أنت متأكد من حذف هذه الرسالة؟",
+      "cancel": "إلغاء",
+      "save": "حفظ",
+      "edited": "(تم التعديل)",
+      "deletedPlaceholder": "تم حذف هذه الرسالة."
+    },
     "errors": {
       "invalidForm": "نموذج غير صالح.",
       "notConfigured": "الاتصال بقاعدة البيانات غير مُهيأ حاليًا. حاول مرة أخرى لاحقًا.",
       "sendFailed": "تعذر إرسال الرسالة. حاول مرة أخرى.",
-      "tooManyRequests": "لقد حاولت عدة مرات. الرجاء المحاولة لاحقًا."
+      "tooManyRequests": "لقد حاولت عدة مرات. الرجاء المحاولة لاحقًا.",
+      "editWindowExpired": "انتهت مهلة التعديل (15 دقيقة).",
+      "actionFailed": "تعذر تنفيذ العملية. حاول مرة أخرى."
     }
   },
   "Reviews": {
@@ -421,7 +443,14 @@
     },
     "actions": {
       "leaveReview": "أضف تقييمًا",
-      "alreadyReviewed": "لقد قيّمت بالفعل"
+      "alreadyReviewed": "لقد قيّمت بالفعل",
+      "edit": "تعديل",
+      "delete": "حذف",
+      "confirmDelete": "هل أنت متأكد من حذف هذا التقييم؟",
+      "cancel": "إلغاء",
+      "save": "حفظ",
+      "edited": "(تم التعديل)",
+      "deletedPlaceholder": "تم حذف هذا التقييم."
     },
     "success": {
       "created": "تم إرسال تقييمك."
@@ -430,7 +459,9 @@
       "invalidForm": "نموذج غير صالح.",
       "notConfigured": "الاتصال بقاعدة البيانات غير مُهيأ حاليًا. حاول مرة أخرى لاحقًا.",
       "notEligible": "لا يمكنك تقييم هذه الرحلة.",
-      "alreadyReviewed": "لقد قيّمت هذه الرحلة بالفعل."
+      "alreadyReviewed": "لقد قيّمت هذه الرحلة بالفعل.",
+      "editWindowExpired": "انتهت مهلة التعديل (15 دقيقة).",
+      "actionFailed": "تعذر تنفيذ العملية. حاول مرة أخرى."
     }
   },
   "NotFound": {

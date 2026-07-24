@@ -4,12 +4,22 @@ import { NextResponse, type NextRequest } from "next/server"
 import { isSupabaseConfigured } from "@/lib/supabase/is-configured"
 
 export async function middleware(request: NextRequest) {
-  // Guest browsing must keep working even before Supabase credentials are set up.
-  if (!isSupabaseConfigured()) {
-    return NextResponse.next()
+  const pathname = request.nextUrl.pathname
+
+  // Rebuilds request headers from the current (possibly cookie-mutated) request
+  // and stamps the pathname so generateMetadata() can read it via headers().
+  function nextResponse() {
+    const headers = new Headers(request.headers)
+    headers.set("x-pathname", pathname)
+    return NextResponse.next({ request: { headers } })
   }
 
-  let response = NextResponse.next({ request })
+  // Guest browsing must keep working even before Supabase credentials are set up.
+  if (!isSupabaseConfigured()) {
+    return nextResponse()
+  }
+
+  let response = nextResponse()
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,7 +31,7 @@ export async function middleware(request: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          response = NextResponse.next({ request })
+          response = nextResponse()
           cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options))
         },
       },
@@ -38,7 +48,6 @@ export async function middleware(request: NextRequest) {
   // Middleware-level gating is intentionally minimal (cheap, cookie-based) —
   // it is not the sole authorization boundary. Each protected page also calls
   // verifySession() server-side, which is the real guard.
-  const { pathname } = request.nextUrl
   const isProtected =
     pathname.startsWith("/profile") ||
     pathname.startsWith("/create-ride") ||
