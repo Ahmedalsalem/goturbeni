@@ -1,6 +1,14 @@
-// Next.js runtime instrumentation hook — this is where a future monitoring/
-// APM service (e.g. Sentry.init(), an OpenTelemetry SDK) would be
-// initialized once one is chosen. Intentionally empty for now. See
-// src/lib/logger.ts for the request-level error logging choke point that
-// such a service would also plug into.
-export async function register() {}
+import * as Sentry from "@sentry/nextjs"
+
+// Next.js runtime instrumentation hook. See src/lib/logger.ts for the
+// request-level error logging choke point that also reports to Sentry.
+export async function register() {
+  if (process.env.NEXT_RUNTIME === "nodejs") {
+    await import("./sentry.server.config")
+  }
+  if (process.env.NEXT_RUNTIME === "edge") {
+    await import("./sentry.edge.config")
+  }
+}
+
+export const onRequestError = Sentry.captureRequestError
