@@ -23,8 +23,22 @@ export default async function SupportPage() {
 
   const faqKeys = ["booking", "cancellation", "payment", "safety"] as const
 
+  const faqStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqKeys.map((key) => ({
+      "@type": "Question",
+      name: t(`faq.${key}.question`),
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: t(`faq.${key}.answer`),
+      },
+    })),
+  }
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 sm:py-24">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }} />
       <div className="mx-auto mb-12 max-w-xl text-center">
         <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">{t("title")}</h1>
         <p className="text-muted-foreground mt-3 text-lg leading-relaxed text-balance">{t("subtitle")}</p>
