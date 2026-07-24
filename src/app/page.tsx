@@ -1,4 +1,26 @@
+import type { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
+
 import { HomeHero } from "@/features/rides/HomeHero"
+import { languageAlternates } from "@/i18n/hreflang"
+
+export async function generateMetadata(): Promise<Metadata> {
+  const [t, tMeta] = await Promise.all([getTranslations("HomePage"), getTranslations("Metadata")])
+  const pageTitle = t("metaTitle")
+  const description = t("metaDescription")
+  // The root layout's title template ("%s | GötürBeni") doesn't apply here —
+  // layout.tsx and this page.tsx resolve to the same route segment ("/"), and
+  // Next only cascades a parent's template into genuinely nested segments.
+  const title = `${pageTitle} | ${tMeta("title")}`
+
+  return {
+    title,
+    description,
+    openGraph: { title, description },
+    twitter: { title, description },
+    alternates: { canonical: "/", languages: languageAlternates("/") },
+  }
+}
 
 export default function HomePage() {
   return (

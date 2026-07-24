@@ -3,10 +3,15 @@ import { getTranslations } from "next-intl/server"
 import { CarFront, MapPinned, MessageCircleQuestion, Search, ShieldCheck } from "lucide-react"
 
 import { Card, CardContent } from "@/components/ui/card"
+import { languageAlternates } from "@/i18n/hreflang"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("HowItWorksPage")
-  return { title: t("title") }
+  return {
+    title: t("title"),
+    description: t("subtitle"),
+    alternates: { canonical: "/how-it-works", languages: languageAlternates("/how-it-works") },
+  }
 }
 
 export default async function HowItWorksPage() {

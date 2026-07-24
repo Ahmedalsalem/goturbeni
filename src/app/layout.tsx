@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
-import Script from "next/script"
 import { NextIntlClientProvider } from "next-intl"
 import { getLocale, getTranslations } from "next-intl/server"
 import { DirectionProvider } from "@base-ui/react/direction-provider"
@@ -12,6 +11,7 @@ import { Footer } from "@/components/layout/Footer"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister"
+import { CookieConsent } from "@/components/CookieConsent"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,8 +30,10 @@ export const viewport: Viewport = {
   themeColor: "#2563eb",
 }
 
+const OG_LOCALES: Record<string, string> = { tr: "tr_TR", ar: "ar_AR" }
+
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("Metadata")
+  const [t, locale] = await Promise.all([getTranslations("Metadata"), getLocale()])
 
   return {
     metadataBase: new URL(SITE_URL),
@@ -44,8 +46,13 @@ export async function generateMetadata(): Promise<Metadata> {
       title: t("title"),
       description: t("description"),
       siteName: t("title"),
-      locale: "tr_TR",
+      locale: OG_LOCALES[locale] ?? "tr_TR",
       type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: t("title"),
+      description: t("description"),
     },
     appleWebApp: {
       capable: true,
@@ -63,23 +70,34 @@ export default async function RootLayout({
   const locale = await getLocale()
   const dir = isRtlLocale(locale) ? "rtl" : "ltr"
   const t = await getTranslations("Nav")
+  const tMeta = await getTranslations("Metadata")
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${SITE_URL}#organization`,
+        name: tMeta("title"),
+        url: SITE_URL,
+        description: tMeta("description"),
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}#website`,
+        name: tMeta("title"),
+        url: SITE_URL,
+        description: tMeta("description"),
+        publisher: { "@id": `${SITE_URL}#organization` },
+        inLanguage: locale,
+      },
+    ],
+  }
 
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
-        {GA_MEASUREMENT_ID && (
-          <>
-            <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} strategy="afterInteractive" />
-            <Script id="google-analytics" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${GA_MEASUREMENT_ID}');
-              `}
-            </Script>
-          </>
-        )}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
         <NextIntlClientProvider>
           <DirectionProvider direction={dir}>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
@@ -96,6 +114,7 @@ export default async function RootLayout({
               <Footer />
               <Toaster position="top-center" />
               <ServiceWorkerRegister />
+              <CookieConsent gaMeasurementId={GA_MEASUREMENT_ID} />
             </ThemeProvider>
           </DirectionProvider>
         </NextIntlClientProvider>

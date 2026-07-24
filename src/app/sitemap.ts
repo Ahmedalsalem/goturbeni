@@ -2,7 +2,9 @@ import type { MetadataRoute } from "next"
 
 import { getRides } from "@/features/rides/queries"
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
+// Trailing slash is stripped so `${SITE_URL}/path` below never produces `//`
+// regardless of how NEXT_PUBLIC_SITE_URL is set in the deployment environment.
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/+$/, "")
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [

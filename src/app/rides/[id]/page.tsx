@@ -16,6 +16,7 @@ import { StarRating } from "@/features/reviews/StarRating"
 import { formatCostShare } from "@/utils/currency"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 import { getUserLocale } from "@/i18n/locale"
+import { languageAlternates } from "@/i18n/hreflang"
 import { getCurrentUser } from "@/lib/supabase/dal"
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -34,7 +35,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   const departureLabel = ride.departure_district ? `${departureCity} (${ride.departure_district})` : departureCity
   const arrivalLabel = ride.arrival_district ? `${arrivalCity} (${ride.arrival_district})` : arrivalCity
-  const title = `${departureLabel} → ${arrivalLabel} | GötürBeni`
+  // Brand suffix is not appended here — the root layout's title template
+  // ("%s | GötürBeni") already adds it, so appending it here would double it up.
+  const title = `${departureLabel} → ${arrivalLabel}`
   const description = t("metaDescription", {
     date: format.dateTime(departureAt, { day: "2-digit", month: "2-digit", year: "numeric" }),
     cost: formatCostShare(ride.cost_share, locale),
@@ -43,8 +46,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return {
     title,
     description,
-    openGraph: { title, description },
-    alternates: { canonical: `/rides/${id}` },
+    openGraph: { title: `${title} | GötürBeni`, description },
+    twitter: { title: `${title} | GötürBeni`, description },
+    alternates: { canonical: `/rides/${id}`, languages: languageAlternates(`/rides/${id}`) },
   }
 }
 

@@ -3,10 +3,15 @@ import { getTranslations } from "next-intl/server"
 import { Shield } from "lucide-react"
 
 import { Card, CardContent } from "@/components/ui/card"
+import { languageAlternates } from "@/i18n/hreflang"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Legal.privacy")
-  return { title: t("title") }
+  return {
+    title: t("title"),
+    description: t("intro"),
+    alternates: { canonical: "/privacy", languages: languageAlternates("/privacy") },
+  }
 }
 
 export default async function PrivacyPage() {

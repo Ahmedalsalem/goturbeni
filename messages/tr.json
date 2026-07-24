@@ -1,7 +1,7 @@
 {
   "Metadata": {
     "title": "GötürBeni",
-    "description": "Şehirler arası masraf paylaşımlı yolculuk platformu."
+    "description": "GötürBeni, şehirlerarası yolculuklarda sürücü ve yolcuları buluşturan masraf paylaşımlı araç paylaşımı platformudur. Ücretsiz üye ol, ilan ver ya da uygun yolculuğu bul."
   },
   "Nav": {
     "skipToContent": "İçeriğe geç",
@@ -46,7 +46,9 @@
     "heroTitle": "Yolculuğunu paylaş, masrafını böl",
     "heroSubtitle": "GötürBeni ile şehirler arası yolculuklarda güvenilir yol arkadaşları bul.",
     "ctaFindRide": "Yolculuk Bul",
-    "ctaOfferRide": "İlan Ver"
+    "ctaOfferRide": "İlan Ver",
+    "metaTitle": "Şehirlerarası Araç Paylaşımı ve Yolcu Bulma",
+    "metaDescription": "Şehirlerarası yolculuklarda güvenilir sürücü ve yolcularla eşleş. Masraf paylaşımlı araç paylaşımı ile ekonomik ve pratik seyahat et. Hemen ilan ver veya yolculuk bul."
   },
   "Auth": {
     "login": {
@@ -156,6 +158,7 @@
   },
   "RidesPage": {
     "title": "İlanlar",
+    "metaDescription": "Şehirlerarası aktif yolculuk ilanlarını görüntüle, kalkış ve varış şehrine göre filtrele, uygun koltuğu hemen ayırt.",
     "createCta": "İlan Ver",
     "emptyTitle": "Henüz ilan yok",
     "emptyDescription": "Şu anda aktif bir yolculuk ilanı bulunmuyor. İlk ilanı sen ver.",
@@ -453,6 +456,13 @@
     "light": "Aydınlık",
     "dark": "Karanlık",
     "system": "Sistem"
+  },
+  "CookieConsent": {
+    "label": "Çerez onayı",
+    "message": "Deneyiminizi iyileştirmek için analiz amaçlı çerezler kullanıyoruz.",
+    "learnMore": "Detaylı bilgi",
+    "accept": "Kabul Et",
+    "reject": "Reddet"
   },
   "Legal": {
     "terms": {

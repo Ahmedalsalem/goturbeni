@@ -3,10 +3,15 @@ import { getTranslations } from "next-intl/server"
 import { FileText } from "lucide-react"
 
 import { Card, CardContent } from "@/components/ui/card"
+import { languageAlternates } from "@/i18n/hreflang"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Legal.terms")
-  return { title: t("title") }
+  return {
+    title: t("title"),
+    description: t("intro"),
+    alternates: { canonical: "/terms", languages: languageAlternates("/terms") },
+  }
 }
 
 export default async function TermsPage() {

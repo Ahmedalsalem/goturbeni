@@ -3,10 +3,15 @@ import { getTranslations } from "next-intl/server"
 import { ScrollText } from "lucide-react"
 
 import { Card, CardContent } from "@/components/ui/card"
+import { languageAlternates } from "@/i18n/hreflang"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Legal.kvkk")
-  return { title: t("title") }
+  return {
+    title: t("title"),
+    description: t("intro"),
+    alternates: { canonical: "/kvkk", languages: languageAlternates("/kvkk") },
+  }
 }
 
 export default async function KvkkPage() {

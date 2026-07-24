@@ -9,12 +9,17 @@ import { RideFilters } from "@/features/rides/RideFilters"
 import { getRides } from "@/features/rides/queries"
 import { parseRideSearchParams } from "@/features/rides/filters"
 import { buttonVariants } from "@/components/ui/button"
+import { languageAlternates } from "@/i18n/hreflang"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("RidesPage")
   // Canonical points at the bare path — filter query params (from/to/date/
   // sort) shouldn't fragment this into separate indexed pages.
-  return { title: t("title"), alternates: { canonical: "/rides" } }
+  return {
+    title: t("title"),
+    description: t("metaDescription"),
+    alternates: { canonical: "/rides", languages: languageAlternates("/rides") },
+  }
 }
 
 export default async function RidesPage({
