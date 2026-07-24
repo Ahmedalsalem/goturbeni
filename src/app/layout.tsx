@@ -48,6 +48,9 @@ export async function generateMetadata(): Promise<Metadata> {
       follow: true,
       googleBot: { index: true, follow: true },
     },
+    verification: {
+      google: "-SWAVn_J_lSQqKvNM_hchEBJJwdKVihOhVZzthdSipM",
+    },
     alternates: {
       canonical: pathname,
       languages: {
