@@ -113,10 +113,10 @@ test.describe.serial("booking, chat, and review flow", () => {
 
     // Reviews show up on each side's profile.
     await driverPage.goto("/profile")
-    await expect(driverPage.getByText("4.0")).toBeVisible()
+    await expect(driverPage.getByText("4.0", { exact: true })).toBeVisible()
 
     await passengerPage.goto("/profile")
-    await expect(passengerPage.getByText("5.0")).toBeVisible()
+    await expect(passengerPage.getByText("5.0", { exact: true })).toBeVisible()
   })
 
   test("driver can log back in with the same credentials", async () => {
