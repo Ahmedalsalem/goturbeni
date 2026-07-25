@@ -19,7 +19,11 @@ const nextConfig: NextConfig = {
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "DENY" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          // geolocation=(self) — not (): the app's own "use my location"
+          // buttons and the homepage's first-visit location prompt both need
+          // it; blocking geolocation entirely (as a copy-pasted hardening
+          // default typically does) silently broke both features.
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self)" },
         ],
       },
     ];

@@ -53,30 +53,6 @@ export async function Header() {
         </nav>
 
         <div className="flex items-center gap-1.5">
-          {/* Mobile nav trigger sits at the far right, alongside the rest of
-              the header's action icons. */}
-          <DropdownMenu>
-            <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", size: "icon", className: "md:hidden" })} aria-label={t("menu")}>
-              <Menu />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              {links.map((link) => (
-                <DropdownMenuItem key={link.href} render={<Link href={link.href} />}>
-                  {link.label}
-                </DropdownMenuItem>
-              ))}
-              {/* Auth actions collapse into this mobile menu too — the
-                  standalone login/register links below are hidden below sm
-                  purely to stop the header overflowing on narrow screens. */}
-              {!user && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem render={<Link href="/login" />}>{t("login")}</DropdownMenuItem>
-                  <DropdownMenuItem render={<Link href="/register" />}>{t("register")}</DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
           <LocaleSwitcher />
           <InstallAppButton />
           {user && <PushNotificationToggle />}
@@ -132,6 +108,30 @@ export async function Header() {
               </Link>
             </div>
           )}
+
+          {/* Mobile nav trigger is the last (rightmost) icon in the header. */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", size: "icon", className: "md:hidden" })} aria-label={t("menu")}>
+              <Menu />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {links.map((link) => (
+                <DropdownMenuItem key={link.href} render={<Link href={link.href} />}>
+                  {link.label}
+                </DropdownMenuItem>
+              ))}
+              {/* Auth actions collapse into this mobile menu too — the
+                  standalone login/register links above are hidden below sm
+                  purely to stop the header overflowing on narrow screens. */}
+              {!user && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem render={<Link href="/login" />}>{t("login")}</DropdownMenuItem>
+                  <DropdownMenuItem render={<Link href="/register" />}>{t("register")}</DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
