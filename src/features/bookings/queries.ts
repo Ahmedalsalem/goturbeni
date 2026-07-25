@@ -56,3 +56,17 @@ export async function getMyBookingForRide(rideId: string, passengerId: string): 
 
   return data as Booking | null
 }
+
+// Exposes the ride driver's IBAN to the passenger of an active booking on
+// that ride, via a security-definer RPC that re-checks the relationship
+// server-side (profiles_private is otherwise owner-only, see
+// get_ride_driver_payment_info in supabase/migrations/0017_booking_payment_flow.sql).
+export async function getRideDriverPaymentInfo(rideId: string): Promise<{ iban: string; iban_holder_name: string } | null> {
+  const supabase = await createClient()
+  const { data } = await supabase.rpc("get_ride_driver_payment_info", { p_ride_id: rideId }).maybeSingle()
+  const row = data as { iban: string | null; iban_holder_name: string | null } | null
+  if (!row?.iban || !row?.iban_holder_name) {
+    return null
+  }
+  return { iban: row.iban, iban_holder_name: row.iban_holder_name }
+}

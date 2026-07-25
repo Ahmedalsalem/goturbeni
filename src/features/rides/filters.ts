@@ -13,6 +13,7 @@ export interface RideSearchFilters {
   toDistrict?: string
   date?: string
   sort: RideSort
+  womenOnly?: boolean
 }
 
 function isTurkishProvince(value: string): value is TurkishProvince {
@@ -36,6 +37,7 @@ export function parseRideSearchParams(searchParams: Record<string, string | stri
   const toDistrict = firstValue(searchParams.toDistrict)
   const date = firstValue(searchParams.date)
   const sort = firstValue(searchParams.sort)
+  const womenOnly = firstValue(searchParams.womenOnly)
 
   const resolvedFrom = from && isTurkishProvince(from) ? from : undefined
   const resolvedTo = to && isTurkishProvince(to) ? to : undefined
@@ -50,5 +52,6 @@ export function parseRideSearchParams(searchParams: Record<string, string | stri
     toDistrict: resolvedTo && toDistrict && TURKISH_PROVINCE_DISTRICTS[resolvedTo]?.includes(toDistrict) ? toDistrict : undefined,
     date: date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : undefined,
     sort: sort && isRideSort(sort) ? sort : DEFAULT_SORT,
+    womenOnly: womenOnly === "1" ? true : undefined,
   }
 }

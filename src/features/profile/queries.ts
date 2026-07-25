@@ -12,20 +12,40 @@ export const getProfile = cache(async (userId: string): Promise<Profile | null> 
   const supabase = await createClient()
   const { data } = await supabase
     .from("profiles")
-    .select("*, profiles_private(phone, phone_verified)")
+    .select("*, profiles_private(phone, phone_verified, gender, iban, iban_holder_name)")
     .eq("id", userId)
     .single()
   if (!data) return null
 
   // profiles_private is only visible via RLS to the row's own owner — for
   // any other user's profile (e.g. a ride's driver) this embed is null,
-  // which is fine since phone is never displayed for other users.
+  // which is fine since none of these fields are ever displayed for other
+  // users.
   const { profiles_private, ...profile } = data as typeof data & {
-    profiles_private: { phone: string | null; phone_verified: boolean } | null
+    profiles_private: {
+      phone: string | null
+      phone_verified: boolean
+      gender: Profile["gender"]
+      iban: string | null
+      iban_holder_name: string | null
+    } | null
   }
   return {
     ...profile,
     phone: profiles_private?.phone ?? null,
     phone_verified: profiles_private?.phone_verified ?? false,
+    gender: profiles_private?.gender ?? null,
+    iban: profiles_private?.iban ?? null,
+    iban_holder_name: profiles_private?.iban_holder_name ?? null,
   } as Profile
 })
+
+// Cheap check for the mandatory phone-verification gate on pages that must
+// stay guest-browsable (e.g. ride detail) — unlike requireVerifiedProfile()
+// in lib/supabase/dal.ts, this never redirects, it just reports the state so
+// the page can render a "complete verification" prompt instead of hiding.
+export async function isPhoneVerified(userId: string): Promise<boolean> {
+  const supabase = await createClient()
+  const { data } = await supabase.from("profiles_private").select("phone_verified").eq("id", userId).maybeSingle()
+  return data?.phone_verified ?? false
+}

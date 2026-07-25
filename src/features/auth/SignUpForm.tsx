@@ -8,8 +8,11 @@ import { Button } from "@/components/ui/button"
 import { Field, FieldGroup, FieldLabel, FieldDescription } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { signUp } from "@/features/auth/actions"
-import { initialAuthActionState } from "@/features/auth/schemas"
+import { initialAuthActionState, MAX_PHONE_LENGTH } from "@/features/auth/schemas"
+
+const GENDER_OPTIONS = ["female", "male"] as const
 
 export function SignUpForm() {
   const t = useTranslations("Auth.register")
@@ -29,6 +32,30 @@ export function SignUpForm() {
         <Field>
           <FieldLabel htmlFor="email">{t("email")}</FieldLabel>
           <Input id="email" name="email" type="email" autoComplete="email" required />
+        </Field>
+
+        <Field>
+          <FieldLabel htmlFor="phone">{t("phone")}</FieldLabel>
+          <Input id="phone" name="phone" type="tel" autoComplete="tel" maxLength={MAX_PHONE_LENGTH} required />
+          <FieldDescription>{t("phoneHint")}</FieldDescription>
+        </Field>
+
+        <Field>
+          <FieldLabel htmlFor="gender">{t("gender")}</FieldLabel>
+          <Select name="gender" required>
+            <SelectTrigger id="gender" aria-label={t("gender")} className="w-full">
+              <SelectValue placeholder={t("genderPlaceholder")}>
+                {(value: (typeof GENDER_OPTIONS)[number] | null) => (value ? t(`genderOptions.${value}`) : t("genderPlaceholder"))}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {GENDER_OPTIONS.map((value) => (
+                <SelectItem key={value} value={value}>
+                  {t(`genderOptions.${value}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Field>
 
         <Field>

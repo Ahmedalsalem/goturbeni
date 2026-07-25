@@ -51,6 +51,7 @@ export function buildRideSchema(t: ValidationTranslator) {
         .max(MAX_DESCRIPTION_LENGTH, t("descriptionMax"))
         .optional()
         .transform((value) => (value ? value : undefined)),
+      womenOnly: z.boolean().default(false),
     })
     .refine((data) => data.departureCity !== data.arrivalCity, {
       message: t("sameCities"),

@@ -1,13 +1,27 @@
 import { z } from "zod"
 
+import { isValidTrPhoneNumber } from "@/lib/phone-validation"
+
 export type AuthActionState = { error?: string; success?: boolean }
 
 export const initialAuthActionState: AuthActionState = {}
 
+export const MAX_PHONE_LENGTH = 20
+
 // Zod's global setErrorMap is process-wide and would race across concurrent
 // requests for different locales — schemas must be rebuilt per request with
 // the resolved translator instead.
-type ValidationTranslator = (key: "invalidEmail" | "passwordMin" | "passwordRequired" | "passwordsMismatch") => string
+type ValidationTranslator = (
+  key:
+    | "invalidEmail"
+    | "passwordMin"
+    | "passwordRequired"
+    | "passwordsMismatch"
+    | "genderRequired"
+    | "phoneRequired"
+    | "phoneMax"
+    | "phoneInvalid"
+) => string
 
 export function buildAuthSchemas(t: ValidationTranslator) {
   const emailSchema = z.string().email(t("invalidEmail"))
@@ -23,6 +37,13 @@ export function buildAuthSchemas(t: ValidationTranslator) {
       email: emailSchema,
       password: passwordSchema,
       confirmPassword: z.string(),
+      gender: z.enum(["female", "male"], { message: t("genderRequired") }),
+      phone: z
+        .string()
+        .trim()
+        .min(1, t("phoneRequired"))
+        .max(MAX_PHONE_LENGTH, t("phoneMax"))
+        .refine(isValidTrPhoneNumber, { message: t("phoneInvalid") }),
     })
     .refine((data) => data.password === data.confirmPassword, {
       message: t("passwordsMismatch"),

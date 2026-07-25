@@ -26,6 +26,8 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
     phone: formData.get("phone"),
     bio: formData.get("bio"),
     language: formData.get("language"),
+    iban: formData.get("iban"),
+    ibanHolderName: formData.get("ibanHolderName"),
   })
   if (!parsed.success) {
     return { error: firstIssueMessage(parsed.error, tErrors("invalidForm")) }
@@ -66,6 +68,8 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
     p_language: parsed.data.language,
     p_avatar_url: avatarUrl ?? null,
     p_phone: parsed.data.phone ?? null,
+    p_iban: parsed.data.iban ?? null,
+    p_iban_holder_name: parsed.data.ibanHolderName ?? null,
   })
 
   if (updateError) {
@@ -109,6 +113,40 @@ export async function sendPhoneVerificationCode(): Promise<{ error?: string; pho
   }
 
   return { phone: parsed.number }
+}
+
+// Legacy-account path on /verify-phone: an account created before gender/phone
+// became mandatory (or a fresh signup where the JS-disabled RPC call somehow
+// didn't run) is missing one or both. This writes them and immediately kicks
+// off the phone OTP send, same as sendPhoneVerificationCode — the caller
+// (VerifyPhoneClient) moves straight to the code-entry step on success.
+export async function completeMandatoryProfileDetails(gender: "female" | "male", phone: string): Promise<{ error?: string; phone?: string }> {
+  await verifySession()
+  const locale = await getUserLocale()
+  const t = await getTranslations({ locale, namespace: "Profile.phone" })
+
+  const parsedPhone = parsePhoneNumberFromString(phone, "TR")
+  if (!parsedPhone) {
+    return { error: t("sendError") }
+  }
+
+  const supabase = await createClient()
+  const { error: detailsError } = await supabase.rpc("complete_registration_details", {
+    p_gender: gender,
+    p_phone: parsedPhone.number,
+  })
+  if (detailsError) {
+    logError(detailsError, "profile.completeMandatoryProfileDetails")
+    return { error: t("sendError") }
+  }
+
+  const { error: phoneError } = await supabase.auth.updateUser({ phone: parsedPhone.number })
+  if (phoneError) {
+    logError(phoneError, "profile.completeMandatoryProfileDetails.sendOtp")
+    return { error: t("sendError") }
+  }
+
+  return { phone: parsedPhone.number }
 }
 
 export async function verifyPhoneVerificationCode(phone: string, code: string): Promise<{ error?: string }> {

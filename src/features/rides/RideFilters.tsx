@@ -7,6 +7,7 @@ import { ArrowUpDown, CalendarDays, MapPin, Search } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Field, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -38,6 +39,7 @@ function buildQueryString(filters: Partial<RideSearchFilters>): string {
   if (filters.toDistrict) params.set("toDistrict", filters.toDistrict)
   if (filters.date) params.set("date", filters.date)
   if (filters.sort && filters.sort !== "date_asc") params.set("sort", filters.sort)
+  if (filters.womenOnly) params.set("womenOnly", "1")
   const qs = params.toString()
   return qs ? `/rides?${qs}` : "/rides"
 }
@@ -72,6 +74,7 @@ export function RideFilters({
   const [fromDistrict, setFromDistrict] = useState<string | null>(initial.fromDistrict ?? null)
   const [toDistrict, setToDistrict] = useState<string | null>(initial.toDistrict ?? null)
   const [date, setDate] = useState(initial.date ?? "")
+  const [womenOnly, setWomenOnly] = useState(initial.womenOnly ?? false)
 
   const fromDistricts = from ? (TURKISH_PROVINCE_DISTRICTS[from] ?? []) : []
   const toDistricts = to ? (TURKISH_PROVINCE_DISTRICTS[to] ?? []) : []
@@ -85,6 +88,7 @@ export function RideFilters({
         toDistrict: toDistrict ?? undefined,
         date: date || undefined,
         sort: initial.sort,
+        womenOnly,
       })
     )
   }
@@ -98,6 +102,7 @@ export function RideFilters({
         toDistrict: toDistrict ?? undefined,
         date: date || undefined,
         sort,
+        womenOnly,
       }),
       { scroll: false }
     )
@@ -266,6 +271,13 @@ export function RideFilters({
           <FieldIcon icon={CalendarDays} />
           <Input id="filter-date" type="date" className="ps-9" value={date} onChange={(event) => setDate(event.target.value)} />
         </div>
+      </Field>
+
+      <Field orientation="horizontal" className="sm:self-end sm:pb-2.5">
+        <Checkbox id="filter-women-only" checked={womenOnly} onCheckedChange={(checked) => setWomenOnly(checked === true)} />
+        <FieldLabel htmlFor="filter-women-only" className="font-normal">
+          {t("womenOnly")}
+        </FieldLabel>
       </Field>
 
       {showSort && (

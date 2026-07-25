@@ -3,6 +3,7 @@
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { getTranslations } from "next-intl/server"
+import { parsePhoneNumberFromString } from "libphonenumber-js"
 
 import { createClient } from "@/lib/supabase/server"
 import { isSupabaseConfigured } from "@/lib/supabase/is-configured"
@@ -48,11 +49,25 @@ export async function signIn(_prevState: AuthActionState, formData: FormData): P
   }
 
   const supabase = await createClient()
-  const { error } = await supabase.auth.signInWithPassword(parsed.data)
+  const { data, error } = await supabase.auth.signInWithPassword(parsed.data)
   if (error) {
     logError(error, "auth.signIn")
     return { error: tErrors("invalidCredentials") }
   }
+
+  // Mandatory one-time phone verification gate: an account that never
+  // completed it (or predates this requirement) is sent to /verify-phone
+  // instead of straight into the app. Once verified, this check is never
+  // shown again — no repeated OTP on subsequent logins.
+  const { data: privateRow } = await supabase
+    .from("profiles_private")
+    .select("phone_verified")
+    .eq("id", data.user.id)
+    .maybeSingle()
+  if (!privateRow?.phone_verified) {
+    redirect("/verify-phone")
+  }
+
   // Straight to ride search after login — that's the action most users came
   // back to do, not their own profile.
   redirect("/rides")
@@ -71,9 +86,19 @@ export async function signUp(_prevState: AuthActionState, formData: FormData): P
     email: formData.get("email"),
     password: formData.get("password"),
     confirmPassword: formData.get("confirmPassword"),
+    gender: formData.get("gender"),
+    phone: formData.get("phone"),
   })
   if (!parsed.success) {
     return { error: firstIssueMessage(parsed.error, tErrors("invalidForm")) }
+  }
+
+  // The zod refine already validated this via isValidTrPhoneNumber, which
+  // uses the same "TR"-default parser — this can't actually fail, but keeps
+  // parsedPhone.number (E.164) available without re-deriving the check.
+  const parsedPhone = parsePhoneNumberFromString(parsed.data.phone, "TR")
+  if (!parsedPhone) {
+    return { error: tErrors("invalidForm") }
   }
 
   const supabase = await createClient()
@@ -89,10 +114,36 @@ export async function signUp(_prevState: AuthActionState, formData: FormData): P
       error: error.message === "User already registered" ? tErrors("emailAlreadyRegistered") : tErrors("signupFailed"),
     }
   }
+
   // If Supabase's "Confirm email" setting is off, signUp already returns an
-  // active session (no confirmation email sent) — skip straight to /profile
-  // instead of telling the user to check an email that was never sent.
-  redirect(data.session ? "/profile" : "/verify-email")
+  // active session (no confirmation email sent) — in that case the mandatory
+  // phone OTP step can start immediately. Otherwise (email confirmation
+  // required) there's no session yet to attach the phone/gender to; fall
+  // back to the pre-existing /verify-email flow, unchanged.
+  if (!data.session) {
+    redirect("/verify-email")
+  }
+
+  const { error: detailsError } = await supabase.rpc("complete_registration_details", {
+    p_gender: parsed.data.gender,
+    p_phone: parsedPhone.number,
+  })
+  if (detailsError) {
+    logError(detailsError, "auth.signUp.completeRegistrationDetails")
+    return { error: tErrors("signupFailed") }
+  }
+
+  // Kicks off the actual SMS OTP send via Supabase Auth's phone_change flow
+  // (same mechanism as features/profile/actions.ts's sendPhoneVerificationCode).
+  // Requires a real SMS provider configured in the Supabase project — not
+  // yet set up here, so this call succeeds but no SMS is actually delivered
+  // until one is configured (see README → known limitations).
+  const { error: phoneError } = await supabase.auth.updateUser({ phone: parsedPhone.number })
+  if (phoneError) {
+    logError(phoneError, "auth.signUp.sendPhoneOtp")
+  }
+
+  redirect("/verify-phone")
 }
 
 export async function signOut(): Promise<void> {

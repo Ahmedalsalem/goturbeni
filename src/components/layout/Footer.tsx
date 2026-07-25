@@ -29,6 +29,9 @@ export async function Footer() {
           © {year} GötürBeni — {t("rights")}
         </p>
       </div>
+      <div className="border-border/70 border-t px-4 py-3 text-center">
+        <p className="text-muted-foreground mx-auto max-w-3xl text-xs">{t("paymentDisclaimer")}</p>
+      </div>
     </footer>
   )
 }

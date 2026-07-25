@@ -2,12 +2,13 @@
 
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { useTranslations } from "next-intl"
+import { useFormatter, useTranslations } from "next-intl"
 import { Loader2, Send } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Field, FieldLabel } from "@/components/ui/field"
 import { BookingStatusBadge } from "@/features/bookings/BookingStatusBadge"
 import { CancelBookingButton } from "@/features/bookings/CancelBookingButton"
@@ -19,23 +20,49 @@ export function BookingButton({
   rideId,
   availableSeats,
   existingBooking,
+  driverPaymentInfo,
 }: {
   rideId: string
   availableSeats: number
   existingBooking: Booking | null
+  driverPaymentInfo: { iban: string; iban_holder_name: string } | null
 }) {
   const t = useTranslations("Bookings")
+  const tPayment = useTranslations("Bookings.payment")
   const tSuccess = useTranslations("Bookings.success")
+  const format = useFormatter()
   const router = useRouter()
   const [seatCount, setSeatCount] = useState(MIN_BOOKING_SEAT_COUNT)
   const [isPending, startTransition] = useTransition()
 
   if (existingBooking) {
+    const awaitingDeposit = existingBooking.status === "pending" && existingBooking.payment_status === "awaiting_deposit"
+
     return (
-      <div className="flex items-center gap-3">
-        <BookingStatusBadge status={existingBooking.status} />
-        {(existingBooking.status === "pending" || existingBooking.status === "approved") && (
-          <CancelBookingButton bookingId={existingBooking.id} rideId={rideId} />
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-3">
+          <BookingStatusBadge status={existingBooking.status} />
+          {(existingBooking.status === "pending" || existingBooking.status === "approved") && (
+            <CancelBookingButton bookingId={existingBooking.id} rideId={rideId} />
+          )}
+        </div>
+        {awaitingDeposit && driverPaymentInfo && (
+          <Alert>
+            <AlertTitle>
+              {tPayment("depositInstructionTitle", {
+                deadline: format.dateTime(new Date(existingBooking.deposit_deadline_at), { hour: "2-digit", minute: "2-digit" }),
+              })}
+            </AlertTitle>
+            <AlertDescription className="flex flex-col gap-1">
+              <span>
+                {tPayment("ibanLabel")}: <span className="font-mono font-medium">{driverPaymentInfo.iban}</span>
+              </span>
+              <span>
+                {tPayment("ibanHolderLabel")}: {driverPaymentInfo.iban_holder_name}
+              </span>
+              <span className="text-muted-foreground">{tPayment("noCommissionDisclaimer")}</span>
+            </AlertDescription>
+          </Alert>
         )}
       </div>
     )

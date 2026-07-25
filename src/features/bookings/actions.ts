@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server"
 import { isSupabaseConfigured } from "@/lib/supabase/is-configured"
 import { firstIssueMessage } from "@/lib/zod-error"
 import { getUserLocale } from "@/i18n/locale"
-import { verifySession } from "@/lib/supabase/dal"
+import { requireVerifiedProfile, verifySession } from "@/lib/supabase/dal"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { logError } from "@/lib/logger"
 import { getRide } from "@/features/rides/queries"
@@ -35,7 +35,7 @@ export async function createBooking(rideId: string, values: BookingFormValues): 
     return { error: firstIssueMessage(parsed.error, tErrors("invalidForm")) }
   }
 
-  const user = await verifySession()
+  const user = await requireVerifiedProfile()
   if (!(await checkRateLimit(`create-booking:${user.id}`, CREATE_BOOKING_RATE_LIMIT.limit, CREATE_BOOKING_RATE_LIMIT.windowMs))) {
     return { error: tErrors("tooManyRequests") }
   }
@@ -139,5 +139,29 @@ export async function cancelBooking(bookingId: string, rideId: string): Promise<
 
   revalidatePath("/bookings")
   revalidatePath(`/rides/${rideId}`)
+  return { success: true }
+}
+
+// Either party's "Kalan Ödeme Tamamlandı" confirmation, post-trip. The RPC
+// figures out which side the caller is (driver vs passenger) and only flips
+// payment_status to 'settled' once both have confirmed — see
+// confirm_remaining_payment in supabase/migrations/0017_booking_payment_flow.sql.
+export async function confirmRemainingPayment(bookingId: string, rideId: string): Promise<BookingActionState> {
+  const { tErrors } = await getBookingTranslators()
+  if (!isSupabaseConfigured()) {
+    return { error: tErrors("notConfigured") }
+  }
+
+  await verifySession()
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("confirm_remaining_payment", { p_booking_id: bookingId })
+
+  if (error) {
+    logError(error, "bookings.confirmRemainingPayment")
+    return { error: tErrors("settleFailed") }
+  }
+
+  revalidatePath("/bookings")
+  revalidatePath(`/rides/${rideId}/bookings`)
   return { success: true }
 }

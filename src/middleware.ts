@@ -50,6 +50,7 @@ export async function middleware(request: NextRequest) {
   // verifySession() server-side, which is the real guard.
   const isProtected =
     pathname.startsWith("/profile") ||
+    pathname.startsWith("/verify-phone") ||
     pathname.startsWith("/create-ride") ||
     pathname.startsWith("/rides/mine") ||
     pathname.startsWith("/bookings") ||

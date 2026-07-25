@@ -38,3 +38,22 @@ export async function verifySession() {
   }
   return user
 }
+
+// Use on actions/pages that require the mandatory one-time phone
+// verification gate (posting a ride, booking a seat) — redirects to
+// /verify-phone if the account never completed it. Verified accounts pass
+// straight through; this is never re-checked per login/session, only per
+// completion state.
+export async function requireVerifiedProfile() {
+  const user = await verifySession()
+  const supabase = await createClient()
+  const { data: privateRow } = await supabase
+    .from("profiles_private")
+    .select("phone_verified")
+    .eq("id", user.id)
+    .maybeSingle()
+  if (!privateRow?.phone_verified) {
+    redirect("/verify-phone")
+  }
+  return user
+}

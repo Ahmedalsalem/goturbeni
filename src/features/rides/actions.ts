@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/server"
 import { isSupabaseConfigured } from "@/lib/supabase/is-configured"
 import { firstIssueMessage } from "@/lib/zod-error"
 import { getUserLocale } from "@/i18n/locale"
-import { verifySession } from "@/lib/supabase/dal"
+import { requireVerifiedProfile, verifySession } from "@/lib/supabase/dal"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { logError } from "@/lib/logger"
 import { parseIstanbulDateTime } from "@/utils/istanbul-time"
@@ -37,6 +37,7 @@ function buildRideRow(parsed: RideFormValues) {
     available_seats: parsed.seatCount,
     cost_share: parsed.costShare,
     description: parsed.description ?? null,
+    women_only: parsed.womenOnly,
   }
 }
 
@@ -51,12 +52,20 @@ export async function createRide(values: RideFormValues): Promise<RideActionStat
     return { error: firstIssueMessage(parsed.error, tErrors("invalidForm")) }
   }
 
-  const user = await verifySession()
+  const user = await requireVerifiedProfile()
   if (!(await checkRateLimit(`create-ride:${user.id}`, CREATE_RIDE_RATE_LIMIT.limit, CREATE_RIDE_RATE_LIMIT.windowMs))) {
     return { error: tErrors("tooManyRequests") }
   }
 
   const supabase = await createClient()
+
+  // Sürücü IBAN + hesap sahibi adı olmadan ilan açamaz (bkz. "Yarı-Yarı
+  // Ödeme Akışı" — yolcunun ilk yarı ödemesini gönderebilmesi için ilan
+  // sahibinin ödeme bilgisi baştan tam olmalı).
+  const { data: paymentInfo } = await supabase.from("profiles_private").select("iban, iban_holder_name").eq("id", user.id).maybeSingle()
+  if (!paymentInfo?.iban || !paymentInfo?.iban_holder_name) {
+    return { error: tErrors("ibanRequired") }
+  }
 
   const { error } = await supabase.from("rides").insert({
     driver_id: user.id,

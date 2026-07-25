@@ -19,6 +19,7 @@ vi.mock("@/lib/supabase/server", () => ({
 
 vi.mock("@/lib/supabase/dal", () => ({
   verifySession: verifySessionMock,
+  requireVerifiedProfile: verifySessionMock,
 }))
 
 vi.mock("@/features/rides/queries", () => ({
@@ -71,6 +72,7 @@ function fakeRide(overrides: Partial<Ride> = {}): Ride {
     available_seats: 3,
     cost_share: 100,
     description: null,
+    women_only: false,
     status: "active",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),

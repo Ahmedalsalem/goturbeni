@@ -40,6 +40,12 @@ export async function getRides(filters?: RideSearchFilters): Promise<RideWithDri
   if (filters?.date) {
     query = query.gte("departure_time", `${filters.date}T00:00:00`).lte("departure_time", `${filters.date}T23:59:59.999`)
   }
+  if (filters?.womenOnly) {
+    // RLS already hides women_only rides from anyone who isn't the driver or
+    // a self-declared female user (see 0016_gender_payment_profile.sql), so
+    // this is purely a narrowing convenience for those who can see them.
+    query = query.eq("women_only", true)
+  }
 
   const { column, ascending } = SORT_COLUMN[filters?.sort ?? "date_asc"]
   query = query.order(column, { ascending })

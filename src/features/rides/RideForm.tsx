@@ -7,6 +7,7 @@ import { useLocale, useTranslations } from "next-intl"
 import { Loader2, Send } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Field, FieldGroup, FieldLabel, FieldDescription, FieldError } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -69,6 +70,7 @@ export function RideForm({ ride }: { ride?: Ride }) {
       seatCount: ride?.seat_count ?? MIN_SEAT_COUNT,
       costShare: ride?.cost_share ?? 0,
       description: ride?.description ?? undefined,
+      womenOnly: ride?.women_only ?? false,
     },
   })
 
@@ -353,6 +355,19 @@ export function RideForm({ ride }: { ride?: Ride }) {
           />
           <FieldDescription>{t("descriptionHint")}</FieldDescription>
           {errors.description && <FieldError id="description-error" errors={[{ message: errors.description.message }]} />}
+        </Field>
+
+        <Field orientation="horizontal">
+          <Controller
+            control={control}
+            name="womenOnly"
+            render={({ field }) => (
+              <Checkbox id="womenOnly" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
+            )}
+          />
+          <FieldLabel htmlFor="womenOnly" className="font-normal">
+            {t("womenOnly")}
+          </FieldLabel>
         </Field>
       </FieldGroup>
 

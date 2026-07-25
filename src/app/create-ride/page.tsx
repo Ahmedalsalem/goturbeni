@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
 
-import { verifySession } from "@/lib/supabase/dal"
+import { requireVerifiedProfile } from "@/lib/supabase/dal"
 import { RideForm } from "@/features/rides/RideForm"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function CreateRidePage() {
-  await verifySession()
+  await requireVerifiedProfile()
   const t = await getTranslations("CreateRidePage")
 
   return (

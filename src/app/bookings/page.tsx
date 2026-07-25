@@ -9,6 +9,7 @@ import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { BookingStatusBadge } from "@/features/bookings/BookingStatusBadge"
 import { CancelBookingButton } from "@/features/bookings/CancelBookingButton"
+import { SettlePaymentButton } from "@/features/bookings/SettlePaymentButton"
 import { getMyBookings } from "@/features/bookings/queries"
 import { getUnreadMessages } from "@/features/chat/queries"
 import { ReviewButton } from "@/features/reviews/ReviewButton"
@@ -76,6 +77,9 @@ export default async function BookingsPage() {
                           <span className="bg-destructive ring-background absolute -end-1 -top-1 size-2.5 rounded-full ring-2" aria-hidden="true" />
                         )}
                       </Link>
+                    )}
+                    {isCompleted && booking.payment_status === "deposit_confirmed" && !booking.passenger_settled_at && (
+                      <SettlePaymentButton bookingId={booking.id} rideId={booking.ride.id} />
                     )}
                     {isCompleted &&
                       (reviewedRideIds.has(booking.ride.id) ? (

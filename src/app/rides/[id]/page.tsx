@@ -2,15 +2,16 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getFormatter, getTranslations } from "next-intl/server"
-import { ArrowRight, CalendarDays, Clock, LogIn, MapPin, Users } from "lucide-react"
+import { ArrowRight, CalendarDays, Clock, LogIn, MapPin, Users, Venus } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
 import { RideStatusBadge } from "@/features/rides/RideStatusBadge"
 import { getRideWithDriver } from "@/features/rides/queries"
-import { getProfile } from "@/features/profile/queries"
-import { getMyBookingForRide } from "@/features/bookings/queries"
+import { getProfile, isPhoneVerified } from "@/features/profile/queries"
+import { getMyBookingForRide, getRideDriverPaymentInfo } from "@/features/bookings/queries"
 import { BookingButton } from "@/features/bookings/BookingButton"
 import { ReviewSection } from "@/features/reviews/ReviewSection"
 import { getReviewStats } from "@/features/reviews/queries"
@@ -78,16 +79,20 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
     getCurrentUser(),
   ])
   const existingBooking = user ? await getMyBookingForRide(ride.id, user.id) : null
+  const userVerified = user ? await isPhoneVerified(user.id) : false
+  const awaitingDeposit = existingBooking?.status === "pending" && existingBooking.payment_status === "awaiting_deposit"
+  const driverPaymentInfo = awaitingDeposit ? await getRideDriverPaymentInfo(ride.id) : null
 
   const departureAt = new Date(ride.departure_time)
   const driverName = ride.driver?.full_name ?? tCard("unknownDriver")
   const driverInitials = driverName.slice(0, 2).toUpperCase()
   const isActiveForBooking = ride.status === "active"
-  const canBook = user && user.id !== ride.driver_id && isActiveForBooking
-  // Guests can view every ride, but only a signed-in, non-owner user can book
-  // it — show a CTA instead of hiding the footer outright, so a logged-out
-  // visitor understands why there's no "reserve" button here.
+  const canBook = user && user.id !== ride.driver_id && isActiveForBooking && userVerified
+  // Guests can view every ride, but only a signed-in, non-owner, phone-
+  // verified user can book it — show a CTA instead of hiding the footer
+  // outright, so the visitor understands why there's no "reserve" button.
   const showLoginPrompt = !user && isActiveForBooking
+  const showVerifyPrompt = user && user.id !== ride.driver_id && isActiveForBooking && !userVerified
   const departureCity = getProvinceDisplayName(ride.departure_city, locale)
   const arrivalCity = getProvinceDisplayName(ride.arrival_city, locale)
   const routeLabel = `${departureCity} → ${arrivalCity}`
@@ -113,7 +118,14 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
             <ArrowRight className="text-muted-foreground size-5 rtl:-scale-x-100" aria-hidden="true" />
             {ride.arrival_district ? `${arrivalCity} (${ride.arrival_district})` : arrivalCity}
           </h1>
-          <RideStatusBadge status={ride.status} />
+          <div className="flex items-center gap-2">
+            {ride.women_only && (
+              <Badge variant="secondary" className="gap-1">
+                <Venus className="size-3" aria-hidden="true" /> {tCard("womenOnly")}
+              </Badge>
+            )}
+            <RideStatusBadge status={ride.status} />
+          </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-6">
           <div className="flex items-center gap-3">
@@ -167,7 +179,12 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
         </CardContent>
         {canBook && (
           <CardFooter>
-            <BookingButton rideId={ride.id} availableSeats={ride.available_seats} existingBooking={existingBooking} />
+            <BookingButton
+              rideId={ride.id}
+              availableSeats={ride.available_seats}
+              existingBooking={existingBooking}
+              driverPaymentInfo={driverPaymentInfo}
+            />
           </CardFooter>
         )}
         {showLoginPrompt && (
@@ -175,6 +192,14 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
             <p className="text-muted-foreground text-sm">{tBookings("message")}</p>
             <Link href="/login" className={buttonVariants({ size: "sm" })}>
               <LogIn className="size-4" aria-hidden="true" /> {tBookings("cta")}
+            </Link>
+          </CardFooter>
+        )}
+        {showVerifyPrompt && (
+          <CardFooter className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-muted-foreground text-sm">{tBookings("verifyMessage")}</p>
+            <Link href="/verify-phone" className={buttonVariants({ size: "sm" })}>
+              <LogIn className="size-4" aria-hidden="true" /> {tBookings("verifyCta")}
             </Link>
           </CardFooter>
         )}

@@ -1,7 +1,8 @@
 import Link from "next/link"
-import { ArrowRight, CalendarDays, Clock, MapPin, Users } from "lucide-react"
+import { ArrowRight, CalendarDays, Clock, MapPin, Users, Venus } from "lucide-react"
 import { getFormatter, getTranslations } from "next-intl/server"
 
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { RideStatusBadge } from "@/features/rides/RideStatusBadge"
@@ -33,7 +34,14 @@ export async function RideCard({ ride, actions }: { ride: RideWithDriver; action
           <ArrowRight className="text-muted-foreground size-4 rtl:-scale-x-100" aria-hidden="true" />
           {ride.arrival_district ? `${arrivalCity} (${ride.arrival_district})` : arrivalCity}
         </Link>
-        <RideStatusBadge status={ride.status} />
+        <div className="flex items-center gap-2">
+          {ride.women_only && (
+            <Badge variant="secondary" className="gap-1">
+              <Venus className="size-3" aria-hidden="true" /> {t("womenOnly")}
+            </Badge>
+          )}
+          <RideStatusBadge status={ride.status} />
+        </div>
       </CardHeader>
       <CardContent className="grid grid-cols-2 gap-3.5 text-sm sm:grid-cols-4">
         <div className="text-muted-foreground flex items-center gap-2">

@@ -45,7 +45,8 @@
     "rights": "جميع الحقوق محفوظة.",
     "privacyLink": "سياسة الخصوصية",
     "termsLink": "شروط الاستخدام",
-    "kvkkLink": "بيان KVKK"
+    "kvkkLink": "بيان KVKK",
+    "paymentDisclaimer": "منصتنا لا تتقاضى عمولة، والمدفوعات مباشرة بين الأشخاص."
   },
   "HomePage": {
     "heroTitle": "مع GötürBeni: شارك رحلتك، شارك التكلفة",
@@ -79,6 +80,14 @@
       "password": "كلمة المرور",
       "passwordHint": "8 أحرف على الأقل.",
       "confirmPassword": "تأكيد كلمة المرور",
+      "phone": "رقم الهاتف",
+      "phoneHint": "يجب التحقق منه عبر الرمز المُرسل بالرسائل القصيرة لإكمال التسجيل.",
+      "gender": "الجنس",
+      "genderPlaceholder": "اختر",
+      "genderOptions": {
+        "female": "أنثى",
+        "male": "ذكر"
+      },
       "submit": "إنشاء حساب",
       "haveAccount": "هل لديك حساب بالفعل؟",
       "loginLink": "سجّل الدخول",
@@ -93,7 +102,11 @@
       "invalidEmail": "أدخل بريدًا إلكترونيًا صالحًا.",
       "passwordMin": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
       "passwordRequired": "كلمة المرور مطلوبة.",
-      "passwordsMismatch": "كلمتا المرور غير متطابقتين."
+      "passwordsMismatch": "كلمتا المرور غير متطابقتين.",
+      "genderRequired": "اختيار الجنس مطلوب.",
+      "phoneRequired": "رقم الهاتف مطلوب.",
+      "phoneMax": "يجب ألا يتجاوز رقم الهاتف 20 حرفًا.",
+      "phoneInvalid": "الرجاء إدخال رقم هاتف صالح (مثال: 05XX XXX XX XX)."
     },
     "errors": {
       "invalidForm": "نموذج غير صالح.",
@@ -127,6 +140,24 @@
       "hidePassword": "إخفاء كلمة المرور"
     }
   },
+  "VerifyPhone": {
+    "title": "التحقق من رقم الهاتف",
+    "description": "يجب التحقق من رقم هاتفك للتسجيل وإضافة رحلة وإجراء حجز.",
+    "phoneLabel": "رقم الهاتف",
+    "genderLabel": "الجنس",
+    "genderPlaceholder": "اختر",
+    "genderOptions": {
+      "female": "أنثى",
+      "male": "ذكر"
+    },
+    "continueCta": "متابعة",
+    "codeSentTitle": "تم إرسال رمز التحقق.",
+    "codeLabel": "رمز التحقق",
+    "confirmCta": "تأكيد الرمز",
+    "resendCta": "إعادة إرسال الرمز",
+    "sendCta": "إرسال رمز التحقق",
+    "verifySuccess": "تم التحقق من رقم هاتفك."
+  },
   "ProfilePage": {
     "title": "الملف الشخصي",
     "description": "قم بتحديث معلوماتك.",
@@ -137,6 +168,9 @@
       "fullName": "الاسم الكامل",
       "email": "البريد الإلكتروني",
       "phone": "رقم الهاتف",
+      "iban": "IBAN",
+      "ibanHint": "مطلوب لتتمكن كسائق من إضافة رحلة — يرسل الركاب دفعة النصف الأول إلى هذا الحساب.",
+      "ibanHolderName": "اسم صاحب الحساب",
       "bio": "نبذة عني",
       "bioHint": "500 حرف كحد أقصى.",
       "language": "اللغة",
@@ -161,7 +195,9 @@
       "fullNameMax": "يجب ألا يتجاوز الاسم الكامل 100 حرف.",
       "phoneMax": "يجب ألا يتجاوز رقم الهاتف 20 حرفًا.",
       "phoneInvalid": "الرجاء إدخال رقم هاتف صالح (مثال: 05XX XXX XX XX أو ‎+90 5XX XXX XX XX).",
-      "bioMax": "يجب ألا تتجاوز النبذة 500 حرف."
+      "bioMax": "يجب ألا تتجاوز النبذة 500 حرف.",
+      "ibanInvalid": "أدخل رقم IBAN صالحًا (26 حرفًا يبدأ بـ TR).",
+      "ibanHolderNameMax": "يجب ألا يتجاوز اسم صاحب الحساب 100 حرف."
     },
     "errors": {
       "invalidForm": "نموذج غير صالح.",
@@ -190,6 +226,7 @@
       "noResults": "لا توجد نتائج",
       "clearSelection": "مسح الاختيار",
       "searchCta": "بحث",
+      "womenOnly": "للراكبات فقط",
       "sortLabel": "الترتيب",
       "sort": {
         "date_asc": "التاريخ (تصاعدي)",
@@ -309,6 +346,7 @@
       "costShare": "المساهمة في التكلفة (₺)",
       "description": "الوصف",
       "descriptionHint": "500 حرف كحد أقصى.",
+      "womenOnly": "للراكبات فقط",
       "createSubmit": "نشر الرحلة",
       "updateSubmit": "تحديث الرحلة"
     },
@@ -329,7 +367,8 @@
       "createFailed": "تعذر إنشاء الرحلة. حاول مرة أخرى.",
       "updateFailed": "تعذر تحديث الرحلة. حاول مرة أخرى.",
       "cancelFailed": "تعذر إلغاء الرحلة. حاول مرة أخرى.",
-      "tooManyRequests": "لقد حاولت عدة مرات. الرجاء المحاولة لاحقًا."
+      "tooManyRequests": "لقد حاولت عدة مرات. الرجاء المحاولة لاحقًا.",
+      "ibanRequired": "لإضافة رحلة، أضف أولاً رقم IBAN واسم صاحب الحساب في ملفك الشخصي."
     },
     "status": {
       "active": "نشطة",
@@ -339,7 +378,8 @@
     },
     "card": {
       "availableSeats": "{count} مقعد متاح",
-      "unknownDriver": "السائق"
+      "unknownDriver": "السائق",
+      "womenOnly": "للراكبات فقط"
     },
     "myRides": {
       "edit": "تعديل",
@@ -369,11 +409,11 @@
     },
     "actions": {
       "reserve": "احجز",
-      "approve": "موافقة",
+      "approve": "استلمت الدفعة الأولى، موافقة",
       "reject": "رفض",
       "cancel": "إلغاء",
       "confirmCancel": "هل أنت متأكد؟",
-      "confirmApprove": "هل تريد الموافقة؟",
+      "confirmApprove": "هل تؤكد أنك استلمت دفعة النصف الأول؟",
       "confirmReject": "هل تريد الرفض؟"
     },
     "success": {
@@ -393,7 +433,8 @@
       "approveFailed": "تعذر الموافقة على الحجز. حاول مرة أخرى.",
       "rejectFailed": "تعذر رفض الحجز. حاول مرة أخرى.",
       "cancelFailed": "تعذر إلغاء الحجز. حاول مرة أخرى.",
-      "tooManyRequests": "لقد حاولت عدة مرات. الرجاء المحاولة لاحقًا."
+      "tooManyRequests": "لقد حاولت عدة مرات. الرجاء المحاولة لاحقًا.",
+      "settleFailed": "تعذر تسجيل اكتمال الدفعة المتبقية. حاول مرة أخرى."
     },
     "card": {
       "seatCount": "{count} مقعد",
@@ -401,7 +442,17 @@
     },
     "loginPrompt": {
       "message": "يجب عليك تسجيل الدخول لإجراء الحجز.",
-      "cta": "تسجيل الدخول"
+      "cta": "تسجيل الدخول",
+      "verifyMessage": "يجب إكمال التحقق من رقم هاتفك لإجراء الحجز.",
+      "verifyCta": "إكمال التحقق"
+    },
+    "payment": {
+      "depositInstructionTitle": "لتأكيد حجزك، أرسل 50% من الأجرة قبل الساعة {deadline} إلى رقم IBAN التالي",
+      "ibanLabel": "IBAN",
+      "ibanHolderLabel": "صاحب الحساب",
+      "noCommissionDisclaimer": "منصتنا لا تتقاضى عمولة، والمدفوعات مباشرة بين الأشخاص.",
+      "settleCta": "تم إكمال الدفعة المتبقية",
+      "settleSuccess": "تم تسجيل اكتمال الدفعة المتبقية."
     }
   },
   "Chat": {

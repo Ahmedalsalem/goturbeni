@@ -25,34 +25,48 @@ describe("buildAuthSchemas", () => {
   })
 
   describe("signUpSchema", () => {
-    it("accepts matching passwords of at least 8 characters", () => {
-      const result = signUpSchema.safeParse({
+    function validSignUp(overrides: Partial<Record<string, unknown>> = {}) {
+      return {
         email: "user@example.com",
         password: "password1",
         confirmPassword: "password1",
-      })
+        gender: "female",
+        phone: "05551234567",
+        ...overrides,
+      }
+    }
+
+    it("accepts matching passwords, a gender, and a valid phone", () => {
+      const result = signUpSchema.safeParse(validSignUp())
       expect(result.success).toBe(true)
     })
 
     it("rejects a password shorter than 8 characters", () => {
-      const result = signUpSchema.safeParse({
-        email: "user@example.com",
-        password: "short1",
-        confirmPassword: "short1",
-      })
+      const result = signUpSchema.safeParse(validSignUp({ password: "short1", confirmPassword: "short1" }))
       expect(result.success).toBe(false)
     })
 
     it("rejects mismatched confirmPassword", () => {
-      const result = signUpSchema.safeParse({
-        email: "user@example.com",
-        password: "password1",
-        confirmPassword: "password2",
-      })
+      const result = signUpSchema.safeParse(validSignUp({ confirmPassword: "password2" }))
       expect(result.success).toBe(false)
       if (!result.success) {
         expect(result.error.issues[0].path).toEqual(["confirmPassword"])
       }
+    })
+
+    it("rejects a missing gender", () => {
+      const result = signUpSchema.safeParse(validSignUp({ gender: undefined }))
+      expect(result.success).toBe(false)
+    })
+
+    it("rejects an invalid phone number", () => {
+      const result = signUpSchema.safeParse(validSignUp({ phone: "123" }))
+      expect(result.success).toBe(false)
+    })
+
+    it("rejects a missing phone number", () => {
+      const result = signUpSchema.safeParse(validSignUp({ phone: "" }))
+      expect(result.success).toBe(false)
     })
   })
 

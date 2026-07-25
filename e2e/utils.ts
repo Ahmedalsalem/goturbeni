@@ -7,13 +7,23 @@ export function uniqueEmail(prefix: string): string {
   return `e2e-${prefix}-${Date.now()}-${Math.floor(Math.random() * 100_000)}@example.com`
 }
 
+// NOTE: registration now requires mandatory phone OTP verification (see
+// src/app/verify-phone/page.tsx) — this helper fills the now-required
+// phone/gender fields so the form submits, but lands on /verify-phone, not
+// /profile. No SMS provider is configured for the local Supabase instance
+// (see supabase/config.toml), so the OTP itself cannot be completed here;
+// callers that need a fully verified session must go further (not yet
+// implemented — see README known limitations).
 export async function signUp(page: Page, email: string, password: string = TEST_PASSWORD): Promise<void> {
   await page.goto("/register")
   await page.locator("#email").fill(email)
   await page.locator("#password").fill(password)
   await page.locator("#confirmPassword").fill(password)
+  await page.locator("#phone").fill("05551234567")
+  await page.locator("#gender").click()
+  await page.getByRole("option", { name: "Kadın" }).click()
   await page.getByRole("button", { name: "Hesap Oluştur" }).click()
-  await page.waitForURL("**/profile")
+  await page.waitForURL("**/verify-phone")
 }
 
 export async function logIn(page: Page, email: string, password: string = TEST_PASSWORD): Promise<void> {

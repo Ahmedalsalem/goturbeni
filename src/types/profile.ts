@@ -1,6 +1,7 @@
 import type { AppLocale } from "@/i18n/locale-config"
 
 export type ProfileVerificationStatus = "unverified" | "pending" | "verified"
+export type ProfileGender = "female" | "male"
 
 export interface Profile {
   id: string
@@ -8,6 +9,9 @@ export interface Profile {
   avatar_url: string | null
   phone: string | null
   phone_verified: boolean
+  gender: ProfileGender | null
+  iban: string | null
+  iban_holder_name: string | null
   bio: string | null
   language: AppLocale
   verification_status: ProfileVerificationStatus

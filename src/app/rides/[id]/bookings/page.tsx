@@ -11,6 +11,7 @@ import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { BookingStatusBadge } from "@/features/bookings/BookingStatusBadge"
 import { BookingActions } from "@/features/bookings/BookingActions"
+import { SettlePaymentButton } from "@/features/bookings/SettlePaymentButton"
 import { getRide } from "@/features/rides/queries"
 import { getRideBookings } from "@/features/bookings/queries"
 import { getUnreadMessages } from "@/features/chat/queries"
@@ -95,6 +96,9 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                         <span className="bg-destructive ring-background absolute -end-1 -top-1 size-2.5 rounded-full ring-2" aria-hidden="true" />
                       )}
                     </Link>
+                    {isRideOver && booking.payment_status === "deposit_confirmed" && !booking.driver_settled_at && (
+                      <SettlePaymentButton bookingId={booking.id} rideId={id} />
+                    )}
                     {isRideOver &&
                       (alreadyReviewed ? (
                         <Badge variant="secondary">{tReviewActions("alreadyReviewed")}</Badge>
