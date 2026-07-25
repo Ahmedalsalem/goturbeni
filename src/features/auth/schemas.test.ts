@@ -32,9 +32,15 @@ describe("buildAuthSchemas", () => {
         confirmPassword: "password1",
         gender: "female",
         phone: "05551234567",
+        termsAccepted: "on",
         ...overrides,
       }
     }
+
+    it("rejects a missing terms acceptance", () => {
+      const result = signUpSchema.safeParse(validSignUp({ termsAccepted: undefined }))
+      expect(result.success).toBe(false)
+    })
 
     it("accepts matching passwords, a gender, and a valid phone", () => {
       const result = signUpSchema.safeParse(validSignUp())

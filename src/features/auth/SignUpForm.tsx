@@ -1,13 +1,15 @@
 "use client"
 
 import { useActionState, useState } from "react"
-import { Eye, EyeOff, Loader2, UserPlus } from "lucide-react"
+import Link from "next/link"
+import { Eye, EyeOff, Loader2, ShieldAlert, UserPlus } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Field, FieldGroup, FieldLabel, FieldDescription } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { signUp } from "@/features/auth/actions"
 import { initialAuthActionState, MAX_PHONE_LENGTH } from "@/features/auth/schemas"
@@ -105,6 +107,23 @@ export function SignUpForm() {
           </div>
         </Field>
       </FieldGroup>
+
+      <Alert>
+        <ShieldAlert />
+        <AlertTitle>{t("commercialBanTitle")}</AlertTitle>
+        <AlertDescription>{t("commercialBanNotice")}</AlertDescription>
+      </Alert>
+
+      <Field orientation="horizontal">
+        <Checkbox id="termsAccepted" name="termsAccepted" required />
+        <FieldLabel htmlFor="termsAccepted" className="font-normal">
+          {t("termsPrefix")}{" "}
+          <Link href="/terms" target="_blank" className="text-foreground underline underline-offset-2">
+            {t("termsLink")}
+          </Link>{" "}
+          {t("termsSuffix")}
+        </FieldLabel>
+      </Field>
 
       <Button type="submit" size="lg" className="w-full" disabled={isPending}>
         {isPending ? (

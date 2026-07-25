@@ -57,6 +57,50 @@ export async function sendMessage(rideId: string, receiverId: string, values: Me
   return { success: true }
 }
 
+// Shares the sender's current GPS position as a chat message (message_type =
+// 'location', see supabase/migrations/0019_chat_location_sharing.sql). The
+// `message` column still gets a human-readable caption — displayed by
+// clients that don't special-case message_type, and by push notifications —
+// while location_lat/location_lng carry the actual coordinates.
+export async function sendLocationMessage(rideId: string, receiverId: string, lat: number, lng: number): Promise<ChatActionState> {
+  const { tErrors } = await getChatTranslators()
+  if (!isSupabaseConfigured()) {
+    return { error: tErrors("notConfigured") }
+  }
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    return { error: tErrors("invalidForm") }
+  }
+
+  const locale = await getUserLocale()
+  const tChat = await getTranslations({ locale, namespace: "Chat" })
+
+  const user = await verifySession()
+  if (!(await checkRateLimit(`send-message:${user.id}`, SEND_MESSAGE_RATE_LIMIT.limit, SEND_MESSAGE_RATE_LIMIT.windowMs))) {
+    return { error: tErrors("tooManyRequests") }
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase.from("messages").insert({
+    ride_id: rideId,
+    sender_id: user.id,
+    receiver_id: receiverId,
+    message: tChat("locationShared"),
+    message_type: "location",
+    location_lat: lat,
+    location_lng: lng,
+  })
+
+  if (error) {
+    logError(error, "chat.sendLocationMessage")
+    return { error: tErrors("sendFailed") }
+  }
+
+  await sendPushNotification({ type: "new_message", recipientId: receiverId, rideId })
+
+  revalidatePath(`/rides/${rideId}/chat`)
+  return { success: true }
+}
+
 // Sender-only edit, within the 15-minute window enforced by the edit_message
 // RPC (see supabase/migrations/0013_editable_messages_reviews.sql). No rate
 // limit here (unlike sendMessage): edits are bounded by the fixed window per

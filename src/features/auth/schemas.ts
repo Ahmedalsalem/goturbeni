@@ -21,6 +21,7 @@ type ValidationTranslator = (
     | "phoneRequired"
     | "phoneMax"
     | "phoneInvalid"
+    | "termsRequired"
 ) => string
 
 export function buildAuthSchemas(t: ValidationTranslator) {
@@ -44,6 +45,10 @@ export function buildAuthSchemas(t: ValidationTranslator) {
         .min(1, t("phoneRequired"))
         .max(MAX_PHONE_LENGTH, t("phoneMax"))
         .refine(isValidTrPhoneNumber, { message: t("phoneInvalid") }),
+      // Zorunlu üyelik sözleşmesi onayı — "Bu platform ticari taşımacılık
+      // yapılmasını kesinlikle yasaklar..." ibaresi Legal.terms içinde yer
+      // alır (messages/tr.json), bu checkbox onu kayıt akışında zorunlu kılar.
+      termsAccepted: z.literal("on", { message: t("termsRequired") }),
     })
     .refine((data) => data.password === data.confirmPassword, {
       message: t("passwordsMismatch"),

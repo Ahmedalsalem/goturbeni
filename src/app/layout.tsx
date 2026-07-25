@@ -12,6 +12,7 @@ import { Footer } from "@/components/layout/Footer"
 import { Toaster } from "@/components/ui/sonner"
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister"
 import { CookieConsent } from "@/components/CookieConsent"
+import { IOSInstallPrompt } from "@/components/layout/IOSInstallPrompt"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -169,6 +170,7 @@ export default async function RootLayout({
             <Toaster position="top-center" />
             <ServiceWorkerRegister />
             <CookieConsent gaMeasurementId={GA_MEASUREMENT_ID} />
+            <IOSInstallPrompt />
           </DirectionProvider>
         </NextIntlClientProvider>
       </body>

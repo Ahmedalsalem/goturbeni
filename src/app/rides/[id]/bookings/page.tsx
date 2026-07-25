@@ -11,6 +11,7 @@ import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { BookingStatusBadge } from "@/features/bookings/BookingStatusBadge"
 import { BookingActions } from "@/features/bookings/BookingActions"
+import { RefundProofUpload } from "@/features/bookings/RefundProofUpload"
 import { SettlePaymentButton } from "@/features/bookings/SettlePaymentButton"
 import { getRide } from "@/features/rides/queries"
 import { getRideBookings } from "@/features/bookings/queries"
@@ -84,6 +85,11 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                     <BookingStatusBadge status={booking.status} />
                   )}
                 </CardContent>
+                {booking.refund_status !== "not_applicable" && (
+                  <CardFooter className="flex flex-wrap items-center gap-2">
+                    <RefundProofUpload bookingId={booking.id} rideId={id} refundStatus={booking.refund_status} />
+                  </CardFooter>
+                )}
                 {isApproved && (
                   <CardFooter className="flex flex-wrap items-center gap-2">
                     <Link

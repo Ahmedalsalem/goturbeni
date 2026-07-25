@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { useFormatter, useTranslations } from "next-intl"
-import { Check, CheckCheck, Loader2, MoreVertical } from "lucide-react"
+import { Check, CheckCheck, Loader2, MapPin, MoreVertical } from "lucide-react"
 import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
@@ -23,10 +23,13 @@ export function MessageBubble({ message, isOwn, rideId }: { message: Message; is
   const [isPending, startTransition] = useTransition()
 
   const isDeleted = message.deleted_at !== null
+  const isLocation = message.message_type === "location"
   // Client-side only — a UX gate to hide the affordance once the window is
   // obviously closed. The edit_message/soft_delete_message RPCs are the real
-  // enforcement (see 0013_editable_messages_reviews.sql).
-  const canModify = isOwn && !isDeleted && isWithinEditWindow(message.created_at)
+  // enforcement (see 0013_editable_messages_reviews.sql). Location messages
+  // are excluded — editing would only change the caption text, not the
+  // shared coordinates, which is more confusing than useful.
+  const canModify = isOwn && !isDeleted && !isLocation && isWithinEditWindow(message.created_at)
 
   function handleSaveEdit() {
     const trimmed = draft.trim()
@@ -81,6 +84,16 @@ export function MessageBubble({ message, isOwn, rideId }: { message: Message; is
         >
           {isDeleted ? (
             <p className="italic opacity-70">{tActions("deletedPlaceholder")}</p>
+          ) : message.message_type === "location" && message.location_lat !== null && message.location_lng !== null ? (
+            <a
+              href={`https://www.openstreetmap.org/?mlat=${message.location_lat}&mlon=${message.location_lng}#map=16/${message.location_lat}/${message.location_lng}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn("flex items-center gap-1.5 underline underline-offset-2", isOwn ? "text-primary-foreground" : "text-foreground")}
+            >
+              <MapPin className="size-4 shrink-0" aria-hidden="true" />
+              {message.message}
+            </a>
           ) : mode === "editing" ? (
             <div className="flex flex-col gap-2">
               <Textarea

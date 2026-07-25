@@ -19,6 +19,7 @@ type ValidationTranslator = (
     | "costShareMin"
     | "descriptionMax"
     | "districtInvalid"
+    | "vipSoloSingleSeat"
 ) => string
 
 // District is optional (a refinement on top of the required city), so an
@@ -52,6 +53,9 @@ export function buildRideSchema(t: ValidationTranslator) {
         .optional()
         .transform((value) => (value ? value : undefined)),
       womenOnly: z.boolean().default(false),
+      petsAllowed: z.boolean().default(false),
+      smokingAllowed: z.boolean().default(false),
+      vipSolo: z.boolean().default(false),
     })
     .refine((data) => data.departureCity !== data.arrivalCity, {
       message: t("sameCities"),
@@ -71,6 +75,12 @@ export function buildRideSchema(t: ValidationTranslator) {
     .refine((data) => !data.arrivalDistrict || TURKISH_PROVINCE_DISTRICTS[data.arrivalCity]?.includes(data.arrivalDistrict), {
       message: t("districtInvalid"),
       path: ["arrivalDistrict"],
+    })
+    // VIP (tek yolcu) ilanlar başkalarıyla paylaşılmaz — mirrors the
+    // rides_vip_solo_single_seat DB check constraint (0018_ride_trip_preferences.sql).
+    .refine((data) => !data.vipSolo || data.seatCount === 1, {
+      message: t("vipSoloSingleSeat"),
+      path: ["seatCount"],
     })
 }
 

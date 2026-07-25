@@ -17,6 +17,8 @@ import { PhoneVerification } from "@/features/profile/PhoneVerification"
 import {
   initialProfileActionState,
   MAX_BIO_LENGTH,
+  MAX_CAR_BRAND_LENGTH,
+  MAX_CAR_MODEL_LENGTH,
   MAX_FULL_NAME_LENGTH,
   MAX_IBAN_HOLDER_NAME_LENGTH,
   MAX_IBAN_LENGTH,
@@ -130,6 +132,19 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
             maxLength={MAX_IBAN_HOLDER_NAME_LENGTH}
           />
         </Field>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field>
+            <FieldLabel htmlFor="carBrand">{t("carBrand")}</FieldLabel>
+            <Input id="carBrand" name="carBrand" defaultValue={initialProfile.car_brand ?? ""} maxLength={MAX_CAR_BRAND_LENGTH} />
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="carModel">{t("carModel")}</FieldLabel>
+            <Input id="carModel" name="carModel" defaultValue={initialProfile.car_model ?? ""} maxLength={MAX_CAR_MODEL_LENGTH} />
+          </Field>
+        </div>
+        <FieldDescription>{t("carHint")}</FieldDescription>
 
         <Field>
           <FieldLabel htmlFor="bio">{t("bio")}</FieldLabel>

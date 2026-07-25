@@ -38,6 +38,9 @@ function buildRideRow(parsed: RideFormValues) {
     cost_share: parsed.costShare,
     description: parsed.description ?? null,
     women_only: parsed.womenOnly,
+    pets_allowed: parsed.petsAllowed,
+    smoking_allowed: parsed.smokingAllowed,
+    vip_solo: parsed.vipSolo,
   }
 }
 
@@ -116,14 +119,14 @@ export async function cancelRide(rideId: string): Promise<RideActionState> {
     return { error: tErrors("notConfigured") }
   }
 
-  const user = await verifySession()
+  await verifySession()
   const supabase = await createClient()
 
-  const { error } = await supabase
-    .from("rides")
-    .update({ status: "cancelled" })
-    .eq("id", rideId)
-    .eq("driver_id", user.id)
+  // cancel_ride_with_bookings also cascades to that ride's bookings — any
+  // booking whose deposit was already confirmed/settled flips into the
+  // refund workflow (refund_status='pending') instead of just disappearing;
+  // see supabase/migrations/0021_cancellation_refunds.sql.
+  const { error } = await supabase.rpc("cancel_ride_with_bookings", { p_ride_id: rideId })
 
   if (error) {
     logError(error, "rides.cancelRide")
@@ -131,5 +134,6 @@ export async function cancelRide(rideId: string): Promise<RideActionState> {
   }
 
   revalidatePath("/rides/mine")
+  revalidatePath("/bookings")
   return { success: true }
 }

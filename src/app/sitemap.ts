@@ -19,7 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Only active listings are worth indexing — full/completed/cancelled rides
   // aren't bookable and would just be dead links in search results.
-  const rides = await getRides()
+  const { rides } = await getRides()
   const rideRoutes: MetadataRoute.Sitemap = rides.map((ride) => ({
     url: `${SITE_URL}/rides/${ride.id}`,
     lastModified: ride.updated_at,

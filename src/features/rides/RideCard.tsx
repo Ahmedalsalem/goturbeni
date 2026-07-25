@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, CalendarDays, Clock, MapPin, Users, Venus } from "lucide-react"
+import { ArrowRight, CalendarDays, Cigarette, Clock, Crown, MapPin, PawPrint, Users, Venus } from "lucide-react"
 import { getFormatter, getTranslations } from "next-intl/server"
 
 import { Badge } from "@/components/ui/badge"
@@ -35,6 +35,11 @@ export async function RideCard({ ride, actions }: { ride: RideWithDriver; action
           {ride.arrival_district ? `${arrivalCity} (${ride.arrival_district})` : arrivalCity}
         </Link>
         <div className="flex items-center gap-2">
+          {ride.vip_solo && (
+            <Badge variant="secondary" className="gap-1">
+              <Crown className="size-3" aria-hidden="true" /> {t("vipSolo")}
+            </Badge>
+          )}
           {ride.women_only && (
             <Badge variant="secondary" className="gap-1">
               <Venus className="size-3" aria-hidden="true" /> {t("womenOnly")}
@@ -58,13 +63,34 @@ export async function RideCard({ ride, actions }: { ride: RideWithDriver; action
         </div>
         <div className="text-primary font-semibold">{formatCostShare(ride.cost_share, locale)}</div>
       </CardContent>
+      {(ride.pets_allowed || ride.smoking_allowed) && (
+        <CardContent className="flex flex-wrap gap-1.5 pt-0">
+          {ride.pets_allowed && (
+            <Badge variant="outline" className="gap-1">
+              <PawPrint className="size-3" aria-hidden="true" /> {t("petsAllowed")}
+            </Badge>
+          )}
+          {ride.smoking_allowed && (
+            <Badge variant="outline" className="gap-1">
+              <Cigarette className="size-3" aria-hidden="true" /> {t("smokingAllowed")}
+            </Badge>
+          )}
+        </CardContent>
+      )}
       <CardFooter className="flex items-center justify-between gap-4 border-t-0 bg-transparent pt-1">
         <div className="flex items-center gap-2.5">
           <Avatar className="ring-border size-9 ring-1">
             <AvatarImage src={ride.driver?.avatar_url ?? undefined} alt={driverName} />
             <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">{driverInitials}</AvatarFallback>
           </Avatar>
-          <span className="text-sm font-medium">{driverName}</span>
+          <div>
+            <span className="text-sm font-medium">{driverName}</span>
+            {(ride.driver?.car_brand || ride.driver?.car_model) && (
+              <p className="text-muted-foreground text-xs">
+                {[ride.driver?.car_brand, ride.driver?.car_model].filter(Boolean).join(" ")}
+              </p>
+            )}
+          </div>
         </div>
         {actions}
       </CardFooter>

@@ -40,6 +40,9 @@ function buildQueryString(filters: Partial<RideSearchFilters>): string {
   if (filters.date) params.set("date", filters.date)
   if (filters.sort && filters.sort !== "date_asc") params.set("sort", filters.sort)
   if (filters.womenOnly) params.set("womenOnly", "1")
+  if (filters.petsAllowed) params.set("petsAllowed", "1")
+  if (filters.smokingAllowed) params.set("smokingAllowed", "1")
+  if (filters.vipOnly) params.set("vipOnly", "1")
   const qs = params.toString()
   return qs ? `/rides?${qs}` : "/rides"
 }
@@ -75,6 +78,9 @@ export function RideFilters({
   const [toDistrict, setToDistrict] = useState<string | null>(initial.toDistrict ?? null)
   const [date, setDate] = useState(initial.date ?? "")
   const [womenOnly, setWomenOnly] = useState(initial.womenOnly ?? false)
+  const [petsAllowed, setPetsAllowed] = useState(initial.petsAllowed ?? false)
+  const [smokingAllowed, setSmokingAllowed] = useState(initial.smokingAllowed ?? false)
+  const [vipOnly, setVipOnly] = useState(initial.vipOnly ?? false)
 
   const fromDistricts = from ? (TURKISH_PROVINCE_DISTRICTS[from] ?? []) : []
   const toDistricts = to ? (TURKISH_PROVINCE_DISTRICTS[to] ?? []) : []
@@ -89,6 +95,9 @@ export function RideFilters({
         date: date || undefined,
         sort: initial.sort,
         womenOnly,
+        petsAllowed,
+        smokingAllowed,
+        vipOnly,
       })
     )
   }
@@ -103,6 +112,9 @@ export function RideFilters({
         date: date || undefined,
         sort,
         womenOnly,
+        petsAllowed,
+        smokingAllowed,
+        vipOnly,
       }),
       { scroll: false }
     )
@@ -273,12 +285,36 @@ export function RideFilters({
         </div>
       </Field>
 
-      <Field orientation="horizontal" className="sm:self-end sm:pb-2.5">
-        <Checkbox id="filter-women-only" checked={womenOnly} onCheckedChange={(checked) => setWomenOnly(checked === true)} />
-        <FieldLabel htmlFor="filter-women-only" className="font-normal">
-          {t("womenOnly")}
-        </FieldLabel>
-      </Field>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:self-end sm:pb-2.5">
+        <Field orientation="horizontal">
+          <Checkbox id="filter-women-only" checked={womenOnly} onCheckedChange={(checked) => setWomenOnly(checked === true)} />
+          <FieldLabel htmlFor="filter-women-only" className="font-normal">
+            {t("womenOnly")}
+          </FieldLabel>
+        </Field>
+        <Field orientation="horizontal">
+          <Checkbox id="filter-pets-allowed" checked={petsAllowed} onCheckedChange={(checked) => setPetsAllowed(checked === true)} />
+          <FieldLabel htmlFor="filter-pets-allowed" className="font-normal">
+            {t("petsAllowed")}
+          </FieldLabel>
+        </Field>
+        <Field orientation="horizontal">
+          <Checkbox
+            id="filter-smoking-allowed"
+            checked={smokingAllowed}
+            onCheckedChange={(checked) => setSmokingAllowed(checked === true)}
+          />
+          <FieldLabel htmlFor="filter-smoking-allowed" className="font-normal">
+            {t("smokingAllowed")}
+          </FieldLabel>
+        </Field>
+        <Field orientation="horizontal">
+          <Checkbox id="filter-vip-only" checked={vipOnly} onCheckedChange={(checked) => setVipOnly(checked === true)} />
+          <FieldLabel htmlFor="filter-vip-only" className="font-normal">
+            {t("vipOnly")}
+          </FieldLabel>
+        </Field>
+      </div>
 
       {showSort && (
         <Field className="sm:w-52">

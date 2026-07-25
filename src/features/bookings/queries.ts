@@ -70,3 +70,15 @@ export async function getRideDriverPaymentInfo(rideId: string): Promise<{ iban: 
   }
   return { iban: row.iban, iban_holder_name: row.iban_holder_name }
 }
+
+const RECEIPT_SIGNED_URL_TTL_SECONDS = 60 * 5
+
+// payment-receipts is a private bucket (0020_payment_receipts.sql) — bookings
+// store the object's storage path, not a public URL, so viewing a receipt
+// (booking owner, ride driver, or admin — enforced by the bucket's storage
+// policies) needs a short-lived signed URL minted on demand.
+export async function getSignedReceiptUrl(path: string): Promise<string | null> {
+  const supabase = await createClient()
+  const { data } = await supabase.storage.from("payment-receipts").createSignedUrl(path, RECEIPT_SIGNED_URL_TTL_SECONDS)
+  return data?.signedUrl ?? null
+}

@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getFormatter, getTranslations } from "next-intl/server"
-import { ArrowRight, CalendarDays, Clock, LogIn, MapPin, Users, Venus } from "lucide-react"
+import { ArrowRight, CalendarDays, Cigarette, Clock, Crown, LogIn, MapPin, PawPrint, Users, Venus } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -119,6 +119,11 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
             {ride.arrival_district ? `${arrivalCity} (${ride.arrival_district})` : arrivalCity}
           </h1>
           <div className="flex items-center gap-2">
+            {ride.vip_solo && (
+              <Badge variant="secondary" className="gap-1">
+                <Crown className="size-3" aria-hidden="true" /> {tCard("vipSolo")}
+              </Badge>
+            )}
             {ride.women_only && (
               <Badge variant="secondary" className="gap-1">
                 <Venus className="size-3" aria-hidden="true" /> {tCard("womenOnly")}
@@ -143,9 +148,29 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
                   </div>
                 )}
               </div>
+              {(ride.driver?.car_brand || ride.driver?.car_model) && (
+                <p className="text-muted-foreground text-sm">
+                  {[ride.driver?.car_brand, ride.driver?.car_model].filter(Boolean).join(" ")}
+                </p>
+              )}
               {driverProfile?.bio && <p className="text-muted-foreground text-sm">{driverProfile.bio}</p>}
             </div>
           </div>
+
+          {(ride.pets_allowed || ride.smoking_allowed) && (
+            <div className="flex flex-wrap gap-1.5">
+              {ride.pets_allowed && (
+                <Badge variant="outline" className="gap-1">
+                  <PawPrint className="size-3" aria-hidden="true" /> {tCard("petsAllowed")}
+                </Badge>
+              )}
+              {ride.smoking_allowed && (
+                <Badge variant="outline" className="gap-1">
+                  <Cigarette className="size-3" aria-hidden="true" /> {tCard("smokingAllowed")}
+                </Badge>
+              )}
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
             <div className="flex items-center gap-2">

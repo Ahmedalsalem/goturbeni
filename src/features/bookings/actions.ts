@@ -16,6 +16,8 @@ import { sendPushNotification } from "@/lib/notifications"
 import { buildBookingSchema, type BookingActionState, type BookingFormValues } from "@/features/bookings/schemas"
 
 const CREATE_BOOKING_RATE_LIMIT = { limit: 20, windowMs: 60 * 60 * 1000 }
+const MAX_RECEIPT_BYTES = 5 * 1024 * 1024
+const ALLOWED_RECEIPT_TYPES = ["image/png", "image/jpeg", "image/webp", "application/pdf"]
 
 async function getBookingTranslators() {
   const locale = await getUserLocale()
@@ -163,5 +165,98 @@ export async function confirmRemainingPayment(bookingId: string, rideId: string)
 
   revalidatePath("/bookings")
   revalidatePath(`/rides/${rideId}/bookings`)
+  return { success: true }
+}
+
+// Shared upload helper for both the passenger's deposit receipt and the
+// driver's refund proof — same private bucket, same file constraints, only
+// the destination path prefix and the follow-up RPC differ.
+async function uploadReceiptFile(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  bookingId: string,
+  kind: "deposit" | "refund",
+  file: File
+): Promise<{ path: string } | { error: string }> {
+  const tErrors = (await getBookingTranslators()).tErrors
+  if (file.size > MAX_RECEIPT_BYTES) {
+    return { error: tErrors("receiptTooLarge") }
+  }
+  if (!ALLOWED_RECEIPT_TYPES.includes(file.type)) {
+    return { error: tErrors("receiptInvalidType") }
+  }
+
+  const extension = file.type.split("/")[1]
+  const path = `${bookingId}/${kind}-${Date.now()}.${extension}`
+  const { error } = await supabase.storage.from("payment-receipts").upload(path, file, { contentType: file.type })
+  if (error) {
+    logError(error, `bookings.uploadReceiptFile.${kind}`)
+    return { error: tErrors("receiptUploadFailed") }
+  }
+  return { path }
+}
+
+// Passenger uploads proof of the IBAN deposit transfer — reviewed by the
+// driver informally and, ultimately, by an admin (admin_review_deposit_receipt
+// in supabase/migrations/0020_payment_receipts.sql).
+export async function submitDepositReceipt(bookingId: string, rideId: string, formData: FormData): Promise<BookingActionState> {
+  const { tErrors } = await getBookingTranslators()
+  if (!isSupabaseConfigured()) {
+    return { error: tErrors("notConfigured") }
+  }
+
+  const file = formData.get("receipt")
+  if (!(file instanceof File) || file.size === 0) {
+    return { error: tErrors("receiptRequired") }
+  }
+
+  await verifySession()
+  const supabase = await createClient()
+
+  const uploaded = await uploadReceiptFile(supabase, bookingId, "deposit", file)
+  if ("error" in uploaded) {
+    return uploaded
+  }
+
+  const { error } = await supabase.rpc("submit_deposit_receipt", { p_booking_id: bookingId, p_receipt_url: uploaded.path })
+  if (error) {
+    logError(error, "bookings.submitDepositReceipt")
+    return { error: tErrors("actionFailed") }
+  }
+
+  revalidatePath(`/rides/${rideId}`)
+  revalidatePath(`/rides/${rideId}/bookings`)
+  return { success: true }
+}
+
+// Driver uploads proof that a refund was sent back to the passenger, after
+// cancel_ride_with_bookings flagged the booking as refund_status='pending'
+// (see supabase/migrations/0021_cancellation_refunds.sql).
+export async function submitRefundProof(bookingId: string, rideId: string, formData: FormData): Promise<BookingActionState> {
+  const { tErrors } = await getBookingTranslators()
+  if (!isSupabaseConfigured()) {
+    return { error: tErrors("notConfigured") }
+  }
+
+  const file = formData.get("receipt")
+  if (!(file instanceof File) || file.size === 0) {
+    return { error: tErrors("receiptRequired") }
+  }
+
+  await verifySession()
+  const supabase = await createClient()
+
+  const uploaded = await uploadReceiptFile(supabase, bookingId, "refund", file)
+  if ("error" in uploaded) {
+    return uploaded
+  }
+
+  const { error } = await supabase.rpc("submit_refund_proof", { p_booking_id: bookingId, p_receipt_url: uploaded.path })
+  if (error) {
+    logError(error, "bookings.submitRefundProof")
+    return { error: tErrors("actionFailed") }
+  }
+
+  revalidatePath("/bookings")
+  revalidatePath(`/rides/${rideId}`)
   return { success: true }
 }

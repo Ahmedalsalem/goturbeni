@@ -13,6 +13,9 @@ export interface Ride {
   cost_share: number
   description: string | null
   women_only: boolean
+  pets_allowed: boolean
+  smoking_allowed: boolean
+  vip_solo: boolean
   status: RideStatus
   created_at: string
   updated_at: string
@@ -22,5 +25,7 @@ export interface RideWithDriver extends Ride {
   driver: {
     full_name: string | null
     avatar_url: string | null
+    car_brand: string | null
+    car_model: string | null
   } | null
 }

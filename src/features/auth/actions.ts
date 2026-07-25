@@ -88,6 +88,7 @@ export async function signUp(_prevState: AuthActionState, formData: FormData): P
     confirmPassword: formData.get("confirmPassword"),
     gender: formData.get("gender"),
     phone: formData.get("phone"),
+    termsAccepted: formData.get("termsAccepted"),
   })
   if (!parsed.success) {
     return { error: firstIssueMessage(parsed.error, tErrors("invalidForm")) }

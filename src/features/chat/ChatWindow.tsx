@@ -8,7 +8,7 @@ import { toast } from "sonner"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { EmptyState } from "@/components/EmptyState"
 import { createClient } from "@/lib/supabase/client"
-import { markMessagesRead, sendMessage } from "@/features/chat/actions"
+import { markMessagesRead, sendLocationMessage, sendMessage } from "@/features/chat/actions"
 import { MessageBubble } from "@/features/chat/MessageBubble"
 import { MessageInput } from "@/features/chat/MessageInput"
 import type { Message } from "@/types/message"
@@ -127,6 +127,15 @@ export function ChatWindow({
     })
   }
 
+  function handleShareLocation(lat: number, lng: number) {
+    startTransition(async () => {
+      const result = await sendLocationMessage(rideId, counterpart.id, lat, lng)
+      if (result?.error) {
+        toast.error(result.error)
+      }
+    })
+  }
+
   return (
     <div className="border-border/70 bg-card flex flex-1 flex-col overflow-hidden rounded-xl border">
       <div className="border-border/70 flex items-center gap-3 border-b p-3.5">
@@ -150,7 +159,7 @@ export function ChatWindow({
         )}
       </div>
 
-      <MessageInput onSend={handleSend} onTyping={handleTyping} disabled={isSending} />
+      <MessageInput onSend={handleSend} onTyping={handleTyping} onShareLocation={handleShareLocation} disabled={isSending} />
     </div>
   )
 }

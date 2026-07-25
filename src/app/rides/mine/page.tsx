@@ -42,19 +42,21 @@ export default async function MyRidesPage() {
                 <div className="flex items-center gap-2">
                   {/* Booking management (and, from there, chat/review) must stay reachable
                       regardless of ride status — a full/completed ride still has approved
-                      passengers to talk to and, once it departs, to review. Only edit/cancel
-                      are status-gated, matching the "update own ride" RLS policy (active only). */}
+                      passengers to talk to and, once it departs, to review. Edit is status-
+                      gated to "active" (matches the "update own ride" RLS policy). Cancel is
+                      gated to "active" or "full" (matches cancel_ride_with_bookings' own
+                      check, see 0021_cancellation_refunds.sql) — a fully-booked ride (e.g. a
+                      VIP one-seat ride) must stay cancellable, since that's exactly the case
+                      the refund workflow exists for. */}
                   <Link href={`/rides/${ride.id}/bookings`} className={buttonVariants({ variant: "outline", size: "sm" })}>
                     <Users /> {tMyRides("bookings")}
                   </Link>
                   {ride.status === "active" && (
-                    <>
-                      <Link href={`/rides/${ride.id}/edit`} className={buttonVariants({ variant: "outline", size: "sm" })}>
-                        <Pencil /> {tMyRides("edit")}
-                      </Link>
-                      <CancelRideButton rideId={ride.id} />
-                    </>
+                    <Link href={`/rides/${ride.id}/edit`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                      <Pencil /> {tMyRides("edit")}
+                    </Link>
                   )}
+                  {(ride.status === "active" || ride.status === "full") && <CancelRideButton rideId={ride.id} />}
                 </div>
               }
             />

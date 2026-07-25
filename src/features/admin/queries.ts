@@ -2,13 +2,49 @@ import "server-only"
 
 import { createClient } from "@/lib/supabase/server"
 import type { ProfileVerificationStatus } from "@/types/profile"
-import type { BookingStatus } from "@/types/booking"
+import type { Booking, BookingStatus } from "@/types/booking"
 import type { RideWithDriver } from "@/types/ride"
 
 const ADMIN_LIST_LIMIT = 100
 const RIDE_WITH_DRIVER_SELECT = "*, driver:profiles(full_name, avatar_url)"
 const BOOKING_STATUSES: BookingStatus[] = ["pending", "approved", "rejected", "cancelled"]
 const TREND_DAYS = 7
+
+export interface AdminBookingRow extends Booking {
+  passenger: { full_name: string | null } | null
+  ride: { departure_city: string; arrival_city: string; driver: { full_name: string | null } | null }
+}
+
+const ADMIN_BOOKING_SELECT = "*, passenger:profiles(full_name), ride:rides(departure_city, arrival_city, driver:profiles(full_name))"
+
+// Deposit receipts a passenger uploaded but nobody has reviewed yet — see
+// submit_deposit_receipt/admin_review_deposit_receipt (0020_payment_receipts.sql).
+export async function getPendingDepositReceipts(): Promise<AdminBookingRow[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("bookings")
+    .select(ADMIN_BOOKING_SELECT)
+    .eq("deposit_receipt_status", "pending")
+    .order("deposit_receipt_reviewed_at", { ascending: true, nullsFirst: true })
+    .limit(ADMIN_LIST_LIMIT)
+
+  return (data as unknown as AdminBookingRow[] | null) ?? []
+}
+
+// Refunds where the driver already uploaded proof and it's waiting on an
+// admin to confirm — see submit_refund_proof/admin_confirm_refund
+// (0021_cancellation_refunds.sql).
+export async function getPendingRefunds(): Promise<AdminBookingRow[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("bookings")
+    .select(ADMIN_BOOKING_SELECT)
+    .eq("refund_status", "proof_submitted")
+    .order("refund_requested_at", { ascending: true })
+    .limit(ADMIN_LIST_LIMIT)
+
+  return (data as unknown as AdminBookingRow[] | null) ?? []
+}
 
 export async function checkIsAdmin(userId: string): Promise<boolean> {
   const supabase = await createClient()

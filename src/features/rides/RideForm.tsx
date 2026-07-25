@@ -71,6 +71,9 @@ export function RideForm({ ride }: { ride?: Ride }) {
       costShare: ride?.cost_share ?? 0,
       description: ride?.description ?? undefined,
       womenOnly: ride?.women_only ?? false,
+      petsAllowed: ride?.pets_allowed ?? false,
+      smokingAllowed: ride?.smoking_allowed ?? false,
+      vipSolo: ride?.vip_solo ?? false,
     },
   })
 
@@ -321,6 +324,7 @@ export function RideForm({ ride }: { ride?: Ride }) {
               type="number"
               min={MIN_SEAT_COUNT}
               max={MAX_SEAT_COUNT}
+              disabled={watch("vipSolo")}
               aria-invalid={!!errors.seatCount}
               aria-describedby={errors.seatCount ? "seatCount-error" : undefined}
               {...register("seatCount")}
@@ -369,6 +373,58 @@ export function RideForm({ ride }: { ride?: Ride }) {
             {t("womenOnly")}
           </FieldLabel>
         </Field>
+
+        <Field orientation="horizontal">
+          <Controller
+            control={control}
+            name="petsAllowed"
+            render={({ field }) => (
+              <Checkbox id="petsAllowed" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
+            )}
+          />
+          <FieldLabel htmlFor="petsAllowed" className="font-normal">
+            {t("petsAllowed")}
+          </FieldLabel>
+        </Field>
+
+        <Field orientation="horizontal">
+          <Controller
+            control={control}
+            name="smokingAllowed"
+            render={({ field }) => (
+              <Checkbox id="smokingAllowed" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
+            )}
+          />
+          <FieldLabel htmlFor="smokingAllowed" className="font-normal">
+            {t("smokingAllowed")}
+          </FieldLabel>
+        </Field>
+
+        <Field orientation="horizontal">
+          <Controller
+            control={control}
+            name="vipSolo"
+            render={({ field }) => (
+              <Checkbox
+                id="vipSolo"
+                checked={field.value}
+                onCheckedChange={(checked) => {
+                  const isVip = checked === true
+                  field.onChange(isVip)
+                  // VIP ilanlar tek yolcu içindir — bkz. schemas.ts'teki
+                  // vipSoloSingleSeat refine'ı ve DB'deki aynı check constraint.
+                  if (isVip) {
+                    setValue("seatCount", 1)
+                  }
+                }}
+              />
+            )}
+          />
+          <FieldLabel htmlFor="vipSolo" className="font-normal">
+            {t("vipSolo")}
+          </FieldLabel>
+        </Field>
+        {watch("vipSolo") && <FieldDescription>{t("vipSoloHint")}</FieldDescription>}
       </FieldGroup>
 
       <Button type="submit" size="lg" className="w-full sm:w-fit" disabled={isSubmitting}>

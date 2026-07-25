@@ -9,10 +9,12 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
 import { Field, FieldLabel } from "@/components/ui/field"
 import { BookingStatusBadge } from "@/features/bookings/BookingStatusBadge"
 import { CancelBookingButton } from "@/features/bookings/CancelBookingButton"
-import { createBooking } from "@/features/bookings/actions"
+import { ReceiptUploadForm } from "@/features/bookings/ReceiptUploadForm"
+import { createBooking, submitDepositReceipt } from "@/features/bookings/actions"
 import { MIN_BOOKING_SEAT_COUNT } from "@/features/bookings/schemas"
 import type { Booking } from "@/types/booking"
 
@@ -63,6 +65,20 @@ export function BookingButton({
               <span className="text-muted-foreground">{tPayment("noCommissionDisclaimer")}</span>
             </AlertDescription>
           </Alert>
+        )}
+        {awaitingDeposit && driverPaymentInfo && (
+          <div className="flex items-center gap-2">
+            {existingBooking.deposit_receipt_status === null || existingBooking.deposit_receipt_status === "rejected" ? (
+              <ReceiptUploadForm
+                action={(formData) => submitDepositReceipt(existingBooking.id, rideId, formData)}
+                label={tPayment("uploadReceipt")}
+              />
+            ) : (
+              <Badge variant={existingBooking.deposit_receipt_status === "approved" ? "secondary" : "outline"}>
+                {tPayment(`receiptStatus.${existingBooking.deposit_receipt_status}`)}
+              </Badge>
+            )}
+          </div>
         )}
       </div>
     )

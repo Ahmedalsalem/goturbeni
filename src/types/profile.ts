@@ -12,6 +12,8 @@ export interface Profile {
   gender: ProfileGender | null
   iban: string | null
   iban_holder_name: string | null
+  car_brand: string | null
+  car_model: string | null
   bio: string | null
   language: AppLocale
   verification_status: ProfileVerificationStatus

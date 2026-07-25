@@ -76,3 +76,50 @@ export async function cancelRideAsAdmin(rideId: string): Promise<AdminActionStat
   revalidatePath("/admin/rides")
   return { success: true }
 }
+
+// Same authorization shape as the others — admin_review_deposit_receipt is
+// the sole enforcement point (0020_payment_receipts.sql).
+export async function reviewDepositReceipt(bookingId: string, approved: boolean): Promise<AdminActionState> {
+  const tErrors = await getAdminErrorTranslator()
+  if (!isSupabaseConfigured()) {
+    return { error: tErrors("notConfigured") }
+  }
+
+  await verifySession()
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("admin_review_deposit_receipt", { p_booking_id: bookingId, p_approved: approved })
+
+  if (error) {
+    if (error.message.includes("not_admin")) {
+      return { error: tErrors("notAdmin") }
+    }
+    logError(error, "admin.reviewDepositReceipt")
+    return { error: tErrors("actionFailed") }
+  }
+
+  revalidatePath("/admin/payments")
+  return { success: true }
+}
+
+// admin_confirm_refund is the sole enforcement point (0021_cancellation_refunds.sql).
+export async function confirmRefund(bookingId: string): Promise<AdminActionState> {
+  const tErrors = await getAdminErrorTranslator()
+  if (!isSupabaseConfigured()) {
+    return { error: tErrors("notConfigured") }
+  }
+
+  await verifySession()
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("admin_confirm_refund", { p_booking_id: bookingId })
+
+  if (error) {
+    if (error.message.includes("not_admin")) {
+      return { error: tErrors("notAdmin") }
+    }
+    logError(error, "admin.confirmRefund")
+    return { error: tErrors("actionFailed") }
+  }
+
+  revalidatePath("/admin/payments")
+  return { success: true }
+}

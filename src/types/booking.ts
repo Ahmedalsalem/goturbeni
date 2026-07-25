@@ -2,6 +2,8 @@ import type { RideWithDriver } from "@/types/ride"
 
 export type BookingStatus = "pending" | "approved" | "rejected" | "cancelled"
 export type BookingPaymentStatus = "awaiting_deposit" | "deposit_confirmed" | "settled"
+export type ReceiptStatus = "pending" | "approved" | "rejected"
+export type RefundStatus = "not_applicable" | "pending" | "proof_submitted" | "confirmed"
 
 export interface Booking {
   id: string
@@ -13,6 +15,13 @@ export interface Booking {
   deposit_deadline_at: string
   driver_settled_at: string | null
   passenger_settled_at: string | null
+  deposit_receipt_url: string | null
+  deposit_receipt_status: ReceiptStatus | null
+  deposit_receipt_reviewed_at: string | null
+  refund_status: RefundStatus
+  refund_proof_url: string | null
+  refund_requested_at: string | null
+  refund_confirmed_at: string | null
   created_at: string
   updated_at: string
 }

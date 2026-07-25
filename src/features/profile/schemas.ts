@@ -12,6 +12,8 @@ export const MAX_PHONE_LENGTH = 20
 export const MAX_BIO_LENGTH = 500
 export const MAX_IBAN_LENGTH = 34
 export const MAX_IBAN_HOLDER_NAME_LENGTH = 100
+export const MAX_CAR_BRAND_LENGTH = 50
+export const MAX_CAR_MODEL_LENGTH = 50
 
 // TR + 24 digits (26 chars total), spaces/dashes stripped before matching —
 // the standard Turkish IBAN format (matches the DB check constraint in
@@ -19,7 +21,16 @@ export const MAX_IBAN_HOLDER_NAME_LENGTH = 100
 const TR_IBAN_PATTERN = /^TR\d{24}$/
 
 type ValidationTranslator = (
-  key: "fullNameRequired" | "fullNameMax" | "phoneMax" | "phoneInvalid" | "bioMax" | "ibanInvalid" | "ibanHolderNameMax"
+  key:
+    | "fullNameRequired"
+    | "fullNameMax"
+    | "phoneMax"
+    | "phoneInvalid"
+    | "bioMax"
+    | "ibanInvalid"
+    | "ibanHolderNameMax"
+    | "carBrandMax"
+    | "carModelMax"
 ) => string
 
 export function buildProfileSchema(t: ValidationTranslator) {
@@ -50,6 +61,18 @@ export function buildProfileSchema(t: ValidationTranslator) {
       .string()
       .trim()
       .max(MAX_IBAN_HOLDER_NAME_LENGTH, t("ibanHolderNameMax"))
+      .optional()
+      .transform((value) => (value ? value : undefined)),
+    carBrand: z
+      .string()
+      .trim()
+      .max(MAX_CAR_BRAND_LENGTH, t("carBrandMax"))
+      .optional()
+      .transform((value) => (value ? value : undefined)),
+    carModel: z
+      .string()
+      .trim()
+      .max(MAX_CAR_MODEL_LENGTH, t("carModelMax"))
       .optional()
       .transform((value) => (value ? value : undefined)),
   })
