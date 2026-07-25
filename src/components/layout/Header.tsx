@@ -35,15 +35,31 @@ export async function Header() {
   return (
     <header className="border-border/70 bg-background/75 sticky top-0 z-40 border-b backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-        <div className="flex items-center gap-1">
-          {/* Mobile nav trigger sits at the top-left, ahead of the logo —
-              the thumb-reachable spot users expect a menu button on a
-              narrow screen. */}
+        <Link href="/" className="flex items-center gap-2 text-lg font-semibold tracking-tight">
+          <Image src="/brand/logo-mark.png" alt="" width={32} height={32} priority className="size-8" />
+          GötürBeni
+        </Link>
+
+        <nav className="hidden items-center gap-1 md:flex">
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={buttonVariants({ variant: "ghost", className: "text-muted-foreground hover:text-foreground font-normal" })}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="flex items-center gap-1.5">
+          {/* Mobile nav trigger sits at the far right, alongside the rest of
+              the header's action icons. */}
           <DropdownMenu>
             <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", size: "icon", className: "md:hidden" })} aria-label={t("menu")}>
               <Menu />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-48">
+            <DropdownMenuContent align="end" className="w-48">
               {links.map((link) => (
                 <DropdownMenuItem key={link.href} render={<Link href={link.href} />}>
                   {link.label}
@@ -61,25 +77,6 @@ export async function Header() {
               )}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Link href="/" className="flex items-center gap-2 text-lg font-semibold tracking-tight">
-            <Image src="/brand/logo-mark.png" alt="" width={32} height={32} priority className="size-8" />
-            GötürBeni
-          </Link>
-        </div>
-
-        <nav className="hidden items-center gap-1 md:flex">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={buttonVariants({ variant: "ghost", className: "text-muted-foreground hover:text-foreground font-normal" })}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-1.5">
           <LocaleSwitcher />
           <InstallAppButton />
           {user && <PushNotificationToggle />}
