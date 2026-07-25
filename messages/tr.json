@@ -53,7 +53,11 @@
     "ctaFindRide": "Yolculuk Bul",
     "ctaOfferRide": "İlan Ver",
     "metaTitle": "Şehirlerarası Araç Paylaşımı ve Yolcu Bulma",
-    "metaDescription": "Şehirlerarası yolculuklarda güvenilir sürücü ve yolcularla eşleş. Masraf paylaşımlı araç paylaşımı ile ekonomik ve pratik seyahat et. Hemen ilan ver veya yolculuk bul."
+    "metaDescription": "Şehirlerarası yolculuklarda güvenilir sürücü ve yolcularla eşleş. Masraf paylaşımlı araç paylaşımı ile ekonomik ve pratik seyahat et. Hemen ilan ver veya yolculuk bul.",
+    "geoPrompt": {
+      "message": "Sana yakın yolculukları göstermek için konumunu kullanabilir miyiz?",
+      "accept": "İzin Ver"
+    }
   },
   "Auth": {
     "login": {

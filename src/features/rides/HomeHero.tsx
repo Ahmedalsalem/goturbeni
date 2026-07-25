@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { motion, type Variants } from "framer-motion"
 import { useLocale, useTranslations } from "next-intl"
+import { toast } from "sonner"
 
 import { buttonVariants } from "@/components/ui/button"
 import { RideFilters } from "@/features/rides/RideFilters"
@@ -31,31 +32,41 @@ export function HomeHero() {
   const [geoFilters, setGeoFilters] = useState<RideSearchFilters | null>(null)
 
   useEffect(() => {
-    // Ask for location once per browser, on first-ever visit — never again
-    // after that, whether the visitor granted or denied it. A single
-    // reverse-geocode call triggered directly by that one-time grant stays
-    // within Nominatim's "explicit user action, not polling" usage policy.
+    // Calling getCurrentPosition straight from a page-load effect (no user
+    // gesture) is exactly the pattern Chrome's permission heuristics punish:
+    // sites that request location without interaction get silently switched
+    // to the quiet/auto-denied UI instead of the real prompt, which looked
+    // like "it always rejects" from the outside. Showing a toast first and
+    // only calling getCurrentPosition from its button's onClick makes the
+    // request a genuine user gesture again.
     if (!("geolocation" in navigator)) return
     if (window.localStorage.getItem(GEO_PROMPT_STORAGE_KEY)) return
     window.localStorage.setItem(GEO_PROMPT_STORAGE_KEY, "1")
 
-    navigator.geolocation.getCurrentPosition(
-      (result) => {
-        reverseGeocode(result.coords.latitude, result.coords.longitude, locale)
-          .then((address) => {
-            const matched = matchTurkishLocation(address)
-            if (matched) {
-              setGeoFilters({ sort: "date_asc", from: matched.province, fromDistrict: matched.district ?? undefined })
-            }
-          })
-          .catch((error) => logError(error, "home.geoPrefill"))
-      },
-      () => {
-        // Denied or unavailable — fine, the search form just stays empty.
-      },
-      { timeout: 10000 }
-    )
-    // Runs once on mount only; re-running on `locale` change would re-fire
+    function requestLocation() {
+      navigator.geolocation.getCurrentPosition(
+        (result) => {
+          reverseGeocode(result.coords.latitude, result.coords.longitude, locale)
+            .then((address) => {
+              const matched = matchTurkishLocation(address)
+              if (matched) {
+                setGeoFilters({ sort: "date_asc", from: matched.province, fromDistrict: matched.district ?? undefined })
+              }
+            })
+            .catch((error) => logError(error, "home.geoPrefill"))
+        },
+        () => {
+          // Denied or unavailable — fine, the search form just stays empty.
+        },
+        { timeout: 10000 }
+      )
+    }
+
+    toast(t("geoPrompt.message"), {
+      duration: 15000,
+      action: { label: t("geoPrompt.accept"), onClick: requestLocation },
+    })
+    // Runs once on mount only; re-running on `locale`/`t` change would re-fire
     // the geolocation prompt logic mid-session.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

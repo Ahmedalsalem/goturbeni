@@ -118,139 +118,147 @@ export function RideFilters({
           : "border-border bg-card rounded-2xl border p-4"
       )}
     >
-      <Field className="sm:w-48">
-        <FieldLabel htmlFor="filter-from">{t("fromLabel")}</FieldLabel>
-        <Combobox
-          items={TURKISH_PROVINCES}
-          value={from}
-          itemToStringLabel={(city) => getProvinceDisplayName(city, locale)}
-          onValueChange={(value) => {
-            setFrom(value as TurkishProvince | null)
-            setFromDistrict(null)
-          }}
-        >
-          <ComboboxInputGroup>
-            <FieldIcon icon={MapPin} />
-            <ComboboxInput id="filter-from" aria-label={t("fromLabel")} placeholder={t("allCities")} className="ps-9" />
-            <ComboboxTriggerGroup>
-              <ComboboxClear aria-label={t("clearSelection")} />
-              <ComboboxTrigger aria-label={t("fromLabel")} />
-            </ComboboxTriggerGroup>
-          </ComboboxInputGroup>
-          <ComboboxContent>
-            <ComboboxEmpty>{t("noResults")}</ComboboxEmpty>
-            <ComboboxList>
-              {(city: string) => (
-                <ComboboxItem key={city} value={city}>
-                  {getProvinceDisplayName(city, locale)}
-                </ComboboxItem>
-              )}
-            </ComboboxList>
-          </ComboboxContent>
-        </Combobox>
-        <LocationPicker
-          onLocationResolved={(province, district) => {
-            setFrom(province)
-            setFromDistrict(district)
-          }}
-        />
-      </Field>
+      {/* Each city+district pair is wrapped so flex-wrap breaks between
+          pairs, never inside one — otherwise "Varış" could land at the end
+          of one row while "Varış İlçesi" wraps to the next, splitting a
+          field from the district that belongs to it. */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-4">
+        <Field className="sm:w-48">
+          <FieldLabel htmlFor="filter-from">{t("fromLabel")}</FieldLabel>
+          <Combobox
+            items={TURKISH_PROVINCES}
+            value={from}
+            itemToStringLabel={(city) => getProvinceDisplayName(city, locale)}
+            onValueChange={(value) => {
+              setFrom(value as TurkishProvince | null)
+              setFromDistrict(null)
+            }}
+          >
+            <ComboboxInputGroup>
+              <FieldIcon icon={MapPin} />
+              <ComboboxInput id="filter-from" aria-label={t("fromLabel")} placeholder={t("allCities")} className="ps-9" />
+              <ComboboxTriggerGroup>
+                <ComboboxClear aria-label={t("clearSelection")} />
+                <ComboboxTrigger aria-label={t("fromLabel")} />
+              </ComboboxTriggerGroup>
+            </ComboboxInputGroup>
+            <ComboboxContent>
+              <ComboboxEmpty>{t("noResults")}</ComboboxEmpty>
+              <ComboboxList>
+                {(city: string) => (
+                  <ComboboxItem key={city} value={city}>
+                    {getProvinceDisplayName(city, locale)}
+                  </ComboboxItem>
+                )}
+              </ComboboxList>
+            </ComboboxContent>
+          </Combobox>
+          <LocationPicker
+            onLocationResolved={(province, district) => {
+              setFrom(province)
+              setFromDistrict(district)
+            }}
+          />
+        </Field>
 
-      <Field className="sm:w-48">
-        <FieldLabel htmlFor="filter-from-district">{t("fromDistrictLabel")}</FieldLabel>
-        <Combobox items={fromDistricts} value={fromDistrict} onValueChange={setFromDistrict} disabled={fromDistricts.length === 0}>
-          <ComboboxInputGroup>
-            <FieldIcon icon={MapPin} />
-            <ComboboxInput
-              id="filter-from-district"
-              aria-label={t("fromDistrictLabel")}
-              placeholder={from ? t("allDistricts") : t("selectCityFirst")}
-              className="ps-9"
-            />
-            <ComboboxTriggerGroup>
-              <ComboboxClear aria-label={t("clearSelection")} />
-              <ComboboxTrigger aria-label={t("fromDistrictLabel")} />
-            </ComboboxTriggerGroup>
-          </ComboboxInputGroup>
-          <ComboboxContent>
-            <ComboboxEmpty>{t("noResults")}</ComboboxEmpty>
-            <ComboboxList>
-              {(district: string) => (
-                <ComboboxItem key={district} value={district}>
-                  {district}
-                </ComboboxItem>
-              )}
-            </ComboboxList>
-          </ComboboxContent>
-        </Combobox>
-      </Field>
+        <Field className="sm:w-48">
+          <FieldLabel htmlFor="filter-from-district">{t("fromDistrictLabel")}</FieldLabel>
+          <Combobox items={fromDistricts} value={fromDistrict} onValueChange={setFromDistrict} disabled={fromDistricts.length === 0}>
+            <ComboboxInputGroup>
+              <FieldIcon icon={MapPin} />
+              <ComboboxInput
+                id="filter-from-district"
+                aria-label={t("fromDistrictLabel")}
+                placeholder={from ? t("allDistricts") : t("selectCityFirst")}
+                className="ps-9"
+              />
+              <ComboboxTriggerGroup>
+                <ComboboxClear aria-label={t("clearSelection")} />
+                <ComboboxTrigger aria-label={t("fromDistrictLabel")} />
+              </ComboboxTriggerGroup>
+            </ComboboxInputGroup>
+            <ComboboxContent>
+              <ComboboxEmpty>{t("noResults")}</ComboboxEmpty>
+              <ComboboxList>
+                {(district: string) => (
+                  <ComboboxItem key={district} value={district}>
+                    {district}
+                  </ComboboxItem>
+                )}
+              </ComboboxList>
+            </ComboboxContent>
+          </Combobox>
+        </Field>
+      </div>
 
-      <Field className="sm:w-48">
-        <FieldLabel htmlFor="filter-to">{t("toLabel")}</FieldLabel>
-        <Combobox
-          items={TURKISH_PROVINCES}
-          value={to}
-          itemToStringLabel={(city) => getProvinceDisplayName(city, locale)}
-          onValueChange={(value) => {
-            setTo(value as TurkishProvince | null)
-            setToDistrict(null)
-          }}
-        >
-          <ComboboxInputGroup>
-            <FieldIcon icon={MapPin} />
-            <ComboboxInput id="filter-to" aria-label={t("toLabel")} placeholder={t("allCities")} className="ps-9" />
-            <ComboboxTriggerGroup>
-              <ComboboxClear aria-label={t("clearSelection")} />
-              <ComboboxTrigger aria-label={t("toLabel")} />
-            </ComboboxTriggerGroup>
-          </ComboboxInputGroup>
-          <ComboboxContent>
-            <ComboboxEmpty>{t("noResults")}</ComboboxEmpty>
-            <ComboboxList>
-              {(city: string) => (
-                <ComboboxItem key={city} value={city}>
-                  {getProvinceDisplayName(city, locale)}
-                </ComboboxItem>
-              )}
-            </ComboboxList>
-          </ComboboxContent>
-        </Combobox>
-        <LocationPicker
-          onLocationResolved={(province, district) => {
-            setTo(province)
-            setToDistrict(district)
-          }}
-        />
-      </Field>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-4">
+        <Field className="sm:w-48">
+          <FieldLabel htmlFor="filter-to">{t("toLabel")}</FieldLabel>
+          <Combobox
+            items={TURKISH_PROVINCES}
+            value={to}
+            itemToStringLabel={(city) => getProvinceDisplayName(city, locale)}
+            onValueChange={(value) => {
+              setTo(value as TurkishProvince | null)
+              setToDistrict(null)
+            }}
+          >
+            <ComboboxInputGroup>
+              <FieldIcon icon={MapPin} />
+              <ComboboxInput id="filter-to" aria-label={t("toLabel")} placeholder={t("allCities")} className="ps-9" />
+              <ComboboxTriggerGroup>
+                <ComboboxClear aria-label={t("clearSelection")} />
+                <ComboboxTrigger aria-label={t("toLabel")} />
+              </ComboboxTriggerGroup>
+            </ComboboxInputGroup>
+            <ComboboxContent>
+              <ComboboxEmpty>{t("noResults")}</ComboboxEmpty>
+              <ComboboxList>
+                {(city: string) => (
+                  <ComboboxItem key={city} value={city}>
+                    {getProvinceDisplayName(city, locale)}
+                  </ComboboxItem>
+                )}
+              </ComboboxList>
+            </ComboboxContent>
+          </Combobox>
+          <LocationPicker
+            onLocationResolved={(province, district) => {
+              setTo(province)
+              setToDistrict(district)
+            }}
+          />
+        </Field>
 
-      <Field className="sm:w-48">
-        <FieldLabel htmlFor="filter-to-district">{t("toDistrictLabel")}</FieldLabel>
-        <Combobox items={toDistricts} value={toDistrict} onValueChange={setToDistrict} disabled={toDistricts.length === 0}>
-          <ComboboxInputGroup>
-            <FieldIcon icon={MapPin} />
-            <ComboboxInput
-              id="filter-to-district"
-              aria-label={t("toDistrictLabel")}
-              placeholder={to ? t("allDistricts") : t("selectCityFirst")}
-              className="ps-9"
-            />
-            <ComboboxTriggerGroup>
-              <ComboboxClear aria-label={t("clearSelection")} />
-              <ComboboxTrigger aria-label={t("toDistrictLabel")} />
-            </ComboboxTriggerGroup>
-          </ComboboxInputGroup>
-          <ComboboxContent>
-            <ComboboxEmpty>{t("noResults")}</ComboboxEmpty>
-            <ComboboxList>
-              {(district: string) => (
-                <ComboboxItem key={district} value={district}>
-                  {district}
-                </ComboboxItem>
-              )}
-            </ComboboxList>
-          </ComboboxContent>
-        </Combobox>
-      </Field>
+        <Field className="sm:w-48">
+          <FieldLabel htmlFor="filter-to-district">{t("toDistrictLabel")}</FieldLabel>
+          <Combobox items={toDistricts} value={toDistrict} onValueChange={setToDistrict} disabled={toDistricts.length === 0}>
+            <ComboboxInputGroup>
+              <FieldIcon icon={MapPin} />
+              <ComboboxInput
+                id="filter-to-district"
+                aria-label={t("toDistrictLabel")}
+                placeholder={to ? t("allDistricts") : t("selectCityFirst")}
+                className="ps-9"
+              />
+              <ComboboxTriggerGroup>
+                <ComboboxClear aria-label={t("clearSelection")} />
+                <ComboboxTrigger aria-label={t("toDistrictLabel")} />
+              </ComboboxTriggerGroup>
+            </ComboboxInputGroup>
+            <ComboboxContent>
+              <ComboboxEmpty>{t("noResults")}</ComboboxEmpty>
+              <ComboboxList>
+                {(district: string) => (
+                  <ComboboxItem key={district} value={district}>
+                    {district}
+                  </ComboboxItem>
+                )}
+              </ComboboxList>
+            </ComboboxContent>
+          </Combobox>
+        </Field>
+      </div>
 
       <Field className="sm:w-44">
         <FieldLabel htmlFor="filter-date">{t("dateLabel")}</FieldLabel>

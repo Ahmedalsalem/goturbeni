@@ -73,6 +73,16 @@ export async function Header() {
                 )}
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
+                {/* Nav links only — desktop already shows them in the bar
+                    above, so duplicating them here would be redundant there.
+                    On mobile this is the only nav access once the standalone
+                    hamburger trigger is gone (below), so it lives here. */}
+                {links.map((link) => (
+                  <DropdownMenuItem key={link.href} className="md:hidden" render={<Link href={link.href} />}>
+                    {link.label}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator className="md:hidden" />
                 <DropdownMenuItem render={<Link href="/profile" />}>
                   <User /> {t("profile")}
                 </DropdownMenuItem>
@@ -99,39 +109,36 @@ export async function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <div className="hidden items-center gap-1.5 sm:flex">
-              <Link href="/login" className={buttonVariants({ variant: "ghost" })}>
-                {t("login")}
-              </Link>
-              <Link href="/register" className={buttonVariants()}>
-                {t("register")}
-              </Link>
-            </div>
-          )}
+            <>
+              <div className="hidden items-center gap-1.5 sm:flex">
+                <Link href="/login" className={buttonVariants({ variant: "ghost" })}>
+                  {t("login")}
+                </Link>
+                <Link href="/register" className={buttonVariants()}>
+                  {t("register")}
+                </Link>
+              </div>
 
-          {/* Mobile nav trigger is the last (rightmost) icon in the header. */}
-          <DropdownMenu>
-            <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", size: "icon", className: "md:hidden" })} aria-label={t("menu")}>
-              <Menu />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              {links.map((link) => (
-                <DropdownMenuItem key={link.href} render={<Link href={link.href} />}>
-                  {link.label}
-                </DropdownMenuItem>
-              ))}
-              {/* Auth actions collapse into this mobile menu too — the
-                  standalone login/register links above are hidden below sm
-                  purely to stop the header overflowing on narrow screens. */}
-              {!user && (
-                <>
+              {/* Logged-out mobile nav trigger, last (rightmost) icon in the
+                  header. Logged-in users get the same nav links folded into
+                  the profile dropdown above instead of a second menu button. */}
+              <DropdownMenu>
+                <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", size: "icon", className: "md:hidden" })} aria-label={t("menu")}>
+                  <Menu />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  {links.map((link) => (
+                    <DropdownMenuItem key={link.href} render={<Link href={link.href} />}>
+                      {link.label}
+                    </DropdownMenuItem>
+                  ))}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem render={<Link href="/login" />}>{t("login")}</DropdownMenuItem>
                   <DropdownMenuItem render={<Link href="/register" />}>{t("register")}</DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          )}
         </div>
       </div>
     </header>
