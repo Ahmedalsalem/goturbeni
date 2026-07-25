@@ -1,12 +1,16 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { motion, type Variants } from "framer-motion"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 
 import { buttonVariants } from "@/components/ui/button"
 import { RideFilters } from "@/features/rides/RideFilters"
 import type { RideSearchFilters } from "@/features/rides/filters"
+import { reverseGeocode } from "@/features/rides/reverse-geocode"
+import { matchTurkishLocation } from "@/utils/match-turkish-location"
+import { logError } from "@/lib/logger"
 
 const container: Variants = {
   hidden: {},
@@ -19,9 +23,42 @@ const item: Variants = {
 }
 
 const DEFAULT_FILTERS: RideSearchFilters = { sort: "date_asc" }
+const GEO_PROMPT_STORAGE_KEY = "geo-prompt-shown"
 
 export function HomeHero() {
   const t = useTranslations("HomePage")
+  const locale = useLocale()
+  const [geoFilters, setGeoFilters] = useState<RideSearchFilters | null>(null)
+
+  useEffect(() => {
+    // Ask for location once per browser, on first-ever visit — never again
+    // after that, whether the visitor granted or denied it. A single
+    // reverse-geocode call triggered directly by that one-time grant stays
+    // within Nominatim's "explicit user action, not polling" usage policy.
+    if (!("geolocation" in navigator)) return
+    if (window.localStorage.getItem(GEO_PROMPT_STORAGE_KEY)) return
+    window.localStorage.setItem(GEO_PROMPT_STORAGE_KEY, "1")
+
+    navigator.geolocation.getCurrentPosition(
+      (result) => {
+        reverseGeocode(result.coords.latitude, result.coords.longitude, locale)
+          .then((address) => {
+            const matched = matchTurkishLocation(address)
+            if (matched) {
+              setGeoFilters({ sort: "date_asc", from: matched.province, fromDistrict: matched.district ?? undefined })
+            }
+          })
+          .catch((error) => logError(error, "home.geoPrefill"))
+      },
+      () => {
+        // Denied or unavailable — fine, the search form just stays empty.
+      },
+      { timeout: 10000 }
+    )
+    // Runs once on mount only; re-running on `locale` change would re-fire
+    // the geolocation prompt logic mid-session.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <motion.div
@@ -39,7 +76,7 @@ export function HomeHero() {
       </motion.p>
 
       <motion.div variants={item} className="w-full max-w-3xl text-start">
-        <RideFilters initial={DEFAULT_FILTERS} showSort={false} variant="hero" />
+        <RideFilters key={geoFilters ? "geo" : "default"} initial={geoFilters ?? DEFAULT_FILTERS} showSort={false} variant="hero" />
       </motion.div>
 
       <motion.div variants={item} className="flex flex-wrap items-center justify-center gap-3 pt-1">

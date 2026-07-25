@@ -53,7 +53,9 @@ export async function signIn(_prevState: AuthActionState, formData: FormData): P
     logError(error, "auth.signIn")
     return { error: tErrors("invalidCredentials") }
   }
-  redirect("/profile")
+  // Straight to ride search after login — that's the action most users came
+  // back to do, not their own profile.
+  redirect("/rides")
 }
 
 export async function signUp(_prevState: AuthActionState, formData: FormData): Promise<AuthActionState> {

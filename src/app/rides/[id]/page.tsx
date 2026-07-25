@@ -1,10 +1,12 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getFormatter, getTranslations } from "next-intl/server"
-import { ArrowRight, CalendarDays, Clock, MapPin, Users } from "lucide-react"
+import { ArrowRight, CalendarDays, Clock, LogIn, MapPin, Users } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import { buttonVariants } from "@/components/ui/button"
 import { RideStatusBadge } from "@/features/rides/RideStatusBadge"
 import { getRideWithDriver } from "@/features/rides/queries"
 import { getProfile } from "@/features/profile/queries"
@@ -63,11 +65,12 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
     notFound()
   }
 
-  const [t, tCard, tNav, tReviews, format, locale, driverProfile, driverReviewStats, user] = await Promise.all([
+  const [t, tCard, tNav, tReviews, tBookings, format, locale, driverProfile, driverReviewStats, user] = await Promise.all([
     getTranslations("RideDetailPage"),
     getTranslations("Rides.card"),
     getTranslations("Nav"),
     getTranslations("Reviews"),
+    getTranslations("Bookings.loginPrompt"),
     getFormatter(),
     getUserLocale(),
     getProfile(ride.driver_id),
@@ -79,7 +82,12 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
   const departureAt = new Date(ride.departure_time)
   const driverName = ride.driver?.full_name ?? tCard("unknownDriver")
   const driverInitials = driverName.slice(0, 2).toUpperCase()
-  const canBook = user && user.id !== ride.driver_id && ride.status === "active"
+  const isActiveForBooking = ride.status === "active"
+  const canBook = user && user.id !== ride.driver_id && isActiveForBooking
+  // Guests can view every ride, but only a signed-in, non-owner user can book
+  // it — show a CTA instead of hiding the footer outright, so a logged-out
+  // visitor understands why there's no "reserve" button here.
+  const showLoginPrompt = !user && isActiveForBooking
   const departureCity = getProvinceDisplayName(ride.departure_city, locale)
   const arrivalCity = getProvinceDisplayName(ride.arrival_city, locale)
   const routeLabel = `${departureCity} → ${arrivalCity}`
@@ -160,6 +168,14 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
         {canBook && (
           <CardFooter>
             <BookingButton rideId={ride.id} availableSeats={ride.available_seats} existingBooking={existingBooking} />
+          </CardFooter>
+        )}
+        {showLoginPrompt && (
+          <CardFooter className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-muted-foreground text-sm">{tBookings("message")}</p>
+            <Link href="/login" className={buttonVariants({ size: "sm" })}>
+              <LogIn className="size-4" aria-hidden="true" /> {tBookings("cta")}
+            </Link>
           </CardFooter>
         )}
       </Card>

@@ -34,7 +34,8 @@
       "bookingRejectedBody": "Rezervasyon talebiniz reddedildi.",
       "newMessageTitle": "Yeni mesaj",
       "newMessageBody": "Yeni bir mesajınız var."
-    }
+    },
+    "unsupported": "Bildirimler bu tarayıcıda desteklenmiyor. iPhone'da Safari üzerinden kullanmak için siteyi önce Ana Ekrana Ekleyin."
   },
   "Pwa": {
     "install": "Uygulamayı Yükle"
@@ -63,7 +64,9 @@
       "submit": "Giriş Yap",
       "noAccount": "Hesabınız yok mu?",
       "registerLink": "Kayıt Ol",
-      "forgotPasswordLink": "Şifremi unuttum mu?"
+      "forgotPasswordLink": "Şifremi unuttum mu?",
+      "showPassword": "Şifreyi göster",
+      "hidePassword": "Şifreyi gizle"
     },
     "register": {
       "title": "Hesap Oluştur",
@@ -291,7 +294,7 @@
       "locationNoMatch": "Konumunuz otomatik olarak eşleştirilemedi, lütfen listeden seçin.",
       "showMap": "Haritada Seç",
       "hideMap": "Haritayı Gizle",
-      "mapInstructions": "Konumunu ayarlamak için haritadaki işaretçiyi sürükle.",
+      "mapInstructions": "Konumunu ayarlamak için haritada bir noktaya dokun.",
       "departureDate": "Tarih",
       "departureTime": "Saat",
       "seatCount": "Koltuk Sayısı",
@@ -387,6 +390,10 @@
     "card": {
       "seatCount": "{count} koltuk",
       "unknownPassenger": "Yolcu"
+    },
+    "loginPrompt": {
+      "message": "Rezervasyon yapmak için giriş yapmalısınız.",
+      "cta": "Giriş Yap"
     }
   },
   "Chat": {

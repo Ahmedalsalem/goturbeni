@@ -71,7 +71,7 @@ export function LocationPicker({
     )
   }
 
-  function onMarkerDragEnd(lat: number, lng: number) {
+  function onPositionChange(lat: number, lng: number) {
     setPosition([lat, lng])
     setStatus("resolving")
     void resolveAndApply(lat, lng).finally(() => setStatus("idle"))
@@ -99,7 +99,7 @@ export function LocationPicker({
 
       {isMapOpen && (
         <div className="flex flex-col gap-1.5">
-          <LocationPickerMap position={position ?? TURKEY_CENTER} onMarkerDragEnd={onMarkerDragEnd} />
+          <LocationPickerMap position={position ?? TURKEY_CENTER} onPositionChange={onPositionChange} />
           <FieldDescription>{t("mapInstructions")}</FieldDescription>
         </div>
       )}

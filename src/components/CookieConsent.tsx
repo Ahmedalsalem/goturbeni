@@ -53,19 +53,24 @@ export function CookieConsent({ gaMeasurementId }: { gaMeasurementId?: string })
   return (
     <>
       {mounted && consent === null && (
+        // pointer-events-none on the banner's own padding lets taps that miss
+        // the text/buttons fall through to whatever ride card or button sits
+        // underneath (this bar is fixed to the viewport bottom, so it
+        // otherwise sits on top of scrolled-in content for as long as it's
+        // shown) — only the two children below opt back into pointer-events.
         <div
           role="region"
           aria-label={t("label")}
-          className="bg-card border-border fixed inset-x-0 bottom-0 z-50 border-t px-4 py-4 shadow-lg sm:px-6"
+          className="bg-card border-border pointer-events-none fixed inset-x-0 bottom-0 z-50 border-t px-4 py-3 shadow-lg sm:px-6"
         >
           <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 sm:flex-row sm:justify-between">
-            <p className="text-muted-foreground text-sm">
+            <p className="pointer-events-auto text-muted-foreground text-sm">
               {t("message")}{" "}
               <Link href="/kvkk" className="text-foreground underline underline-offset-2">
                 {t("learnMore")}
               </Link>
             </p>
-            <div className="flex shrink-0 gap-2">
+            <div className="pointer-events-auto flex shrink-0 gap-2">
               <Button variant="outline" size="sm" onClick={() => decide("rejected")}>
                 {t("reject")}
               </Button>

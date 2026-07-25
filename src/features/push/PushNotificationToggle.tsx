@@ -26,6 +26,10 @@ export function PushNotificationToggle() {
 
   useEffect(() => {
     if (!VAPID_PUBLIC_KEY || !("serviceWorker" in navigator) || !("PushManager" in window)) {
+      // Most common real-world case: iOS Safari, which only exposes the Push
+      // API once the site has been added to the home screen — there's no
+      // permission step to retry here, so surface *why* instead of just
+      // disappearing (a bare `return null` looks like a bug from the outside).
       return
     }
     setSupported(true)
@@ -36,6 +40,10 @@ export function PushNotificationToggle() {
   }, [])
 
   async function onToggle() {
+    if (!supported) {
+      toast.error(t("unsupported"))
+      return
+    }
     if (!VAPID_PUBLIC_KEY) return
     setIsPending(true)
     try {
@@ -84,11 +92,20 @@ export function PushNotificationToggle() {
     }
   }
 
-  if (!supported) return null
-
   return (
-    <Button variant="ghost" size="icon" aria-label={subscribed ? t("disable") : t("enable")} onClick={onToggle} disabled={isPending}>
-      {subscribed ? <Bell className="size-4" aria-hidden="true" /> : <BellOff className="size-4" aria-hidden="true" />}
+    <Button
+      variant="ghost"
+      size="icon"
+      aria-label={supported ? (subscribed ? t("disable") : t("enable")) : t("unsupported")}
+      onClick={onToggle}
+      disabled={isPending}
+      className={!supported ? "opacity-40" : undefined}
+    >
+      {supported && subscribed ? (
+        <Bell className="size-4" aria-hidden="true" />
+      ) : (
+        <BellOff className="size-4" aria-hidden="true" />
+      )}
     </Button>
   )
 }

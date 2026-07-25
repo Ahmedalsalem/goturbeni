@@ -34,7 +34,8 @@
       "bookingRejectedBody": "تم رفض طلب حجزك.",
       "newMessageTitle": "رسالة جديدة",
       "newMessageBody": "لديك رسالة جديدة."
-    }
+    },
+    "unsupported": "الإشعارات غير مدعومة في هذا المتصفح. على آيفون عبر Safari، أضف الموقع أولاً إلى الشاشة الرئيسية."
   },
   "Pwa": {
     "install": "تثبيت التطبيق"
@@ -63,7 +64,9 @@
       "submit": "تسجيل الدخول",
       "noAccount": "ليس لديك حساب؟",
       "registerLink": "إنشاء حساب",
-      "forgotPasswordLink": "نسيت كلمة المرور؟"
+      "forgotPasswordLink": "نسيت كلمة المرور؟",
+      "showPassword": "إظهار كلمة المرور",
+      "hidePassword": "إخفاء كلمة المرور"
     },
     "register": {
       "title": "إنشاء حساب",
@@ -291,7 +294,7 @@
       "locationNoMatch": "تعذر مطابقة موقعك تلقائيًا، الرجاء الاختيار من القائمة.",
       "showMap": "اختر من الخريطة",
       "hideMap": "إخفاء الخريطة",
-      "mapInstructions": "اسحب المؤشر على الخريطة لضبط موقعك.",
+      "mapInstructions": "اضغط على أي نقطة في الخريطة لضبط موقعك.",
       "departureDate": "التاريخ",
       "departureTime": "الوقت",
       "seatCount": "عدد المقاعد",
@@ -387,6 +390,10 @@
     "card": {
       "seatCount": "{count} مقعد",
       "unknownPassenger": "الراكب"
+    },
+    "loginPrompt": {
+      "message": "يجب عليك تسجيل الدخول لإجراء الحجز.",
+      "cta": "تسجيل الدخول"
     }
   },
   "Chat": {

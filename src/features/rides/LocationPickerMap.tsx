@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect } from "react"
 import L from "leaflet"
-import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet"
+import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet"
 
 import "leaflet/dist/leaflet.css"
 
@@ -33,35 +33,33 @@ function Recenter({ position }: { position: [number, number] }) {
   return null
 }
 
+// Dragging a small marker pin is fiddly on a touchscreen (the finger covers
+// the target, drag gestures fight the map's own pan gesture). Tapping
+// anywhere on the map to place the point there is the mobile-friendly
+// equivalent, so the marker is fixed and this listens for map clicks/taps
+// instead of making the marker itself draggable.
+function ClickToPlace({ onPositionChange }: { onPositionChange: (lat: number, lng: number) => void }) {
+  useMapEvents({
+    click: (event) => onPositionChange(event.latlng.lat, event.latlng.lng),
+  })
+  return null
+}
+
 export default function LocationPickerMap({
   position,
-  onMarkerDragEnd,
+  onPositionChange,
 }: {
   position: [number, number]
-  onMarkerDragEnd: (lat: number, lng: number) => void
+  onPositionChange: (lat: number, lng: number) => void
 }) {
-  const markerRef = useRef<L.Marker>(null)
-
   return (
     <MapContainer center={position} zoom={11} scrollWheelZoom={false} className="h-56 w-full rounded-lg">
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <Marker
-        position={position}
-        icon={markerIcon}
-        draggable
-        ref={markerRef}
-        eventHandlers={{
-          dragend: () => {
-            const marker = markerRef.current
-            if (!marker) return
-            const { lat, lng } = marker.getLatLng()
-            onMarkerDragEnd(lat, lng)
-          },
-        }}
-      />
+      <Marker position={position} icon={markerIcon} />
+      <ClickToPlace onPositionChange={onPositionChange} />
       <Recenter position={position} />
     </MapContainer>
   )

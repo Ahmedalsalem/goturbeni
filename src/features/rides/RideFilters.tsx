@@ -108,7 +108,11 @@ export function RideFilters({
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end",
+        // items-start (not items-end): the from/to fields carry an extra
+        // "use my location"/"map" button row that the district fields don't,
+        // so bottom-aligning the row left the shorter fields' inputs sitting
+        // at different heights — a visibly crooked line across the bar.
+        "flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start",
         isHero
           ? "rounded-2xl border border-black/[0.03] bg-card p-4 shadow-[0_20px_60px_-15px_rgba(15,23,42,0.18)] sm:p-5"
           : "border-border bg-card rounded-2xl border p-4"

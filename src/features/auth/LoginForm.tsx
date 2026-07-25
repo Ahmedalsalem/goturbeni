@@ -1,8 +1,8 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useState } from "react"
 import Link from "next/link"
-import { Loader2, LogIn } from "lucide-react"
+import { Eye, EyeOff, Loader2, LogIn } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
@@ -15,6 +15,11 @@ import { initialAuthActionState } from "@/features/auth/schemas"
 export function LoginForm() {
   const t = useTranslations("Auth.login")
   const [state, formAction, isPending] = useActionState(signIn, initialAuthActionState)
+  // React clears uncontrolled form fields once a form action finishes — email
+  // included — so a wrong-password error would otherwise wipe it and make
+  // the user retype it. Keeping it as controlled state survives that reset.
+  const [email, setEmail] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
 
   return (
     <form action={formAction} className="flex flex-col gap-6">
@@ -27,7 +32,15 @@ export function LoginForm() {
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="email">{t("email")}</FieldLabel>
-          <Input id="email" name="email" type="email" autoComplete="email" required />
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            required
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
         </Field>
 
         <Field>
@@ -37,7 +50,24 @@ export function LoginForm() {
               {t("forgotPasswordLink")}
             </Link>
           </div>
-          <Input id="password" name="password" type="password" autoComplete="current-password" required />
+          <div className="relative">
+            <Input
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              autoComplete="current-password"
+              required
+              className="pe-9"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((visible) => !visible)}
+              aria-label={showPassword ? t("hidePassword") : t("showPassword")}
+              className="text-muted-foreground hover:text-foreground absolute end-2.5 top-1/2 -translate-y-1/2"
+            >
+              {showPassword ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}
+            </button>
+          </div>
         </Field>
       </FieldGroup>
 
