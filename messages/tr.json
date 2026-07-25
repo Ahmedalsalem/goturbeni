@@ -81,7 +81,9 @@
       "confirmPassword": "Şifre (tekrar)",
       "submit": "Hesap Oluştur",
       "haveAccount": "Zaten hesabınız var mı?",
-      "loginLink": "Giriş yapın"
+      "loginLink": "Giriş yapın",
+      "showPassword": "Şifreyi göster",
+      "hidePassword": "Şifreyi gizle"
     },
     "verifyEmail": {
       "title": "E-postanızı Kontrol Edin",
@@ -120,7 +122,9 @@
       "confirmPassword": "Yeni Şifre (tekrar)",
       "submit": "Şifreyi Güncelle",
       "invalidLink": "Bu bağlantı geçersiz veya süresi dolmuş. Lütfen yeni bir sıfırlama bağlantısı isteyin.",
-      "requestNewLink": "Yeni bağlantı iste"
+      "requestNewLink": "Yeni bağlantı iste",
+      "showPassword": "Şifreyi göster",
+      "hidePassword": "Şifreyi gizle"
     }
   },
   "ProfilePage": {

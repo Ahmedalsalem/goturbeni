@@ -81,7 +81,9 @@
       "confirmPassword": "تأكيد كلمة المرور",
       "submit": "إنشاء حساب",
       "haveAccount": "هل لديك حساب بالفعل؟",
-      "loginLink": "سجّل الدخول"
+      "loginLink": "سجّل الدخول",
+      "showPassword": "إظهار كلمة المرور",
+      "hidePassword": "إخفاء كلمة المرور"
     },
     "verifyEmail": {
       "title": "تحقق من بريدك الإلكتروني",
@@ -120,7 +122,9 @@
       "confirmPassword": "تأكيد كلمة المرور الجديدة",
       "submit": "تحديث كلمة المرور",
       "invalidLink": "هذا الرابط غير صالح أو انتهت صلاحيته. الرجاء طلب رابط إعادة تعيين جديد.",
-      "requestNewLink": "طلب رابط جديد"
+      "requestNewLink": "طلب رابط جديد",
+      "showPassword": "إظهار كلمة المرور",
+      "hidePassword": "إخفاء كلمة المرور"
     }
   },
   "ProfilePage": {
