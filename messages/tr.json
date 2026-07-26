@@ -252,6 +252,7 @@
       "petsAllowed": "Evcil Hayvan Kabul Edilir",
       "smokingAllowed": "Sigara İçilebilir",
       "vipOnly": "VIP (Tek Yolcu)",
+      "femaleDriverOnly": "Kadın Şoför",
       "sortLabel": "Sırala",
       "sort": {
         "date_asc": "Tarih (Artan)",

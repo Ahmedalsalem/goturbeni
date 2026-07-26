@@ -252,6 +252,7 @@
       "petsAllowed": "يُسمح بالحيوانات الأليفة",
       "smokingAllowed": "يُسمح بالتدخين",
       "vipOnly": "VIP (راكب واحد)",
+      "femaleDriverOnly": "سائقة",
       "sortLabel": "الترتيب",
       "sort": {
         "date_asc": "التاريخ (تصاعدي)",

@@ -43,6 +43,7 @@ function buildQueryString(filters: Partial<RideSearchFilters>): string {
   if (filters.petsAllowed) params.set("petsAllowed", "1")
   if (filters.smokingAllowed) params.set("smokingAllowed", "1")
   if (filters.vipOnly) params.set("vipOnly", "1")
+  if (filters.femaleDriverOnly) params.set("femaleDriverOnly", "1")
   const qs = params.toString()
   return qs ? `/rides?${qs}` : "/rides"
 }
@@ -63,10 +64,15 @@ export function RideFilters({
   initial,
   showSort = true,
   variant = "bar",
+  isFemaleUser = false,
 }: {
   initial: RideSearchFilters
   showSort?: boolean
   variant?: "hero" | "bar"
+  // Gates the "Kadın Şoför" checkbox — only shown to a user who has
+  // declared themselves female (get_female_driver_ride_ids also enforces
+  // this server-side, this is purely a UI-visibility mirror of that).
+  isFemaleUser?: boolean
 }) {
   const t = useTranslations("RidesPage.filters")
   const locale = useLocale()
@@ -81,6 +87,7 @@ export function RideFilters({
   const [petsAllowed, setPetsAllowed] = useState(initial.petsAllowed ?? false)
   const [smokingAllowed, setSmokingAllowed] = useState(initial.smokingAllowed ?? false)
   const [vipOnly, setVipOnly] = useState(initial.vipOnly ?? false)
+  const [femaleDriverOnly, setFemaleDriverOnly] = useState(initial.femaleDriverOnly ?? false)
 
   const fromDistricts = from ? (TURKISH_PROVINCE_DISTRICTS[from] ?? []) : []
   const toDistricts = to ? (TURKISH_PROVINCE_DISTRICTS[to] ?? []) : []
@@ -98,6 +105,7 @@ export function RideFilters({
         petsAllowed,
         smokingAllowed,
         vipOnly,
+        femaleDriverOnly,
       })
     )
   }
@@ -115,6 +123,7 @@ export function RideFilters({
         petsAllowed,
         smokingAllowed,
         vipOnly,
+        femaleDriverOnly,
       }),
       { scroll: false }
     )
@@ -314,6 +323,18 @@ export function RideFilters({
             {t("vipOnly")}
           </FieldLabel>
         </Field>
+        {isFemaleUser && (
+          <Field orientation="horizontal">
+            <Checkbox
+              id="filter-female-driver-only"
+              checked={femaleDriverOnly}
+              onCheckedChange={(checked) => setFemaleDriverOnly(checked === true)}
+            />
+            <FieldLabel htmlFor="filter-female-driver-only" className="font-normal">
+              {t("femaleDriverOnly")}
+            </FieldLabel>
+          </Field>
+        )}
       </div>
 
       {showSort && (

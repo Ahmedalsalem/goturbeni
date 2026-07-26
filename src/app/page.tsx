@@ -2,7 +2,9 @@ import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
 
 import { HomeHero } from "@/features/rides/HomeHero"
+import { getProfile } from "@/features/profile/queries"
 import { languageAlternates } from "@/i18n/hreflang"
+import { getCurrentUser } from "@/lib/supabase/dal"
 
 export async function generateMetadata(): Promise<Metadata> {
   const [t, tMeta] = await Promise.all([getTranslations("HomePage"), getTranslations("Metadata")])
@@ -22,7 +24,11 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const user = await getCurrentUser()
+  const profile = user ? await getProfile(user.id) : null
+  const isFemaleUser = profile?.gender === "female"
+
   return (
     <div className="relative overflow-hidden">
       <div
@@ -33,7 +39,7 @@ export default function HomePage() {
         aria-hidden="true"
         className="bg-primary/15 pointer-events-none absolute start-1/2 top-[-12rem] -z-10 size-[42rem] -translate-x-1/2 rounded-full blur-3xl"
       />
-      <HomeHero />
+      <HomeHero isFemaleUser={isFemaleUser} />
     </div>
   )
 }

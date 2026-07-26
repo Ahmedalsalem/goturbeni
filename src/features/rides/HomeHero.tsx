@@ -26,7 +26,7 @@ const item: Variants = {
 const DEFAULT_FILTERS: RideSearchFilters = { sort: "date_asc" }
 const GEO_PROMPT_STORAGE_KEY = "geo-prompt-shown"
 
-export function HomeHero() {
+export function HomeHero({ isFemaleUser }: { isFemaleUser: boolean }) {
   const t = useTranslations("HomePage")
   const locale = useLocale()
   const [geoFilters, setGeoFilters] = useState<RideSearchFilters | null>(null)
@@ -87,7 +87,13 @@ export function HomeHero() {
       </motion.p>
 
       <motion.div variants={item} className="w-full max-w-3xl text-start">
-        <RideFilters key={geoFilters ? "geo" : "default"} initial={geoFilters ?? DEFAULT_FILTERS} showSort={false} variant="hero" />
+        <RideFilters
+          key={geoFilters ? "geo" : "default"}
+          initial={geoFilters ?? DEFAULT_FILTERS}
+          showSort={false}
+          variant="hero"
+          isFemaleUser={isFemaleUser}
+        />
       </motion.div>
 
       <motion.div variants={item} className="flex flex-wrap items-center justify-center gap-3 pt-1">

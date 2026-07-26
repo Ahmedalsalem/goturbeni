@@ -17,6 +17,7 @@ export interface RideSearchFilters {
   petsAllowed?: boolean
   smokingAllowed?: boolean
   vipOnly?: boolean
+  femaleDriverOnly?: boolean
 }
 
 function isTurkishProvince(value: string): value is TurkishProvince {
@@ -44,6 +45,7 @@ export function parseRideSearchParams(searchParams: Record<string, string | stri
   const petsAllowed = firstValue(searchParams.petsAllowed)
   const smokingAllowed = firstValue(searchParams.smokingAllowed)
   const vipOnly = firstValue(searchParams.vipOnly)
+  const femaleDriverOnly = firstValue(searchParams.femaleDriverOnly)
 
   const resolvedFrom = from && isTurkishProvince(from) ? from : undefined
   const resolvedTo = to && isTurkishProvince(to) ? to : undefined
@@ -62,5 +64,9 @@ export function parseRideSearchParams(searchParams: Record<string, string | stri
     petsAllowed: petsAllowed === "1" ? true : undefined,
     smokingAllowed: smokingAllowed === "1" ? true : undefined,
     vipOnly: vipOnly === "1" ? true : undefined,
+    // Real enforcement is server-side (get_female_driver_ride_ids RPC raises
+    // for a non-female caller) — this is just advisory parsing, same as
+    // every other filter here.
+    femaleDriverOnly: femaleDriverOnly === "1" ? true : undefined,
   }
 }

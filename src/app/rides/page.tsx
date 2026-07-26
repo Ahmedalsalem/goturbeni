@@ -8,8 +8,10 @@ import { RideCard } from "@/features/rides/RideCard"
 import { RideFilters } from "@/features/rides/RideFilters"
 import { getRides } from "@/features/rides/queries"
 import { parseRideSearchParams } from "@/features/rides/filters"
+import { getProfile } from "@/features/profile/queries"
 import { buttonVariants } from "@/components/ui/button"
 import { languageAlternates } from "@/i18n/hreflang"
+import { getCurrentUser } from "@/lib/supabase/dal"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("RidesPage")
@@ -34,7 +36,9 @@ export default async function RidesPage({
   const t = await getTranslations("RidesPage")
   const filters = parseRideSearchParams(await searchParams)
   const hasActiveFilters = Boolean(filters.from || filters.to || filters.date)
-  const { rides, usedNearbyDistricts, usedNearbyProvinces } = await getRides(filters)
+  const [{ rides, usedNearbyDistricts, usedNearbyProvinces }, user] = await Promise.all([getRides(filters), getCurrentUser()])
+  const profile = user ? await getProfile(user.id) : null
+  const isFemaleUser = profile?.gender === "female"
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
@@ -46,7 +50,7 @@ export default async function RidesPage({
       </div>
 
       <div className="mb-6">
-        <RideFilters initial={filters} />
+        <RideFilters initial={filters} isFemaleUser={isFemaleUser} />
       </div>
 
       {usedNearbyDistricts && rides.length > 0 && (
