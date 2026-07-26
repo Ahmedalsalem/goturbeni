@@ -15,7 +15,13 @@ import { logError } from "@/lib/logger"
 import { buildAuthSchemas, type AuthActionState } from "@/features/auth/schemas"
 
 const LOGIN_RATE_LIMIT = { limit: 10, windowMs: 5 * 60 * 1000 }
-const SIGNUP_RATE_LIMIT = { limit: 5, windowMs: 60 * 60 * 1000 }
+// The e2e suite's 3 spec files together create more test accounts per run
+// than the real per-hour signup cap allows (all share the same in-memory
+// bucket in this environment — there's no real reverse proxy, so
+// getClientIp() resolves to the same "unknown" key for every request).
+// E2E_TEST is set only in playwright.config.ts's webServer.env, never in
+// production, so this doesn't touch real abuse protection.
+const SIGNUP_RATE_LIMIT = { limit: process.env.E2E_TEST === "true" ? 100 : 5, windowMs: 60 * 60 * 1000 }
 const PASSWORD_RESET_RATE_LIMIT = { limit: 5, windowMs: 60 * 60 * 1000 }
 
 async function resolveSiteUrl(): Promise<string> {

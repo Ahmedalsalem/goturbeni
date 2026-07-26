@@ -13,13 +13,16 @@ export default defineConfig({
   retries: 0,
   // Headroom for cold Turbopack compiles on each route's first visit across
   // the suite (webServer's readiness check only confirms "/" responds, not
-  // that e.g. /create-ride or /rides/mine have compiled yet — Next.js dev
-  // compiles routes on-demand per request). Separate concern from the real
-  // stuck-forever bug that was timing out here before (signUp() never
-  // checked the required termsAccepted checkbox, see e2e/utils.ts, fixed) —
-  // that one no timeout value would have "fixed"; this one is a genuine
-  // compile-time budget for an app that's grown substantially this session.
-  timeout: 90_000,
+  // that e.g. /create-ride, /rides/mine, or /login have compiled yet —
+  // Next.js dev compiles routes on-demand per request). 90s still wasn't
+  // enough — /register, /create-ride, and /login each independently
+  // exceeded it on first visit on this CI runner (each a distinct instance
+  // of the same root cause, not three different bugs). Separate concern
+  // from the real stuck-forever bugs that were also timing out here before
+  // (missing termsAccepted checkbox click, missing driver IBAN, exhausted
+  // signup rate limit — all fixed, see e2e/utils.ts and git log) — no
+  // timeout value fixes those; this is purely a compile-time budget.
+  timeout: 180_000,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
   use: {
     baseURL: "http://localhost:3000",
@@ -37,5 +40,9 @@ export default defineConfig({
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
+    // See SIGNUP_RATE_LIMIT in src/features/auth/actions.ts — the 3 spec
+    // files together create more accounts per run than the real signup cap
+    // allows, since they all share one in-memory bucket in this environment.
+    env: { E2E_TEST: "true" },
   },
 })
