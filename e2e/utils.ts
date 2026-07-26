@@ -26,8 +26,13 @@ export async function signUp(page: Page, email: string, password: string = TEST_
   // commercial-transport-ban acknowledgment, this helper was never updated
   // for it, so every signup silently failed native required-field validation
   // and "Hesap Oluştur" never submitted (see the "Please check this box"
-  // browser tooltip in the CI failure screenshots).
-  await page.locator("#termsAccepted").click()
+  // browser tooltip in the CI failure screenshots). #termsAccepted itself
+  // resolves to Base UI Checkbox's hidden native <input> (kept for native
+  // form semantics) — the actually-clickable element is its styled sibling
+  // span[role=checkbox], reachable via the aria-labelledby link Base UI sets
+  // up to the FieldLabel ("{id}-label"). Clicking the label text directly
+  // risks hitting the embedded Terms-of-Use <Link> instead.
+  await page.locator('[aria-labelledby="termsAccepted-label"]').click()
   await page.getByRole("button", { name: "Hesap Oluştur" }).click()
   await page.waitForURL("**/verify-phone")
 }
@@ -91,14 +96,17 @@ export async function createRide(
   await page.locator("#departureTime").fill(time)
   await page.locator("#seatCount").fill(String(options.seatCount))
   await page.locator("#costShare").fill(String(options.costShare))
+  // Same Base UI Checkbox pattern as termsAccepted in signUp() above — #ID
+  // is the hidden native input, the clickable element is the sibling
+  // span[role=checkbox][aria-labelledby="ID-label"].
   if (options.petsAllowed) {
-    await page.locator("#petsAllowed").click()
+    await page.locator('[aria-labelledby="petsAllowed-label"]').click()
   }
   if (options.smokingAllowed) {
-    await page.locator("#smokingAllowed").click()
+    await page.locator('[aria-labelledby="smokingAllowed-label"]').click()
   }
   if (options.vipSolo) {
-    await page.locator("#vipSolo").click()
+    await page.locator('[aria-labelledby="vipSolo-label"]').click()
   }
   await page.getByRole("button", { name: "İlanı Yayınla" }).click()
   await page.waitForURL("**/rides/mine")
