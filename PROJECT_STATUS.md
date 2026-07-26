@@ -44,7 +44,8 @@ Kapsam: kullanıcının, bir önceki oturumun kendi bulguları olarak bildirdiğ
 **Bu oturumda YAPILMAYAN**:
 
 - IBAN'ın gerçek banka API doğrulaması (kullanıcı, üçüncü taraf hesap/API anlaşması olmadığı için ara çözümü — ad alanı + admin göz kontrolü — onayladı).
-- `0024`–`0027` migration'ları henüz `supabase db push` ile gerçek (linked) Supabase projesine uygulanmadı.
+
+**Sonradan tamamlanan** (kullanıcının Supabase erişim token'ı sağlamasıyla, aynı oturumda): `0024`–`0027` migration'ları `supabase db push` ile gerçek (linked) Supabase projesine (`dvpxvcvmtxsticczlpwg`) uygulandı ve `supabase migration list` ile 27/27 local↔remote eşleştiği doğrulandı; Vercel'de son 15 dakikada runtime hatası yok.
 
 Doğrulama (bu oturumda): `npm run lint` (temiz), `npx tsc --noEmit` (temiz, `e2e/` dahil), `npm run build` (34 rota, başarılı), `npm test` (114/114), i18n anahtar eşleşmesi (tr/ar, 594/594 birebir), **CI'da gerçek koşu: 17/17 e2e test + 114/114 unit test yeşil (commit `5afe509`, run [30211638989](https://github.com/Ahmedalsalem/goturbeni/actions/runs/30211638989))**, Vercel production deploy READY (aynı commit).
 
