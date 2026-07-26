@@ -154,6 +154,28 @@ export async function backdateRideDeparture(rideId: string, secondsAgo: number):
   }
 }
 
+// admin.auth.admin.listUsers() defaults to an empty `perPage` query param
+// (see @supabase/auth-js's GoTrueAdminApi) — pass it explicitly rather than
+// rely on whatever GoTrue falls back to. Also retries briefly: the browser
+// reaching /verify-phone confirms the signup redirect happened, but a CI run
+// that saw this fail immediately afterward with "no such user" pointed at a
+// short propagation lag between the signup request completing and the new
+// row being visible to a separate admin-API connection, not a real absence.
+async function findAuthUserByEmail(admin: ReturnType<typeof createAdminClient>, email: string) {
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    const { data, error } = await admin.auth.admin.listUsers({ perPage: 1000 })
+    if (error) {
+      throw error
+    }
+    const user = data.users.find((candidate) => candidate.email === email)
+    if (user) {
+      return user
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500))
+  }
+  throw new Error(`No auth user found for ${email} — was signUp() called first?`)
+}
+
 // Registration now requires mandatory phone OTP verification (see
 // src/lib/supabase/dal.ts's requireVerifiedProfile, gating createRide/
 // createBooking) and no SMS provider is configured for the local/CI
@@ -164,14 +186,7 @@ export async function backdateRideDeparture(rideId: string, secondsAgo: number):
 // the service-role client, exactly what a real completed OTP would have set.
 export async function verifyPhoneForTest(email: string): Promise<void> {
   const admin = createAdminClient()
-  const { data, error } = await admin.auth.admin.listUsers()
-  if (error) {
-    throw error
-  }
-  const user = data.users.find((candidate) => candidate.email === email)
-  if (!user) {
-    throw new Error(`No auth user found for ${email} — was signUp() called first?`)
-  }
+  const user = await findAuthUserByEmail(admin, email)
   const { error: updateError } = await admin.from("profiles_private").update({ phone_verified: true }).eq("id", user.id)
   if (updateError) {
     throw updateError
@@ -193,14 +208,7 @@ export async function signUpAndVerify(page: Page, email: string, password: strin
 // client-facing way to self-promote, by design).
 export async function makeAdminForTest(email: string): Promise<void> {
   const admin = createAdminClient()
-  const { data, error } = await admin.auth.admin.listUsers()
-  if (error) {
-    throw error
-  }
-  const user = data.users.find((candidate) => candidate.email === email)
-  if (!user) {
-    throw new Error(`No auth user found for ${email} — was signUp() called first?`)
-  }
+  const user = await findAuthUserByEmail(admin, email)
   const { error: upsertError } = await admin.from("admin_flags").upsert({ user_id: user.id, is_admin: true })
   if (upsertError) {
     throw upsertError
