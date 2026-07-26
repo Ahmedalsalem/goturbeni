@@ -9,10 +9,9 @@ import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { BookingStatusBadge } from "@/features/bookings/BookingStatusBadge"
 import { CancelBookingButton } from "@/features/bookings/CancelBookingButton"
-import { ReceiptUploadForm } from "@/features/bookings/ReceiptUploadForm"
+import { SettlementReceiptUpload } from "@/features/bookings/SettlementReceiptUpload"
 import { SettlePaymentButton } from "@/features/bookings/SettlePaymentButton"
 import { getMyBookings } from "@/features/bookings/queries"
-import { submitSettlementReceipt } from "@/features/bookings/actions"
 import { getUnreadMessages } from "@/features/chat/queries"
 import { ReviewButton } from "@/features/reviews/ReviewButton"
 import { getMyReviewForRide } from "@/features/reviews/queries"
@@ -84,28 +83,12 @@ export default async function BookingsPage() {
                       <SettlePaymentButton bookingId={booking.id} rideId={booking.ride.id} />
                     )}
                     {isCompleted && booking.payment_status !== "settled" && (
-                      <div className="flex flex-col gap-1">
-                        {booking.settlement_receipt_status === null || booking.settlement_receipt_status === "rejected" ? (
-                          <>
-                            {booking.settlement_receipt_status === "rejected" && (
-                              <div>
-                                <Badge variant="outline">{tCard("settlementReceiptStatus.rejected")}</Badge>
-                                {booking.settlement_receipt_reject_reason && (
-                                  <p className="text-muted-foreground mt-1 text-xs">{booking.settlement_receipt_reject_reason}</p>
-                                )}
-                              </div>
-                            )}
-                            <ReceiptUploadForm
-                              action={(formData) => submitSettlementReceipt(booking.id, booking.ride.id, formData)}
-                              label={tCard("uploadSettlementReceipt")}
-                            />
-                          </>
-                        ) : (
-                          <Badge variant={booking.settlement_receipt_status === "approved" ? "secondary" : "outline"}>
-                            {tCard(`settlementReceiptStatus.${booking.settlement_receipt_status}`)}
-                          </Badge>
-                        )}
-                      </div>
+                      <SettlementReceiptUpload
+                        bookingId={booking.id}
+                        rideId={booking.ride.id}
+                        status={booking.settlement_receipt_status}
+                        rejectReason={booking.settlement_receipt_reject_reason}
+                      />
                     )}
                     {isCompleted &&
                       (reviewedRideIds.has(booking.ride.id) ? (
