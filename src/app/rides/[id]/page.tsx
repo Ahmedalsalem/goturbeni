@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
 import { RideStatusBadge } from "@/features/rides/RideStatusBadge"
-import { getRideWithDriver } from "@/features/rides/queries"
+import { getDriverCompletedRideCount, getRideWithDriver } from "@/features/rides/queries"
 import { getProfile, isPhoneVerified } from "@/features/profile/queries"
 import { getMyBookingForRide, getRideDriverPaymentInfo } from "@/features/bookings/queries"
 import { BookingButton } from "@/features/bookings/BookingButton"
@@ -81,7 +81,21 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
   const existingBooking = user ? await getMyBookingForRide(ride.id, user.id) : null
   const userVerified = user ? await isPhoneVerified(user.id) : false
   const awaitingDeposit = existingBooking?.status === "pending" && existingBooking.payment_status === "awaiting_deposit"
-  const driverPaymentInfo = awaitingDeposit ? await getRideDriverPaymentInfo(ride.id) : null
+  const [driverPaymentInfo, driverCompletedRideCount] = awaitingDeposit
+    ? await Promise.all([getRideDriverPaymentInfo(ride.id), getDriverCompletedRideCount(ride.driver_id)])
+    : [null, 0]
+  // Shown next to the IBAN so the passenger has a trust signal at the exact
+  // moment they're about to send real money — a fresh, reviewless account
+  // asking for a deposit is the actual "post a fake ride, collect, vanish"
+  // fraud pattern; an IBAN checksum wouldn't catch that (see conversation).
+  const driverTrustInfo = awaitingDeposit
+    ? {
+        memberSinceIso: driverProfile?.created_at ?? ride.created_at,
+        completedRideCount: driverCompletedRideCount,
+        averageRating: driverReviewStats.averageRating,
+        reviewCount: driverReviewStats.reviewCount,
+      }
+    : null
 
   const departureAt = new Date(ride.departure_time)
   const driverName = ride.driver?.full_name ?? tCard("unknownDriver")
@@ -209,6 +223,7 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
               availableSeats={ride.available_seats}
               existingBooking={existingBooking}
               driverPaymentInfo={driverPaymentInfo}
+              driverTrustInfo={driverTrustInfo}
             />
           </CardFooter>
         )}

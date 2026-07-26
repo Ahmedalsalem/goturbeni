@@ -169,3 +169,19 @@ export async function getMyRides(driverId: string): Promise<RideWithDriver[]> {
 
   return (data as RideWithDriver[] | null) ?? []
 }
+
+// Trust signal shown to a passenger right before they send a deposit to the
+// driver's IBAN (see BookingButton.tsx) — a driver's own completed-trip
+// count specifically (not combined with trips taken as a passenger, unlike
+// getCompletedRidesCount in reviews/queries.ts). Same departure_time-based
+// "completed" check used throughout (rides.status lags pg_cron by up to a
+// minute, see README → "Tamamlandı nasıl hesaplanıyor?").
+export async function getDriverCompletedRideCount(driverId: string): Promise<number> {
+  const supabase = await createClient()
+  const { count } = await supabase
+    .from("rides")
+    .select("id", { count: "exact", head: true })
+    .eq("driver_id", driverId)
+    .lt("departure_time", new Date().toISOString())
+  return count ?? 0
+}

@@ -16,18 +16,28 @@ import { CancelBookingButton } from "@/features/bookings/CancelBookingButton"
 import { ReceiptUploadForm } from "@/features/bookings/ReceiptUploadForm"
 import { createBooking, submitDepositReceipt } from "@/features/bookings/actions"
 import { MIN_BOOKING_SEAT_COUNT } from "@/features/bookings/schemas"
+import { StarRating } from "@/features/reviews/StarRating"
 import type { Booking } from "@/types/booking"
+
+export interface DriverTrustInfo {
+  memberSinceIso: string
+  completedRideCount: number
+  averageRating: number | null
+  reviewCount: number
+}
 
 export function BookingButton({
   rideId,
   availableSeats,
   existingBooking,
   driverPaymentInfo,
+  driverTrustInfo,
 }: {
   rideId: string
   availableSeats: number
   existingBooking: Booking | null
   driverPaymentInfo: { iban: string; iban_holder_name: string } | null
+  driverTrustInfo: DriverTrustInfo | null
 }) {
   const t = useTranslations("Bookings")
   const tPayment = useTranslations("Bookings.payment")
@@ -63,6 +73,24 @@ export function BookingButton({
                 {tPayment("ibanHolderLabel")}: {driverPaymentInfo.iban_holder_name}
               </span>
               <span className="text-muted-foreground">{tPayment("noCommissionDisclaimer")}</span>
+              {driverTrustInfo && (
+                <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 border-t pt-2">
+                  <span className="text-muted-foreground text-xs">
+                    {tPayment("driverMemberSince", {
+                      date: format.dateTime(new Date(driverTrustInfo.memberSinceIso), { day: "2-digit", month: "2-digit", year: "numeric" }),
+                    })}
+                  </span>
+                  <span className="text-muted-foreground text-xs">
+                    {tPayment("driverCompletedRides", { count: driverTrustInfo.completedRideCount })}
+                  </span>
+                  {driverTrustInfo.averageRating !== null && (
+                    <span className="flex items-center gap-1">
+                      <StarRating rating={driverTrustInfo.averageRating} size="sm" />
+                      <span className="text-muted-foreground text-xs">({driverTrustInfo.reviewCount})</span>
+                    </span>
+                  )}
+                </span>
+              )}
             </AlertDescription>
           </Alert>
         )}

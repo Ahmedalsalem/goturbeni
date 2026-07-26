@@ -75,7 +75,12 @@ export async function getDriverPaymentInfoForAdmin(bookingId: string): Promise<{
   return { iban: row.iban, iban_holder_name: row.iban_holder_name }
 }
 
-export type SuspiciousAccountReason = "ride_spam" | "high_cancellation_rate" | "high_rejection_rate" | "booking_spam"
+export type SuspiciousAccountReason =
+  | "ride_spam"
+  | "high_cancellation_rate"
+  | "high_rejection_rate"
+  | "booking_spam"
+  | "new_account_high_value"
 
 export interface SuspiciousAccountRow {
   user_id: string
