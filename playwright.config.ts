@@ -11,13 +11,14 @@ export default defineConfig({
   workers: 1,
   forbidOnly: !!process.env.CI,
   retries: 0,
-  // Default (30s) wasn't enough for the very first navigation in the suite
-  // (webServer's readiness check only confirms "/" responds — Next.js dev
-  // still compiles each route on-demand on its first request). 60s wasn't
-  // enough either (measured ~63s on a loaded CI runner). Matching
-  // webServer.timeout below rather than guessing again — same order of
-  // magnitude Playwright itself already budgets for a cold dev-server start.
-  timeout: 120_000,
+  // Slightly above the 30s default as headroom for cold Turbopack compiles
+  // on the very first navigation in the suite (webServer's readiness check
+  // only confirms "/" responds, not that e.g. /register has compiled yet).
+  // Not a fix for the real bug that was timing out here (signUp() never
+  // checked the required termsAccepted checkbox, see e2e/utils.ts) — that
+  // was a permanently-stuck submit, not a slow one, no timeout would have
+  // "fixed" it.
+  timeout: 45_000,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
   use: {
     baseURL: "http://localhost:3000",

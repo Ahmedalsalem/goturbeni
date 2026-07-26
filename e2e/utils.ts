@@ -22,6 +22,12 @@ export async function signUp(page: Page, email: string, password: string = TEST_
   await page.locator("#phone").fill("05551234567")
   await page.locator("#gender").click()
   await page.getByRole("option", { name: "Kadın" }).click()
+  // Required (schemas.ts: termsAccepted must be "on") — added for the
+  // commercial-transport-ban acknowledgment, this helper was never updated
+  // for it, so every signup silently failed native required-field validation
+  // and "Hesap Oluştur" never submitted (see the "Please check this box"
+  // browser tooltip in the CI failure screenshots).
+  await page.locator("#termsAccepted").click()
   await page.getByRole("button", { name: "Hesap Oluştur" }).click()
   await page.waitForURL("**/verify-phone")
 }
