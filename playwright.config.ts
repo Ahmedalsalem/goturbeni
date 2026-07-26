@@ -11,6 +11,14 @@ export default defineConfig({
   workers: 1,
   forbidOnly: !!process.env.CI,
   retries: 0,
+  // Default (30s) wasn't enough for the very first navigation in the suite
+  // (webServer's readiness check only confirms "/" responds — Next.js dev
+  // still compiles each route on-demand on its first request, and /register
+  // took long enough on a loaded CI runner to exceed it: "Test timeout of
+  // 30000ms exceeded" waiting for the post-signup redirect). Same class of
+  // fix as the 30-minute departure-time buffer elsewhere in e2e/ — a real CI
+  // timing constraint, not a test logic bug.
+  timeout: 60_000,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
   use: {
     baseURL: "http://localhost:3000",
