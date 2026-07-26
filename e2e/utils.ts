@@ -88,6 +88,18 @@ export async function createRide(
     vipSolo?: boolean
   }
 ): Promise<string> {
+  // createRide (src/features/rides/actions.ts) refuses to insert a ride
+  // unless the driver's profile already has an IBAN + holder name (the
+  // half-up-front/half-on-arrival payment flow needs it from the start) —
+  // ensure it's set first so callers that don't otherwise care about
+  // payment info (most of them) don't hit that guard.
+  await page.goto("/profile")
+  await page.locator("#fullName").fill("E2E Sürücü")
+  await page.locator("#iban").fill("TR330006100519786457841326")
+  await page.locator("#ibanHolderName").fill("E2E Sürücü")
+  await page.getByRole("button", { name: "Kaydet" }).click()
+  await page.getByText("Profil güncellendi.").waitFor()
+
   await page.goto("/create-ride")
   await selectCombobox(page, "departureCity", options.departureCity)
   await selectCombobox(page, "arrivalCity", options.arrivalCity)
@@ -154,20 +166,20 @@ export async function backdateRideDeparture(rideId: string, secondsAgo: number):
   }
 }
 
-// admin.auth.admin.listUsers() defaults to an empty `perPage` query param
-// (see @supabase/auth-js's GoTrueAdminApi) — pass it explicitly rather than
-// rely on whatever GoTrue falls back to. Also retries briefly: the browser
-// reaching /verify-phone confirms the signup redirect happened, but a CI run
-// that saw this fail immediately afterward with "no such user" pointed at a
-// short propagation lag between the signup request completing and the new
-// row being visible to a separate admin-API connection, not a real absence.
+// GoTrue lowercases stored emails; uniqueEmail()'s prefixes aren't always
+// lowercase ("passengerA", "payDriver") so a case-sensitive match here always
+// missed them — every prefix without an uppercase letter ("driver",
+// "passenger") happened to work, which is what made this look intermittent.
+// perPage passed explicitly too (@supabase/auth-js defaults to an empty
+// query param otherwise) and a short retry kept as cheap insurance against
+// any real propagation lag, though the case mismatch was the actual bug.
 async function findAuthUserByEmail(admin: ReturnType<typeof createAdminClient>, email: string) {
   for (let attempt = 1; attempt <= 5; attempt++) {
     const { data, error } = await admin.auth.admin.listUsers({ perPage: 1000 })
     if (error) {
       throw error
     }
-    const user = data.users.find((candidate) => candidate.email === email)
+    const user = data.users.find((candidate) => candidate.email?.toLowerCase() === email.toLowerCase())
     if (user) {
       return user
     }
