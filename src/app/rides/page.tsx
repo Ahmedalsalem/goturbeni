@@ -34,7 +34,7 @@ export default async function RidesPage({
   const t = await getTranslations("RidesPage")
   const filters = parseRideSearchParams(await searchParams)
   const hasActiveFilters = Boolean(filters.from || filters.to || filters.date)
-  const { rides, usedNearbyDistricts } = await getRides(filters)
+  const { rides, usedNearbyDistricts, usedNearbyProvinces } = await getRides(filters)
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
@@ -51,6 +51,9 @@ export default async function RidesPage({
 
       {usedNearbyDistricts && rides.length > 0 && (
         <p className="text-muted-foreground mb-4 text-sm">{t("nearbyDistrictsNotice")}</p>
+      )}
+      {usedNearbyProvinces && rides.length > 0 && (
+        <p className="text-muted-foreground mb-4 text-sm">{t("nearbyProvincesNotice")}</p>
       )}
 
       {rides.length === 0 ? (

@@ -1,6 +1,6 @@
 import { expect, test, type Browser, type BrowserContext, type Page } from "@playwright/test"
 
-import { backdateRideDeparture, createRide, logIn, selectCombobox, signUp, TEST_PASSWORD, uniqueEmail } from "./utils"
+import { backdateRideDeparture, createRide, logIn, selectCombobox, signUpAndVerify, TEST_PASSWORD, uniqueEmail } from "./utils"
 
 // End-to-end regression for the three flows that were previously only
 // hand-verified against a real Supabase project and then deleted (see
@@ -31,10 +31,10 @@ test.describe.serial("booking, chat, and review flow", () => {
   })
 
   test("driver and passenger sign up", async () => {
-    await signUp(driverPage, driverEmail)
+    await signUpAndVerify(driverPage, driverEmail)
     await expect(driverPage).toHaveURL(/\/profile$/)
 
-    await signUp(passengerPage, passengerEmail)
+    await signUpAndVerify(passengerPage, passengerEmail)
     await expect(passengerPage).toHaveURL(/\/profile$/)
   })
 
@@ -66,8 +66,8 @@ test.describe.serial("booking, chat, and review flow", () => {
 
   test("driver approves the booking and seat count updates", async () => {
     await driverPage.goto(`/rides/${rideId}/bookings`)
-    await driverPage.getByRole("button", { name: "Onayla", exact: true }).click()
-    await driverPage.getByRole("button", { name: "Onaylansın mı?", exact: true }).click()
+    await driverPage.getByRole("button", { name: "İlk Yarı Ödemesini Aldım, Onayla", exact: true }).click()
+    await driverPage.getByRole("button", { name: "İlk yarı ödemesini aldığınızı onaylıyor musunuz?", exact: true }).click()
     await expect(driverPage.getByText("Rezervasyon onaylandı.")).toBeVisible()
     await expect(driverPage.getByText("Onaylandı")).toBeVisible()
 

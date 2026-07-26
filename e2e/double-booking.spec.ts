@@ -1,6 +1,6 @@
 import { expect, test, type Browser, type BrowserContext, type Page } from "@playwright/test"
 
-import { createRide, signUp, uniqueEmail } from "./utils"
+import { createRide, signUpAndVerify, uniqueEmail } from "./utils"
 
 // Regression for the last-seat protection in approve_booking() (see
 // supabase/migrations/0003_bookings.sql): two passengers both request the
@@ -38,9 +38,9 @@ test.describe.serial("double-booking protection", () => {
   })
 
   test("driver creates a one-seat ride and both passengers request it", async () => {
-    await signUp(driverPage, driverEmail)
-    await signUp(passengerAPage, passengerAEmail)
-    await signUp(passengerBPage, passengerBEmail)
+    await signUpAndVerify(driverPage, driverEmail)
+    await signUpAndVerify(passengerAPage, passengerAEmail)
+    await signUpAndVerify(passengerBPage, passengerBEmail)
 
     rideId = await createRide(driverPage, {
       departureCity: "İzmir",
@@ -61,21 +61,24 @@ test.describe.serial("double-booking protection", () => {
 
   test("approving the second booking for the last seat is rejected", async () => {
     await driverPage.goto(`/rides/${rideId}/bookings`)
-    await expect(driverPage.getByRole("button", { name: "Onayla", exact: true })).toHaveCount(2)
+    const approveLabel = "İlk Yarı Ödemesini Aldım, Onayla"
+    const confirmApproveLabel = "İlk yarı ödemesini aldığınızı onaylıyor musunuz?"
 
-    await driverPage.getByRole("button", { name: "Onayla", exact: true }).first().click()
-    await driverPage.getByRole("button", { name: "Onaylansın mı?", exact: true }).first().click()
+    await expect(driverPage.getByRole("button", { name: approveLabel, exact: true })).toHaveCount(2)
+
+    await driverPage.getByRole("button", { name: approveLabel, exact: true }).first().click()
+    await driverPage.getByRole("button", { name: confirmApproveLabel, exact: true }).first().click()
     await expect(driverPage.getByText("Rezervasyon onaylandı.")).toBeVisible()
 
-    // Only the still-pending booking has an "Onayla" button left now.
-    await expect(driverPage.getByRole("button", { name: "Onayla", exact: true })).toHaveCount(1)
+    // Only the still-pending booking has an approve button left now.
+    await expect(driverPage.getByRole("button", { name: approveLabel, exact: true })).toHaveCount(1)
 
-    await driverPage.getByRole("button", { name: "Onayla", exact: true }).click()
-    await driverPage.getByRole("button", { name: "Onaylansın mı?", exact: true }).click()
+    await driverPage.getByRole("button", { name: approveLabel, exact: true }).click()
+    await driverPage.getByRole("button", { name: confirmApproveLabel, exact: true }).click()
     await expect(driverPage.getByText("Yeterli boş koltuk yok.")).toBeVisible()
 
     // Rejected by the RPC, not silently accepted — the booking is still
-    // pending (still shows the plain "Onayla" action, not an "Onaylandı" badge).
-    await expect(driverPage.getByRole("button", { name: "Onayla", exact: true })).toHaveCount(1)
+    // pending (still shows the plain approve action, not an "Onaylandı" badge).
+    await expect(driverPage.getByRole("button", { name: approveLabel, exact: true })).toHaveCount(1)
   })
 })

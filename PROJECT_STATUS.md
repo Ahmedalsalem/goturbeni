@@ -18,7 +18,25 @@ Bu belge, projenin faz bazlı tamamlanma durumunu ve production hazırlık denet
 | Faz 9 | ✅ Tamamlandı | `npm audit` temizliği (6 uyarı → 0), mesaj/yorumların 15 dakikalık pencerede düzenlenebilir/soft-delete edilebilir olması (`0013_editable_messages_reviews.sql`), self-referencing hreflang (tr/ar/x-default), PWA özel "yükle" düğmesi (`InstallAppButton`, iOS Safari hariç), Leaflet + OSM Nominatim ile harita/GPS tabanlı konum seçimi (ilan formu) |
 | Faz 10 | ✅ Tamamlandı | Minimal admin paneli: ayrı `admin_flags` tablosu + `security definer` RPC'ler (`admin_set_suspended`, `admin_set_admin`, `admin_cancel_ride`, `0014_admin.sql`), `/admin` analytics (stat kart + trend), `/admin/users` (askıya alma/aktifleştirme), `/admin/rides` (ilan kaldırma), askıya alınmış kullanıcı `/suspended`'a yönlendirilir |
 | — | — | Faz numarası verilmemiş sonraki oturumlar: marka renklerine göre yeniden tasarım (dark mode kaldırıldı), gerçek logo/favicon/OG görseli, Google Analytics (Consent Mode v2 ile), Google Search Console doğrulaması, FAQPage şeması, telefon SMS/OTP doğrulamasının Twilio Verify ile canlıda çalıştığının doğrulanması, Sentry hata izleme |
-| Faz 11 | 🟡 Kod tamamlandı (bu oturum) | Rate limiting Upstash Redis'e taşındı — çoklu-instance production'da paylaşılan durum, env değişkenleri eksikse production'da ilk kullanımda hata (`src/lib/rate-limit.ts`); arama filtrelerine harita/GPS konum seçimi eklendi (`RideFilters.tsx`, ilan formuyla aynı `LocationPicker` bileşeni); bu belge ve README'deki eski bilgiler (admin paneli, telefon doğrulama, hreflang, GPS filtresi eksikliği) düzeltildi; otomatik E2E test suite — ayrıntı için aşağıdaki nota bakın |
+| Faz 11 | ✅ Tamamlandı | Rate limiting Upstash Redis'e taşındı — çoklu-instance production'da paylaşılan durum, env değişkenleri eksikse production'da ilk kullanımda hata (`src/lib/rate-limit.ts`); arama filtrelerine harita/GPS konum seçimi eklendi (`RideFilters.tsx`, ilan formuyla aynı `LocationPicker` bileşeni); bu belge ve README'deki eski bilgiler (admin paneli, telefon doğrulama, hreflang, GPS filtresi eksikliği) düzeltildi; otomatik E2E test suite |
+| Faz 12 | 🟡 Kod tamamlandı (bu oturum), E2E testleri CI'da izlenmedi | Önceki oturumun kendi "bilinen sınırlamalar" listesindeki maddeler: dekont/iade upload'larında `checkRateLimit` eksikliği, `deposit_deadline_at`'in hiç uygulanmaması, kalan ödeme için dekont desteği eksikliği, red gerekçesi eksikliği, gerçek olmayan "yakın ilçe" araması, yeni özellikler (araç/VIP/pet-sigara/konum paylaşımı/dekont/iade) için test eksikliği + kullanıcının onayladığı IBAN ara-çözümü, e-posta bildirimi (Resend), kural-tabanlı dolandırıcılık tespiti v1 — ayrıntı için aşağıya ve CHANGELOG.md'ye bakın |
+
+## Faz 12 (bu oturum)
+
+Kapsam: kullanıcının, bir önceki oturumun kendi bulguları olarak bildirdiği 10 maddelik liste (bkz. CHANGELOG.md → Faz 12 için tam liste). Özet:
+
+- Rate limiting, deposit-deadline cron, kalan ödeme dekontu + admin inceleme, red gerekçesi (deposit/settlement/iade), admin IBAN çapraz kontrolü, kural-tabanlı şüpheli hesap tespiti (v1), Resend e-posta bildirimi, gerçek coğrafi "yakın il" araması — hepsi kod seviyesinde tamamlandı, ayrıntı CHANGELOG.md'de.
+- **Bu oturumda bulunup düzeltilen bir regresyon**: mevcut iki E2E spec'i (`booking-chat-review.spec.ts`, `double-booking.spec.ts`), kendilerinden sonraki iki oturumda eklenen zorunlu telefon OTP doğrulaması ve rezervasyon onay butonu metin değişikliği tarafından kırılmıştı — testler hiç çalıştırılmadığı (Docker/WSL yok) için fark edilmemiş. `e2e/utils.ts`'e bir servis-role test-bypass'i eklenip düzeltildi.
+- Yeni `e2e/payment-review.spec.ts`: dekont red/gerekçe/onay, admin IBAN gösterimi, kalan ödeme dekontu, coğrafi yakın-il fallback'ini uçtan uca kapsıyor.
+
+**Bu oturumda YAPILMAYAN / doğrulanmayan**:
+
+- **E2E testleri hiçbiri CI'da gerçek bir koşuyla doğrulanmadı** — bu depoda Docker/WSL olmadığından yalnızca statik olarak (kaynak koddaki gerçek metin/davranışla karşılaştırılarak) doğrulandı. Önceki oturumlar bunu `gh run watch` ile push sonrası CI'da izleyerek yapmıştı (bkz. Faz 11) — bu oturumda push/deploy kullanıcının onayına bırakıldı, bu yüzden aynı doğrulama yapılamadı. **Push sonrası CI'da izlenmesi önerilir.**
+- IBAN'ın gerçek banka API doğrulaması (kullanıcı, üçüncü taraf hesap/API anlaşması olmadığı için ara çözümü — ad alanı + admin göz kontrolü — onayladı).
+- Resend hesabı açılmadı/API anahtarı girilmedi (üçüncü taraf hesap açma AI ajanının yapabileceği bir şey değil — VAPID'de olduğu gibi).
+- `0024`–`0027` migration'ları henüz `supabase db push` ile gerçek (linked) Supabase projesine uygulanmadı.
+
+Doğrulama (bu oturumda): `npm run lint` (temiz), `npx tsc --noEmit` (temiz, `e2e/` dahil), `npm run build` (34 rota, başarılı), `npm test` (114/114 geçti), i18n anahtar eşleşmesi (tr/ar, 594/594 birebir).
 
 ## Faz 11 (bu oturum)
 

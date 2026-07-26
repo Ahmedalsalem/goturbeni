@@ -13,14 +13,17 @@ export type NotificationEvent =
   | { type: "booking_rejected"; recipientId: string; rideId: string }
   | { type: "new_message"; recipientId: string; rideId: string }
 
-const NOTIFICATION_URL: Record<NotificationEvent["type"], (rideId: string) => string> = {
+// Exported for src/lib/email.ts, which sends the same event to the same
+// recipient via a different channel and needs the same title/body keys and
+// deep link.
+export const NOTIFICATION_URL: Record<NotificationEvent["type"], (rideId: string) => string> = {
   booking_requested: (rideId) => `/rides/${rideId}/bookings`,
   booking_approved: () => `/bookings`,
   booking_rejected: () => `/bookings`,
   new_message: (rideId) => `/rides/${rideId}/chat`,
 }
 
-const NOTIFICATION_KEY: Record<NotificationEvent["type"], "bookingRequested" | "bookingApproved" | "bookingRejected" | "newMessage"> = {
+export const NOTIFICATION_KEY: Record<NotificationEvent["type"], "bookingRequested" | "bookingApproved" | "bookingRejected" | "newMessage"> = {
   booking_requested: "bookingRequested",
   booking_approved: "bookingApproved",
   booking_rejected: "bookingRejected",

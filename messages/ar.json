@@ -37,6 +37,9 @@
     },
     "unsupported": "الإشعارات غير مدعومة في هذا المتصفح. على آيفون عبر Safari، أضف الموقع أولاً إلى الشاشة الرئيسية."
   },
+  "Email": {
+    "viewLinkLabel": "عرض"
+  },
   "Pwa": {
     "install": "تثبيت التطبيق",
     "iosPrompt": {
@@ -232,6 +235,7 @@
     "emptyDescription": "لا توجد حاليًا أي رحلة نشطة. كن أول من يضيف رحلة.",
     "emptyFilteredDescription": "لا توجد رحلات مطابقة لهذه المعايير. جرّب بحثًا مختلفًا.",
     "nearbyDistrictsNotice": "لم يتم العثور على رحلات في المنطقة التي اخترتها — يتم عرض خيارات من المناطق القريبة.",
+    "nearbyProvincesNotice": "لم يتم العثور على رحلات في المحافظة التي اخترتها — يتم عرض خيارات من المحافظات القريبة جغرافيًا.",
     "filters": {
       "fromLabel": "الانطلاق",
       "toLabel": "الوصول",
@@ -472,7 +476,13 @@
     },
     "card": {
       "seatCount": "{count} مقعد",
-      "unknownPassenger": "الراكب"
+      "unknownPassenger": "الراكب",
+      "uploadSettlementReceipt": "رفع إيصال الدفعة المتبقية",
+      "settlementReceiptStatus": {
+        "pending": "إيصال الدفعة المتبقية قيد المراجعة",
+        "approved": "تمت الموافقة على إيصال الدفعة المتبقية",
+        "rejected": "تم رفض إيصال الدفعة المتبقية — يرجى إعادة الرفع"
+      }
     },
     "loginPrompt": {
       "message": "يجب عليك تسجيل الدخول لإجراء الحجز.",
@@ -497,6 +507,7 @@
     },
     "refund": {
       "uploadProof": "رفع إيصال الاسترداد",
+      "proofRejected": "تم رفض إيصال الاسترداد",
       "status": {
         "pending": "الاسترداد قيد الانتظار",
         "proof_submitted": "إيصال الاسترداد قيد المراجعة",
@@ -605,6 +616,17 @@
       "bookingsByStatusTitle": "الحجوزات حسب الحالة",
       "ridesTrendTitle": "آخر 7 أيام — عدد الرحلات المُضافة"
     },
+    "suspicious": {
+      "title": "حسابات مشبوهة",
+      "description": "كشف تلقائي قائم على قواعد ثابتة (الإصدار 1) — ليس دليلاً قاطعًا على الاحتيال، بل إشارة تحتاج مراجعة يدوية.",
+      "none": "لا توجد حسابات مُعلَّمة حاليًا.",
+      "reason": {
+        "ride_spam": "كثافة إعلانات",
+        "high_cancellation_rate": "معدل إلغاء مرتفع",
+        "high_rejection_rate": "معدل رفض مرتفع",
+        "booking_spam": "كثافة طلبات حجز"
+      }
+    },
     "users": {
       "title": "المستخدمون",
       "description": "عرض المستخدمين، وتعليق حساباتهم أو إعادة تفعيلها.",
@@ -650,14 +672,20 @@
       "description": "راجع إيصالات الدفع وطلبات الاسترداد المعلقة.",
       "depositReceiptsTitle": "إيصالات بانتظار المراجعة",
       "noPendingReceipts": "لا توجد إيصالات معلقة",
+      "settlementReceiptsTitle": "إيصالات الدفعة المتبقية بانتظار المراجعة",
+      "noPendingSettlements": "لا توجد إيصالات دفعة متبقية معلقة",
       "refundsTitle": "طلبات استرداد بانتظار المراجعة",
       "noPendingRefunds": "لا توجد طلبات استرداد معلقة",
       "viewReceipt": "عرض الإيصال",
       "driverLabel": "السائق",
       "passengerLabel": "الراكب",
       "unknownUser": "مستخدم",
+      "driverIbanLabel": "IBAN السائق",
       "approve": "موافقة",
       "reject": "رفض",
+      "cancel": "إلغاء",
+      "confirmReject": "تأكيد الرفض",
+      "rejectReasonPlaceholder": "سبب الرفض (اختياري، يُعرض للمستخدم المعني)",
       "receiptApproved": "تمت الموافقة على الإيصال.",
       "receiptRejected": "تم رفض الإيصال.",
       "confirmRefund": "تأكيد الاسترداد",

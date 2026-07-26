@@ -7,7 +7,15 @@ import { EmptyState } from "@/components/EmptyState"
 import { Card, CardContent } from "@/components/ui/card"
 import { ConfirmRefundButton } from "@/features/admin/ConfirmRefundButton"
 import { DepositReceiptReviewActions } from "@/features/admin/DepositReceiptReviewActions"
-import { getPendingDepositReceipts, getPendingRefunds, type AdminBookingRow } from "@/features/admin/queries"
+import { RejectRefundButton } from "@/features/admin/RejectRefundButton"
+import { SettlementReceiptReviewActions } from "@/features/admin/SettlementReceiptReviewActions"
+import {
+  getDriverPaymentInfoForAdmin,
+  getPendingDepositReceipts,
+  getPendingRefunds,
+  getPendingSettlementReceipts,
+  type AdminBookingRow,
+} from "@/features/admin/queries"
 import { getSignedReceiptUrl } from "@/features/bookings/queries"
 import { getUserLocale } from "@/i18n/locale"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
@@ -31,10 +39,21 @@ export default async function AdminPaymentsPage() {
   const t = await getTranslations("Admin.payments")
   const format = await getFormatter()
   const locale = await getUserLocale()
-  const [pendingReceipts, pendingRefunds] = await Promise.all([getPendingDepositReceipts(), getPendingRefunds()])
+  const [pendingReceipts, pendingSettlements, pendingRefunds] = await Promise.all([
+    getPendingDepositReceipts(),
+    getPendingSettlementReceipts(),
+    getPendingRefunds(),
+  ])
 
   const receiptUrls = await Promise.all(
     pendingReceipts.map((booking) => (booking.deposit_receipt_url ? getSignedReceiptUrl(booking.deposit_receipt_url) : null))
+  )
+  // Shown next to each pending deposit receipt so the admin can eyeball the
+  // IBAN holder name against the uploaded receipt — there's no bank API
+  // verifying the two actually match (see README → Bilinen Sınırlamalar).
+  const driverPaymentInfos = await Promise.all(pendingReceipts.map((booking) => getDriverPaymentInfoForAdmin(booking.id)))
+  const settlementReceiptUrls = await Promise.all(
+    pendingSettlements.map((booking) => (booking.settlement_receipt_url ? getSignedReceiptUrl(booking.settlement_receipt_url) : null))
   )
   const refundProofUrls = await Promise.all(
     pendingRefunds.map((booking) => (booking.refund_proof_url ? getSignedReceiptUrl(booking.refund_proof_url) : null))
@@ -60,6 +79,11 @@ export default async function AdminPaymentsPage() {
                     <p className="font-medium">{booking.passenger?.full_name ?? t("unknownUser")}</p>
                     <RouteLabel booking={booking} locale={locale} />
                     <p className="text-muted-foreground text-xs">{t("driverLabel")}: {booking.ride.driver?.full_name ?? t("unknownUser")}</p>
+                    {driverPaymentInfos[index] && (
+                      <p className="text-muted-foreground text-xs">
+                        {t("driverIbanLabel")}: <span className="font-mono">{driverPaymentInfos[index]!.iban}</span> ({driverPaymentInfos[index]!.iban_holder_name})
+                      </p>
+                    )}
                   </div>
                   <div className="flex items-center gap-3">
                     {receiptUrls[index] && (
@@ -68,6 +92,40 @@ export default async function AdminPaymentsPage() {
                       </Link>
                     )}
                     <DepositReceiptReviewActions bookingId={booking.id} />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div>
+        <h2 className="mb-3 text-lg font-medium">{t("settlementReceiptsTitle")}</h2>
+        {pendingSettlements.length === 0 ? (
+          <EmptyState icon={Receipt} title={t("noPendingSettlements")} description="" />
+        ) : (
+          <div className="flex flex-col gap-3">
+            {pendingSettlements.map((booking, index) => (
+              <Card key={booking.id}>
+                <CardContent className="flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <p className="font-medium">{booking.passenger?.full_name ?? t("unknownUser")}</p>
+                    <RouteLabel booking={booking} locale={locale} />
+                    <p className="text-muted-foreground text-xs">{t("driverLabel")}: {booking.ride.driver?.full_name ?? t("unknownUser")}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {settlementReceiptUrls[index] && (
+                      <Link
+                        href={settlementReceiptUrls[index]!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary flex items-center gap-1 text-sm underline"
+                      >
+                        <FileText className="size-4" aria-hidden="true" /> {t("viewReceipt")}
+                      </Link>
+                    )}
+                    <SettlementReceiptReviewActions bookingId={booking.id} />
                   </div>
                 </CardContent>
               </Card>
@@ -99,6 +157,7 @@ export default async function AdminPaymentsPage() {
                         <FileText className="size-4" aria-hidden="true" /> {t("viewReceipt")}
                       </Link>
                     )}
+                    <RejectRefundButton bookingId={booking.id} />
                     <ConfirmRefundButton bookingId={booking.id} />
                   </div>
                 </CardContent>

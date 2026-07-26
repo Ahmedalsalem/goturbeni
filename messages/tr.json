@@ -37,6 +37,9 @@
     },
     "unsupported": "Bildirimler bu tarayıcıda desteklenmiyor. iPhone'da Safari üzerinden kullanmak için siteyi önce Ana Ekrana Ekleyin."
   },
+  "Email": {
+    "viewLinkLabel": "Görüntüle"
+  },
   "Pwa": {
     "install": "Uygulamayı Yükle",
     "iosPrompt": {
@@ -232,6 +235,7 @@
     "emptyDescription": "Şu anda aktif bir yolculuk ilanı bulunmuyor. İlk ilanı sen ver.",
     "emptyFilteredDescription": "Bu kriterlere uygun ilan yok. Farklı bir arama deneyin.",
     "nearbyDistrictsNotice": "Seçtiğiniz ilçede uygun ilan bulunamadı — yakın ilçelerdeki seçenekler gösteriliyor.",
+    "nearbyProvincesNotice": "Seçtiğiniz ilde uygun ilan bulunamadı — coğrafi olarak yakın illerdeki seçenekler gösteriliyor.",
     "filters": {
       "fromLabel": "Kalkış",
       "toLabel": "Varış",
@@ -472,7 +476,13 @@
     },
     "card": {
       "seatCount": "{count} koltuk",
-      "unknownPassenger": "Yolcu"
+      "unknownPassenger": "Yolcu",
+      "uploadSettlementReceipt": "Kalan Ödeme Dekontu Yükle",
+      "settlementReceiptStatus": {
+        "pending": "Kalan ödeme dekontu inceleniyor",
+        "approved": "Kalan ödeme dekontu onaylandı",
+        "rejected": "Kalan ödeme dekontu reddedildi — lütfen yeniden yükleyin"
+      }
     },
     "loginPrompt": {
       "message": "Rezervasyon yapmak için giriş yapmalısınız.",
@@ -497,6 +507,7 @@
     },
     "refund": {
       "uploadProof": "İade Dekontu Yükle",
+      "proofRejected": "İade dekontu reddedildi",
       "status": {
         "pending": "İade bekleniyor",
         "proof_submitted": "İade dekontu inceleniyor",
@@ -605,6 +616,17 @@
       "bookingsByStatusTitle": "Duruma Göre Rezervasyonlar",
       "ridesTrendTitle": "Son 7 Gün — Verilen İlan Sayısı"
     },
+    "suspicious": {
+      "title": "Şüpheli Hesaplar",
+      "description": "Kural tabanlı otomatik tespit (v1) — kesin dolandırıcılık kanıtı değil, elle incelenmesi gereken bir işaret.",
+      "none": "Şu anda işaretlenmiş hesap yok.",
+      "reason": {
+        "ride_spam": "İlan yoğunluğu",
+        "high_cancellation_rate": "Yüksek iptal oranı",
+        "high_rejection_rate": "Yüksek red oranı",
+        "booking_spam": "Rezervasyon talebi yoğunluğu"
+      }
+    },
     "users": {
       "title": "Kullanıcılar",
       "description": "Kullanıcıları görüntüle, askıya al veya askıyı kaldır.",
@@ -643,14 +665,20 @@
       "description": "Bekleyen ödeme dekontlarını ve iade taleplerini incele.",
       "depositReceiptsTitle": "İncelenmeyi Bekleyen Dekontlar",
       "noPendingReceipts": "Bekleyen dekont yok",
+      "settlementReceiptsTitle": "İncelenmeyi Bekleyen Kalan Ödeme Dekontları",
+      "noPendingSettlements": "Bekleyen kalan ödeme dekontu yok",
       "refundsTitle": "İncelenmeyi Bekleyen İadeler",
       "noPendingRefunds": "Bekleyen iade yok",
       "viewReceipt": "Dekontu Görüntüle",
       "driverLabel": "Sürücü",
       "passengerLabel": "Yolcu",
       "unknownUser": "Kullanıcı",
+      "driverIbanLabel": "Sürücü IBAN",
       "approve": "Onayla",
       "reject": "Reddet",
+      "cancel": "Vazgeç",
+      "confirmReject": "Reddi Onayla",
+      "rejectReasonPlaceholder": "Red gerekçesi (isteğe bağlı, ilgili kullanıcıya gösterilir)",
       "receiptApproved": "Dekont onaylandı.",
       "receiptRejected": "Dekont reddedildi.",
       "confirmRefund": "İadeyi Onayla",

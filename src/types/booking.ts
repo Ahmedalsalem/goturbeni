@@ -18,10 +18,16 @@ export interface Booking {
   deposit_receipt_url: string | null
   deposit_receipt_status: ReceiptStatus | null
   deposit_receipt_reviewed_at: string | null
+  deposit_receipt_reject_reason: string | null
+  settlement_receipt_url: string | null
+  settlement_receipt_status: ReceiptStatus | null
+  settlement_receipt_reviewed_at: string | null
+  settlement_receipt_reject_reason: string | null
   refund_status: RefundStatus
   refund_proof_url: string | null
   refund_requested_at: string | null
   refund_confirmed_at: string | null
+  refund_reject_reason: string | null
   created_at: string
   updated_at: string
 }

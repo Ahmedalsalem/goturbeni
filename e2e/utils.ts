@@ -66,7 +66,16 @@ export function nearFutureIstanbulDateTime(minutesAhead: number): { date: string
 
 export async function createRide(
   page: Page,
-  options: { departureCity: string; arrivalCity: string; minutesAhead: number; seatCount: number; costShare: number }
+  options: {
+    departureCity: string
+    arrivalCity: string
+    minutesAhead: number
+    seatCount: number
+    costShare: number
+    petsAllowed?: boolean
+    smokingAllowed?: boolean
+    vipSolo?: boolean
+  }
 ): Promise<string> {
   await page.goto("/create-ride")
   await selectCombobox(page, "departureCity", options.departureCity)
@@ -76,6 +85,15 @@ export async function createRide(
   await page.locator("#departureTime").fill(time)
   await page.locator("#seatCount").fill(String(options.seatCount))
   await page.locator("#costShare").fill(String(options.costShare))
+  if (options.petsAllowed) {
+    await page.locator("#petsAllowed").click()
+  }
+  if (options.smokingAllowed) {
+    await page.locator("#smokingAllowed").click()
+  }
+  if (options.vipSolo) {
+    await page.locator("#vipSolo").click()
+  }
   await page.getByRole("button", { name: "İlanı Yayınla" }).click()
   await page.waitForURL("**/rides/mine")
 
@@ -120,4 +138,68 @@ export async function backdateRideDeparture(rideId: string, secondsAgo: number):
   if (error) {
     throw error
   }
+}
+
+// Registration now requires mandatory phone OTP verification (see
+// src/lib/supabase/dal.ts's requireVerifiedProfile, gating createRide/
+// createBooking) and no SMS provider is configured for the local/CI
+// Supabase instance (supabase/config.toml has no [auth.sms.test_otp] map),
+// so the OTP itself can never be completed through the UI in this
+// environment. Bypasses it the same way backdateRideDeparture bypasses the
+// departure-time wait: flip profiles_private.phone_verified directly with
+// the service-role client, exactly what a real completed OTP would have set.
+export async function verifyPhoneForTest(email: string): Promise<void> {
+  const admin = createAdminClient()
+  const { data, error } = await admin.auth.admin.listUsers()
+  if (error) {
+    throw error
+  }
+  const user = data.users.find((candidate) => candidate.email === email)
+  if (!user) {
+    throw new Error(`No auth user found for ${email} — was signUp() called first?`)
+  }
+  const { error: updateError } = await admin.from("profiles_private").update({ phone_verified: true }).eq("id", user.id)
+  if (updateError) {
+    throw updateError
+  }
+}
+
+// signUp() + the phone-verification bypass above, landing on /profile like
+// a real completed registration would — the flow every test that needs to
+// create a ride or a booking (both gated by requireVerifiedProfile) should
+// use instead of calling signUp() directly.
+export async function signUpAndVerify(page: Page, email: string, password: string = TEST_PASSWORD): Promise<void> {
+  await signUp(page, email, password)
+  await verifyPhoneForTest(email)
+  await page.goto("/profile")
+}
+
+// Grants admin_flags.is_admin via the service-role client — mirrors the
+// bootstrap insert in supabase/migrations/0014_admin.sql (there is no
+// client-facing way to self-promote, by design).
+export async function makeAdminForTest(email: string): Promise<void> {
+  const admin = createAdminClient()
+  const { data, error } = await admin.auth.admin.listUsers()
+  if (error) {
+    throw error
+  }
+  const user = data.users.find((candidate) => candidate.email === email)
+  if (!user) {
+    throw new Error(`No auth user found for ${email} — was signUp() called first?`)
+  }
+  const { error: upsertError } = await admin.from("admin_flags").upsert({ user_id: user.id, is_admin: true })
+  if (upsertError) {
+    throw upsertError
+  }
+}
+
+// A minimal valid PNG (1x1 transparent pixel) as a Playwright file payload —
+// submitDepositReceipt/submitRefundProof/submitSettlementReceipt only check
+// size/mime type (see MAX_RECEIPT_BYTES/ALLOWED_RECEIPT_TYPES in
+// src/features/bookings/actions.ts), so a real photo isn't needed.
+const ONE_PIXEL_PNG_BASE64 =
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
+
+export function receiptFilePayload(name: string): { name: string; mimeType: string; buffer: Buffer } {
+  return { name, mimeType: "image/png", buffer: Buffer.from(ONE_PIXEL_PNG_BASE64, "base64") }
 }

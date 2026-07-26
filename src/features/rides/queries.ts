@@ -6,8 +6,15 @@ import { createClient } from "@/lib/supabase/server"
 import { isSupabaseConfigured } from "@/lib/supabase/is-configured"
 import type { RideSearchFilters, RideSort } from "@/features/rides/filters"
 import type { Ride, RideWithDriver } from "@/types/ride"
+import { getNearbyProvinces } from "@/utils/turkish-provinces-geo"
 
 const RIDE_WITH_DRIVER_SELECT = "*, driver:profiles(full_name, avatar_url, car_brand, car_model)"
+
+// How far (km) a province search widens once the exact departure/arrival
+// province has no results — wide enough to catch a genuinely nearby
+// province (e.g. Kocaeli when searching İstanbul), narrow enough that
+// "nearby" doesn't quietly mean "anywhere in Turkey".
+const NEARBY_PROVINCE_RADIUS_KM = 150
 
 const SORT_COLUMN: Record<RideSort, { column: "departure_time" | "cost_share"; ascending: boolean }> = {
   date_asc: { column: "departure_time", ascending: true },
@@ -57,32 +64,84 @@ function buildRidesQuery(supabase: Awaited<ReturnType<typeof createClient>>, fil
   return query.order(column, { ascending })
 }
 
+// Same filters as buildRidesQuery's province level (district ignored — the
+// caller only reaches this once city-level search already came back empty),
+// except departure/arrival city becomes "the searched province or one within
+// NEARBY_PROVINCE_RADIUS_KM of it" via `.in(...)` instead of `.eq(...)`.
+function buildNearbyProvinceRidesQuery(supabase: Awaited<ReturnType<typeof createClient>>, filters: RideSearchFilters) {
+  let query = supabase.from("rides").select(RIDE_WITH_DRIVER_SELECT).eq("status", "active")
+
+  if (filters.from) {
+    query = query.in("departure_city", [filters.from, ...getNearbyProvinces(filters.from, NEARBY_PROVINCE_RADIUS_KM)])
+  }
+  if (filters.to) {
+    query = query.in("arrival_city", [filters.to, ...getNearbyProvinces(filters.to, NEARBY_PROVINCE_RADIUS_KM)])
+  }
+  if (filters.date) {
+    query = query.gte("departure_time", `${filters.date}T00:00:00`).lte("departure_time", `${filters.date}T23:59:59.999`)
+  }
+  if (filters.womenOnly) {
+    query = query.eq("women_only", true)
+  }
+  if (filters.petsAllowed) {
+    query = query.eq("pets_allowed", true)
+  }
+  if (filters.smokingAllowed) {
+    query = query.eq("smoking_allowed", true)
+  }
+  if (filters.vipOnly) {
+    query = query.eq("vip_solo", true)
+  }
+
+  const { column, ascending } = SORT_COLUMN[filters.sort ?? "date_asc"]
+  return query.order(column, { ascending })
+}
+
 export interface RideSearchResult {
   rides: RideWithDriver[]
   // true when the exact district-level search had no results and the list
   // below was widened to the whole city instead ("yakın ilçelerdeki
   // seçenekler") — only ever set when a district filter was actually active.
   usedNearbyDistricts: boolean
+  // true when even the city/province-level search had no results and the
+  // list below was widened further to geographically nearby provinces
+  // (haversine distance to province capitals, see turkish-provinces-geo.ts)
+  // — only ever set when a from/to province filter was actually active.
+  usedNearbyProvinces: boolean
 }
 
 export async function getRides(filters?: RideSearchFilters): Promise<RideSearchResult> {
   // /rides is public — guests must be able to browse it even before Supabase
   // credentials are configured (see src/lib/supabase/is-configured.ts).
   if (!isSupabaseConfigured()) {
-    return { rides: [], usedNearbyDistricts: false }
+    return { rides: [], usedNearbyDistricts: false, usedNearbyProvinces: false }
   }
   const supabase = await createClient()
 
   const { data } = await buildRidesQuery(supabase, filters, true)
   const rides = (data as RideWithDriver[] | null) ?? []
-  if (rides.length > 0 || !(filters?.fromDistrict || filters?.toDistrict)) {
-    return { rides, usedNearbyDistricts: false }
+  if (rides.length > 0) {
+    return { rides, usedNearbyDistricts: false, usedNearbyProvinces: false }
   }
 
-  // No exact-district matches — widen to the same city/cities and surface
-  // that as "nearby district" results instead of an empty page.
-  const { data: nearbyData } = await buildRidesQuery(supabase, filters, false)
-  return { rides: (nearbyData as RideWithDriver[] | null) ?? [], usedNearbyDistricts: true }
+  if (filters?.fromDistrict || filters?.toDistrict) {
+    // No exact-district matches — widen to the same city/cities and surface
+    // that as "nearby district" results instead of an empty page.
+    const { data: cityData } = await buildRidesQuery(supabase, filters, false)
+    const cityRides = (cityData as RideWithDriver[] | null) ?? []
+    if (cityRides.length > 0) {
+      return { rides: cityRides, usedNearbyDistricts: true, usedNearbyProvinces: false }
+    }
+  }
+
+  if (!filters?.from && !filters?.to) {
+    return { rides: [], usedNearbyDistricts: false, usedNearbyProvinces: false }
+  }
+
+  // Still nothing — widen once more to provinces geographically close to the
+  // searched one(s), not just the same administrative province.
+  const { data: geoData } = await buildNearbyProvinceRidesQuery(supabase, filters)
+  return { rides: (geoData as RideWithDriver[] | null) ?? [], usedNearbyDistricts: false, usedNearbyProvinces: true }
 }
 
 export async function getRide(rideId: string): Promise<Ride | null> {

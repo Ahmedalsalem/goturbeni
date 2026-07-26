@@ -11,6 +11,7 @@ import { verifySession } from "@/lib/supabase/dal"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { logError } from "@/lib/logger"
 import { sendPushNotification } from "@/lib/notifications"
+import { sendEmailNotification } from "@/lib/email"
 import { buildMessageSchema, type ChatActionState, type MessageFormValues } from "@/features/chat/schemas"
 
 const SEND_MESSAGE_RATE_LIMIT = { limit: 30, windowMs: 10 * 60 * 1000 }
@@ -51,7 +52,10 @@ export async function sendMessage(rideId: string, receiverId: string, values: Me
     return { error: tErrors("sendFailed") }
   }
 
-  await sendPushNotification({ type: "new_message", recipientId: receiverId, rideId })
+  await Promise.all([
+    sendPushNotification({ type: "new_message", recipientId: receiverId, rideId }),
+    sendEmailNotification({ type: "new_message", recipientId: receiverId, rideId }),
+  ])
 
   revalidatePath(`/rides/${rideId}/chat`)
   return { success: true }
@@ -95,7 +99,10 @@ export async function sendLocationMessage(rideId: string, receiverId: string, la
     return { error: tErrors("sendFailed") }
   }
 
-  await sendPushNotification({ type: "new_message", recipientId: receiverId, rideId })
+  await Promise.all([
+    sendPushNotification({ type: "new_message", recipientId: receiverId, rideId }),
+    sendEmailNotification({ type: "new_message", recipientId: receiverId, rideId }),
+  ])
 
   revalidatePath(`/rides/${rideId}/chat`)
   return { success: true }

@@ -78,8 +78,9 @@ export async function cancelRideAsAdmin(rideId: string): Promise<AdminActionStat
 }
 
 // Same authorization shape as the others — admin_review_deposit_receipt is
-// the sole enforcement point (0020_payment_receipts.sql).
-export async function reviewDepositReceipt(bookingId: string, approved: boolean): Promise<AdminActionState> {
+// the sole enforcement point (0020_payment_receipts.sql, reason param added
+// in 0025_settlement_receipts_and_reject_reasons.sql).
+export async function reviewDepositReceipt(bookingId: string, approved: boolean, reason?: string): Promise<AdminActionState> {
   const tErrors = await getAdminErrorTranslator()
   if (!isSupabaseConfigured()) {
     return { error: tErrors("notConfigured") }
@@ -87,13 +88,37 @@ export async function reviewDepositReceipt(bookingId: string, approved: boolean)
 
   await verifySession()
   const supabase = await createClient()
-  const { error } = await supabase.rpc("admin_review_deposit_receipt", { p_booking_id: bookingId, p_approved: approved })
+  const { error } = await supabase.rpc("admin_review_deposit_receipt", { p_booking_id: bookingId, p_approved: approved, p_reason: reason ?? null })
 
   if (error) {
     if (error.message.includes("not_admin")) {
       return { error: tErrors("notAdmin") }
     }
     logError(error, "admin.reviewDepositReceipt")
+    return { error: tErrors("actionFailed") }
+  }
+
+  revalidatePath("/admin/payments")
+  return { success: true }
+}
+
+// Same authorization shape — admin_review_settlement_receipt is the sole
+// enforcement point (0025_settlement_receipts_and_reject_reasons.sql).
+export async function reviewSettlementReceipt(bookingId: string, approved: boolean, reason?: string): Promise<AdminActionState> {
+  const tErrors = await getAdminErrorTranslator()
+  if (!isSupabaseConfigured()) {
+    return { error: tErrors("notConfigured") }
+  }
+
+  await verifySession()
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("admin_review_settlement_receipt", { p_booking_id: bookingId, p_approved: approved, p_reason: reason ?? null })
+
+  if (error) {
+    if (error.message.includes("not_admin")) {
+      return { error: tErrors("notAdmin") }
+    }
+    logError(error, "admin.reviewSettlementReceipt")
     return { error: tErrors("actionFailed") }
   }
 
@@ -117,6 +142,31 @@ export async function confirmRefund(bookingId: string): Promise<AdminActionState
       return { error: tErrors("notAdmin") }
     }
     logError(error, "admin.confirmRefund")
+    return { error: tErrors("actionFailed") }
+  }
+
+  revalidatePath("/admin/payments")
+  return { success: true }
+}
+
+// admin_reject_refund_proof is the sole enforcement point
+// (0025_settlement_receipts_and_reject_reasons.sql) — puts refund_status
+// back to 'pending' so the driver can re-upload via submitRefundProof.
+export async function rejectRefundProof(bookingId: string, reason?: string): Promise<AdminActionState> {
+  const tErrors = await getAdminErrorTranslator()
+  if (!isSupabaseConfigured()) {
+    return { error: tErrors("notConfigured") }
+  }
+
+  await verifySession()
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("admin_reject_refund_proof", { p_booking_id: bookingId, p_reason: reason ?? null })
+
+  if (error) {
+    if (error.message.includes("not_admin")) {
+      return { error: tErrors("notAdmin") }
+    }
+    logError(error, "admin.rejectRefundProof")
     return { error: tErrors("actionFailed") }
   }
 

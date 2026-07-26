@@ -1,13 +1,13 @@
 import type { Metadata } from "next"
 import { getFormatter, getTranslations } from "next-intl/server"
-import { Users } from "lucide-react"
+import { ShieldAlert, Users } from "lucide-react"
 
 import { EmptyState } from "@/components/EmptyState"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { SuspendToggleButton } from "@/features/admin/SuspendToggleButton"
-import { getAdminUsers } from "@/features/admin/queries"
+import { getAdminUsers, getSuspiciousAccounts } from "@/features/admin/queries"
 import { verifySession } from "@/lib/supabase/dal"
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -18,11 +18,42 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function AdminUsersPage() {
   const currentUser = await verifySession()
   const t = await getTranslations("Admin.users")
+  const tSuspicious = await getTranslations("Admin.suspicious")
   const format = await getFormatter()
-  const users = await getAdminUsers()
+  const [users, suspiciousAccounts] = await Promise.all([getAdminUsers(), getSuspiciousAccounts()])
 
   return (
     <div>
+      <div className="mb-8">
+        <h2 className="mb-1 flex items-center gap-2 text-lg font-medium">
+          <ShieldAlert className="text-destructive size-5" aria-hidden="true" />
+          {tSuspicious("title")}
+        </h2>
+        <p className="text-muted-foreground mb-3 text-sm">{tSuspicious("description")}</p>
+        {suspiciousAccounts.length === 0 ? (
+          <p className="text-muted-foreground text-sm">{tSuspicious("none")}</p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {suspiciousAccounts.map((account, index) => (
+              <Card key={`${account.user_id}-${account.reason}-${index}`}>
+                <CardContent className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="font-medium">{account.full_name ?? t("unknownUser")}</p>
+                    <p className="text-muted-foreground text-xs">
+                      {tSuspicious(`reason.${account.reason}`)} — {account.detail}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {account.is_suspended && <Badge variant="destructive">{t("suspendedBadge")}</Badge>}
+                    {account.user_id !== currentUser.id && <SuspendToggleButton userId={account.user_id} isSuspended={account.is_suspended} />}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">{t("title")}</h1>
         <p className="text-muted-foreground text-sm">{t("description")}</p>

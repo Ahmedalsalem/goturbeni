@@ -46,6 +46,55 @@ export async function getPendingRefunds(): Promise<AdminBookingRow[]> {
   return (data as unknown as AdminBookingRow[] | null) ?? []
 }
 
+// Settlement (post-trip remaining-half) receipts a passenger uploaded but
+// nobody has reviewed yet — see submit_settlement_receipt/
+// admin_review_settlement_receipt (0025_settlement_receipts_and_reject_reasons.sql).
+export async function getPendingSettlementReceipts(): Promise<AdminBookingRow[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("bookings")
+    .select(ADMIN_BOOKING_SELECT)
+    .eq("settlement_receipt_status", "pending")
+    .order("settlement_receipt_reviewed_at", { ascending: true, nullsFirst: true })
+    .limit(ADMIN_LIST_LIMIT)
+
+  return (data as unknown as AdminBookingRow[] | null) ?? []
+}
+
+// Lets an admin visually cross-check the driver's registered IBAN/holder
+// name against an uploaded receipt while reviewing it — profiles_private has
+// no admin bypass (see AdminUserRow above), so this goes through a scoped
+// security-definer RPC instead (admin_get_driver_payment_info, 0025).
+export async function getDriverPaymentInfoForAdmin(bookingId: string): Promise<{ iban: string; iban_holder_name: string } | null> {
+  const supabase = await createClient()
+  const { data } = await supabase.rpc("admin_get_driver_payment_info", { p_booking_id: bookingId }).maybeSingle()
+  const row = data as { iban: string | null; iban_holder_name: string | null } | null
+  if (!row?.iban || !row?.iban_holder_name) {
+    return null
+  }
+  return { iban: row.iban, iban_holder_name: row.iban_holder_name }
+}
+
+export type SuspiciousAccountReason = "ride_spam" | "high_cancellation_rate" | "high_rejection_rate" | "booking_spam"
+
+export interface SuspiciousAccountRow {
+  user_id: string
+  full_name: string | null
+  is_suspended: boolean
+  reason: SuspiciousAccountReason
+  detail: string
+}
+
+// Rule-based v1 abuse/fraud flagging — see admin_get_suspicious_accounts
+// (0026_suspicious_accounts.sql) for the four heuristics and their
+// thresholds. Not an ML system, no external service — pure SQL aggregates
+// over rides/bookings, admin-only via is_admin() inside the RPC.
+export async function getSuspiciousAccounts(): Promise<SuspiciousAccountRow[]> {
+  const supabase = await createClient()
+  const { data } = await supabase.rpc("admin_get_suspicious_accounts")
+  return (data as SuspiciousAccountRow[] | null) ?? []
+}
+
 export async function checkIsAdmin(userId: string): Promise<boolean> {
   const supabase = await createClient()
   const { data } = await supabase.rpc("is_admin", { p_user_id: userId })

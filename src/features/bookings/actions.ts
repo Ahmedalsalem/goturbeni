@@ -13,9 +13,11 @@ import { logError } from "@/lib/logger"
 import { getRide } from "@/features/rides/queries"
 import { getBookingPassengerId } from "@/features/bookings/queries"
 import { sendPushNotification } from "@/lib/notifications"
+import { sendEmailNotification } from "@/lib/email"
 import { buildBookingSchema, type BookingActionState, type BookingFormValues } from "@/features/bookings/schemas"
 
 const CREATE_BOOKING_RATE_LIMIT = { limit: 20, windowMs: 60 * 60 * 1000 }
+const RECEIPT_UPLOAD_RATE_LIMIT = { limit: 20, windowMs: 60 * 60 * 1000 }
 const MAX_RECEIPT_BYTES = 5 * 1024 * 1024
 const ALLOWED_RECEIPT_TYPES = ["image/png", "image/jpeg", "image/webp", "application/pdf"]
 
@@ -69,7 +71,10 @@ export async function createBooking(rideId: string, values: BookingFormValues): 
     return { error: error.code === "23505" ? tErrors("alreadyBooked") : tErrors("createFailed") }
   }
 
-  await sendPushNotification({ type: "booking_requested", recipientId: ride.driver_id, rideId })
+  await Promise.all([
+    sendPushNotification({ type: "booking_requested", recipientId: ride.driver_id, rideId }),
+    sendEmailNotification({ type: "booking_requested", recipientId: ride.driver_id, rideId }),
+  ])
 
   revalidatePath(`/rides/${rideId}`)
   return { success: true }
@@ -92,7 +97,10 @@ export async function approveBooking(bookingId: string, rideId: string): Promise
 
   const passengerId = await getBookingPassengerId(bookingId)
   if (passengerId) {
-    await sendPushNotification({ type: "booking_approved", recipientId: passengerId, rideId })
+    await Promise.all([
+      sendPushNotification({ type: "booking_approved", recipientId: passengerId, rideId }),
+      sendEmailNotification({ type: "booking_approved", recipientId: passengerId, rideId }),
+    ])
   }
 
   revalidatePath(`/rides/${rideId}/bookings`)
@@ -117,7 +125,10 @@ export async function rejectBooking(bookingId: string, rideId: string): Promise<
 
   const passengerId = await getBookingPassengerId(bookingId)
   if (passengerId) {
-    await sendPushNotification({ type: "booking_rejected", recipientId: passengerId, rideId })
+    await Promise.all([
+      sendPushNotification({ type: "booking_rejected", recipientId: passengerId, rideId }),
+      sendEmailNotification({ type: "booking_rejected", recipientId: passengerId, rideId }),
+    ])
   }
 
   revalidatePath(`/rides/${rideId}/bookings`)
@@ -174,7 +185,7 @@ export async function confirmRemainingPayment(bookingId: string, rideId: string)
 async function uploadReceiptFile(
   supabase: Awaited<ReturnType<typeof createClient>>,
   bookingId: string,
-  kind: "deposit" | "refund",
+  kind: "deposit" | "refund" | "settlement",
   file: File
 ): Promise<{ path: string } | { error: string }> {
   const tErrors = (await getBookingTranslators()).tErrors
@@ -209,7 +220,10 @@ export async function submitDepositReceipt(bookingId: string, rideId: string, fo
     return { error: tErrors("receiptRequired") }
   }
 
-  await verifySession()
+  const user = await verifySession()
+  if (!(await checkRateLimit(`submit-receipt:${user.id}`, RECEIPT_UPLOAD_RATE_LIMIT.limit, RECEIPT_UPLOAD_RATE_LIMIT.windowMs))) {
+    return { error: tErrors("tooManyRequests") }
+  }
   const supabase = await createClient()
 
   const uploaded = await uploadReceiptFile(supabase, bookingId, "deposit", file)
@@ -242,7 +256,10 @@ export async function submitRefundProof(bookingId: string, rideId: string, formD
     return { error: tErrors("receiptRequired") }
   }
 
-  await verifySession()
+  const user = await verifySession()
+  if (!(await checkRateLimit(`submit-receipt:${user.id}`, RECEIPT_UPLOAD_RATE_LIMIT.limit, RECEIPT_UPLOAD_RATE_LIMIT.windowMs))) {
+    return { error: tErrors("tooManyRequests") }
+  }
   const supabase = await createClient()
 
   const uploaded = await uploadReceiptFile(supabase, bookingId, "refund", file)
@@ -258,5 +275,43 @@ export async function submitRefundProof(bookingId: string, rideId: string, formD
 
   revalidatePath("/bookings")
   revalidatePath(`/rides/${rideId}`)
+  return { success: true }
+}
+
+// Passenger uploads proof of the post-trip remaining-half IBAN transfer —
+// same evidence-layer pattern as submitDepositReceipt, reviewed by an admin
+// (admin_review_settlement_receipt in supabase/migrations/0025). This is
+// independent of confirmRemainingPayment's mutual "I received it" buttons —
+// both can be used together.
+export async function submitSettlementReceipt(bookingId: string, rideId: string, formData: FormData): Promise<BookingActionState> {
+  const { tErrors } = await getBookingTranslators()
+  if (!isSupabaseConfigured()) {
+    return { error: tErrors("notConfigured") }
+  }
+
+  const file = formData.get("receipt")
+  if (!(file instanceof File) || file.size === 0) {
+    return { error: tErrors("receiptRequired") }
+  }
+
+  const user = await verifySession()
+  if (!(await checkRateLimit(`submit-receipt:${user.id}`, RECEIPT_UPLOAD_RATE_LIMIT.limit, RECEIPT_UPLOAD_RATE_LIMIT.windowMs))) {
+    return { error: tErrors("tooManyRequests") }
+  }
+  const supabase = await createClient()
+
+  const uploaded = await uploadReceiptFile(supabase, bookingId, "settlement", file)
+  if ("error" in uploaded) {
+    return uploaded
+  }
+
+  const { error } = await supabase.rpc("submit_settlement_receipt", { p_booking_id: bookingId, p_receipt_url: uploaded.path })
+  if (error) {
+    logError(error, "bookings.submitSettlementReceipt")
+    return { error: tErrors("actionFailed") }
+  }
+
+  revalidatePath("/bookings")
+  revalidatePath(`/rides/${rideId}/bookings`)
   return { success: true }
 }

@@ -69,10 +69,20 @@ export function BookingButton({
         {awaitingDeposit && driverPaymentInfo && (
           <div className="flex items-center gap-2">
             {existingBooking.deposit_receipt_status === null || existingBooking.deposit_receipt_status === "rejected" ? (
-              <ReceiptUploadForm
-                action={(formData) => submitDepositReceipt(existingBooking.id, rideId, formData)}
-                label={tPayment("uploadReceipt")}
-              />
+              <div className="flex flex-col gap-1">
+                {existingBooking.deposit_receipt_status === "rejected" && (
+                  <div>
+                    <Badge variant="outline">{tPayment("receiptStatus.rejected")}</Badge>
+                    {existingBooking.deposit_receipt_reject_reason && (
+                      <p className="text-muted-foreground mt-1 text-xs">{existingBooking.deposit_receipt_reject_reason}</p>
+                    )}
+                  </div>
+                )}
+                <ReceiptUploadForm
+                  action={(formData) => submitDepositReceipt(existingBooking.id, rideId, formData)}
+                  label={tPayment("uploadReceipt")}
+                />
+              </div>
             ) : (
               <Badge variant={existingBooking.deposit_receipt_status === "approved" ? "secondary" : "outline"}>
                 {tPayment(`receiptStatus.${existingBooking.deposit_receipt_status}`)}

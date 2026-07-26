@@ -87,7 +87,12 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                 </CardContent>
                 {booking.refund_status !== "not_applicable" && (
                   <CardFooter className="flex flex-wrap items-center gap-2">
-                    <RefundProofUpload bookingId={booking.id} rideId={id} refundStatus={booking.refund_status} />
+                    <RefundProofUpload
+                      bookingId={booking.id}
+                      rideId={id}
+                      refundStatus={booking.refund_status}
+                      rejectReason={booking.refund_reject_reason}
+                    />
                   </CardFooter>
                 )}
                 {isApproved && (
