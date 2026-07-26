@@ -42,7 +42,10 @@ export async function logIn(page: Page, email: string, password: string = TEST_P
   await page.locator("#email").fill(email)
   await page.locator("#password").fill(password)
   await page.getByRole("button", { name: "Giriş Yap" }).click()
-  await page.waitForURL("**/profile")
+  // signIn() (src/features/auth/actions.ts) redirects a verified user to
+  // /rides, not /profile — "straight to ride search, that's what most users
+  // came back to do."
+  await page.waitForURL("**/rides")
 }
 
 // The city/district fields are Base UI Comboboxes (see

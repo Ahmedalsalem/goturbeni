@@ -122,6 +122,6 @@ test.describe.serial("booking, chat, and review flow", () => {
   test("driver can log back in with the same credentials", async () => {
     await driverContext.clearCookies()
     await logIn(driverPage, driverEmail, TEST_PASSWORD)
-    await expect(driverPage).toHaveURL(/\/profile$/)
+    await expect(driverPage).toHaveURL(/\/rides$/)
   })
 })
