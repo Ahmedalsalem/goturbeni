@@ -2,24 +2,24 @@ import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
 
 import { HomeHero } from "@/features/rides/HomeHero"
+import { HomeTrustSection } from "@/components/HomeTrustSection"
 import { getProfile } from "@/features/profile/queries"
 import { languageAlternates } from "@/i18n/hreflang"
 import { getCurrentUser } from "@/lib/supabase/dal"
 
 export async function generateMetadata(): Promise<Metadata> {
-  const [t, tMeta] = await Promise.all([getTranslations("HomePage"), getTranslations("Metadata")])
-  const pageTitle = t("metaTitle")
+  const t = await getTranslations("HomePage")
   const description = t("metaDescription")
-  // The root layout's title template ("%s | GötürBeni") doesn't apply here —
-  // layout.tsx and this page.tsx resolve to the same route segment ("/"), and
-  // Next only cascades a parent's template into genuinely nested segments.
-  const title = `${pageTitle} | ${tMeta("title")}`
+  // No title here on purpose: the root layout's `default` ("GötürBeni") is
+  // what should show for the homepage — a brand-only <title> is what makes
+  // Google's result for an exact "götürbeni" search read "GötürBeni" instead
+  // of the longer keyword tagline. The template ("%s | GötürBeni") still
+  // applies normally to every other route, which does set its own title.
 
   return {
-    title,
     description,
-    openGraph: { title, description },
-    twitter: { title, description },
+    openGraph: { description },
+    twitter: { description },
     alternates: { canonical: "/", languages: languageAlternates("/") },
   }
 }
@@ -40,6 +40,7 @@ export default async function HomePage() {
         className="bg-primary/15 pointer-events-none absolute start-1/2 top-[-12rem] -z-10 size-[42rem] -translate-x-1/2 rounded-full blur-3xl"
       />
       <HomeHero isFemaleUser={isFemaleUser} />
+      <HomeTrustSection />
     </div>
   )
 }

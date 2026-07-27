@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, CalendarDays, Cigarette, Clock, Crown, MapPin, PawPrint, Users, Venus } from "lucide-react"
+import { ArrowRight, CalendarDays, Cigarette, Clock, Crown, MapPin, PawPrint, Users } from "lucide-react"
 import { getFormatter, getTranslations } from "next-intl/server"
 
 import { Badge } from "@/components/ui/badge"
@@ -38,11 +38,6 @@ export async function RideCard({ ride, actions }: { ride: RideWithDriver; action
           {ride.vip_solo && (
             <Badge variant="secondary" className="gap-1">
               <Crown className="size-3" aria-hidden="true" /> {t("vipSolo")}
-            </Badge>
-          )}
-          {ride.women_only && (
-            <Badge variant="secondary" className="gap-1">
-              <Venus className="size-3" aria-hidden="true" /> {t("womenOnly")}
             </Badge>
           )}
           <RideStatusBadge status={ride.status} />

@@ -70,7 +70,6 @@ export function RideForm({ ride }: { ride?: Ride }) {
       seatCount: ride?.seat_count ?? MIN_SEAT_COUNT,
       costShare: ride?.cost_share ?? 0,
       description: ride?.description ?? undefined,
-      womenOnly: ride?.women_only ?? false,
       petsAllowed: ride?.pets_allowed ?? false,
       smokingAllowed: ride?.smoking_allowed ?? false,
       vipSolo: ride?.vip_solo ?? false,
@@ -359,19 +358,6 @@ export function RideForm({ ride }: { ride?: Ride }) {
           />
           <FieldDescription>{t("descriptionHint")}</FieldDescription>
           {errors.description && <FieldError id="description-error" errors={[{ message: errors.description.message }]} />}
-        </Field>
-
-        <Field orientation="horizontal">
-          <Controller
-            control={control}
-            name="womenOnly"
-            render={({ field }) => (
-              <Checkbox id="womenOnly" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-            )}
-          />
-          <FieldLabel htmlFor="womenOnly" className="font-normal">
-            {t("womenOnly")}
-          </FieldLabel>
         </Field>
 
         <Field orientation="horizontal">

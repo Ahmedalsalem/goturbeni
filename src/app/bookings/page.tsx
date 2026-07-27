@@ -32,8 +32,7 @@ export default async function BookingsPage() {
   const user = await verifySession()
   const format = await getFormatter()
   const locale = await getUserLocale()
-  const bookings = await getMyBookings(user.id)
-  const unreadMessages = await getUnreadMessages(user.id)
+  const [bookings, unreadMessages] = await Promise.all([getMyBookings(user.id), getUnreadMessages(user.id)])
 
   const completedBookings = bookings.filter(
     (booking) => booking.status === "approved" && new Date(booking.ride.departure_time) < new Date()

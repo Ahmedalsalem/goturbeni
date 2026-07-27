@@ -72,7 +72,6 @@ function fakeRide(overrides: Partial<Ride> = {}): Ride {
     available_seats: 3,
     cost_share: 100,
     description: null,
-    women_only: false,
     pets_allowed: false,
     smoking_allowed: false,
     vip_solo: false,

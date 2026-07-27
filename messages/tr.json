@@ -62,11 +62,24 @@
     "heroSubtitle": "Şehirler arası yolculuklarda güvenilir yol arkadaşları bul.",
     "ctaFindRide": "Yolculuk Bul",
     "ctaOfferRide": "İlan Ver",
-    "metaTitle": "Şehirlerarası Araç Paylaşımı ve Yolcu Bulma",
     "metaDescription": "Şehirlerarası yolculuklarda güvenilir sürücü ve yolcularla eşleş. Masraf paylaşımlı araç paylaşımı ile ekonomik ve pratik seyahat et. Hemen ilan ver veya yolculuk bul.",
     "geoPrompt": {
       "message": "Sana yakın yolculukları göstermek için konumunu kullanabilir miyiz?",
       "accept": "İzin Ver"
+    },
+    "trustSection": {
+      "pricing": {
+        "title": "Uygun fiyata istediğin yere git",
+        "description": "Masraf paylaşımlı yolculuklarla, gittiğin her şehirde onlarca ilan ve güzergah arasından bütçene uygun olanı bul. Komisyon almıyoruz — ödediğin tutar doğrudan yolculuğun masrafına gidiyor."
+      },
+      "safety": {
+        "title": "Birlikte seyahat ettiğin kişiye güven",
+        "description": "Her kullanıcı telefon numarasını doğrular, profilini ve geçmiş yolculuklarını görebilirsin. Rezervasyon öncesi sürücünün üyelik tarihini, tamamladığı yolculuk sayısını ve puanını gösteriyoruz."
+      },
+      "payment": {
+        "title": "Şeffaf ve güvenli ödeme",
+        "description": "Ödeme doğrudan sürücünün IBAN'ına yapılır, dekontlar sistem üzerinden yüklenir ve incelenir. Şüpheli hesap ve ilanları otomatik olarak tespit edip inceliyoruz."
+      }
     }
   },
   "Auth": {
@@ -248,7 +261,6 @@
       "noResults": "Sonuç bulunamadı",
       "clearSelection": "Seçimi temizle",
       "searchCta": "Ara",
-      "womenOnly": "Yalnızca Kadın Yolcular",
       "petsAllowed": "Evcil Hayvan Kabul Edilir",
       "smokingAllowed": "Sigara İçilebilir",
       "vipOnly": "VIP (Tek Yolcu)",
@@ -316,12 +328,24 @@
         "answer": "Evet. Yolcu 'Benim Rezervasyonlarım' sayfasından bekleyen ya da onaylanmış bir rezervasyonu iptal edebilir; sürücü de kendi ilanını 'Benim İlanlarım' sayfasından iptal edebilir."
       },
       "payment": {
-        "question": "Ödeme uygulama üzerinden mi yapılıyor?",
-        "answer": "Hayır. GötürBeni bir ödeme/komisyon sistemi içermez; masraf paylaşımı sürücü ve yolcu arasında doğrudan, uygulama dışında ayarlanır."
+        "question": "Ödeme nasıl yapılıyor?",
+        "answer": "GötürBeni komisyon almaz. Rezervasyonun onaylanmasının ardından depozito tutarını sürücünün profilinde görünen IBAN'ına gönderir, dekontunu uygulama üzerinden yüklersin; incelenip onaylanınca rezervasyonun kesinleşir. Yolculuk sonrası kalan tutar için de aynı dekont/onay akışı kullanılır."
+      },
+      "depositRejected": {
+        "question": "Yüklediğim dekont reddedilirse ne olur?",
+        "answer": "Reddedilme nedeni sana gösterilir; sorunu giderip aynı rezervasyon için tekrar dekont yükleyebilirsin."
       },
       "safety": {
         "question": "Güvenlik için neler yapılıyor?",
-        "answer": "Her kullanıcının bir profili vardır ve tüm rezervasyon/ilan işlemleri hesabına kayıtlıdır. Yolculuk öncesi sürücü/yolcu profilini incelemeni öneririz."
+        "answer": "Her hesap kayıt sırasında telefon numarasını SMS ile doğrular. Ödeme öncesi sürücünün üyelik tarihini, tamamladığı yolculuk sayısını ve puanını görebilirsin. Sistemimiz şüpheli hesap ve ilanları otomatik kurallarla tespit edip inceliyor."
+      },
+      "femaleDriver": {
+        "question": "Kadın Şoför filtresi nasıl çalışır?",
+        "answer": "Profilinde cinsiyetini kadın olarak belirtmiş kullanıcılar, arama sonuçlarını yalnızca kadın sürücülerin ilanlarıyla sınırlayabilir. Sürücünün cinsiyeti herkese açık değildir; bu filtre yalnızca kendisi kadın olduğunu beyan etmiş kullanıcılara sonuç döndürür."
+      },
+      "suspendedAccount": {
+        "question": "Hesabım neden askıya alınabilir?",
+        "answer": "Şüpheli davranış tespit edilen ya da kurallara aykırı hareket eden hesaplar bir yönetici tarafından askıya alınabilir. Askıya alınan bir hesap yeni ilan veremez, rezervasyon yapamaz, mesaj gönderemez ve yorum yapamaz."
       }
     }
   },
@@ -372,7 +396,6 @@
       "costShare": "Masraf Payı (₺)",
       "description": "Açıklama",
       "descriptionHint": "En fazla 500 karakter.",
-      "womenOnly": "Yalnızca Kadın Yolcular",
       "petsAllowed": "Evcil hayvan kabul edilir",
       "smokingAllowed": "Sigara içilebilir",
       "vipSolo": "VIP (Tek Yolcu) — bu ilanı yalnızca tek bir yolcu alsın",
@@ -410,7 +433,6 @@
     "card": {
       "availableSeats": "{count} boş koltuk",
       "unknownDriver": "Sürücü",
-      "womenOnly": "Yalnızca Kadın Yolcular",
       "petsAllowed": "Evcil hayvan kabul edilir",
       "smokingAllowed": "Sigara içilebilir",
       "vipSolo": "VIP (Tek Yolcu)"

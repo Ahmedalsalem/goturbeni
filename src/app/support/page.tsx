@@ -21,7 +21,15 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function SupportPage() {
   const t = await getTranslations("SupportPage")
 
-  const faqKeys = ["booking", "cancellation", "payment", "safety"] as const
+  const faqKeys = [
+    "booking",
+    "cancellation",
+    "payment",
+    "depositRejected",
+    "safety",
+    "femaleDriver",
+    "suspendedAccount",
+  ] as const
 
   const faqStructuredData = {
     "@context": "https://schema.org",

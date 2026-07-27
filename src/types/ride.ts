@@ -12,7 +12,6 @@ export interface Ride {
   available_seats: number
   cost_share: number
   description: string | null
-  women_only: boolean
   pets_allowed: boolean
   smoking_allowed: boolean
   vip_solo: boolean

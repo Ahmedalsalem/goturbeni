@@ -1,7 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { getTranslations } from "next-intl/server"
-import { CalendarCheck, CarFront, ChevronDown, LogOut, Menu, ShieldCheck, User } from "lucide-react"
+import { CalendarCheck, CarFront, ChevronDown, LogOut, Menu, MoreHorizontal, ShieldCheck, User } from "lucide-react"
 
 import { buttonVariants } from "@/components/ui/button"
 import {
@@ -22,8 +22,10 @@ import { PushNotificationToggle } from "@/features/push/PushNotificationToggle"
 export async function Header() {
   const t = await getTranslations("Nav")
   const user = await getCurrentUser()
-  const hasUnreadMessages = user ? (await getUnreadMessages(user.id)).count > 0 : false
-  const isAdmin = user ? await checkIsAdmin(user.id) : false
+  const [unreadMessages, isAdmin] = user
+    ? await Promise.all([getUnreadMessages(user.id), checkIsAdmin(user.id)])
+    : [null, false]
+  const hasUnreadMessages = unreadMessages ? unreadMessages.count > 0 : false
 
   const links = [
     { href: "/rides", label: t("rides") },
@@ -57,57 +59,67 @@ export async function Header() {
           <InstallAppButton />
           {user && <PushNotificationToggle />}
           {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                className={buttonVariants({ variant: "outline", className: "relative gap-1.5 ps-3 pe-2.5" })}
-                aria-label={t("profile")}
-              >
-                <User className="size-4" aria-hidden="true" />
-                <span className="hidden sm:inline">{t("profile")}</span>
-                <ChevronDown className="size-3.5 opacity-60" aria-hidden="true" />
-                {hasUnreadMessages && (
-                  <>
-                    <span className="bg-destructive ring-background absolute end-0.5 top-0.5 size-2.5 rounded-full ring-2" aria-hidden="true" />
-                    <span className="sr-only">{t("unreadMessages")}</span>
-                  </>
-                )}
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                {/* Nav links only — desktop already shows them in the bar
-                    above, so duplicating them here would be redundant there.
-                    On mobile this is the only nav access once the standalone
-                    hamburger trigger is gone (below), so it lives here. */}
-                {links.map((link) => (
-                  <DropdownMenuItem key={link.href} className="md:hidden" render={<Link href={link.href} />}>
-                    {link.label}
+            <>
+              {/* Mobile-only nav trigger — the desktop bar above already
+                  shows these links, so this only renders under md. Kept as a
+                  separate icon from the profile menu below (not folded into
+                  it) so both are reachable at a glance on mobile, matching
+                  the standalone hamburger the logged-out state already has. */}
+              <DropdownMenu>
+                <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", size: "icon", className: "md:hidden" })} aria-label={t("menu")}>
+                  <MoreHorizontal />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  {links.map((link) => (
+                    <DropdownMenuItem key={link.href} render={<Link href={link.href} />}>
+                      {link.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className={buttonVariants({ variant: "outline", className: "relative gap-1.5 ps-3 pe-2.5" })}
+                  aria-label={t("profile")}
+                >
+                  <User className="size-4" aria-hidden="true" />
+                  <span className="hidden sm:inline">{t("profile")}</span>
+                  <ChevronDown className="size-3.5 opacity-60" aria-hidden="true" />
+                  {hasUnreadMessages && (
+                    <>
+                      <span className="bg-destructive ring-background absolute end-0.5 top-0.5 size-2.5 rounded-full ring-2" aria-hidden="true" />
+                      <span className="sr-only">{t("unreadMessages")}</span>
+                    </>
+                  )}
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem render={<Link href="/profile" />}>
+                    <User /> {t("profile")}
                   </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator className="md:hidden" />
-                <DropdownMenuItem render={<Link href="/profile" />}>
-                  <User /> {t("profile")}
-                </DropdownMenuItem>
-                <DropdownMenuItem render={<Link href="/rides/mine" />}>
-                  <CarFront /> {t("myRides")}
-                </DropdownMenuItem>
-                <DropdownMenuItem render={<Link href="/bookings" />}>
-                  <CalendarCheck /> {t("bookings")}
-                </DropdownMenuItem>
-                {isAdmin && (
-                  <DropdownMenuItem render={<Link href="/admin" />}>
-                    <ShieldCheck /> {t("admin")}
+                  <DropdownMenuItem render={<Link href="/rides/mine" />}>
+                    <CarFront /> {t("myRides")}
                   </DropdownMenuItem>
-                )}
-                <DropdownMenuSeparator />
-                <form action={signOut}>
-                  <button
-                    type="submit"
-                    className="text-destructive hover:bg-destructive/10 focus-visible:bg-destructive/10 flex w-full cursor-default items-center gap-1.5 rounded-md px-1.5 py-1 text-sm outline-hidden [&_svg]:size-4 [&_svg]:text-destructive"
-                  >
-                    <LogOut /> {t("logout")}
-                  </button>
-                </form>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <DropdownMenuItem render={<Link href="/bookings" />}>
+                    <CalendarCheck /> {t("bookings")}
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem render={<Link href="/admin" />}>
+                      <ShieldCheck /> {t("admin")}
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <form action={signOut}>
+                    <button
+                      type="submit"
+                      className="text-destructive hover:bg-destructive/10 focus-visible:bg-destructive/10 flex w-full cursor-default items-center gap-1.5 rounded-md px-1.5 py-1 text-sm outline-hidden [&_svg]:size-4 [&_svg]:text-destructive"
+                    >
+                      <LogOut /> {t("logout")}
+                    </button>
+                  </form>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
           ) : (
             <>
               <div className="hidden items-center gap-1.5 sm:flex">
@@ -120,8 +132,9 @@ export async function Header() {
               </div>
 
               {/* Logged-out mobile nav trigger, last (rightmost) icon in the
-                  header. Logged-in users get the same nav links folded into
-                  the profile dropdown above instead of a second menu button. */}
+                  header — mirrors the logged-in state's separate nav-links
+                  menu above, just paired with login/register instead of a
+                  profile menu. */}
               <DropdownMenu>
                 <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", size: "icon", className: "md:hidden" })} aria-label={t("menu")}>
                   <Menu />

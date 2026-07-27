@@ -37,8 +37,7 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
   const t = await getTranslations("RideBookingsPage")
   const tCard = await getTranslations("Bookings.card")
   const tReviewActions = await getTranslations("Reviews.actions")
-  const bookings = await getRideBookings(id)
-  const unreadMessages = await getUnreadMessages(user.id)
+  const [bookings, unreadMessages] = await Promise.all([getRideBookings(id), getUnreadMessages(user.id)])
   const isRideOver = new Date(ride.departure_time) < new Date()
   // One review per (ride, reviewer, reviewee) — a driver with several
   // approved passengers reviews each one separately, so this is checked

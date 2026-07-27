@@ -37,7 +37,6 @@ function buildRideRow(parsed: RideFormValues) {
     available_seats: parsed.seatCount,
     cost_share: parsed.costShare,
     description: parsed.description ?? null,
-    women_only: parsed.womenOnly,
     pets_allowed: parsed.petsAllowed,
     smoking_allowed: parsed.smokingAllowed,
     vip_solo: parsed.vipSolo,

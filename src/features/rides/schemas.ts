@@ -52,7 +52,6 @@ export function buildRideSchema(t: ValidationTranslator) {
         .max(MAX_DESCRIPTION_LENGTH, t("descriptionMax"))
         .optional()
         .transform((value) => (value ? value : undefined)),
-      womenOnly: z.boolean().default(false),
       petsAllowed: z.boolean().default(false),
       smokingAllowed: z.boolean().default(false),
       vipSolo: z.boolean().default(false),

@@ -23,9 +23,9 @@ const SORT_COLUMN: Record<RideSort, { column: "departure_time" | "cost_share"; a
   cost_desc: { column: "cost_share", ascending: false },
 }
 
-// Mirrors women_only in reverse: a passenger searching for a female driver.
-// Driver gender (profiles_private.gender) stays private (see
-// 0016_gender_payment_profile.sql) — get_female_driver_ride_ids only exposes
+// A passenger searching for rides with a female driver. Driver gender
+// (profiles_private.gender) stays private (see 0016_gender_payment_profile.sql)
+// — get_female_driver_ride_ids only exposes
 // which ride ids have a female driver, and only to a caller who has declared
 // themselves female (raises otherwise). A non-female caller reaching this
 // (only possible via a hand-crafted URL, the UI never shows the checkbox to
@@ -71,12 +71,6 @@ function buildRidesQuery(
   if (filters?.date) {
     query = query.gte("departure_time", `${filters.date}T00:00:00`).lte("departure_time", `${filters.date}T23:59:59.999`)
   }
-  if (filters?.womenOnly) {
-    // RLS already hides women_only rides from anyone who isn't the driver or
-    // a self-declared female user (see 0016_gender_payment_profile.sql), so
-    // this is purely a narrowing convenience for those who can see them.
-    query = query.eq("women_only", true)
-  }
   if (filters?.petsAllowed) {
     query = query.eq("pets_allowed", true)
   }
@@ -113,9 +107,6 @@ function buildNearbyProvinceRidesQuery(
   }
   if (filters.date) {
     query = query.gte("departure_time", `${filters.date}T00:00:00`).lte("departure_time", `${filters.date}T23:59:59.999`)
-  }
-  if (filters.womenOnly) {
-    query = query.eq("women_only", true)
   }
   if (filters.petsAllowed) {
     query = query.eq("pets_allowed", true)

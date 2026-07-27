@@ -39,7 +39,6 @@ function buildQueryString(filters: Partial<RideSearchFilters>): string {
   if (filters.toDistrict) params.set("toDistrict", filters.toDistrict)
   if (filters.date) params.set("date", filters.date)
   if (filters.sort && filters.sort !== "date_asc") params.set("sort", filters.sort)
-  if (filters.womenOnly) params.set("womenOnly", "1")
   if (filters.petsAllowed) params.set("petsAllowed", "1")
   if (filters.smokingAllowed) params.set("smokingAllowed", "1")
   if (filters.vipOnly) params.set("vipOnly", "1")
@@ -83,7 +82,6 @@ export function RideFilters({
   const [fromDistrict, setFromDistrict] = useState<string | null>(initial.fromDistrict ?? null)
   const [toDistrict, setToDistrict] = useState<string | null>(initial.toDistrict ?? null)
   const [date, setDate] = useState(initial.date ?? "")
-  const [womenOnly, setWomenOnly] = useState(initial.womenOnly ?? false)
   const [petsAllowed, setPetsAllowed] = useState(initial.petsAllowed ?? false)
   const [smokingAllowed, setSmokingAllowed] = useState(initial.smokingAllowed ?? false)
   const [vipOnly, setVipOnly] = useState(initial.vipOnly ?? false)
@@ -101,7 +99,6 @@ export function RideFilters({
         toDistrict: toDistrict ?? undefined,
         date: date || undefined,
         sort: initial.sort,
-        womenOnly,
         petsAllowed,
         smokingAllowed,
         vipOnly,
@@ -119,7 +116,6 @@ export function RideFilters({
         toDistrict: toDistrict ?? undefined,
         date: date || undefined,
         sort,
-        womenOnly,
         petsAllowed,
         smokingAllowed,
         vipOnly,
@@ -295,12 +291,6 @@ export function RideFilters({
       </Field>
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:self-end sm:pb-2.5">
-        <Field orientation="horizontal">
-          <Checkbox id="filter-women-only" checked={womenOnly} onCheckedChange={(checked) => setWomenOnly(checked === true)} />
-          <FieldLabel htmlFor="filter-women-only" className="font-normal">
-            {t("womenOnly")}
-          </FieldLabel>
-        </Field>
         <Field orientation="horizontal">
           <Checkbox id="filter-pets-allowed" checked={petsAllowed} onCheckedChange={(checked) => setPetsAllowed(checked === true)} />
           <FieldLabel htmlFor="filter-pets-allowed" className="font-normal">
