@@ -64,12 +64,20 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
     avatarUrl = `${publicUrl}?v=${Date.now()}`
   }
 
+  // Normalize to E.164 before comparing/storing — update_own_profile
+  // (0010_phone_verification.sql) resets phone_verified to false whenever
+  // the submitted phone differs from what's stored. The form now displays
+  // the number without its "+90"/leading-zero prefix (see ProfileForm.tsx),
+  // so submitting that raw display value unchanged would always look like a
+  // change on the server and silently un-verify the phone.
+  const normalizedPhone = parsed.data.phone ? (parsePhoneNumberFromString(parsed.data.phone, "TR")?.number ?? parsed.data.phone) : null
+
   const { error: updateError } = await supabase.rpc("update_own_profile", {
     p_full_name: parsed.data.fullName,
     p_bio: parsed.data.bio ?? null,
     p_language: parsed.data.language,
     p_avatar_url: avatarUrl ?? null,
-    p_phone: parsed.data.phone ?? null,
+    p_phone: normalizedPhone,
     p_iban: parsed.data.iban ?? null,
     p_iban_holder_name: parsed.data.ibanHolderName ?? null,
     p_car_brand: parsed.data.carBrand ?? null,
