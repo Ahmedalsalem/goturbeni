@@ -9,17 +9,17 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Field, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { sendPhoneVerificationCode, verifyPhoneVerificationCode } from "@/features/profile/actions"
+import { sendEmailVerificationCode, verifyEmailVerificationCode } from "@/features/profile/actions"
 
 export function PhoneVerification({ phone, verified }: { phone: string | null; verified: boolean }) {
   const t = useTranslations("Profile.phone")
   const [isPending, startTransition] = useTransition()
-  const [pendingPhone, setPendingPhone] = useState<string | null>(null)
+  const [codeSent, setCodeSent] = useState(false)
   const [code, setCode] = useState("")
 
   if (!phone) return null
 
-  if (verified && pendingPhone === null) {
+  if (verified && !codeSent) {
     return (
       <Badge variant="success" className="w-fit">
         <ShieldCheck className="size-3.5" aria-hidden="true" /> {t("verified")}
@@ -29,31 +29,30 @@ export function PhoneVerification({ phone, verified }: { phone: string | null; v
 
   function onSend() {
     startTransition(async () => {
-      const result = await sendPhoneVerificationCode()
+      const result = await sendEmailVerificationCode()
       if (result.error) {
         toast.error(result.error)
         return
       }
-      setPendingPhone(result.phone ?? phone)
+      setCodeSent(true)
       toast.success(t("codeSentTitle"))
     })
   }
 
   function onVerify() {
-    if (!pendingPhone) return
     startTransition(async () => {
-      const result = await verifyPhoneVerificationCode(pendingPhone, code)
+      const result = await verifyEmailVerificationCode(code)
       if (result.error) {
         toast.error(result.error)
         return
       }
       toast.success(t("verifySuccess"))
-      setPendingPhone(null)
+      setCodeSent(false)
       setCode("")
     })
   }
 
-  if (pendingPhone) {
+  if (codeSent) {
     return (
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
         <Field className="flex-1">
@@ -70,7 +69,7 @@ export function PhoneVerification({ phone, verified }: { phone: string | null; v
         <Button type="button" size="sm" onClick={onVerify} disabled={isPending || code.length === 0}>
           {t("confirmCta")}
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => setPendingPhone(null)} disabled={isPending}>
+        <Button type="button" variant="ghost" size="sm" onClick={() => setCodeSent(false)} disabled={isPending}>
           {t("cancelCta")}
         </Button>
       </div>

@@ -12,6 +12,31 @@ function isResendConfigured(): boolean {
   return Boolean(process.env.RESEND_API_KEY && process.env.RESEND_FROM_EMAIL)
 }
 
+// Mandatory account verification (src/features/profile/actions.ts) — unlike
+// sendEmailNotification below, this isn't a best-effort background
+// notification: verification cannot proceed without it, so the caller needs
+// to know whether it actually went out (a boolean, not a swallowed error).
+export async function sendVerificationCodeEmail(to: string, code: string, locale: AppLocale): Promise<boolean> {
+  if (!isResendConfigured()) {
+    return false
+  }
+
+  const t = await getTranslations({ locale, namespace: "Email" })
+  const resend = new Resend(process.env.RESEND_API_KEY)
+  try {
+    await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL!,
+      to,
+      subject: t("verificationCodeSubject"),
+      html: `<p>${t("verificationCodeBody", { code })}</p>`,
+    })
+    return true
+  } catch (error) {
+    logError(error, "email.sendVerificationCodeEmail")
+    return false
+  }
+}
+
 // Uygulama içi push bildirimi (src/lib/notifications.ts) kullanıcı siteyi
 // açık tutmuyorsa görülmeyebiliyordu — aynı olaylar için e-posta yedeği.
 // Resend, RESEND_API_KEY/RESEND_FROM_EMAIL ayarlanmamışsa (ör. yerel

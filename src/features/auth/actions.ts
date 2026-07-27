@@ -124,9 +124,10 @@ export async function signUp(_prevState: AuthActionState, formData: FormData): P
 
   // If Supabase's "Confirm email" setting is off, signUp already returns an
   // active session (no confirmation email sent) — in that case the mandatory
-  // phone OTP step can start immediately. Otherwise (email confirmation
-  // required) there's no session yet to attach the phone/gender to; fall
-  // back to the pre-existing /verify-email flow, unchanged.
+  // verification step (/verify-phone, e-mail code) can start immediately.
+  // Otherwise (email confirmation required) there's no session yet to
+  // attach the phone/gender to; fall back to the pre-existing /verify-email
+  // flow, unchanged.
   if (!data.session) {
     redirect("/verify-email")
   }
@@ -138,16 +139,6 @@ export async function signUp(_prevState: AuthActionState, formData: FormData): P
   if (detailsError) {
     logError(detailsError, "auth.signUp.completeRegistrationDetails")
     return { error: tErrors("signupFailed") }
-  }
-
-  // Kicks off the actual SMS OTP send via Supabase Auth's phone_change flow
-  // (same mechanism as features/profile/actions.ts's sendPhoneVerificationCode).
-  // Requires a real SMS provider configured in the Supabase project — not
-  // yet set up here, so this call succeeds but no SMS is actually delivered
-  // until one is configured (see README → known limitations).
-  const { error: phoneError } = await supabase.auth.updateUser({ phone: parsedPhone.number })
-  if (phoneError) {
-    logError(phoneError, "auth.signUp.sendPhoneOtp")
   }
 
   redirect("/verify-phone")

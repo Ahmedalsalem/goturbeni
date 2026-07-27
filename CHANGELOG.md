@@ -4,6 +4,15 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) kullanır.
 
 ## [Unreleased]
 
+### Değiştirildi — zorunlu doğrulama artık SMS değil, e-posta koduyla
+
+Twilio deneme (trial) hesabı yalnızca "doğrulanmış" numaralara SMS gönderebiliyor — gerçek kullanıcılar için OTP hiç ulaşmıyordu (production loglarında `sms_send_failed`/`phone_exists` hataları görüldü). SMS'in doğası gereği (telekom operatör maliyeti) hiçbir sağlayıcıda gerçekten ücretsiz bir yol yok; kullanıcı ücretsiz kalmayı tercih etti.
+
+- Zorunlu hesap doğrulaması artık 6 haneli bir kodun Resend ile e-postaya gönderilmesine dayanıyor (`profiles_private.email_otp_code`/`email_otp_expires_at`, `verify_email_otp` RPC — `0035_email_based_verification.sql`). Telefon numarası hâlâ kayıt sırasında toplanıp saklanıyor (iletişim/güven bilgisi olarak) ama artık doğrulama yükünü taşımıyor.
+- `sync_verified_phone` trigger'ı (Supabase Auth'un `phone_confirmed_at`'ini dinleyen, artık hiç tetiklenmeyecek olan) kaldırıldı.
+- `src/features/profile/actions.ts`: `sendPhoneVerificationCode`/`verifyPhoneVerificationCode` (SMS tabanlı) yerine `sendEmailVerificationCode`/`verifyEmailVerificationCode`. `src/features/auth/actions.ts`'teki `signUp()`'ın `auth.updateUser({ phone })` çağrısı (SMS OTP tetikleyicisi) kaldırıldı.
+- `VerifyPhoneClient.tsx`/`PhoneVerification.tsx` ve ilgili çeviriler güncellendi ("Telefon Doğrulama" → "Hesap Doğrulama").
+
 ### Eklendi — Faz 12 (bu oturum)
 
 Kapsam: önceki oturumun kendi bulguları listesindeki maddeler (`checkRateLimit` eksikliği, `deposit_deadline_at`'in uygulanmaması, kalan ödeme için dekont desteği eksikliği, red gerekçesi eksikliği, yeni özellikler için test eksikliği, güncel olmayan belgeler, gerçek olmayan "yakın ilçe" araması) artı kullanıcının onayladığı üç ek madde (IBAN için ara çözüm, e-posta bildirimi — Resend, kural-tabanlı dolandırıcılık tespiti v1).

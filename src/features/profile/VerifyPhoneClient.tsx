@@ -13,8 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MAX_PHONE_LENGTH } from "@/features/auth/schemas"
 import {
   completeMandatoryProfileDetails,
-  sendPhoneVerificationCode,
-  verifyPhoneVerificationCode,
+  sendEmailVerificationCode,
+  verifyEmailVerificationCode,
 } from "@/features/profile/actions"
 
 const GENDER_OPTIONS = ["female", "male"] as const
@@ -22,14 +22,14 @@ type Gender = (typeof GENDER_OPTIONS)[number]
 
 // Drives the mandatory one-time verification gate on /verify-phone. Legacy
 // accounts missing gender/phone (created before this requirement) fill them
-// in first; everyone else goes straight to the OTP send/verify step, reusing
-// the same server actions as the optional profile-page flow
+// in first; everyone else goes straight to the e-mail code send/verify step,
+// reusing the same server actions as the optional profile-page flow
 // (features/profile/PhoneVerification.tsx).
 export function VerifyPhoneClient({ gender, phone }: { gender: Gender | null; phone: string | null }) {
   const t = useTranslations("VerifyPhone")
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const [pendingPhone, setPendingPhone] = useState<string | null>(null)
+  const [codeSent, setCodeSent] = useState(false)
   const [code, setCode] = useState("")
   const [detailsMissing, setDetailsMissing] = useState(!gender || !phone)
 
@@ -45,27 +45,26 @@ export function VerifyPhoneClient({ gender, phone }: { gender: Gender | null; ph
         return
       }
       setDetailsMissing(false)
-      setPendingPhone(result.phone ?? enteredPhone)
+      setCodeSent(true)
       toast.success(t("codeSentTitle"))
     })
   }
 
   function onSend() {
     startTransition(async () => {
-      const result = await sendPhoneVerificationCode()
+      const result = await sendEmailVerificationCode()
       if (result.error) {
         toast.error(result.error)
         return
       }
-      setPendingPhone(result.phone ?? phone)
+      setCodeSent(true)
       toast.success(t("codeSentTitle"))
     })
   }
 
   function onVerify() {
-    if (!pendingPhone) return
     startTransition(async () => {
-      const result = await verifyPhoneVerificationCode(pendingPhone, code)
+      const result = await verifyEmailVerificationCode(code)
       if (result.error) {
         toast.error(result.error)
         return
@@ -121,7 +120,7 @@ export function VerifyPhoneClient({ gender, phone }: { gender: Gender | null; ph
     )
   }
 
-  if (pendingPhone) {
+  if (codeSent) {
     return (
       <div className="flex flex-col gap-4">
         <Field>

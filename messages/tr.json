@@ -38,7 +38,9 @@
     "unsupported": "Bildirimler bu tarayıcıda desteklenmiyor. iPhone'da Safari üzerinden kullanmak için siteyi önce Ana Ekrana Ekleyin."
   },
   "Email": {
-    "viewLinkLabel": "Görüntüle"
+    "viewLinkLabel": "Görüntüle",
+    "verificationCodeSubject": "GötürBeni doğrulama kodunuz",
+    "verificationCodeBody": "Doğrulama kodunuz: <strong>{code}</strong>. Bu kod 10 dakika geçerlidir."
   },
   "Pwa": {
     "install": "Uygulamayı Yükle",
@@ -103,7 +105,7 @@
       "passwordHint": "En az 8 karakter.",
       "confirmPassword": "Şifre (tekrar)",
       "phone": "Telefon",
-      "phoneHint": "Başında 0 olmadan girin (örn. 5XX XXX XX XX). Kaydı tamamlamak için SMS ile gönderilecek kodla doğrulanmalı.",
+      "phoneHint": "Başında 0 olmadan girin (örn. 5XX XXX XX XX). Kaydı tamamlamak için e-postana gönderilecek kodla hesabını doğrulaman gerekir.",
       "gender": "Cinsiyet",
       "genderPlaceholder": "Seçin",
       "genderOptions": {
@@ -169,8 +171,8 @@
     }
   },
   "VerifyPhone": {
-    "title": "Telefon Doğrulama",
-    "description": "Kayıt olmak, ilan vermek ve rezervasyon yapmak için telefon numaranızı doğrulamanız gerekir.",
+    "title": "Hesap Doğrulama",
+    "description": "Kayıt olmak, ilan vermek ve rezervasyon yapmak için hesabınızı e-posta ile doğrulamanız gerekir.",
     "phoneLabel": "Telefon",
     "phoneHint": "Başında 0 olmadan girin (örn. 5XX XXX XX XX).",
     "genderLabel": "Cinsiyet",
@@ -180,12 +182,12 @@
       "male": "Erkek"
     },
     "continueCta": "Devam Et",
-    "codeSentTitle": "Doğrulama kodu gönderildi.",
+    "codeSentTitle": "Doğrulama kodu e-postanıza gönderildi.",
     "codeLabel": "Doğrulama Kodu",
     "confirmCta": "Kodu Onayla",
     "resendCta": "Kodu Tekrar Gönder",
     "sendCta": "Doğrulama Kodu Gönder",
-    "verifySuccess": "Telefon numaranız doğrulandı."
+    "verifySuccess": "Hesabınız doğrulandı."
   },
   "ProfilePage": {
     "title": "Profil",
@@ -218,15 +220,15 @@
     },
     "phone": {
       "verified": "Doğrulandı",
-      "verifyCta": "Telefonu Doğrula",
-      "codeSentTitle": "Doğrulama kodu gönderildi.",
+      "verifyCta": "Hesabı Doğrula",
+      "codeSentTitle": "Doğrulama kodu e-postanıza gönderildi.",
       "codeLabel": "Doğrulama Kodu",
       "confirmCta": "Kodu Onayla",
       "cancelCta": "Vazgeç",
-      "verifySuccess": "Telefon numaranız doğrulandı.",
-      "noPhoneSaved": "Doğrulamadan önce telefon numaranızı kaydedin.",
+      "verifySuccess": "Hesabınız doğrulandı.",
       "sendError": "Kod gönderilemedi. Lütfen tekrar deneyin.",
-      "verifyError": "Kod hatalı veya süresi dolmuş."
+      "verifyError": "Kod hatalı veya süresi dolmuş.",
+      "tooManyRequests": "Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin."
     },
     "validation": {
       "fullNameRequired": "Ad soyad gerekli.",
@@ -344,7 +346,7 @@
       },
       "safety": {
         "question": "Güvenlik için neler yapılıyor?",
-        "answer": "Her hesap kayıt sırasında telefon numarasını SMS ile doğrular. Ödeme öncesi sürücünün üyelik tarihini, tamamladığı yolculuk sayısını ve puanını görebilirsin. Sistemimiz şüpheli hesap ve ilanları otomatik kurallarla tespit edip inceliyor."
+        "answer": "Her hesap kayıt sırasında e-posta adresine gönderilen bir kodla doğrulanır. Ödeme öncesi sürücünün üyelik tarihini, tamamladığı yolculuk sayısını ve puanını görebilirsin. Sistemimiz şüpheli hesap ve ilanları otomatik kurallarla tespit edip inceliyor."
       },
       "femaleDriver": {
         "question": "Kadın Şoför filtresi nasıl çalışır?",
