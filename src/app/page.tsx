@@ -3,9 +3,7 @@ import { getTranslations } from "next-intl/server"
 
 import { HomeHero } from "@/features/rides/HomeHero"
 import { HomeTrustSection } from "@/components/HomeTrustSection"
-import { getProfile } from "@/features/profile/queries"
 import { languageAlternates } from "@/i18n/hreflang"
-import { getCurrentUser } from "@/lib/supabase/dal"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("HomePage")
@@ -24,11 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default async function HomePage() {
-  const user = await getCurrentUser()
-  const profile = user ? await getProfile(user.id) : null
-  const isFemaleUser = profile?.gender === "female"
-
+export default function HomePage() {
   return (
     <div className="relative overflow-hidden">
       <div
@@ -39,7 +33,7 @@ export default async function HomePage() {
         aria-hidden="true"
         className="bg-primary/15 pointer-events-none absolute start-1/2 top-[-12rem] -z-10 size-[42rem] -translate-x-1/2 rounded-full blur-3xl"
       />
-      <HomeHero isFemaleUser={isFemaleUser} />
+      <HomeHero />
       <HomeTrustSection />
     </div>
   )

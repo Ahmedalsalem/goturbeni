@@ -26,7 +26,7 @@ const item: Variants = {
 const DEFAULT_FILTERS: RideSearchFilters = { sort: "date_asc" }
 const GEO_PROMPT_STORAGE_KEY = "geo-prompt-shown"
 
-export function HomeHero({ isFemaleUser }: { isFemaleUser: boolean }) {
+export function HomeHero() {
   const t = useTranslations("HomePage")
   const locale = useLocale()
   const [geoFilters, setGeoFilters] = useState<RideSearchFilters | null>(null)
@@ -92,7 +92,6 @@ export function HomeHero({ isFemaleUser }: { isFemaleUser: boolean }) {
           initial={geoFilters ?? DEFAULT_FILTERS}
           showSort={false}
           variant="hero"
-          isFemaleUser={isFemaleUser}
         />
       </motion.div>
 

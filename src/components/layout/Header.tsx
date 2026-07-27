@@ -60,24 +60,6 @@ export async function Header() {
           {user && <PushNotificationToggle />}
           {user ? (
             <>
-              {/* Mobile-only nav trigger — the desktop bar above already
-                  shows these links, so this only renders under md. Kept as a
-                  separate icon from the profile menu below (not folded into
-                  it) so both are reachable at a glance on mobile, matching
-                  the standalone hamburger the logged-out state already has. */}
-              <DropdownMenu>
-                <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", size: "icon", className: "md:hidden" })} aria-label={t("menu")}>
-                  <MoreHorizontal />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  {links.map((link) => (
-                    <DropdownMenuItem key={link.href} render={<Link href={link.href} />}>
-                      {link.label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
               <DropdownMenu>
                 <DropdownMenuTrigger
                   className={buttonVariants({ variant: "outline", className: "relative gap-1.5 ps-3 pe-2.5" })}
@@ -117,6 +99,23 @@ export async function Header() {
                       <LogOut /> {t("logout")}
                     </button>
                   </form>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Mobile-only nav trigger, last (rightmost) icon in the header
+                  — the desktop bar above already shows these links, so this
+                  only renders under md. Kept separate from the profile menu
+                  so both are reachable at a glance on mobile. */}
+              <DropdownMenu>
+                <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", size: "icon", className: "md:hidden" })} aria-label={t("menu")}>
+                  <MoreHorizontal />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  {links.map((link) => (
+                    <DropdownMenuItem key={link.href} render={<Link href={link.href} />}>
+                      {link.label}
+                    </DropdownMenuItem>
+                  ))}
                 </DropdownMenuContent>
               </DropdownMenu>
             </>

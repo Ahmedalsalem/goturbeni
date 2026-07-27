@@ -105,15 +105,32 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
           <Input id="email" value={email} disabled readOnly />
         </Field>
 
+        {profile.gender && (
+          // Read-only by design: gender feeds the "Kadın Şoför" search filter
+          // and other trust-related features, so it's fixed at signup and
+          // can't be changed here.
+          <Field>
+            <FieldLabel htmlFor="gender">{t("gender")}</FieldLabel>
+            <Input id="gender" value={t(`genderOptions.${profile.gender}`)} disabled readOnly />
+          </Field>
+        )}
+
         <Field>
           <FieldLabel htmlFor="phone">{t("phone")}</FieldLabel>
-          <Input
-            id="phone"
-            name="phone"
-            type="tel"
-            defaultValue={initialProfile.phone ?? ""}
-            maxLength={MAX_PHONE_LENGTH}
-          />
+          <div className="relative">
+            <span className="text-muted-foreground pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-sm">+90</span>
+            <Input
+              id="phone"
+              name="phone"
+              type="tel"
+              // Stored value is full E.164 (e.g. "+905551234567") — strip the
+              // "+90" since it's now shown as a fixed prefix next to the field.
+              defaultValue={initialProfile.phone?.replace(/^\+90/, "") ?? ""}
+              maxLength={MAX_PHONE_LENGTH}
+              className="ps-11"
+            />
+          </div>
+          <FieldDescription>{t("phoneHint")}</FieldDescription>
           <PhoneVerification phone={profile.phone} verified={profile.phone_verified} />
         </Field>
 

@@ -103,7 +103,7 @@
       "passwordHint": "En az 8 karakter.",
       "confirmPassword": "Şifre (tekrar)",
       "phone": "Telefon",
-      "phoneHint": "Kaydı tamamlamak için SMS ile gönderilecek kodla doğrulanmalı.",
+      "phoneHint": "Başında 0 olmadan girin (örn. 5XX XXX XX XX). Kaydı tamamlamak için SMS ile gönderilecek kodla doğrulanmalı.",
       "gender": "Cinsiyet",
       "genderPlaceholder": "Seçin",
       "genderOptions": {
@@ -172,6 +172,7 @@
     "title": "Telefon Doğrulama",
     "description": "Kayıt olmak, ilan vermek ve rezervasyon yapmak için telefon numaranızı doğrulamanız gerekir.",
     "phoneLabel": "Telefon",
+    "phoneHint": "Başında 0 olmadan girin (örn. 5XX XXX XX XX).",
     "genderLabel": "Cinsiyet",
     "genderPlaceholder": "Seçin",
     "genderOptions": {
@@ -195,7 +196,13 @@
     "form": {
       "fullName": "Ad Soyad",
       "email": "E-posta",
+      "gender": "Cinsiyet",
+      "genderOptions": {
+        "female": "Kadın",
+        "male": "Erkek"
+      },
       "phone": "Telefon",
+      "phoneHint": "Başında 0 olmadan girin (örn. 5XX XXX XX XX).",
       "iban": "IBAN",
       "ibanHint": "Sürücü olarak ilan verebilmek için gerekli — yolcular ilk yarı ödemesini buraya gönderir.",
       "ibanHolderName": "Hesap Sahibi Ad Soyad",

@@ -38,7 +38,18 @@ export function SignUpForm() {
 
         <Field>
           <FieldLabel htmlFor="phone">{t("phone")}</FieldLabel>
-          <Input id="phone" name="phone" type="tel" autoComplete="tel" maxLength={MAX_PHONE_LENGTH} required />
+          <div className="relative">
+            <span className="text-muted-foreground pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-sm">+90</span>
+            <Input
+              id="phone"
+              name="phone"
+              type="tel"
+              autoComplete="tel"
+              maxLength={MAX_PHONE_LENGTH}
+              required
+              className="ps-11"
+            />
+          </div>
           <FieldDescription>{t("phoneHint")}</FieldDescription>
         </Field>
 

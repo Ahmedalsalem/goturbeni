@@ -63,15 +63,10 @@ export function RideFilters({
   initial,
   showSort = true,
   variant = "bar",
-  isFemaleUser = false,
 }: {
   initial: RideSearchFilters
   showSort?: boolean
   variant?: "hero" | "bar"
-  // Gates the "Kadın Şoför" checkbox — only shown to a user who has
-  // declared themselves female (get_female_driver_ride_ids also enforces
-  // this server-side, this is purely a UI-visibility mirror of that).
-  isFemaleUser?: boolean
 }) {
   const t = useTranslations("RidesPage.filters")
   const locale = useLocale()
@@ -313,18 +308,16 @@ export function RideFilters({
             {t("vipOnly")}
           </FieldLabel>
         </Field>
-        {isFemaleUser && (
-          <Field orientation="horizontal">
-            <Checkbox
-              id="filter-female-driver-only"
-              checked={femaleDriverOnly}
-              onCheckedChange={(checked) => setFemaleDriverOnly(checked === true)}
-            />
-            <FieldLabel htmlFor="filter-female-driver-only" className="font-normal">
-              {t("femaleDriverOnly")}
-            </FieldLabel>
-          </Field>
-        )}
+        <Field orientation="horizontal">
+          <Checkbox
+            id="filter-female-driver-only"
+            checked={femaleDriverOnly}
+            onCheckedChange={(checked) => setFemaleDriverOnly(checked === true)}
+          />
+          <FieldLabel htmlFor="filter-female-driver-only" className="font-normal">
+            {t("femaleDriverOnly")}
+          </FieldLabel>
+        </Field>
       </div>
 
       {showSort && (

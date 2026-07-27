@@ -7,7 +7,7 @@ import { Loader2, ShieldCheck } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Field, FieldGroup, FieldLabel, FieldDescription } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { MAX_PHONE_LENGTH } from "@/features/auth/schemas"
@@ -81,7 +81,19 @@ export function VerifyPhoneClient({ gender, phone }: { gender: Gender | null; ph
         <FieldGroup>
           <Field>
             <FieldLabel htmlFor="phone">{t("phoneLabel")}</FieldLabel>
-            <Input id="phone" name="phone" type="tel" autoComplete="tel" maxLength={MAX_PHONE_LENGTH} required />
+            <div className="relative">
+              <span className="text-muted-foreground pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-sm">+90</span>
+              <Input
+                id="phone"
+                name="phone"
+                type="tel"
+                autoComplete="tel"
+                maxLength={MAX_PHONE_LENGTH}
+                required
+                className="ps-11"
+              />
+            </div>
+            <FieldDescription>{t("phoneHint")}</FieldDescription>
           </Field>
           <Field>
             <FieldLabel htmlFor="gender">{t("genderLabel")}</FieldLabel>

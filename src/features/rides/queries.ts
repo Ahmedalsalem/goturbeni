@@ -23,14 +23,11 @@ const SORT_COLUMN: Record<RideSort, { column: "departure_time" | "cost_share"; a
   cost_desc: { column: "cost_share", ascending: false },
 }
 
-// A passenger searching for rides with a female driver. Driver gender
-// (profiles_private.gender) stays private (see 0016_gender_payment_profile.sql)
-// — get_female_driver_ride_ids only exposes
-// which ride ids have a female driver, and only to a caller who has declared
-// themselves female (raises otherwise). A non-female caller reaching this
-// (only possible via a hand-crafted URL, the UI never shows the checkbox to
-// them) gets the filter silently dropped, same as any other tampered filter
-// value in this module — not an error page.
+// Any searcher can filter for rides with a female driver (0033 — open to
+// everyone, not just self-declared female users). Driver gender
+// (profiles_private.gender) itself stays private (see
+// 0016_gender_payment_profile.sql) — get_female_driver_ride_ids only exposes
+// which ride ids have a female driver, never the raw gender column.
 async function resolveFemaleDriverRideIds(
   supabase: Awaited<ReturnType<typeof createClient>>,
   filters: RideSearchFilters | undefined
