@@ -153,6 +153,11 @@ describe("bookings/actions", () => {
       getRideMock.mockResolvedValue(fakeRide())
       const insertMock = vi.fn().mockResolvedValue({ error: null })
       fromMock.mockReturnValue({ insert: insertMock })
+      // recordNotificationEvent (src/lib/notifications.ts) calls supabase.rpc
+      // unconditionally (unlike push/email, it has no third-party "configured"
+      // gate to no-op through) — needs a resolved rpc call like the
+      // approve/reject/cancel tests below already set up.
+      rpcMock.mockResolvedValue({ error: null })
 
       const result = await createBooking("ride-1", { seatCount: 1 })
 

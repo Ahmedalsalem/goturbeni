@@ -28,7 +28,7 @@ export async function sendVerificationCodeEmail(to: string, code: string, locale
       from: process.env.RESEND_FROM_EMAIL!,
       to,
       subject: t("verificationCodeSubject"),
-      html: `<p>${t("verificationCodeBody", { code })}</p>`,
+      html: `<p>${t.rich("verificationCodeBody", { code, strong: (chunks) => `<strong>${chunks}</strong>` })}</p>`,
     })
     return true
   } catch (error) {

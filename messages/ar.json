@@ -15,6 +15,7 @@
     "menu": "القائمة",
     "profile": "الملف الشخصي",
     "unreadMessages": "لديك رسالة غير مقروءة",
+    "unreadNotifications": "لديك إشعار جديد",
     "admin": "لوحة الإدارة",
     "login": "تسجيل الدخول",
     "register": "إنشاء حساب",
@@ -22,7 +23,8 @@
   },
   "Push": {
     "enable": "تفعيل الإشعارات",
-    "disable": "إيقاف الإشعارات",
+    "enabledLabel": "الإشعارات مفعّلة",
+    "manageInSettings": "الإشعارات مفعّلة. لإيقافها، استخدم إعدادات الإشعارات في جهازك أو متصفحك.",
     "permissionDenied": "تم رفض إذن الإشعارات.",
     "subscribeError": "تعذر تفعيل الإشعارات.",
     "notifications": {
@@ -36,6 +38,19 @@
       "newMessageBody": "لديك رسالة جديدة."
     },
     "unsupported": "الإشعارات غير مدعومة في هذا المتصفح. على آيفون عبر Safari، أضف الموقع أولاً إلى الشاشة الرئيسية."
+  },
+  "LiveLocation": {
+    "startSharing": "شارك موقعي",
+    "stopSharing": "إيقاف المشاركة",
+    "unavailable": "تعذر الحصول على الموقع.",
+    "denied": "تم رفض إذن الموقع.",
+    "notSharing": "السائق لا يشارك موقعه بعد.",
+    "stoppedSharing": "أوقف السائق مشاركة الموقع. آخر ظهور: {time}",
+    "lastUpdated": "آخر تحديث: {time}",
+    "distanceMeters": "على بعد {meters} م",
+    "distanceKm": "على بعد {km} كم",
+    "approaching": "يقترب",
+    "viewLiveLocation": "عرض الموقع المباشر"
   },
   "Email": {
     "viewLinkLabel": "عرض",

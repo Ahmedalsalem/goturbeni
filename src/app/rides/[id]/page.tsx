@@ -78,8 +78,9 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
     getReviewStats(ride.driver_id),
     getCurrentUser(),
   ])
-  const existingBooking = user ? await getMyBookingForRide(ride.id, user.id) : null
-  const userVerified = user ? await isPhoneVerified(user.id) : false
+  const [existingBooking, userVerified] = user
+    ? await Promise.all([getMyBookingForRide(ride.id, user.id), isPhoneVerified(user.id)])
+    : [null, false]
   const awaitingDeposit = existingBooking?.status === "pending" && existingBooking.payment_status === "awaiting_deposit"
   const [driverPaymentInfo, driverCompletedRideCount] = awaitingDeposit
     ? await Promise.all([getRideDriverPaymentInfo(ride.id), getDriverCompletedRideCount(ride.driver_id)])

@@ -30,6 +30,32 @@ export const NOTIFICATION_KEY: Record<NotificationEvent["type"], "bookingRequest
   new_message: "newMessage",
 }
 
+// Which nav item's red dot (see Header.tsx / notification_events table) an
+// event lights up — mirrors NOTIFICATION_URL's routing, minus new_message
+// (already covered by the existing per-thread messages.read_at badge).
+const NAV_TARGET_FOR_EVENT: Partial<Record<NotificationEvent["type"], "my_rides" | "my_bookings">> = {
+  booking_requested: "my_rides",
+  booking_approved: "my_bookings",
+  booking_rejected: "my_bookings",
+}
+
+export async function recordNotificationEvent(event: NotificationEvent): Promise<void> {
+  const navTarget = NAV_TARGET_FOR_EVENT[event.type]
+  if (!navTarget) {
+    return
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("create_notification_event", {
+    p_ride_id: event.rideId,
+    p_recipient_id: event.recipientId,
+    p_nav_target: navTarget,
+  })
+  if (error) {
+    logError(error, "notifications.recordNotificationEvent")
+  }
+}
+
 interface PushSubscriptionRow {
   endpoint: string
   p256dh: string

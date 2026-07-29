@@ -26,7 +26,10 @@ export const getCurrentUser = cache(async () => {
 // getCurrentUser, which is also used for public pages like / and /rides that
 // suspended users must still be able to browse) — redirects to /suspended
 // instead of letting a protected page render for a suspended account.
-export async function verifySession() {
+// Wrapped in cache() because layouts and pages both call this (e.g. /admin's
+// layout.tsx and its nested page.tsx) — without dedup, the is_suspended RPC
+// round trip ran twice per request.
+export const verifySession = cache(async () => {
   const user = await getCurrentUser()
   if (!user) {
     redirect("/login")
@@ -37,7 +40,7 @@ export async function verifySession() {
     redirect("/suspended")
   }
   return user
-}
+})
 
 // Use on actions/pages that require the mandatory one-time phone
 // verification gate (posting a ride, booking a seat) — redirects to

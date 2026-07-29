@@ -15,6 +15,7 @@
     "menu": "Menü",
     "profile": "Profil",
     "unreadMessages": "Okunmamış mesajınız var",
+    "unreadNotifications": "Yeni bir bildiriminiz var",
     "admin": "Yönetim Paneli",
     "login": "Giriş Yap",
     "register": "Kayıt Ol",
@@ -22,7 +23,8 @@
   },
   "Push": {
     "enable": "Bildirimleri Aç",
-    "disable": "Bildirimleri Kapat",
+    "enabledLabel": "Bildirimler açık",
+    "manageInSettings": "Bildirimler açık. Kapatmak için cihazınızın veya tarayıcınızın bildirim ayarlarını kullanın.",
     "permissionDenied": "Bildirim izni reddedildi.",
     "subscribeError": "Bildirimler etkinleştirilemedi.",
     "notifications": {
@@ -36,6 +38,19 @@
       "newMessageBody": "Yeni bir mesajınız var."
     },
     "unsupported": "Bildirimler bu tarayıcıda desteklenmiyor. iPhone'da Safari üzerinden kullanmak için siteyi önce Ana Ekrana Ekleyin."
+  },
+  "LiveLocation": {
+    "startSharing": "Konumumu Paylaş",
+    "stopSharing": "Paylaşımı Durdur",
+    "unavailable": "Konum alınamadı.",
+    "denied": "Konum izni reddedildi.",
+    "notSharing": "Sürücü henüz konumunu paylaşmıyor.",
+    "stoppedSharing": "Sürücü konum paylaşımını durdurdu. Son görülme: {time}",
+    "lastUpdated": "Son güncelleme: {time}",
+    "distanceMeters": "{meters} m uzaklıkta",
+    "distanceKm": "{km} km uzaklıkta",
+    "approaching": "yaklaşıyor",
+    "viewLiveLocation": "Canlı Konumu Gör"
   },
   "Email": {
     "viewLinkLabel": "Görüntüle",

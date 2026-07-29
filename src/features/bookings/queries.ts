@@ -71,6 +71,20 @@ export async function getRideDriverPaymentInfo(rideId: string): Promise<{ iban: 
   return { iban: row.iban, iban_holder_name: row.iban_holder_name }
 }
 
+// Exposes the counterparty's phone number once a booking on this ride is
+// approved — profiles_private is otherwise owner-only, see
+// get_ride_counterparty_phone in supabase/migrations/0037_ride_counterparty_phone.sql.
+// Returns null before approval, if the caller isn't actually a party to an
+// approved booking on this ride, or if the phone was never set/verified.
+export async function getRideCounterpartyPhone(rideId: string, counterpartId: string): Promise<string | null> {
+  const supabase = await createClient()
+  const { data } = await supabase.rpc("get_ride_counterparty_phone", {
+    p_ride_id: rideId,
+    p_recipient_id: counterpartId,
+  })
+  return (data as string | null) ?? null
+}
+
 const RECEIPT_SIGNED_URL_TTL_SECONDS = 60 * 5
 
 // payment-receipts is a private bucket (0020_payment_receipts.sql) — bookings

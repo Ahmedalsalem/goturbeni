@@ -72,7 +72,7 @@ export async function RideCard({ ride, actions }: { ride: RideWithDriver; action
           )}
         </CardContent>
       )}
-      <CardFooter className="flex items-center justify-between gap-4 border-t-0 bg-transparent pt-1">
+      <CardFooter className="flex flex-wrap items-center justify-between gap-3 border-t-0 bg-transparent pt-1">
         <div className="flex items-center gap-2.5">
           <Avatar className="ring-border size-9 ring-1">
             <AvatarImage src={ride.driver?.avatar_url ?? undefined} alt={driverName} />

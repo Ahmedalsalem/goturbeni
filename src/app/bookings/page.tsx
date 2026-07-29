@@ -1,7 +1,7 @@
 import Link from "next/link"
 import type { Metadata } from "next"
 import { getFormatter, getTranslations } from "next-intl/server"
-import { CalendarClock, MessageCircle } from "lucide-react"
+import { CalendarClock, MessageCircle, Phone } from "lucide-react"
 
 import { EmptyState } from "@/components/EmptyState"
 import { Badge } from "@/components/ui/badge"
@@ -11,8 +11,11 @@ import { BookingStatusBadge } from "@/features/bookings/BookingStatusBadge"
 import { CancelBookingButton } from "@/features/bookings/CancelBookingButton"
 import { SettlementReceiptUpload } from "@/features/bookings/SettlementReceiptUpload"
 import { SettlePaymentButton } from "@/features/bookings/SettlePaymentButton"
-import { getMyBookings } from "@/features/bookings/queries"
+import { getMyBookings, getRideCounterpartyPhone } from "@/features/bookings/queries"
 import { getUnreadMessages } from "@/features/chat/queries"
+import { getRideLiveLocation } from "@/features/live-location/queries"
+import { LiveLocationSection } from "@/features/live-location/LiveLocationSection"
+import { MarkNotificationsRead } from "@/features/notifications/MarkNotificationsRead"
 import { ReviewButton } from "@/features/reviews/ReviewButton"
 import { getMyReviewForRide } from "@/features/reviews/queries"
 import { verifySession } from "@/lib/supabase/dal"
@@ -41,9 +44,24 @@ export default async function BookingsPage() {
     completedBookings.map((booking) => getMyReviewForRide(booking.ride.id, user.id, booking.ride.driver_id))
   )
   const reviewedRideIds = new Set(completedBookings.filter((_, index) => myReviews[index]).map((booking) => booking.ride.id))
+  const approvedBookings = bookings.filter((booking) => booking.status === "approved")
+  const upcomingApprovedBookings = approvedBookings.filter((booking) => new Date(booking.ride.departure_time) >= new Date())
+  const driverPhones = new Map(
+    await Promise.all(
+      approvedBookings.map(
+        async (booking) => [booking.ride.id, await getRideCounterpartyPhone(booking.ride.id, booking.ride.driver_id)] as const
+      )
+    )
+  )
+  const liveLocations = new Map(
+    await Promise.all(
+      upcomingApprovedBookings.map(async (booking) => [booking.ride.id, await getRideLiveLocation(booking.ride.id)] as const)
+    )
+  )
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
+      <MarkNotificationsRead navTarget="my_bookings" />
       <h1 className="mb-6 text-2xl font-semibold">{t("title")}</h1>
 
       {bookings.length === 0 ? (
@@ -52,6 +70,7 @@ export default async function BookingsPage() {
         <div className="flex flex-col gap-4">
           {bookings.map((booking) => {
             const isCompleted = booking.status === "approved" && new Date(booking.ride.departure_time) < new Date()
+            const driverPhone = booking.status === "approved" ? driverPhones.get(booking.ride.id) : null
 
             return (
               <Card key={booking.id}>
@@ -65,7 +84,17 @@ export default async function BookingsPage() {
                   <div>{format.dateTime(new Date(booking.ride.departure_time), { day: "2-digit", month: "2-digit", year: "numeric" })}</div>
                   <div>{tCard("seatCount", { count: booking.seat_count })}</div>
                   <div className="font-medium">{formatCostShare(booking.ride.cost_share, locale)}</div>
+                  {driverPhone && (
+                    <a href={`tel:${driverPhone}`} className="text-primary flex items-center gap-1 hover:underline">
+                      <Phone className="size-3.5" aria-hidden="true" /> {driverPhone}
+                    </a>
+                  )}
                 </CardContent>
+                {booking.status === "approved" && !isCompleted && (
+                  <CardFooter>
+                    <LiveLocationSection rideId={booking.ride.id} initialLocation={liveLocations.get(booking.ride.id) ?? null} />
+                  </CardFooter>
+                )}
                 {(booking.status === "pending" || booking.status === "approved") && (
                   <CardFooter className="flex flex-wrap items-center gap-2">
                     <CancelBookingButton bookingId={booking.id} rideId={booking.ride.id} />

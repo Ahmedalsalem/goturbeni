@@ -9,6 +9,7 @@ import { RideCard } from "@/features/rides/RideCard"
 import { CancelRideButton } from "@/features/rides/CancelRideButton"
 import { EmptyState } from "@/components/EmptyState"
 import { buttonVariants } from "@/components/ui/button"
+import { MarkNotificationsRead } from "@/features/notifications/MarkNotificationsRead"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("MyRidesPage")
@@ -23,6 +24,7 @@ export default async function MyRidesPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
+      <MarkNotificationsRead navTarget="my_rides" />
       <div className="mb-6 flex items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">{t("title")}</h1>
         <Link href="/create-ride" className={buttonVariants()}>
@@ -39,7 +41,7 @@ export default async function MyRidesPage() {
               key={ride.id}
               ride={ride}
               actions={
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 max-sm:w-full max-sm:justify-end">
                   {/* Booking management (and, from there, chat/review) must stay reachable
                       regardless of ride status — a full/completed ride still has approved
                       passengers to talk to and, once it departs, to review. Edit is status-

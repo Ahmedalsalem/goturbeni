@@ -17,14 +17,15 @@ import { getCurrentUser } from "@/lib/supabase/dal"
 import { signOut } from "@/features/auth/actions"
 import { checkIsAdmin } from "@/features/admin/queries"
 import { getUnreadMessages } from "@/features/chat/queries"
+import { getUnreadNavBadges } from "@/features/notifications/queries"
 import { PushNotificationToggle } from "@/features/push/PushNotificationToggle"
 
 export async function Header() {
   const t = await getTranslations("Nav")
   const user = await getCurrentUser()
-  const [unreadMessages, isAdmin] = user
-    ? await Promise.all([getUnreadMessages(user.id), checkIsAdmin(user.id)])
-    : [null, false]
+  const [unreadMessages, isAdmin, navBadges] = user
+    ? await Promise.all([getUnreadMessages(user.id), checkIsAdmin(user.id), getUnreadNavBadges(user.id)])
+    : [null, false, { myRides: false, myBookings: false }]
   const hasUnreadMessages = unreadMessages ? unreadMessages.count > 0 : false
 
   const links = [
@@ -81,9 +82,21 @@ export async function Header() {
                   </DropdownMenuItem>
                   <DropdownMenuItem render={<Link href="/rides/mine" />}>
                     <CarFront /> {t("myRides")}
+                    {navBadges.myRides && (
+                      <>
+                        <span className="bg-destructive ms-auto size-2 rounded-full" aria-hidden="true" />
+                        <span className="sr-only">{t("unreadNotifications")}</span>
+                      </>
+                    )}
                   </DropdownMenuItem>
                   <DropdownMenuItem render={<Link href="/bookings" />}>
                     <CalendarCheck /> {t("bookings")}
+                    {navBadges.myBookings && (
+                      <>
+                        <span className="bg-destructive ms-auto size-2 rounded-full" aria-hidden="true" />
+                        <span className="sr-only">{t("unreadNotifications")}</span>
+                      </>
+                    )}
                   </DropdownMenuItem>
                   {isAdmin && (
                     <DropdownMenuItem render={<Link href="/admin" />}>

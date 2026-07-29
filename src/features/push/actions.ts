@@ -27,14 +27,3 @@ export async function subscribeToPush(subscription: PushSubscriptionInput): Prom
   }
   return {}
 }
-
-export async function unsubscribeFromPush(endpoint: string): Promise<{ error?: string }> {
-  await verifySession()
-  const supabase = await createClient()
-  const { error } = await supabase.from("push_subscriptions").delete().eq("endpoint", endpoint)
-  if (error) {
-    logError(error, "push.unsubscribeFromPush")
-    return { error: "unsubscribe_failed" }
-  }
-  return {}
-}

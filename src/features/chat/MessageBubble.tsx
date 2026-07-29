@@ -86,7 +86,7 @@ export function MessageBubble({ message, isOwn, rideId }: { message: Message; is
             <p className="italic opacity-70">{tActions("deletedPlaceholder")}</p>
           ) : message.message_type === "location" && message.location_lat !== null && message.location_lng !== null ? (
             <a
-              href={`https://www.openstreetmap.org/?mlat=${message.location_lat}&mlon=${message.location_lng}#map=16/${message.location_lat}/${message.location_lng}`}
+              href={`https://www.google.com/maps/dir/?api=1&destination=${message.location_lat},${message.location_lng}&travelmode=driving`}
               target="_blank"
               rel="noopener noreferrer"
               className={cn("flex items-center gap-1.5 underline underline-offset-2", isOwn ? "text-primary-foreground" : "text-foreground")}

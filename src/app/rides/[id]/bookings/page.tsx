@@ -2,7 +2,7 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { getTranslations } from "next-intl/server"
-import { MessageCircle, Users } from "lucide-react"
+import { MessageCircle, Phone, Users } from "lucide-react"
 
 import { EmptyState } from "@/components/EmptyState"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -14,7 +14,8 @@ import { BookingActions } from "@/features/bookings/BookingActions"
 import { RefundProofUpload } from "@/features/bookings/RefundProofUpload"
 import { SettlePaymentButton } from "@/features/bookings/SettlePaymentButton"
 import { getRide } from "@/features/rides/queries"
-import { getRideBookings } from "@/features/bookings/queries"
+import { getRideBookings, getRideCounterpartyPhone } from "@/features/bookings/queries"
+import { ShareLocationToggle } from "@/features/live-location/ShareLocationToggle"
 import { getUnreadMessages } from "@/features/chat/queries"
 import { ReviewButton } from "@/features/reviews/ReviewButton"
 import { getMyReviewForRide } from "@/features/reviews/queries"
@@ -47,12 +48,22 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
     ? await Promise.all(approvedBookings.map((booking) => getMyReviewForRide(id, user.id, booking.passenger_id)))
     : []
   const reviewedPassengerIds = new Set(approvedBookings.filter((_, index) => myReviews[index]).map((booking) => booking.passenger_id))
+  const passengerPhones = new Map(
+    await Promise.all(
+      approvedBookings.map(
+        async (booking) => [booking.passenger_id, await getRideCounterpartyPhone(id, booking.passenger_id)] as const
+      )
+    )
+  )
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold">{t("title")}</h1>
-        <p className="text-muted-foreground text-sm">{t("description")}</p>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold">{t("title")}</h1>
+          <p className="text-muted-foreground text-sm">{t("description")}</p>
+        </div>
+        {approvedBookings.length > 0 && !isRideOver && <ShareLocationToggle rideId={id} />}
       </div>
 
       {bookings.length === 0 ? (
@@ -64,6 +75,7 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
             const passengerInitials = passengerName.slice(0, 2).toUpperCase()
             const isApproved = booking.status === "approved"
             const alreadyReviewed = reviewedPassengerIds.has(booking.passenger_id)
+            const passengerPhone = passengerPhones.get(booking.passenger_id)
 
             return (
               <Card key={booking.id}>
@@ -76,6 +88,11 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                     <div>
                       <p className="font-medium">{passengerName}</p>
                       <p className="text-muted-foreground text-sm">{tCard("seatCount", { count: booking.seat_count })}</p>
+                      {isApproved && passengerPhone && (
+                        <a href={`tel:${passengerPhone}`} className="text-primary flex items-center gap-1 text-sm hover:underline">
+                          <Phone className="size-3.5" aria-hidden="true" /> {passengerPhone}
+                        </a>
+                      )}
                     </div>
                   </div>
                   {booking.status === "pending" ? (

@@ -12,7 +12,7 @@ import { checkRateLimit } from "@/lib/rate-limit"
 import { logError } from "@/lib/logger"
 import { getRide } from "@/features/rides/queries"
 import { getBookingPassengerId } from "@/features/bookings/queries"
-import { sendPushNotification } from "@/lib/notifications"
+import { recordNotificationEvent, sendPushNotification } from "@/lib/notifications"
 import { sendEmailNotification } from "@/lib/email"
 import { buildBookingSchema, type BookingActionState, type BookingFormValues } from "@/features/bookings/schemas"
 
@@ -74,6 +74,7 @@ export async function createBooking(rideId: string, values: BookingFormValues): 
   await Promise.all([
     sendPushNotification({ type: "booking_requested", recipientId: ride.driver_id, rideId }),
     sendEmailNotification({ type: "booking_requested", recipientId: ride.driver_id, rideId }),
+    recordNotificationEvent({ type: "booking_requested", recipientId: ride.driver_id, rideId }),
   ])
 
   revalidatePath(`/rides/${rideId}`)
@@ -100,6 +101,7 @@ export async function approveBooking(bookingId: string, rideId: string): Promise
     await Promise.all([
       sendPushNotification({ type: "booking_approved", recipientId: passengerId, rideId }),
       sendEmailNotification({ type: "booking_approved", recipientId: passengerId, rideId }),
+      recordNotificationEvent({ type: "booking_approved", recipientId: passengerId, rideId }),
     ])
   }
 
@@ -128,6 +130,7 @@ export async function rejectBooking(bookingId: string, rideId: string): Promise<
     await Promise.all([
       sendPushNotification({ type: "booking_rejected", recipientId: passengerId, rideId }),
       sendEmailNotification({ type: "booking_rejected", recipientId: passengerId, rideId }),
+      recordNotificationEvent({ type: "booking_rejected", recipientId: passengerId, rideId }),
     ])
   }
 
