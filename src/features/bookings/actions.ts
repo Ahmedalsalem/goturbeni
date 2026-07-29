@@ -12,8 +12,8 @@ import { checkRateLimit } from "@/lib/rate-limit"
 import { logError } from "@/lib/logger"
 import { getRide } from "@/features/rides/queries"
 import { getBookingPassengerId } from "@/features/bookings/queries"
-import { recordNotificationEvent, sendPushNotification } from "@/lib/notifications"
-import { sendEmailNotification } from "@/lib/email"
+import { recordNotificationEvent, sendPushNotification, sendSeatOpenedPushNotifications } from "@/lib/notifications"
+import { sendEmailNotification, sendSeatOpenedEmailNotifications } from "@/lib/email"
 import { buildBookingSchema, type BookingActionState, type BookingFormValues } from "@/features/bookings/schemas"
 
 const CREATE_BOOKING_RATE_LIMIT = { limit: 20, windowMs: 60 * 60 * 1000 }
@@ -146,11 +146,20 @@ export async function cancelBooking(bookingId: string, rideId: string): Promise<
 
   await verifySession()
   const supabase = await createClient()
-  const { error } = await supabase.rpc("cancel_booking", { p_booking_id: bookingId })
+
+  // cancel_booking (0040/0041) returns whether the cancelled booking was
+  // actually 'approved' (i.e. a seat was genuinely held and just freed) —
+  // computed inside the same row-locked transaction that flips the status,
+  // so there's no separate pre-read racing a concurrent approveBooking.
+  const { data: seatFreed, error } = await supabase.rpc("cancel_booking", { p_booking_id: bookingId })
 
   if (error) {
     logError(error, "bookings.cancelBooking")
     return { error: tErrors("cancelFailed") }
+  }
+
+  if (seatFreed) {
+    await Promise.all([sendSeatOpenedPushNotifications(rideId), sendSeatOpenedEmailNotifications(rideId)])
   }
 
   revalidatePath("/bookings")
@@ -311,6 +320,33 @@ export async function submitSettlementReceipt(bookingId: string, rideId: string,
   const { error } = await supabase.rpc("submit_settlement_receipt", { p_booking_id: bookingId, p_receipt_url: uploaded.path })
   if (error) {
     logError(error, "bookings.submitSettlementReceipt")
+    return { error: tErrors("actionFailed") }
+  }
+
+  revalidatePath("/bookings")
+  revalidatePath(`/rides/${rideId}/bookings`)
+  return { success: true }
+}
+
+// Either party reports the other as a no-show, post-trip — report_no_show
+// (0041_no_show_and_late_cancellation.sql) figures out which flag to set
+// (passenger_no_show vs driver_no_show) from whether the caller is the
+// ride's driver or the booking's passenger, and only allows it once the
+// ride has actually departed. Feeds the suspicious-account rules an admin
+// sees (0042_suspicious_accounts_no_show_rules.sql) — no other user-facing
+// effect (no auto-suspension, no visible counter on the counterparty yet).
+export async function reportNoShow(bookingId: string, rideId: string): Promise<BookingActionState> {
+  const { tErrors } = await getBookingTranslators()
+  if (!isSupabaseConfigured()) {
+    return { error: tErrors("notConfigured") }
+  }
+
+  await verifySession()
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("report_no_show", { p_booking_id: bookingId })
+
+  if (error) {
+    logError(error, "bookings.reportNoShow")
     return { error: tErrors("actionFailed") }
   }
 

@@ -14,7 +14,6 @@
     "support": "Destek",
     "menu": "Menü",
     "profile": "Profil",
-    "unreadMessages": "Okunmamış mesajınız var",
     "unreadNotifications": "Yeni bir bildiriminiz var",
     "admin": "Yönetim Paneli",
     "login": "Giriş Yap",
@@ -35,7 +34,11 @@
       "bookingRejectedTitle": "Rezervasyonunuz reddedildi",
       "bookingRejectedBody": "Rezervasyon talebiniz reddedildi.",
       "newMessageTitle": "Yeni mesaj",
-      "newMessageBody": "Yeni bir mesajınız var."
+      "newMessageBody": "Yeni bir mesajınız var.",
+      "seatOpenedTitle": "Koltuk açıldı",
+      "seatOpenedBody": "Bekleme listesinde olduğunuz ilanda bir koltuk açıldı. Hemen rezervasyon talebi oluşturun.",
+      "searchAlertMatchTitle": "Aradığınız güzergahta yeni ilan var",
+      "searchAlertMatchBody": "Haber vermenizi istediğiniz güzergahta yeni bir ilan açıldı."
     },
     "unsupported": "Bildirimler bu tarayıcıda desteklenmiyor. iPhone'da Safari üzerinden kullanmak için siteyi önce Ana Ekrana Ekleyin."
   },
@@ -384,7 +387,8 @@
     "description": "Bu ilana gelen rezervasyon taleplerini yönet.",
     "emptyTitle": "Henüz rezervasyon talebi yok",
     "emptyDescription": "Bu ilana henüz kimse rezervasyon talebinde bulunmadı.",
-    "chat": "Sohbet"
+    "chat": "Sohbet",
+    "waitlistCount": "{count} kişi koltuk açılmasını bekliyor"
   },
   "ChatPage": {
     "title": "Sohbet",
@@ -424,6 +428,8 @@
       "smokingAllowed": "Sigara içilebilir",
       "vipSolo": "VIP (Tek Yolcu) — bu ilanı yalnızca tek bir yolcu alsın",
       "vipSoloHint": "VIP ilanlarda koltuk sayısı otomatik olarak 1'e sabitlenir; yolculuk başka yolcularla paylaşılmaz.",
+      "repeatWeekly": "Bu ilanı her hafta bu gün ve saatte tekrarla",
+      "repeatWeeklyHint": "Bir sonraki haftanın ilanı, kalkışına yaklaşık bir hafta kala otomatik olarak açılır. İstediğiniz zaman \"İlanlarım\"dan durdurabilirsiniz.",
       "createSubmit": "İlanı Yayınla",
       "updateSubmit": "İlanı Güncelle"
     },
@@ -445,6 +451,7 @@
       "createFailed": "İlan oluşturulamadı. Lütfen tekrar deneyin.",
       "updateFailed": "İlan güncellenemedi. Lütfen tekrar deneyin.",
       "cancelFailed": "İlan iptal edilemedi. Lütfen tekrar deneyin.",
+      "pauseFailed": "Tekrarlanan ilan durdurulamadı. Lütfen tekrar deneyin.",
       "tooManyRequests": "Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin.",
       "ibanRequired": "İlan verebilmek için önce profilinize IBAN ve hesap sahibi ad soyad bilgisi ekleyin."
     },
@@ -466,13 +473,18 @@
       "cancel": "İptal Et",
       "confirmCancel": "Emin misiniz?",
       "cancelled": "İlan iptal edildi.",
-      "bookings": "Rezervasyonlar"
+      "bookings": "Rezervasyonlar",
+      "activeSeriesTitle": "Tekrarlanan ilanlarım",
+      "everyWeekday": "her {weekday}",
+      "stopSeries": "Tekrarı Durdur",
+      "seriesStopped": "Tekrarlanan ilan durduruldu."
     }
   },
   "RideDetailPage": {
     "seats": "{available} / {total} boş koltuk",
     "descriptionLabel": "Açıklama",
-    "metaDescription": "{date} tarihli yolculuk - {cost}"
+    "metaDescription": "{date} tarihli yolculuk - {cost}",
+    "waitlistMessage": "Bu ilan şu anda dolu. Koltuk açılınca haber vermemizi ister misiniz?"
   },
   "Bookings": {
     "form": {
@@ -494,13 +506,18 @@
       "cancel": "İptal Et",
       "confirmCancel": "Emin misiniz?",
       "confirmApprove": "İlk yarı ödemesini aldığınızı onaylıyor musunuz?",
-      "confirmReject": "Reddedilsin mi?"
+      "confirmReject": "Reddedilsin mi?",
+      "reportDriverNoShow": "Sürücü Gelmedi",
+      "reportPassengerNoShow": "Yolcu Gelmedi",
+      "alreadyReportedNoShow": "Bildirildi",
+      "confirmNoShow": "Bildirmek istediğinize emin misiniz?"
     },
     "success": {
       "created": "Rezervasyon talebiniz gönderildi.",
       "approved": "Rezervasyon onaylandı.",
       "rejected": "Rezervasyon reddedildi.",
-      "cancelled": "Rezervasyon iptal edildi."
+      "cancelled": "Rezervasyon iptal edildi.",
+      "noShowReported": "Bildirildi."
     },
     "errors": {
       "invalidForm": "Geçersiz form.",
@@ -674,7 +691,10 @@
         "high_cancellation_rate": "Yüksek iptal oranı",
         "high_rejection_rate": "Yüksek red oranı",
         "booking_spam": "Rezervasyon talebi yoğunluğu",
-        "new_account_high_value": "Yeni hesap + yüksek masraf paylı ilan"
+        "new_account_high_value": "Yeni hesap + yüksek masraf paylı ilan",
+        "frequent_late_cancellation": "Sık geç iptal",
+        "frequent_passenger_no_show": "Sık no-show (yolcu)",
+        "frequent_driver_no_show": "Sık no-show (sürücü)"
       }
     },
     "users": {
@@ -763,6 +783,26 @@
   },
   "LocaleSwitcher": {
     "label": "Dil"
+  },
+  "SearchAlerts": {
+    "subscribe": "Bu Güzergah İçin Haber Ver",
+    "unsubscribe": "Aboneliği İptal Et",
+    "subscribed": "Bu güzergah için haber vereceğiz.",
+    "unsubscribed": "Abonelik iptal edildi.",
+    "errors": {
+      "createFailed": "Abonelik oluşturulamadı. Lütfen tekrar deneyin.",
+      "deleteFailed": "Abonelik iptal edilemedi. Lütfen tekrar deneyin."
+    }
+  },
+  "Waitlist": {
+    "join": "Koltuk Açılınca Haber Ver",
+    "leave": "Bekleme Listesinden Çık",
+    "joined": "Bekleme listesine eklendiniz.",
+    "left": "Bekleme listesinden çıkarıldınız.",
+    "errors": {
+      "joinFailed": "Bekleme listesine eklenemedi. Lütfen tekrar deneyin.",
+      "leaveFailed": "Bekleme listesinden çıkılamadı. Lütfen tekrar deneyin."
+    }
   },
   "CookieConsent": {
     "label": "Çerez onayı",

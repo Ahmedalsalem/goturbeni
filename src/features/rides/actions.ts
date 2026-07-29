@@ -11,6 +11,7 @@ import { getUserLocale } from "@/i18n/locale"
 import { requireVerifiedProfile, verifySession } from "@/lib/supabase/dal"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { logError } from "@/lib/logger"
+import { sendSearchAlertNotifications } from "@/lib/search-alert-notifications"
 import { parseIstanbulDateTime } from "@/utils/istanbul-time"
 import { buildRideSchema, type RideActionState, type RideFormValues } from "@/features/rides/schemas"
 
@@ -69,17 +70,71 @@ export async function createRide(values: RideFormValues): Promise<RideActionStat
     return { error: tErrors("ibanRequired") }
   }
 
-  const { error } = await supabase.from("rides").insert({
-    driver_id: user.id,
-    ...buildRideRow(parsed.data),
-  })
+  const { data: ride, error } = await supabase
+    .from("rides")
+    .insert({ driver_id: user.id, ...buildRideRow(parsed.data) })
+    .select("id")
+    .single()
 
   if (error) {
     logError(error, "rides.createRide")
     return { error: tErrors("createFailed") }
   }
 
+  if (parsed.data.repeatWeekly) {
+    await createRideSeriesForRide(ride.id, user.id, parsed.data)
+  }
+
+  await sendSearchAlertNotifications(ride.id)
+
   redirect("/rides/mine")
+}
+
+// The series' weekday/time-of-day come straight from this first ride's own
+// departureDate/departureTime — there's no separate recurrence field, so the
+// occurrence the driver just created *is* the pattern. A failure here (rare
+// — malformed date string) shouldn't take down ride creation itself, since
+// the ride the driver actually asked for was already created successfully.
+async function createRideSeriesForRide(rideId: string, driverId: string, parsed: RideFormValues): Promise<void> {
+  const supabase = await createClient()
+  const weekday = new Date(`${parsed.departureDate}T00:00:00Z`).getUTCDay()
+
+  const { data: series, error } = await supabase
+    .from("ride_series")
+    .insert({
+      driver_id: driverId,
+      departure_city: parsed.departureCity,
+      arrival_city: parsed.arrivalCity,
+      departure_district: parsed.departureDistrict ?? null,
+      arrival_district: parsed.arrivalDistrict ?? null,
+      weekday,
+      departure_time_of_day: parsed.departureTime,
+      seat_count: parsed.seatCount,
+      cost_share: parsed.costShare,
+      description: parsed.description ?? null,
+      pets_allowed: parsed.petsAllowed,
+      smoking_allowed: parsed.smokingAllowed,
+      vip_solo: parsed.vipSolo,
+    })
+    .select("id")
+    .single()
+
+  if (error || !series) {
+    logError(error ?? new Error("no series row returned"), "rides.createRideSeriesForRide")
+    return
+  }
+
+  const { error: linkError } = await supabase.from("rides").update({ series_id: series.id }).eq("id", rideId)
+  if (linkError) {
+    logError(linkError, "rides.createRideSeriesForRide.link")
+    // The series row exists but isn't linked to any ride — generate_recurring_rides
+    // (0039_ride_series.sql) de-dupes by matching series_id on existing rides,
+    // so an unlinked-but-active series would generate a DUPLICATE of the
+    // occurrence the driver already has. Deactivating it immediately (same
+    // "update own ride series" policy pauseRideSeries uses) prevents that;
+    // the driver can always turn "repeat weekly" on again from a future ride.
+    await supabase.from("ride_series").update({ is_active: false }).eq("id", series.id)
+  }
 }
 
 export async function updateRide(rideId: string, values: RideFormValues): Promise<RideActionState> {
@@ -134,5 +189,28 @@ export async function cancelRide(rideId: string): Promise<RideActionState> {
 
   revalidatePath("/rides/mine")
   revalidatePath("/bookings")
+  return { success: true }
+}
+
+// Stops future auto-generated occurrences (see generate_recurring_rides,
+// 0039_ride_series.sql) — does not touch any ride already created from this
+// series, matching/matches cancelRide's own single-occurrence scope.
+export async function pauseRideSeries(seriesId: string): Promise<RideActionState> {
+  const locale = await getUserLocale()
+  const tErrors = await getTranslations({ locale, namespace: "Rides.errors" })
+  if (!isSupabaseConfigured()) {
+    return { error: tErrors("notConfigured") }
+  }
+
+  const user = await verifySession()
+  const supabase = await createClient()
+  const { error } = await supabase.from("ride_series").update({ is_active: false }).eq("id", seriesId).eq("driver_id", user.id)
+
+  if (error) {
+    logError(error, "rides.pauseRideSeries")
+    return { error: tErrors("pauseFailed") }
+  }
+
+  revalidatePath("/rides/mine")
   return { success: true }
 }

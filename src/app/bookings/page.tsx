@@ -9,6 +9,7 @@ import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { BookingStatusBadge } from "@/features/bookings/BookingStatusBadge"
 import { CancelBookingButton } from "@/features/bookings/CancelBookingButton"
+import { ReportNoShowButton } from "@/features/bookings/ReportNoShowButton"
 import { SettlementReceiptUpload } from "@/features/bookings/SettlementReceiptUpload"
 import { SettlePaymentButton } from "@/features/bookings/SettlePaymentButton"
 import { getMyBookings, getRideCounterpartyPhone } from "@/features/bookings/queries"
@@ -32,6 +33,7 @@ export default async function BookingsPage() {
   const t = await getTranslations("BookingsPage")
   const tCard = await getTranslations("Bookings.card")
   const tReviewActions = await getTranslations("Reviews.actions")
+  const tBookingActions = await getTranslations("Bookings.actions")
   const user = await verifySession()
   const format = await getFormatter()
   const locale = await getUserLocale()
@@ -123,6 +125,16 @@ export default async function BookingsPage() {
                         <Badge variant="secondary">{tReviewActions("alreadyReviewed")}</Badge>
                       ) : (
                         <ReviewButton rideId={booking.ride.id} revieweeId={booking.ride.driver_id} />
+                      ))}
+                    {isCompleted &&
+                      (booking.driver_no_show ? (
+                        <Badge variant="secondary">{tBookingActions("alreadyReportedNoShow")}</Badge>
+                      ) : (
+                        <ReportNoShowButton
+                          bookingId={booking.id}
+                          rideId={booking.ride.id}
+                          label={tBookingActions("reportDriverNoShow")}
+                        />
                       ))}
                   </CardFooter>
                 )}

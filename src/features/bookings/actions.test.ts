@@ -76,6 +76,7 @@ function fakeRide(overrides: Partial<Ride> = {}): Ride {
     smoking_allowed: false,
     vip_solo: false,
     status: "active",
+    series_id: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     ...overrides,
@@ -225,7 +226,7 @@ describe("bookings/actions", () => {
 
   describe("cancelBooking", () => {
     it("calls supabase.rpc with cancel_booking and the booking id", async () => {
-      rpcMock.mockResolvedValue({ error: null })
+      rpcMock.mockResolvedValue({ data: false, error: null })
 
       await cancelBooking("booking-1", "ride-1")
 
@@ -233,7 +234,7 @@ describe("bookings/actions", () => {
     })
 
     it("maps an RPC error to cancelFailed", async () => {
-      rpcMock.mockResolvedValue({ error: { message: "boom" } })
+      rpcMock.mockResolvedValue({ data: null, error: { message: "boom" } })
 
       const result = await cancelBooking("booking-1", "ride-1")
 
@@ -241,13 +242,26 @@ describe("bookings/actions", () => {
     })
 
     it("succeeds and revalidates on a clean RPC call", async () => {
-      rpcMock.mockResolvedValue({ error: null })
+      rpcMock.mockResolvedValue({ data: false, error: null })
 
       const result = await cancelBooking("booking-1", "ride-1")
 
       expect(result).toEqual({ success: true })
       expect(revalidatePathMock).toHaveBeenCalledWith("/bookings")
       expect(revalidatePathMock).toHaveBeenCalledWith("/rides/ride-1")
+    })
+
+    it("succeeds when cancel_booking reports a seat was freed (a previously-approved booking)", async () => {
+      // VAPID/Resend aren't configured in this test env, so
+      // sendSeatOpenedPushNotifications/sendSeatOpenedEmailNotifications
+      // no-op before ever calling supabase.rpc for the waitlist lookups —
+      // this test only proves cancelBooking still succeeds cleanly when the
+      // RPC reports data: true, not the notification content itself.
+      rpcMock.mockResolvedValue({ data: true, error: null })
+
+      const result = await cancelBooking("booking-1", "ride-1")
+
+      expect(result).toEqual({ success: true })
     })
   })
 })

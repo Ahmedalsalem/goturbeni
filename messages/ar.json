@@ -14,7 +14,6 @@
     "support": "الدعم",
     "menu": "القائمة",
     "profile": "الملف الشخصي",
-    "unreadMessages": "لديك رسالة غير مقروءة",
     "unreadNotifications": "لديك إشعار جديد",
     "admin": "لوحة الإدارة",
     "login": "تسجيل الدخول",
@@ -35,7 +34,11 @@
       "bookingRejectedTitle": "تم رفض حجزك",
       "bookingRejectedBody": "تم رفض طلب حجزك.",
       "newMessageTitle": "رسالة جديدة",
-      "newMessageBody": "لديك رسالة جديدة."
+      "newMessageBody": "لديك رسالة جديدة.",
+      "seatOpenedTitle": "تم فتح مقعد",
+      "seatOpenedBody": "تم فتح مقعد في الرحلة التي أنت على قائمة الانتظار لها. قدّم طلب حجز الآن.",
+      "searchAlertMatchTitle": "إعلان جديد في المسار الذي تبحث عنه",
+      "searchAlertMatchBody": "تم نشر إعلان جديد في المسار الذي طلبت إعلامك به."
     },
     "unsupported": "الإشعارات غير مدعومة في هذا المتصفح. على آيفون عبر Safari، أضف الموقع أولاً إلى الشاشة الرئيسية."
   },
@@ -384,7 +387,8 @@
     "description": "أدر طلبات الحجز الواردة لهذه الرحلة.",
     "emptyTitle": "لا توجد طلبات حجز بعد",
     "emptyDescription": "لم يقدّم أحد طلب حجز لهذه الرحلة بعد.",
-    "chat": "محادثة"
+    "chat": "محادثة",
+    "waitlistCount": "{count} شخص بانتظار توفر مقعد"
   },
   "ChatPage": {
     "title": "محادثة",
@@ -424,6 +428,8 @@
       "smokingAllowed": "يُسمح بالتدخين",
       "vipSolo": "VIP (راكب واحد) — هذه الرحلة لراكب واحد فقط",
       "vipSoloHint": "في رحلات VIP يتم تثبيت عدد المقاعد تلقائيًا على 1؛ لا يتم مشاركة الرحلة مع ركاب آخرين.",
+      "repeatWeekly": "كرر هذا الإعلان كل أسبوع في هذا اليوم والوقت",
+      "repeatWeeklyHint": "يُنشأ إعلان الأسبوع التالي تلقائيًا قبل حوالي أسبوع من موعده. يمكنك إيقافه في أي وقت من \"إعلاناتي\".",
       "createSubmit": "نشر الرحلة",
       "updateSubmit": "تحديث الرحلة"
     },
@@ -445,6 +451,7 @@
       "createFailed": "تعذر إنشاء الرحلة. حاول مرة أخرى.",
       "updateFailed": "تعذر تحديث الرحلة. حاول مرة أخرى.",
       "cancelFailed": "تعذر إلغاء الرحلة. حاول مرة أخرى.",
+      "pauseFailed": "تعذر إيقاف الإعلان المتكرر. حاول مرة أخرى.",
       "tooManyRequests": "لقد حاولت عدة مرات. الرجاء المحاولة لاحقًا.",
       "ibanRequired": "لإضافة رحلة، أضف أولاً رقم IBAN واسم صاحب الحساب في ملفك الشخصي."
     },
@@ -466,13 +473,18 @@
       "cancel": "إلغاء",
       "confirmCancel": "هل أنت متأكد؟",
       "cancelled": "تم إلغاء الرحلة.",
-      "bookings": "الحجوزات"
+      "bookings": "الحجوزات",
+      "activeSeriesTitle": "إعلاناتي المتكررة",
+      "everyWeekday": "كل {weekday}",
+      "stopSeries": "إيقاف التكرار",
+      "seriesStopped": "تم إيقاف الإعلان المتكرر."
     }
   },
   "RideDetailPage": {
     "seats": "{available} / {total} مقعد متاح",
     "descriptionLabel": "الوصف",
-    "metaDescription": "رحلة بتاريخ {date} - {cost}"
+    "metaDescription": "رحلة بتاريخ {date} - {cost}",
+    "waitlistMessage": "هذه الرحلة ممتلئة حاليًا. هل تريد أن نعلمك عند توفر مقعد؟"
   },
   "Bookings": {
     "form": {
@@ -494,13 +506,18 @@
       "cancel": "إلغاء",
       "confirmCancel": "هل أنت متأكد؟",
       "confirmApprove": "هل تؤكد أنك استلمت دفعة النصف الأول؟",
-      "confirmReject": "هل تريد الرفض؟"
+      "confirmReject": "هل تريد الرفض؟",
+      "reportDriverNoShow": "السائق لم يحضر",
+      "reportPassengerNoShow": "الراكب لم يحضر",
+      "alreadyReportedNoShow": "تم الإبلاغ",
+      "confirmNoShow": "هل أنت متأكد أنك تريد الإبلاغ؟"
     },
     "success": {
       "created": "تم إرسال طلب الحجز.",
       "approved": "تمت الموافقة على الحجز.",
       "rejected": "تم رفض الحجز.",
-      "cancelled": "تم إلغاء الحجز."
+      "cancelled": "تم إلغاء الحجز.",
+      "noShowReported": "تم الإبلاغ."
     },
     "errors": {
       "invalidForm": "نموذج غير صالح.",
@@ -674,7 +691,10 @@
         "high_cancellation_rate": "معدل إلغاء مرتفع",
         "high_rejection_rate": "معدل رفض مرتفع",
         "booking_spam": "كثافة طلبات حجز",
-        "new_account_high_value": "حساب جديد + إعلان بمبلغ مرتفع"
+        "new_account_high_value": "حساب جديد + إعلان بمبلغ مرتفع",
+        "frequent_late_cancellation": "إلغاء متأخر متكرر",
+        "frequent_passenger_no_show": "تغيّب متكرر (راكب)",
+        "frequent_driver_no_show": "تغيّب متكرر (سائق)"
       }
     },
     "users": {
@@ -763,6 +783,26 @@
   },
   "LocaleSwitcher": {
     "label": "اللغة"
+  },
+  "SearchAlerts": {
+    "subscribe": "أعلمني بهذا المسار",
+    "unsubscribe": "إلغاء الاشتراك",
+    "subscribed": "سنعلمك عند توفر رحلة على هذا المسار.",
+    "unsubscribed": "تم إلغاء الاشتراك.",
+    "errors": {
+      "createFailed": "تعذر إنشاء الاشتراك. حاول مرة أخرى.",
+      "deleteFailed": "تعذر إلغاء الاشتراك. حاول مرة أخرى."
+    }
+  },
+  "Waitlist": {
+    "join": "أعلمني عند توفر مقعد",
+    "leave": "مغادرة قائمة الانتظار",
+    "joined": "تمت إضافتك إلى قائمة الانتظار.",
+    "left": "تمت إزالتك من قائمة الانتظار.",
+    "errors": {
+      "joinFailed": "تعذرت الإضافة إلى قائمة الانتظار. حاول مرة أخرى.",
+      "leaveFailed": "تعذرت المغادرة من قائمة الانتظار. حاول مرة أخرى."
+    }
   },
   "CookieConsent": {
     "label": "موافقة ملفات تعريف الارتباط",

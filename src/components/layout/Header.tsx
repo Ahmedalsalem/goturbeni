@@ -27,6 +27,11 @@ export async function Header() {
     ? await Promise.all([getUnreadMessages(user.id), checkIsAdmin(user.id), getUnreadNavBadges(user.id)])
     : [null, false, { myRides: false, myBookings: false }]
   const hasUnreadMessages = unreadMessages ? unreadMessages.count > 0 : false
+  // The trigger's own dot must reflect EVERYTHING inside the menu — otherwise
+  // a booking-related notification (navBadges) lights up "Rezervasyonlarım"
+  // once the menu is opened, but gives no visible reason to open it in the
+  // first place.
+  const hasAnyUnread = hasUnreadMessages || navBadges.myRides || navBadges.myBookings
 
   const links = [
     { href: "/rides", label: t("rides") },
@@ -69,10 +74,10 @@ export async function Header() {
                   <User className="size-4" aria-hidden="true" />
                   <span className="hidden sm:inline">{t("profile")}</span>
                   <ChevronDown className="size-3.5 opacity-60" aria-hidden="true" />
-                  {hasUnreadMessages && (
+                  {hasAnyUnread && (
                     <>
                       <span className="bg-destructive ring-background absolute end-0.5 top-0.5 size-2.5 rounded-full ring-2" aria-hidden="true" />
-                      <span className="sr-only">{t("unreadMessages")}</span>
+                      <span className="sr-only">{t("unreadNotifications")}</span>
                     </>
                   )}
                 </DropdownMenuTrigger>

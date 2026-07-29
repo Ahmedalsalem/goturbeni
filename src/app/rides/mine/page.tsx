@@ -4,12 +4,17 @@ import { getTranslations } from "next-intl/server"
 import { CarFront, Pencil, Plus, Users } from "lucide-react"
 
 import { verifySession } from "@/lib/supabase/dal"
-import { getMyRides } from "@/features/rides/queries"
+import { getMyActiveRideSeries, getMyRides } from "@/features/rides/queries"
 import { RideCard } from "@/features/rides/RideCard"
 import { CancelRideButton } from "@/features/rides/CancelRideButton"
+import { PauseSeriesButton } from "@/features/rides/PauseSeriesButton"
 import { EmptyState } from "@/components/EmptyState"
+import { Card, CardContent } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
 import { MarkNotificationsRead } from "@/features/notifications/MarkNotificationsRead"
+import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
+import { getWeekdayLabel } from "@/utils/weekday"
+import { getUserLocale } from "@/i18n/locale"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("MyRidesPage")
@@ -20,7 +25,8 @@ export default async function MyRidesPage() {
   const t = await getTranslations("MyRidesPage")
   const tMyRides = await getTranslations("Rides.myRides")
   const user = await verifySession()
-  const rides = await getMyRides(user.id)
+  const locale = await getUserLocale()
+  const [rides, series] = await Promise.all([getMyRides(user.id), getMyActiveRideSeries(user.id)])
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
@@ -31,6 +37,23 @@ export default async function MyRidesPage() {
           <Plus /> {t("createCta")}
         </Link>
       </div>
+
+      {series.length > 0 && (
+        <div className="mb-6 flex flex-col gap-3">
+          <h2 className="text-muted-foreground text-sm font-medium">{tMyRides("activeSeriesTitle")}</h2>
+          {series.map((s) => (
+            <Card key={s.id}>
+              <CardContent className="flex flex-wrap items-center justify-between gap-3">
+                <p className="text-sm">
+                  {getProvinceDisplayName(s.departure_city, locale)} → {getProvinceDisplayName(s.arrival_city, locale)} ·{" "}
+                  {tMyRides("everyWeekday", { weekday: getWeekdayLabel(s.weekday, locale) })} · {s.departure_time_of_day.slice(0, 5)}
+                </p>
+                <PauseSeriesButton seriesId={s.id} />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {rides.length === 0 ? (
         <EmptyState icon={CarFront} title={t("emptyTitle")} description={t("emptyDescription")} />

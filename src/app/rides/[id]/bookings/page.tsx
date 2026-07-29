@@ -12,10 +12,12 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { BookingStatusBadge } from "@/features/bookings/BookingStatusBadge"
 import { BookingActions } from "@/features/bookings/BookingActions"
 import { RefundProofUpload } from "@/features/bookings/RefundProofUpload"
+import { ReportNoShowButton } from "@/features/bookings/ReportNoShowButton"
 import { SettlePaymentButton } from "@/features/bookings/SettlePaymentButton"
 import { getRide } from "@/features/rides/queries"
 import { getRideBookings, getRideCounterpartyPhone } from "@/features/bookings/queries"
 import { ShareLocationToggle } from "@/features/live-location/ShareLocationToggle"
+import { getRideWaitlistCount } from "@/features/waitlist/queries"
 import { getUnreadMessages } from "@/features/chat/queries"
 import { ReviewButton } from "@/features/reviews/ReviewButton"
 import { getMyReviewForRide } from "@/features/reviews/queries"
@@ -38,7 +40,12 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
   const t = await getTranslations("RideBookingsPage")
   const tCard = await getTranslations("Bookings.card")
   const tReviewActions = await getTranslations("Reviews.actions")
-  const [bookings, unreadMessages] = await Promise.all([getRideBookings(id), getUnreadMessages(user.id)])
+  const tBookingActions = await getTranslations("Bookings.actions")
+  const [bookings, unreadMessages, waitlistCount] = await Promise.all([
+    getRideBookings(id),
+    getUnreadMessages(user.id),
+    ride.status === "full" ? getRideWaitlistCount(id) : Promise.resolve(0),
+  ])
   const isRideOver = new Date(ride.departure_time) < new Date()
   // One review per (ride, reviewer, reviewee) — a driver with several
   // approved passengers reviews each one separately, so this is checked
@@ -65,6 +72,8 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
         </div>
         {approvedBookings.length > 0 && !isRideOver && <ShareLocationToggle rideId={id} />}
       </div>
+
+      {waitlistCount > 0 && <p className="text-muted-foreground mb-6 text-sm">{t("waitlistCount", { count: waitlistCount })}</p>}
 
       {bookings.length === 0 ? (
         <EmptyState icon={Users} title={t("emptyTitle")} description={t("emptyDescription")} />
@@ -131,6 +140,12 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                         <Badge variant="secondary">{tReviewActions("alreadyReviewed")}</Badge>
                       ) : (
                         <ReviewButton rideId={id} revieweeId={booking.passenger_id} />
+                      ))}
+                    {isRideOver &&
+                      (booking.passenger_no_show ? (
+                        <Badge variant="secondary">{tBookingActions("alreadyReportedNoShow")}</Badge>
+                      ) : (
+                        <ReportNoShowButton bookingId={booking.id} rideId={id} label={tBookingActions("reportPassengerNoShow")} />
                       ))}
                   </CardFooter>
                 )}

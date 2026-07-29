@@ -55,6 +55,10 @@ export function buildRideSchema(t: ValidationTranslator) {
       petsAllowed: z.boolean().default(false),
       smokingAllowed: z.boolean().default(false),
       vipSolo: z.boolean().default(false),
+      // Only read on create (RideForm hides it in edit mode) — the first
+      // ride's own departureDate/departureTime supply the series' weekday
+      // and time-of-day, so there's no separate recurrence field to fill in.
+      repeatWeekly: z.boolean().default(false),
     })
     .refine((data) => data.departureCity !== data.arrivalCity, {
       message: t("sameCities"),

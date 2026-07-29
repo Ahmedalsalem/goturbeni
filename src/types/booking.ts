@@ -28,6 +28,9 @@ export interface Booking {
   refund_requested_at: string | null
   refund_confirmed_at: string | null
   refund_reject_reason: string | null
+  cancelled_at: string | null
+  passenger_no_show: boolean
+  driver_no_show: boolean
   created_at: string
   updated_at: string
 }

@@ -185,6 +185,29 @@ export const getRideWithDriver = cache(async (rideId: string): Promise<RideWithD
   return data as RideWithDriver | null
 })
 
+export interface RideSeries {
+  id: string
+  departure_city: string
+  arrival_city: string
+  weekday: number
+  departure_time_of_day: string
+}
+
+// Shown on /rides/mine so a driver can stop a recurring series (see
+// pauseRideSeries in actions.ts) — only active ones, since a paused series
+// has nothing actionable left to show.
+export async function getMyActiveRideSeries(driverId: string): Promise<RideSeries[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("ride_series")
+    .select("id, departure_city, arrival_city, weekday, departure_time_of_day")
+    .eq("driver_id", driverId)
+    .eq("is_active", true)
+    .order("created_at", { ascending: false })
+
+  return (data as RideSeries[] | null) ?? []
+}
+
 export async function getMyRides(driverId: string): Promise<RideWithDriver[]> {
   const supabase = await createClient()
   const { data } = await supabase

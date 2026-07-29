@@ -60,9 +60,12 @@ interface PushSubscriptionRow {
   endpoint: string
   p256dh: string
   auth: string
+  user_id: string
 }
 
-function isVapidConfigured(): boolean {
+// Exported for src/lib/search-alert-notifications.ts, which needs both this
+// and email.ts's isResendConfigured() to decide which channels to send on.
+export function isVapidConfigured(): boolean {
   return Boolean(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY && process.env.VAPID_SUBJECT)
 }
 
@@ -130,3 +133,61 @@ export async function sendPushNotification(event: NotificationEvent): Promise<vo
     })
   )
 }
+
+// Fans out to every waitlisted passenger on a ride, not a single recipient —
+// doesn't fit the NotificationEvent union above (which is always one
+// recipientId), so this is a standalone function rather than a new event
+// type. Called from cancelBooking (src/features/bookings/actions.ts) once an
+// approved booking's seat is actually freed.
+export async function sendSeatOpenedPushNotifications(rideId: string): Promise<void> {
+  if (!isVapidConfigured()) {
+    return
+  }
+
+  const supabase = await createClient()
+  const { data, error } = await supabase.rpc("get_ride_waitlist_push_subscriptions", { p_ride_id: rideId })
+  const subscriptions = data as PushSubscriptionRow[] | null
+  if (error || !subscriptions || subscriptions.length === 0) {
+    if (error) {
+      logError(error, "notifications.sendSeatOpenedPushNotifications")
+    }
+    return
+  }
+
+  const { data: recipientProfiles } = await supabase
+    .from("profiles")
+    .select("id, language")
+    .in(
+      "id",
+      subscriptions.map((s) => s.user_id)
+    )
+  const languageByUserId = new Map((recipientProfiles ?? []).map((p) => [p.id, p.language as AppLocale | null]))
+
+  webpush.setVapidDetails(process.env.VAPID_SUBJECT!, process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!, process.env.VAPID_PRIVATE_KEY!)
+  const url = `/rides/${rideId}`
+
+  await Promise.all(
+    subscriptions.map(async (subscription) => {
+      const locale = languageByUserId.get(subscription.user_id) ?? DEFAULT_LOCALE
+      const t = await getTranslations({ locale, namespace: "Push.notifications" })
+      const payload = JSON.stringify({ title: t("seatOpenedTitle"), body: t("seatOpenedBody"), url })
+      try {
+        await webpush.sendNotification(
+          { endpoint: subscription.endpoint, keys: { p256dh: subscription.p256dh, auth: subscription.auth } },
+          payload
+        )
+      } catch (sendError) {
+        const statusCode = (sendError as { statusCode?: number }).statusCode
+        if (statusCode !== 404 && statusCode !== 410) {
+          logError(sendError, "notifications.sendSeatOpenedPushNotifications")
+        }
+        // Unlike sendPushNotification, a dead endpoint here isn't cleaned up
+        // immediately — there's no per-recipient relationship RPC scoped to
+        // this single waitlist entry; it'll get pruned the next time a
+        // ride/booking event that DOES go through the normal relationship
+        // path (booking_requested/approved/rejected/new_message) hits it.
+      }
+    })
+  )
+}
+

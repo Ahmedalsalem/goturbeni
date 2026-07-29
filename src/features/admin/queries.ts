@@ -81,6 +81,9 @@ export type SuspiciousAccountReason =
   | "high_rejection_rate"
   | "booking_spam"
   | "new_account_high_value"
+  | "frequent_late_cancellation"
+  | "frequent_passenger_no_show"
+  | "frequent_driver_no_show"
 
 export interface SuspiciousAccountRow {
   user_id: string

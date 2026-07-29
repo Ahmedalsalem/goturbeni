@@ -24,10 +24,10 @@ export async function RideCard({ ride, actions }: { ride: RideWithDriver; action
 
   return (
     <Card className="ring-foreground/5 border-0 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg hover:shadow-foreground/5">
-      <CardHeader className="flex items-center justify-between gap-4">
+      <CardHeader className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <Link
           href={`/rides/${ride.id}`}
-          className="flex items-center gap-2 text-lg font-semibold tracking-tight hover:text-primary"
+          className="flex flex-wrap items-center gap-2 text-lg font-semibold tracking-tight hover:text-primary"
         >
           <MapPin className="text-muted-foreground size-4" aria-hidden="true" />
           {ride.departure_district ? `${departureCity} (${ride.departure_district})` : departureCity}

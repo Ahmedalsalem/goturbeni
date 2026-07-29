@@ -16,6 +16,8 @@ import { BookingButton } from "@/features/bookings/BookingButton"
 import { ReviewSection } from "@/features/reviews/ReviewSection"
 import { getReviewStats } from "@/features/reviews/queries"
 import { StarRating } from "@/features/reviews/StarRating"
+import { getMyWaitlistEntry } from "@/features/waitlist/queries"
+import { WaitlistButton } from "@/features/waitlist/WaitlistButton"
 import { formatCostShare } from "@/utils/currency"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 import { getUserLocale } from "@/i18n/locale"
@@ -108,6 +110,10 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
   // outright, so the visitor understands why there's no "reserve" button.
   const showLoginPrompt = !user && isActiveForBooking
   const showVerifyPrompt = user && user.id !== ride.driver_id && isActiveForBooking && !userVerified
+  // A full ride can't take a new booking at all (createBooking hard-rejects
+  // non-"active" rides) — offer the waitlist instead of just a dead end.
+  const showWaitlist = user && user.id !== ride.driver_id && ride.status === "full" && !existingBooking
+  const myWaitlistEntry = showWaitlist ? await getMyWaitlistEntry(ride.id, user.id) : null
   const departureCity = getProvinceDisplayName(ride.departure_city, locale)
   const arrivalCity = getProvinceDisplayName(ride.arrival_city, locale)
   const routeLabel = `${departureCity} → ${arrivalCity}`
@@ -237,6 +243,12 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
             <Link href="/verify-phone" className={buttonVariants({ size: "sm" })}>
               <LogIn className="size-4" aria-hidden="true" /> {tBookings("verifyCta")}
             </Link>
+          </CardFooter>
+        )}
+        {showWaitlist && (
+          <CardFooter className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-muted-foreground text-sm">{t("waitlistMessage")}</p>
+            <WaitlistButton rideId={ride.id} initiallyJoined={myWaitlistEntry !== null} />
           </CardFooter>
         )}
       </Card>

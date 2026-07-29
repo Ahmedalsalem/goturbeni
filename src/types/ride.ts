@@ -16,6 +16,7 @@ export interface Ride {
   smoking_allowed: boolean
   vip_solo: boolean
   status: RideStatus
+  series_id: string | null
   created_at: string
   updated_at: string
 }

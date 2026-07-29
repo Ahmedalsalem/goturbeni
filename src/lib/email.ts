@@ -8,7 +8,8 @@ import { logError } from "@/lib/logger"
 import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-config"
 import { NOTIFICATION_KEY, NOTIFICATION_URL, type NotificationEvent } from "@/lib/notifications"
 
-function isResendConfigured(): boolean {
+// Exported for src/lib/search-alert-notifications.ts.
+export function isResendConfigured(): boolean {
   return Boolean(process.env.RESEND_API_KEY && process.env.RESEND_FROM_EMAIL)
 }
 
@@ -78,4 +79,55 @@ export async function sendEmailNotification(event: NotificationEvent): Promise<v
   } catch (error) {
     logError(error, "email.sendEmailNotification")
   }
+}
+
+// Fans out to every waitlisted passenger on a ride — same reasoning as
+// sendSeatOpenedPushNotifications (src/lib/notifications.ts): doesn't fit
+// the single-recipient NotificationEvent shape, so it's a standalone
+// function rather than reusing sendEmailNotification's event union.
+export async function sendSeatOpenedEmailNotifications(rideId: string): Promise<void> {
+  if (!isResendConfigured()) {
+    return
+  }
+
+  const supabase = await createClient()
+  const { data: recipients, error } = await supabase.rpc("get_ride_waitlist_emails", { p_ride_id: rideId })
+  if (error || !recipients || recipients.length === 0) {
+    if (error) {
+      logError(error, "email.sendSeatOpenedEmailNotifications")
+    }
+    return
+  }
+
+  const recipientRows = recipients as { user_id: string; email: string }[]
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id, language")
+    .in(
+      "id",
+      recipientRows.map((r) => r.user_id)
+    )
+  const languageByUserId = new Map((profiles ?? []).map((p) => [p.id, p.language as AppLocale | null]))
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  const url = `${siteUrl}/rides/${rideId}`
+  const resend = new Resend(process.env.RESEND_API_KEY)
+
+  await Promise.all(
+    recipientRows.map(async (recipient) => {
+      const locale = languageByUserId.get(recipient.user_id) ?? DEFAULT_LOCALE
+      const t = await getTranslations({ locale, namespace: "Push.notifications" })
+      const tCommon = await getTranslations({ locale, namespace: "Email" })
+      try {
+        await resend.emails.send({
+          from: process.env.RESEND_FROM_EMAIL!,
+          to: recipient.email,
+          subject: t("seatOpenedTitle"),
+          html: `<p>${t("seatOpenedBody")}</p><p><a href="${url}">${tCommon("viewLinkLabel")}</a></p>`,
+        })
+      } catch (sendError) {
+        logError(sendError, "email.sendSeatOpenedEmailNotifications")
+      }
+    })
+  )
 }

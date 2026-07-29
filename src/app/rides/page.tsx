@@ -8,8 +8,11 @@ import { RideCard } from "@/features/rides/RideCard"
 import { RideFilters } from "@/features/rides/RideFilters"
 import { getRides } from "@/features/rides/queries"
 import { parseRideSearchParams } from "@/features/rides/filters"
+import { hasSearchAlert } from "@/features/search-alerts/queries"
+import { SearchAlertToggle } from "@/features/search-alerts/SearchAlertToggle"
 import { buttonVariants } from "@/components/ui/button"
 import { languageAlternates } from "@/i18n/hreflang"
+import { getCurrentUser } from "@/lib/supabase/dal"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("RidesPage")
@@ -34,7 +37,10 @@ export default async function RidesPage({
   const t = await getTranslations("RidesPage")
   const filters = parseRideSearchParams(await searchParams)
   const hasActiveFilters = Boolean(filters.from || filters.to || filters.date)
-  const { rides, usedNearbyDistricts, usedNearbyProvinces } = await getRides(filters)
+  const [{ rides, usedNearbyDistricts, usedNearbyProvinces }, user] = await Promise.all([getRides(filters), getCurrentUser()])
+  const showSearchAlertToggle = Boolean(user && filters.from && filters.to)
+  const alreadySubscribed =
+    showSearchAlertToggle && user && filters.from && filters.to ? await hasSearchAlert(user.id, filters.from, filters.to) : false
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
@@ -48,6 +54,12 @@ export default async function RidesPage({
       <div className="mb-6">
         <RideFilters initial={filters} />
       </div>
+
+      {showSearchAlertToggle && filters.from && filters.to && (
+        <div className="mb-6">
+          <SearchAlertToggle departureCity={filters.from} arrivalCity={filters.to} initiallySubscribed={alreadySubscribed} />
+        </div>
+      )}
 
       {usedNearbyDistricts && rides.length > 0 && (
         <p className="text-muted-foreground mb-4 text-sm">{t("nearbyDistrictsNotice")}</p>

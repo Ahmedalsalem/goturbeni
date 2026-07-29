@@ -73,6 +73,7 @@ export function RideForm({ ride }: { ride?: Ride }) {
       petsAllowed: ride?.pets_allowed ?? false,
       smokingAllowed: ride?.smoking_allowed ?? false,
       vipSolo: ride?.vip_solo ?? false,
+      repeatWeekly: false,
     },
   })
 
@@ -411,6 +412,22 @@ export function RideForm({ ride }: { ride?: Ride }) {
           </FieldLabel>
         </Field>
         {watch("vipSolo") && <FieldDescription>{t("vipSoloHint")}</FieldDescription>}
+
+        {!ride && (
+          <Field orientation="horizontal">
+            <Controller
+              control={control}
+              name="repeatWeekly"
+              render={({ field }) => (
+                <Checkbox id="repeatWeekly" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
+              )}
+            />
+            <FieldLabel htmlFor="repeatWeekly" className="font-normal">
+              {t("repeatWeekly")}
+            </FieldLabel>
+          </Field>
+        )}
+        {watch("repeatWeekly") && <FieldDescription>{t("repeatWeeklyHint")}</FieldDescription>}
       </FieldGroup>
 
       <Button type="submit" size="lg" className="w-full sm:w-fit" disabled={isSubmitting}>
