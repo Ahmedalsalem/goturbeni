@@ -661,12 +661,80 @@
       "actionFailed": "İşlem gerçekleştirilemedi. Lütfen tekrar deneyin."
     }
   },
+  "Disputes": {
+    "form": {
+      "reportProblem": "Sorun Bildir",
+      "reasonLabel": "Sorun Türü",
+      "reason": {
+        "payment_not_received": "Ödeme Alınmadı",
+        "payment_amount_mismatch": "Ödeme Tutarı Uyuşmuyor",
+        "service_not_as_described": "Hizmet Anlatıldığı Gibi Değildi",
+        "safety_concern": "Güvenlik Endişesi",
+        "other": "Diğer"
+      },
+      "descriptionPlaceholder": "Yaşadığınız sorunu açıklayın (en az 10 karakter)",
+      "cancel": "Vazgeç",
+      "submit": "Gönder",
+      "alreadyOpenBadge": "Bildirildi, inceleniyor"
+    },
+    "status": {
+      "open": "Açık",
+      "in_review": "İnceleniyor",
+      "resolved": "Çözüldü",
+      "dismissed": "Reddedildi"
+    },
+    "validation": {
+      "descriptionMin": "Açıklama en az 10 karakter olmalı.",
+      "descriptionMax": "Açıklama en fazla 2000 karakter olmalı."
+    },
+    "success": {
+      "opened": "Bildiriminiz alındı, ekibimiz inceleyecek."
+    },
+    "errors": {
+      "invalidForm": "Geçersiz form.",
+      "notConfigured": "Veritabanı bağlantısı şu anda yapılandırılmamış. Lütfen daha sonra tekrar deneyin.",
+      "notAdmin": "Bu işlem için yönetici yetkiniz yok.",
+      "alreadyOpen": "Bu rezervasyon için zaten açık bir bildiriminiz var.",
+      "notAuthorized": "Bu rezervasyon için bildirim oluşturamazsınız.",
+      "tooManyRequests": "Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin.",
+      "actionFailed": "İşlem gerçekleştirilemedi. Lütfen tekrar deneyin."
+    }
+  },
+  "Pickup": {
+    "passenger": {
+      "codeLabel": "Sürücüye bu kodu söyleyin",
+      "verified": "Yolculuğunuz başladı"
+    },
+    "driver": {
+      "codeInputLabel": "Yolcu Kodu",
+      "codePlaceholder": "4 haneli kod",
+      "verify": "Onayla",
+      "verified": "Yolcu Alındı"
+    },
+    "validation": {
+      "codeInvalid": "Kod 4 haneli rakam olmalı."
+    },
+    "success": {
+      "verified": "Yolcu kodu doğrulandı, yolculuk başladı."
+    },
+    "errors": {
+      "invalidForm": "Geçersiz form.",
+      "notConfigured": "Veritabanı bağlantısı şu anda yapılandırılmamış. Lütfen daha sonra tekrar deneyin.",
+      "notAuthorized": "Bu işlem için yetkiniz yok.",
+      "bookingNotApproved": "Bu rezervasyon henüz onaylanmadı.",
+      "alreadyVerified": "Bu yolcu zaten alındı olarak işaretlendi.",
+      "invalidCode": "Kod yanlış. Lütfen yolcuya tekrar sorun.",
+      "tooManyRequests": "Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin.",
+      "actionFailed": "İşlem gerçekleştirilemedi. Lütfen tekrar deneyin."
+    }
+  },
   "Admin": {
     "nav": {
       "analytics": "Analytics",
       "users": "Kullanıcılar",
       "rides": "İlanlar",
       "payments": "Ödemeler",
+      "disputes": "Anlaşmazlıklar",
       "backToSite": "Siteye Dön"
     },
     "analytics": {
@@ -694,7 +762,10 @@
         "new_account_high_value": "Yeni hesap + yüksek masraf paylı ilan",
         "frequent_late_cancellation": "Sık geç iptal",
         "frequent_passenger_no_show": "Sık no-show (yolcu)",
-        "frequent_driver_no_show": "Sık no-show (sürücü)"
+        "frequent_driver_no_show": "Sık no-show (sürücü)",
+        "duplicate_iban": "Aynı IBAN birden fazla hesapta",
+        "disputed_repeatedly": "Tekrarlayan anlaşmazlık konusu",
+        "repeated_receipt_rejection": "Tekrarlayan dekont/iade reddi"
       }
     },
     "users": {
@@ -752,7 +823,33 @@
       "receiptApproved": "Dekont onaylandı.",
       "receiptRejected": "Dekont reddedildi.",
       "confirmRefund": "İadeyi Onayla",
-      "refundConfirmed": "İade onaylandı."
+      "refundConfirmed": "İade onaylandı.",
+      "riskLow": "Düşük Risk",
+      "riskHigh": "İnceleme Gerekli",
+      "bulkApprove": "{count} düşük riskli dekontu onayla",
+      "bulkApproveSuccess": "{count} dekont onaylandı."
+    },
+    "disputes": {
+      "title": "Anlaşmazlıklar",
+      "description": "Kullanıcıların bildirdiği anlaşmazlıkları incele ve sonuçlandır.",
+      "openTitle": "Açık Anlaşmazlıklar",
+      "noOpenDisputes": "Şu anda açık anlaşmazlık yok.",
+      "resolvedTitle": "Sonuçlandırılmış Anlaşmazlıklar",
+      "noResolvedDisputes": "Henüz sonuçlandırılmış anlaşmazlık yok.",
+      "unknownUser": "Kullanıcı",
+      "reason": {
+        "payment_not_received": "Ödeme Alınmadı",
+        "payment_amount_mismatch": "Ödeme Tutarı Uyuşmuyor",
+        "service_not_as_described": "Hizmet Anlatıldığı Gibi Değildi",
+        "safety_concern": "Güvenlik Endişesi",
+        "other": "Diğer"
+      },
+      "resolutionNoteLabel": "Sonuç Notu",
+      "resolutionNotePlaceholder": "Sonuç notu (isteğe bağlı, taraflara gösterilir)",
+      "startReview": "İncelemeye Al",
+      "dismiss": "Reddet",
+      "resolve": "Çözüldü Olarak Kapat",
+      "statusUpdated": "Anlaşmazlık durumu güncellendi."
     },
     "errors": {
       "notConfigured": "Veritabanı bağlantısı şu anda yapılandırılmamış. Lütfen daha sonra tekrar deneyin.",
@@ -877,7 +974,7 @@
         "contact": {
           "heading": "İletişim",
           "body": [
-            "Bu Kullanım Şartları hakkındaki sorularınız için bizimle [İletişim E-postası] adresinden iletişime geçebilirsiniz."
+            "Bu Kullanım Şartları hakkındaki sorularınız için bizimle novarodigitalstudio@gmail.com adresinden iletişime geçebilirsiniz."
           ],
           "items": []
         }
@@ -946,7 +1043,7 @@
         "contact": {
           "heading": "İletişim",
           "body": [
-            "Gizlilik uygulamalarımız hakkındaki sorularınız için [İletişim E-postası] adresinden bize ulaşabilirsiniz."
+            "Gizlilik uygulamalarımız hakkındaki sorularınız için novarodigitalstudio@gmail.com adresinden bize ulaşabilirsiniz."
           ],
           "items": []
         }
@@ -962,7 +1059,7 @@
             "Kişisel verileriniz, veri sorumlusu sıfatıyla [Şirket Unvanı] (“Şirket”) tarafından, aşağıda açıklanan amaç ve kapsamda işlenmektedir.",
             "Adres: [Şirket Adresi]",
             "MERSİS No: [MERSİS No]",
-            "İletişim: [İletişim E-postası]"
+            "İletişim: novarodigitalstudio@gmail.com"
           ],
           "items": []
         },
@@ -1027,7 +1124,7 @@
         "application": {
           "heading": "Başvuru Yöntemi",
           "body": [
-            "Yukarıda sayılan haklarınızı kullanmak amacıyla taleplerinizi, kimliğinizi tespit edici belgelerle birlikte [Şirket Adresi] adresine yazılı olarak iletebilir veya [İletişim E-postası] adresine güvenli elektronik imza, mobil imza ya da tarafınızca Şirkete daha önce bildirilen ve sistemimizde kayıtlı bulunan elektronik posta adresini kullanarak başvurabilirsiniz.",
+            "Yukarıda sayılan haklarınızı kullanmak amacıyla taleplerinizi, kimliğinizi tespit edici belgelerle birlikte [Şirket Adresi] adresine yazılı olarak iletebilir veya novarodigitalstudio@gmail.com adresine güvenli elektronik imza, mobil imza ya da tarafınızca Şirkete daha önce bildirilen ve sistemimizde kayıtlı bulunan elektronik posta adresini kullanarak başvurabilirsiniz.",
             "Başvurunuz, KVKK'nın 13. maddesi uyarınca en geç 30 gün içinde ücretsiz olarak sonuçlandırılır; ancak işlemin ayrıca bir maliyet gerektirmesi hâlinde Kişisel Verileri Koruma Kurulunca belirlenen tarifedeki ücret alınabilir."
           ],
           "items": []

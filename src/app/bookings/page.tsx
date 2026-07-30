@@ -12,6 +12,9 @@ import { CancelBookingButton } from "@/features/bookings/CancelBookingButton"
 import { ReportNoShowButton } from "@/features/bookings/ReportNoShowButton"
 import { SettlementReceiptUpload } from "@/features/bookings/SettlementReceiptUpload"
 import { SettlePaymentButton } from "@/features/bookings/SettlePaymentButton"
+import { OpenDisputeButton } from "@/features/disputes/OpenDisputeButton"
+import { getMyDisputeForBooking } from "@/features/disputes/queries"
+import { getMyPickupCode } from "@/features/pickup/queries"
 import { getMyBookings, getRideCounterpartyPhone } from "@/features/bookings/queries"
 import { getUnreadMessages } from "@/features/chat/queries"
 import { getRideLiveLocation } from "@/features/live-location/queries"
@@ -34,6 +37,7 @@ export default async function BookingsPage() {
   const tCard = await getTranslations("Bookings.card")
   const tReviewActions = await getTranslations("Reviews.actions")
   const tBookingActions = await getTranslations("Bookings.actions")
+  const tPickup = await getTranslations("Pickup.passenger")
   const user = await verifySession()
   const format = await getFormatter()
   const locale = await getUserLocale()
@@ -59,6 +63,12 @@ export default async function BookingsPage() {
     await Promise.all(
       upcomingApprovedBookings.map(async (booking) => [booking.ride.id, await getRideLiveLocation(booking.ride.id)] as const)
     )
+  )
+  const myDisputes = new Map(
+    await Promise.all(approvedBookings.map(async (booking) => [booking.id, await getMyDisputeForBooking(booking.id, user.id)] as const))
+  )
+  const pickupCodes = new Map(
+    await Promise.all(approvedBookings.map(async (booking) => [booking.id, await getMyPickupCode(booking.id)] as const))
   )
 
   return (
@@ -97,6 +107,19 @@ export default async function BookingsPage() {
                     <LiveLocationSection rideId={booking.ride.id} initialLocation={liveLocations.get(booking.ride.id) ?? null} />
                   </CardFooter>
                 )}
+                {booking.status === "approved" &&
+                  pickupCodes.get(booking.id) &&
+                  (pickupCodes.get(booking.id)!.verified_at ? (
+                    <CardFooter>
+                      <Badge variant="success">{tPickup("verified")}</Badge>
+                    </CardFooter>
+                  ) : (
+                    <CardFooter>
+                      <Badge variant="secondary">
+                        {tPickup("codeLabel")}: <span className="font-mono">{pickupCodes.get(booking.id)!.code}</span>
+                      </Badge>
+                    </CardFooter>
+                  ))}
                 {(booking.status === "pending" || booking.status === "approved") && (
                   <CardFooter className="flex flex-wrap items-center gap-2">
                     <CancelBookingButton bookingId={booking.id} rideId={booking.ride.id} />
@@ -136,6 +159,7 @@ export default async function BookingsPage() {
                           label={tBookingActions("reportDriverNoShow")}
                         />
                       ))}
+                    {booking.status === "approved" && <OpenDisputeButton bookingId={booking.id} alreadyOpen={!!myDisputes.get(booking.id)} />}
                   </CardFooter>
                 )}
               </Card>

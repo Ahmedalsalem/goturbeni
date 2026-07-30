@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getTranslations } from "next-intl/server"
-import { ArrowLeft, BarChart3, CarFront, Receipt, Users } from "lucide-react"
+import { ArrowLeft, BarChart3, CarFront, Receipt, ShieldQuestion, Users } from "lucide-react"
 
 import { verifySession } from "@/lib/supabase/dal"
 import { checkIsAdmin } from "@/features/admin/queries"
@@ -27,6 +27,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { href: "/admin/users", label: t("users"), icon: Users },
     { href: "/admin/rides", label: t("rides"), icon: CarFront },
     { href: "/admin/payments", label: t("payments"), icon: Receipt },
+    { href: "/admin/disputes", label: t("disputes"), icon: ShieldQuestion },
   ]
 
   return (

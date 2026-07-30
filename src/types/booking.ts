@@ -19,15 +19,18 @@ export interface Booking {
   deposit_receipt_status: ReceiptStatus | null
   deposit_receipt_reviewed_at: string | null
   deposit_receipt_reject_reason: string | null
+  deposit_receipt_reject_count: number
   settlement_receipt_url: string | null
   settlement_receipt_status: ReceiptStatus | null
   settlement_receipt_reviewed_at: string | null
   settlement_receipt_reject_reason: string | null
+  settlement_receipt_reject_count: number
   refund_status: RefundStatus
   refund_proof_url: string | null
   refund_requested_at: string | null
   refund_confirmed_at: string | null
   refund_reject_reason: string | null
+  refund_reject_count: number
   cancelled_at: string | null
   passenger_no_show: boolean
   driver_no_show: boolean

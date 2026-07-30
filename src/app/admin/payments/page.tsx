@@ -4,18 +4,23 @@ import { ArrowRight, FileText, Receipt } from "lucide-react"
 import { getFormatter, getTranslations } from "next-intl/server"
 
 import { EmptyState } from "@/components/EmptyState"
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { BulkApproveReceiptsButton } from "@/features/admin/BulkApproveReceiptsButton"
 import { ConfirmRefundButton } from "@/features/admin/ConfirmRefundButton"
 import { DepositReceiptReviewActions } from "@/features/admin/DepositReceiptReviewActions"
 import { RejectRefundButton } from "@/features/admin/RejectRefundButton"
 import { SettlementReceiptReviewActions } from "@/features/admin/SettlementReceiptReviewActions"
+import { computeReceiptRiskTier, type ReceiptRiskTier } from "@/features/admin/risk"
 import {
   getDriverPaymentInfoForAdmin,
   getPendingDepositReceipts,
   getPendingRefunds,
   getPendingSettlementReceipts,
+  getSuspiciousAccounts,
   type AdminBookingRow,
 } from "@/features/admin/queries"
+import { getUserIdsWithOpenDisputes } from "@/features/disputes/queries"
 import { getSignedReceiptUrl } from "@/features/bookings/queries"
 import { getUserLocale } from "@/i18n/locale"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
@@ -35,15 +40,41 @@ function RouteLabel({ booking, locale }: { booking: AdminBookingRow; locale: str
   )
 }
 
+function RiskBadge({ tier, label }: { tier: ReceiptRiskTier; label: string }) {
+  return <Badge variant={tier === "low" ? "secondary" : "warning"}>{label}</Badge>
+}
+
 export default async function AdminPaymentsPage() {
   const t = await getTranslations("Admin.payments")
   const format = await getFormatter()
   const locale = await getUserLocale()
-  const [pendingReceipts, pendingSettlements, pendingRefunds] = await Promise.all([
+  const [pendingReceipts, pendingSettlements, pendingRefunds, suspiciousAccounts, disputedUserIds] = await Promise.all([
     getPendingDepositReceipts(),
     getPendingSettlementReceipts(),
     getPendingRefunds(),
+    getSuspiciousAccounts(),
+    getUserIdsWithOpenDisputes(),
   ])
+  const suspiciousUserIds = new Set(suspiciousAccounts.map((account) => account.user_id))
+
+  function riskTierFor(booking: AdminBookingRow, rejectCount: number): ReceiptRiskTier {
+    if (!booking.passenger) {
+      return "high"
+    }
+    return computeReceiptRiskTier({
+      passengerId: booking.passenger.id,
+      passengerCreatedAt: booking.passenger.created_at,
+      passengerSuspended: booking.passenger.admin_flags?.is_suspended ?? false,
+      rejectCount,
+      suspiciousUserIds,
+      disputedUserIds,
+    })
+  }
+
+  const depositRiskTiers = pendingReceipts.map((booking) => riskTierFor(booking, booking.deposit_receipt_reject_count))
+  const settlementRiskTiers = pendingSettlements.map((booking) => riskTierFor(booking, booking.settlement_receipt_reject_count))
+  const lowRiskDepositIds = pendingReceipts.filter((_, index) => depositRiskTiers[index] === "low").map((booking) => booking.id)
+  const lowRiskSettlementIds = pendingSettlements.filter((_, index) => settlementRiskTiers[index] === "low").map((booking) => booking.id)
 
   const receiptUrls = await Promise.all(
     pendingReceipts.map((booking) => (booking.deposit_receipt_url ? getSignedReceiptUrl(booking.deposit_receipt_url) : null))
@@ -67,7 +98,10 @@ export default async function AdminPaymentsPage() {
       </div>
 
       <div>
-        <h2 className="mb-3 text-lg font-medium">{t("depositReceiptsTitle")}</h2>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-lg font-medium">{t("depositReceiptsTitle")}</h2>
+          {lowRiskDepositIds.length > 0 && <BulkApproveReceiptsButton bookingIds={lowRiskDepositIds} kind="deposit" />}
+        </div>
         {pendingReceipts.length === 0 ? (
           <EmptyState icon={Receipt} title={t("noPendingReceipts")} description="" />
         ) : (
@@ -76,7 +110,10 @@ export default async function AdminPaymentsPage() {
               <Card key={booking.id}>
                 <CardContent className="flex flex-wrap items-center justify-between gap-4">
                   <div>
-                    <p className="font-medium">{booking.passenger?.full_name ?? t("unknownUser")}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{booking.passenger?.full_name ?? t("unknownUser")}</p>
+                      <RiskBadge tier={depositRiskTiers[index]} label={depositRiskTiers[index] === "low" ? t("riskLow") : t("riskHigh")} />
+                    </div>
                     <RouteLabel booking={booking} locale={locale} />
                     <p className="text-muted-foreground text-xs">{t("driverLabel")}: {booking.ride.driver?.full_name ?? t("unknownUser")}</p>
                     {driverPaymentInfos[index] && (
@@ -101,7 +138,10 @@ export default async function AdminPaymentsPage() {
       </div>
 
       <div>
-        <h2 className="mb-3 text-lg font-medium">{t("settlementReceiptsTitle")}</h2>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-lg font-medium">{t("settlementReceiptsTitle")}</h2>
+          {lowRiskSettlementIds.length > 0 && <BulkApproveReceiptsButton bookingIds={lowRiskSettlementIds} kind="settlement" />}
+        </div>
         {pendingSettlements.length === 0 ? (
           <EmptyState icon={Receipt} title={t("noPendingSettlements")} description="" />
         ) : (
@@ -110,7 +150,10 @@ export default async function AdminPaymentsPage() {
               <Card key={booking.id}>
                 <CardContent className="flex flex-wrap items-center justify-between gap-4">
                   <div>
-                    <p className="font-medium">{booking.passenger?.full_name ?? t("unknownUser")}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{booking.passenger?.full_name ?? t("unknownUser")}</p>
+                      <RiskBadge tier={settlementRiskTiers[index]} label={settlementRiskTiers[index] === "low" ? t("riskLow") : t("riskHigh")} />
+                    </div>
                     <RouteLabel booking={booking} locale={locale} />
                     <p className="text-muted-foreground text-xs">{t("driverLabel")}: {booking.ride.driver?.full_name ?? t("unknownUser")}</p>
                   </div>

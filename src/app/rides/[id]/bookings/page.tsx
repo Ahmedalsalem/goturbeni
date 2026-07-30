@@ -14,6 +14,10 @@ import { BookingActions } from "@/features/bookings/BookingActions"
 import { RefundProofUpload } from "@/features/bookings/RefundProofUpload"
 import { ReportNoShowButton } from "@/features/bookings/ReportNoShowButton"
 import { SettlePaymentButton } from "@/features/bookings/SettlePaymentButton"
+import { OpenDisputeButton } from "@/features/disputes/OpenDisputeButton"
+import { getMyDisputeForBooking } from "@/features/disputes/queries"
+import { VerifyPickupCodeForm } from "@/features/pickup/VerifyPickupCodeForm"
+import { getPickupVerificationStatus } from "@/features/pickup/queries"
 import { getRide } from "@/features/rides/queries"
 import { getRideBookings, getRideCounterpartyPhone } from "@/features/bookings/queries"
 import { ShareLocationToggle } from "@/features/live-location/ShareLocationToggle"
@@ -61,6 +65,12 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
         async (booking) => [booking.passenger_id, await getRideCounterpartyPhone(id, booking.passenger_id)] as const
       )
     )
+  )
+  const myDisputes = new Map(
+    await Promise.all(approvedBookings.map(async (booking) => [booking.id, await getMyDisputeForBooking(booking.id, user.id)] as const))
+  )
+  const pickupVerified = new Map(
+    await Promise.all(approvedBookings.map(async (booking) => [booking.id, await getPickupVerificationStatus(booking.id)] as const))
   )
 
   return (
@@ -132,6 +142,7 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                         <span className="bg-destructive ring-background absolute -end-1 -top-1 size-2.5 rounded-full ring-2" aria-hidden="true" />
                       )}
                     </Link>
+                    <VerifyPickupCodeForm bookingId={booking.id} rideId={id} alreadyVerified={pickupVerified.get(booking.id) ?? false} />
                     {isRideOver && booking.payment_status === "deposit_confirmed" && !booking.driver_settled_at && (
                       <SettlePaymentButton bookingId={booking.id} rideId={id} />
                     )}
@@ -147,6 +158,7 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                       ) : (
                         <ReportNoShowButton bookingId={booking.id} rideId={id} label={tBookingActions("reportPassengerNoShow")} />
                       ))}
+                    <OpenDisputeButton bookingId={booking.id} alreadyOpen={!!myDisputes.get(booking.id)} />
                   </CardFooter>
                 )}
               </Card>

@@ -126,6 +126,36 @@ export async function reviewSettlementReceipt(bookingId: string, approved: boole
   return { success: true }
 }
 
+export interface AdminBulkActionState extends AdminActionState {
+  approvedCount?: number
+}
+
+// admin_bulk_approve_receipts (0047_bulk_receipt_review.sql) is the sole
+// enforcement point — re-checks p_kind and that each row is still 'pending'
+// server-side, so a stale/already-reviewed selection is silently skipped
+// rather than double-applied.
+export async function adminBulkApproveReceipts(bookingIds: string[], kind: "deposit" | "settlement"): Promise<AdminBulkActionState> {
+  const tErrors = await getAdminErrorTranslator()
+  if (!isSupabaseConfigured()) {
+    return { error: tErrors("notConfigured") }
+  }
+
+  await verifySession()
+  const supabase = await createClient()
+  const { data, error } = await supabase.rpc("admin_bulk_approve_receipts", { p_booking_ids: bookingIds, p_kind: kind })
+
+  if (error) {
+    if (error.message.includes("not_admin")) {
+      return { error: tErrors("notAdmin") }
+    }
+    logError(error, "admin.adminBulkApproveReceipts")
+    return { error: tErrors("actionFailed") }
+  }
+
+  revalidatePath("/admin/payments")
+  return { success: true, approvedCount: (data as number | null) ?? 0 }
+}
+
 // admin_confirm_refund is the sole enforcement point (0021_cancellation_refunds.sql).
 export async function confirmRefund(bookingId: string): Promise<AdminActionState> {
   const tErrors = await getAdminErrorTranslator()

@@ -11,11 +11,15 @@ const BOOKING_STATUSES: BookingStatus[] = ["pending", "approved", "rejected", "c
 const TREND_DAYS = 7
 
 export interface AdminBookingRow extends Booking {
-  passenger: { full_name: string | null } | null
+  passenger: { id: string; full_name: string | null; created_at: string; admin_flags: { is_suspended: boolean } | null } | null
   ride: { departure_city: string; arrival_city: string; driver: { full_name: string | null } | null }
 }
 
-const ADMIN_BOOKING_SELECT = "*, passenger:profiles(full_name), ride:rides(departure_city, arrival_city, driver:profiles(full_name))"
+// Passenger's id/created_at/admin_flags are pulled in (beyond just full_name)
+// so the payments page can compute a risk tier (features/admin/risk.ts)
+// without a second round-trip per row.
+const ADMIN_BOOKING_SELECT =
+  "*, passenger:profiles(id, full_name, created_at, admin_flags(is_suspended)), ride:rides(departure_city, arrival_city, driver:profiles(full_name))"
 
 // Deposit receipts a passenger uploaded but nobody has reviewed yet — see
 // submit_deposit_receipt/admin_review_deposit_receipt (0020_payment_receipts.sql).
@@ -84,6 +88,9 @@ export type SuspiciousAccountReason =
   | "frequent_late_cancellation"
   | "frequent_passenger_no_show"
   | "frequent_driver_no_show"
+  | "duplicate_iban"
+  | "disputed_repeatedly"
+  | "repeated_receipt_rejection"
 
 export interface SuspiciousAccountRow {
   user_id: string
@@ -93,10 +100,11 @@ export interface SuspiciousAccountRow {
   detail: string
 }
 
-// Rule-based v1 abuse/fraud flagging — see admin_get_suspicious_accounts
-// (0026_suspicious_accounts.sql) for the four heuristics and their
-// thresholds. Not an ML system, no external service — pure SQL aggregates
-// over rides/bookings, admin-only via is_admin() inside the RPC.
+// Rule-based abuse/fraud flagging (v2) — see admin_get_suspicious_accounts
+// (latest version in 0046_suspicious_accounts_fraud_v2.sql) for all current
+// heuristics and their thresholds. Not an ML system, no external service —
+// pure SQL aggregates over rides/bookings/profiles_private/disputes,
+// admin-only via is_admin() inside the RPC.
 export async function getSuspiciousAccounts(): Promise<SuspiciousAccountRow[]> {
   const supabase = await createClient()
   const { data } = await supabase.rpc("admin_get_suspicious_accounts")
