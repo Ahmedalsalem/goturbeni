@@ -100,7 +100,11 @@ export default async function RootLayout({
         url: SITE_URL,
         logo: `${SITE_URL}/icon.png`,
         description: tMeta("description"),
-        sameAs: [],
+        sameAs: [
+          "https://www.facebook.com/profile.php?id=61592409338950",
+          "https://www.instagram.com/resmigoturbeni",
+          "https://www.tiktok.com/@resmigoturbeni",
+        ],
       },
       {
         "@type": "WebSite",
