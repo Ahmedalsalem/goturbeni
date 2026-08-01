@@ -75,7 +75,8 @@
     "privacyLink": "Gizlilik Politikası",
     "termsLink": "Kullanım Şartları",
     "kvkkLink": "KVKK Aydınlatma Metni",
-    "paymentDisclaimer": "Platformumuz komisyon almaz, ödemeler doğrudan şahıslar arasındadır."
+    "paymentDisclaimer": "Platformumuz komisyon almaz, ödemeler doğrudan şahıslar arasındadır.",
+    "socialAriaLabel": "Bizi {platform} üzerinde takip edin"
   },
   "HomePage": {
     "heroTitle": "GötürBeni ile yolculuğunu paylaş, masrafını böl",

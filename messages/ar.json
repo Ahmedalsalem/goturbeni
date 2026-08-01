@@ -75,7 +75,8 @@
     "privacyLink": "سياسة الخصوصية",
     "termsLink": "شروط الاستخدام",
     "kvkkLink": "بيان KVKK",
-    "paymentDisclaimer": "منصتنا لا تتقاضى عمولة، والمدفوعات مباشرة بين الأشخاص."
+    "paymentDisclaimer": "منصتنا لا تتقاضى عمولة، والمدفوعات مباشرة بين الأشخاص.",
+    "socialAriaLabel": "تابعنا على {platform}"
   },
   "HomePage": {
     "heroTitle": "مع GötürBeni: شارك رحلتك، شارك التكلفة",

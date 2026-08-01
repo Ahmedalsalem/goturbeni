@@ -13,6 +13,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister"
 import { CookieConsent } from "@/components/CookieConsent"
 import { IOSInstallPrompt } from "@/components/layout/IOSInstallPrompt"
+import { SOCIAL_LINKS } from "@/lib/social-links"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -100,11 +101,7 @@ export default async function RootLayout({
         url: SITE_URL,
         logo: `${SITE_URL}/icon.png`,
         description: tMeta("description"),
-        sameAs: [
-          "https://www.facebook.com/profile.php?id=61592409338950",
-          "https://www.instagram.com/resmigoturbeni",
-          "https://www.tiktok.com/@resmigoturbeni",
-        ],
+        sameAs: SOCIAL_LINKS.map((link) => link.url),
       },
       {
         "@type": "WebSite",
