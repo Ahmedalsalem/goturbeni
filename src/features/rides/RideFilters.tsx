@@ -277,73 +277,81 @@ export function RideFilters({
         </Field>
       </div>
 
-      <Field className="sm:w-44">
-        <FieldLabel htmlFor="filter-date">{t("dateLabel")}</FieldLabel>
-        <div className="relative">
-          <FieldIcon icon={CalendarDays} />
-          <Input id="filter-date" type="date" className="ps-9" value={date} onChange={(event) => setDate(event.target.value)} />
-        </div>
-      </Field>
-
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:self-end sm:pb-2.5">
-        <Field orientation="horizontal">
-          <Checkbox id="filter-pets-allowed" checked={petsAllowed} onCheckedChange={(checked) => setPetsAllowed(checked === true)} />
-          <FieldLabel htmlFor="filter-pets-allowed" className="font-normal">
-            {t("petsAllowed")}
-          </FieldLabel>
-        </Field>
-        <Field orientation="horizontal">
-          <Checkbox
-            id="filter-smoking-allowed"
-            checked={smokingAllowed}
-            onCheckedChange={(checked) => setSmokingAllowed(checked === true)}
-          />
-          <FieldLabel htmlFor="filter-smoking-allowed" className="font-normal">
-            {t("smokingAllowed")}
-          </FieldLabel>
-        </Field>
-        <Field orientation="horizontal">
-          <Checkbox id="filter-vip-only" checked={vipOnly} onCheckedChange={(checked) => setVipOnly(checked === true)} />
-          <FieldLabel htmlFor="filter-vip-only" className="font-normal">
-            {t("vipOnly")}
-          </FieldLabel>
-        </Field>
-        <Field orientation="horizontal">
-          <Checkbox
-            id="filter-female-driver-only"
-            checked={femaleDriverOnly}
-            onCheckedChange={(checked) => setFemaleDriverOnly(checked === true)}
-          />
-          <FieldLabel htmlFor="filter-female-driver-only" className="font-normal">
-            {t("femaleDriverOnly")}
-          </FieldLabel>
-        </Field>
-      </div>
-
-      {showSort && (
-        <Field className="sm:w-52">
-          <FieldLabel htmlFor="filter-sort">{t("sortLabel")}</FieldLabel>
+      {/* Tarih'ten Ara butonuna kadar tek bir grup: dış konteynerde ayrı ayrı
+          flex item olsalardı checkbox'lar tek sütuna sıkışıp uzun bir blok
+          oluşturuyor, Sırala + Ara da ondan bağımsız olarak sonraki satıra
+          düşüp altında büyük bir boşluk bırakıyordu. Tek grup olunca hep
+          birlikte sarmalanıyor ve Ara her zaman Sırala'nın hemen yanında
+          kalıyor. */}
+      <div className="flex flex-wrap items-end gap-4">
+        <Field className="sm:w-44">
+          <FieldLabel htmlFor="filter-date">{t("dateLabel")}</FieldLabel>
           <div className="relative">
-            <FieldIcon icon={ArrowUpDown} />
-            <Select value={initial.sort} onValueChange={(value) => onSortChange(value as RideSort)}>
-              <SelectTrigger id="filter-sort" aria-label={t("sortLabel")} className="w-full ps-9">
-                <SelectValue>{(value: RideSort) => t(`sort.${value}`)}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {RIDE_SORT_OPTIONS.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {t(`sort.${option}`)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <FieldIcon icon={CalendarDays} />
+            <Input id="filter-date" type="date" className="ps-9" value={date} onChange={(event) => setDate(event.target.value)} />
           </div>
         </Field>
-      )}
 
-      <Button onClick={onSearch} size={isHero ? "lg" : "default"} className="sm:w-fit">
-        <Search className="size-4" aria-hidden="true" /> {t("searchCta")}
-      </Button>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:pb-2.5">
+          <Field orientation="horizontal">
+            <Checkbox id="filter-pets-allowed" checked={petsAllowed} onCheckedChange={(checked) => setPetsAllowed(checked === true)} />
+            <FieldLabel htmlFor="filter-pets-allowed" className="font-normal">
+              {t("petsAllowed")}
+            </FieldLabel>
+          </Field>
+          <Field orientation="horizontal">
+            <Checkbox
+              id="filter-smoking-allowed"
+              checked={smokingAllowed}
+              onCheckedChange={(checked) => setSmokingAllowed(checked === true)}
+            />
+            <FieldLabel htmlFor="filter-smoking-allowed" className="font-normal">
+              {t("smokingAllowed")}
+            </FieldLabel>
+          </Field>
+          <Field orientation="horizontal">
+            <Checkbox id="filter-vip-only" checked={vipOnly} onCheckedChange={(checked) => setVipOnly(checked === true)} />
+            <FieldLabel htmlFor="filter-vip-only" className="font-normal">
+              {t("vipOnly")}
+            </FieldLabel>
+          </Field>
+          <Field orientation="horizontal">
+            <Checkbox
+              id="filter-female-driver-only"
+              checked={femaleDriverOnly}
+              onCheckedChange={(checked) => setFemaleDriverOnly(checked === true)}
+            />
+            <FieldLabel htmlFor="filter-female-driver-only" className="font-normal">
+              {t("femaleDriverOnly")}
+            </FieldLabel>
+          </Field>
+        </div>
+
+        {showSort && (
+          <Field className="sm:w-52">
+            <FieldLabel htmlFor="filter-sort">{t("sortLabel")}</FieldLabel>
+            <div className="relative">
+              <FieldIcon icon={ArrowUpDown} />
+              <Select value={initial.sort} onValueChange={(value) => onSortChange(value as RideSort)}>
+                <SelectTrigger id="filter-sort" aria-label={t("sortLabel")} className="w-full ps-9">
+                  <SelectValue>{(value: RideSort) => t(`sort.${value}`)}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {RIDE_SORT_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {t(`sort.${option}`)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </Field>
+        )}
+
+        <Button onClick={onSearch} size={isHero ? "lg" : "default"} className="sm:w-fit">
+          <Search className="size-4" aria-hidden="true" /> {t("searchCta")}
+        </Button>
+      </div>
     </div>
   )
 }
