@@ -169,12 +169,15 @@ export async function requestPasswordReset(_prevState: AuthActionState, formData
   const supabase = await createClient()
   const siteUrl = await resolveSiteUrl()
   // Supabase returns success here even for unregistered emails — don't
-  // branch on `error` beyond that, or this endpoint becomes an email
+  // branch on `error` beyond logging it, or this endpoint becomes an email
   // enumeration oracle. The UI always shows the same "check your inbox"
-  // message regardless of whether the account exists.
-  await supabase.auth.resetPasswordForEmail(parsed.data.email, {
+  // message regardless of whether the account exists or the send failed.
+  const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
     redirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent("/reset-password")}`,
   })
+  if (error) {
+    logError(error, "auth.requestPasswordReset")
+  }
   return { success: true }
 }
 
