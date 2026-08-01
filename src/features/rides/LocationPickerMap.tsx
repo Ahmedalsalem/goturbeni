@@ -53,7 +53,7 @@ export default function LocationPickerMap({
   onPositionChange: (lat: number, lng: number) => void
 }) {
   return (
-    <MapContainer center={position} zoom={11} scrollWheelZoom={false} className="h-56 w-full rounded-lg">
+    <MapContainer center={position} zoom={11} scrollWheelZoom className="h-56 w-full rounded-lg">
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
