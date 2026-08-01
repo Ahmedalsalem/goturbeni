@@ -34,6 +34,7 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
     ibanHolderName: formData.get("ibanHolderName"),
     carBrand: formData.get("carBrand"),
     carModel: formData.get("carModel"),
+    carPlate: formData.get("carPlate"),
   })
   if (!parsed.success) {
     return { error: firstIssueMessage(parsed.error, tErrors("invalidForm")) }
@@ -86,6 +87,7 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
     p_iban_holder_name: parsed.data.ibanHolderName ?? null,
     p_car_brand: parsed.data.carBrand ?? null,
     p_car_model: parsed.data.carModel ?? null,
+    p_car_plate: parsed.data.carPlate ?? null,
   })
 
   if (updateError) {

@@ -229,6 +229,7 @@
       "ibanHolderName": "Hesap Sahibi Ad Soyad",
       "carBrand": "Araç Markası",
       "carModel": "Araç Modeli",
+      "carPlate": "Plaka",
       "carHint": "Sürücü olarak yolculuk paylaşıyorsanız aracınızı belirtin (opsiyonel).",
       "bio": "Hakkımda",
       "bioHint": "En fazla 500 karakter.",
@@ -258,7 +259,8 @@
       "ibanInvalid": "Geçerli bir IBAN girin (TR ile başlayan 26 karakter).",
       "ibanHolderNameMax": "Hesap sahibi adı en fazla 100 karakter olmalı.",
       "carBrandMax": "Araç markası en fazla 50 karakter olmalı.",
-      "carModelMax": "Araç modeli en fazla 50 karakter olmalı."
+      "carModelMax": "Araç modeli en fazla 50 karakter olmalı.",
+      "carPlateMax": "Plaka en fazla 15 karakter olmalı."
     },
     "errors": {
       "invalidForm": "Geçersiz form.",

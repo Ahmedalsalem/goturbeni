@@ -27,5 +27,6 @@ export interface RideWithDriver extends Ride {
     avatar_url: string | null
     car_brand: string | null
     car_model: string | null
+    car_plate: string | null
   } | null
 }

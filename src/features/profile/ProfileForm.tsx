@@ -19,6 +19,7 @@ import {
   MAX_BIO_LENGTH,
   MAX_CAR_BRAND_LENGTH,
   MAX_CAR_MODEL_LENGTH,
+  MAX_CAR_PLATE_LENGTH,
   MAX_FULL_NAME_LENGTH,
   MAX_IBAN_HOLDER_NAME_LENGTH,
   MAX_IBAN_LENGTH,
@@ -150,7 +151,7 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
           />
         </Field>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-3">
           <Field>
             <FieldLabel htmlFor="carBrand">{t("carBrand")}</FieldLabel>
             <Input id="carBrand" name="carBrand" defaultValue={initialProfile.car_brand ?? ""} maxLength={MAX_CAR_BRAND_LENGTH} />
@@ -159,6 +160,17 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
           <Field>
             <FieldLabel htmlFor="carModel">{t("carModel")}</FieldLabel>
             <Input id="carModel" name="carModel" defaultValue={initialProfile.car_model ?? ""} maxLength={MAX_CAR_MODEL_LENGTH} />
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="carPlate">{t("carPlate")}</FieldLabel>
+            <Input
+              id="carPlate"
+              name="carPlate"
+              defaultValue={initialProfile.car_plate ?? ""}
+              maxLength={MAX_CAR_PLATE_LENGTH}
+              className="uppercase"
+            />
           </Field>
         </div>
         <FieldDescription>{t("carHint")}</FieldDescription>

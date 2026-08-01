@@ -164,9 +164,14 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
                   </div>
                 )}
               </div>
-              {(ride.driver?.car_brand || ride.driver?.car_model) && (
+              {(ride.driver?.car_brand || ride.driver?.car_model || ride.driver?.car_plate) && (
                 <p className="text-muted-foreground text-sm">
-                  {[ride.driver?.car_brand, ride.driver?.car_model].filter(Boolean).join(" ")}
+                  {[
+                    [ride.driver?.car_brand, ride.driver?.car_model].filter(Boolean).join(" "),
+                    ride.driver?.car_plate,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
                 </p>
               )}
               {driverProfile?.bio && <p className="text-muted-foreground text-sm">{driverProfile.bio}</p>}

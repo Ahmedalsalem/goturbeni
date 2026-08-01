@@ -80,9 +80,14 @@ export async function RideCard({ ride, actions }: { ride: RideWithDriver; action
           </Avatar>
           <div>
             <span className="text-sm font-medium">{driverName}</span>
-            {(ride.driver?.car_brand || ride.driver?.car_model) && (
+            {(ride.driver?.car_brand || ride.driver?.car_model || ride.driver?.car_plate) && (
               <p className="text-muted-foreground text-xs">
-                {[ride.driver?.car_brand, ride.driver?.car_model].filter(Boolean).join(" ")}
+                {[
+                  [ride.driver?.car_brand, ride.driver?.car_model].filter(Boolean).join(" "),
+                  ride.driver?.car_plate,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
               </p>
             )}
           </div>

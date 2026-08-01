@@ -14,6 +14,7 @@ export const MAX_IBAN_LENGTH = 34
 export const MAX_IBAN_HOLDER_NAME_LENGTH = 100
 export const MAX_CAR_BRAND_LENGTH = 50
 export const MAX_CAR_MODEL_LENGTH = 50
+export const MAX_CAR_PLATE_LENGTH = 15
 
 // TR + 24 digits (26 chars total), spaces/dashes stripped before matching —
 // the standard Turkish IBAN format (matches the DB check constraint in
@@ -31,6 +32,7 @@ type ValidationTranslator = (
     | "ibanHolderNameMax"
     | "carBrandMax"
     | "carModelMax"
+    | "carPlateMax"
 ) => string
 
 export function buildProfileSchema(t: ValidationTranslator) {
@@ -75,5 +77,11 @@ export function buildProfileSchema(t: ValidationTranslator) {
       .max(MAX_CAR_MODEL_LENGTH, t("carModelMax"))
       .optional()
       .transform((value) => (value ? value : undefined)),
+    carPlate: z
+      .string()
+      .trim()
+      .max(MAX_CAR_PLATE_LENGTH, t("carPlateMax"))
+      .optional()
+      .transform((value) => (value ? value.toUpperCase() : undefined)),
   })
 }
