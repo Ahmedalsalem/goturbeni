@@ -21,6 +21,14 @@ export const MAX_CAR_PLATE_LENGTH = 15
 // supabase/migrations/0016_gender_payment_profile.sql).
 const TR_IBAN_PATTERN = /^TR\d{24}$/
 
+// Turkish vehicle plate: 2-digit province code (01-81) + 1-3 letters (Turkish
+// plates never use Q, W or X) + digits, digit count depending on letter
+// count — e.g. "34 A 1234", "06 AB 123", "34 ABC 12". Spaces optional.
+// Exported for features/rides/actions.ts, which requires the driver's
+// profile to already have a valid plate before a ride can be created.
+export const TR_PLATE_PATTERN =
+  /^(0[1-9]|[1-7][0-9]|8[01])\s?[A-PR-VYZ]\s?\d{4,5}$|^(0[1-9]|[1-7][0-9]|8[01])\s?[A-PR-VYZ]{2}\s?\d{3,4}$|^(0[1-9]|[1-7][0-9]|8[01])\s?[A-PR-VYZ]{3}\s?\d{2,3}$/
+
 type ValidationTranslator = (
   key:
     | "fullNameRequired"
@@ -33,6 +41,7 @@ type ValidationTranslator = (
     | "carBrandMax"
     | "carModelMax"
     | "carPlateMax"
+    | "carPlateInvalid"
 ) => string
 
 export function buildProfileSchema(t: ValidationTranslator) {
@@ -82,6 +91,11 @@ export function buildProfileSchema(t: ValidationTranslator) {
       .trim()
       .max(MAX_CAR_PLATE_LENGTH, t("carPlateMax"))
       .optional()
-      .transform((value) => (value ? value.toUpperCase() : undefined)),
+      .transform((value) => (value ? value.toUpperCase() : undefined))
+      // Only drivers who post rides need a plate at all (see carHint) — this
+      // field stays optional at the profile level, ride creation enforces
+      // presence separately (see features/rides/actions.ts). When a value IS
+      // given, though, it must be a real Turkish plate format.
+      .refine((value) => !value || TR_PLATE_PATTERN.test(value), { message: t("carPlateInvalid") }),
   })
 }

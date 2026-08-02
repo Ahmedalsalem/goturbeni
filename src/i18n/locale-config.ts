@@ -1,6 +1,6 @@
 export const LOCALE_COOKIE = "NEXT_LOCALE"
 export const DEFAULT_LOCALE = "tr"
-export const SUPPORTED_LOCALES = ["tr", "ar"] as const
+export const SUPPORTED_LOCALES = ["tr", "ar", "en"] as const
 export type AppLocale = (typeof SUPPORTED_LOCALES)[number]
 
 export function isSupportedLocale(value: string | undefined): value is AppLocale {

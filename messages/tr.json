@@ -66,6 +66,7 @@
       "title": "GötürBeni'yi ana ekranınıza ekleyin",
       "step1": "Paylaş",
       "step2": "düğmesine, ardından \"Ana Ekrana Ekle\"ye dokunun",
+      "openInSafari": "Bu tarayıcıda uygulama yüklenemiyor. Ana ekrana eklemek için bu sayfayı Safari tarayıcısında açıp deneyiniz.",
       "dismiss": "Kapat"
     }
   },
@@ -230,7 +231,7 @@
       "carBrand": "Araç Markası",
       "carModel": "Araç Modeli",
       "carPlate": "Plaka",
-      "carHint": "Sürücü olarak yolculuk paylaşıyorsanız aracınızı belirtin (opsiyonel).",
+      "carHint": "Sürücü olarak ilan verebilmek için gerekli. Plakanız yoksa boş bırakabilirsiniz (örn. 34 ABC 123).",
       "bio": "Hakkımda",
       "bioHint": "En fazla 500 karakter.",
       "language": "Dil",
@@ -260,7 +261,8 @@
       "ibanHolderNameMax": "Hesap sahibi adı en fazla 100 karakter olmalı.",
       "carBrandMax": "Araç markası en fazla 50 karakter olmalı.",
       "carModelMax": "Araç modeli en fazla 50 karakter olmalı.",
-      "carPlateMax": "Plaka en fazla 15 karakter olmalı."
+      "carPlateMax": "Plaka en fazla 15 karakter olmalı.",
+      "carPlateInvalid": "Geçerli bir araç plakası girin (örn. 34 ABC 123)."
     },
     "errors": {
       "invalidForm": "Geçersiz form.",
@@ -320,34 +322,48 @@
   },
   "HowItWorksPage": {
     "title": "Nasıl Çalışır?",
-    "subtitle": "GötürBeni ile şehirler arası yolculuk paylaşımı üç basit adımdan oluşur.",
+    "subtitle": "GötürBeni ile şehirler arası yolculuk paylaşımı dört adımda tamamlanır.",
     "stepLabel": "Adım {number}",
     "steps": {
       "search": {
         "title": "Yolculuğunu ara",
-        "description": "Kalkış, varış ve tarihi seç; sana uygun aktif ilanları anında listele."
+        "description": "Kalkış, varış ve tarihi seç; haritadan veya GPS konumundan filtrele, sana uygun aktif ilanları anında listele. Yolcuysan koltuk ara, sürücüysen boş koltuklarını ilan olarak paylaş."
       },
-      "request": {
-        "title": "Rezervasyon yap ya da ilan ver",
-        "description": "Yolcuysan koltuk talebi oluştur; sürücüysen boş koltuklarını ilan olarak paylaş."
+      "book": {
+        "title": "Rezervasyon yap, kaporanı öde",
+        "description": "Sürücü rezervasyon talebini onayladığında yolculuğun kesinleşir. Yolcu, toplam ücretin yarısını (kaporayı) sürücünün IBAN'ına gönderir ve dekontu yükler; kalan yarı yolculuk sonrasında ödenir."
       },
-      "travel": {
-        "title": "Yolculuğa çık",
-        "description": "Sürücü talebini onayladığında rezervasyonun kesinleşir, masraf paylaşımını birlikte ayarlayın."
+      "pickup": {
+        "title": "Sürücünle iletişime geç",
+        "description": "Uygulama içi sohbetten buluşma detaylarını konuş, sürücünün canlı konumunu takip et. Alım sırasında yolcunun 4 haneli doğrulama kodunu sürücüye söylemesi yeterli — yolculuk böyle başlar."
+      },
+      "complete": {
+        "title": "Yolculuğu tamamla, değerlendir",
+        "description": "Varışın ardından kalan ödeme tamamlanır, iki taraf da birbirini 1-5 yıldız ve yorumla değerlendirir — bu değerlendirmeler diğer kullanıcıların profilinde görünür."
       }
     },
     "trust": {
       "title": "Güvenilir profiller",
-      "description": "Her kullanıcının bir profili ve geçmiş ilan/rezervasyon kaydı vardır; kiminle yolculuk yaptığını görebilirsin."
+      "description": "Her kullanıcının bir profili, geçmiş yolculuk kaydı ve karşılıklı yıldız/yorum puanı vardır; kiminle yolculuk yaptığını görebilirsin. Hesabını doğrulaman ve sürücüysen geçerli bir plaka eklemen gerekir."
     },
     "help": {
       "title": "Yardıma mı ihtiyacın var?",
-      "description": "Sık sorulan sorular için Destek sayfamıza göz atabilirsin."
+      "description": "Sık sorulan sorular için Destek sayfamıza göz atabilir, ya da doğrudan bize e-posta gönderebilirsin."
     }
   },
   "SupportPage": {
     "title": "Destek",
     "subtitle": "Sık sorulan sorular ve platformun nasıl çalıştığına dair bilmen gerekenler.",
+    "contact": {
+      "title": "Bize Ulaş",
+      "description": "Aradığın cevabı aşağıda bulamadıysan bize doğrudan e-posta gönder, elimizden geldiğince hızlı dönüş yaparız.",
+      "emailCta": "E-posta Gönder"
+    },
+    "categories": {
+      "booking": "Rezervasyon & Ödeme",
+      "safety": "Güvenlik & Doğrulama",
+      "account": "Hesap & Sürücü"
+    },
     "faq": {
       "booking": {
         "question": "Rezervasyon nasıl çalışır?",
@@ -365,6 +381,10 @@
         "question": "Yüklediğim dekont reddedilirse ne olur?",
         "answer": "Reddedilme nedeni sana gösterilir; sorunu giderip aynı rezervasyon için tekrar dekont yükleyebilirsin."
       },
+      "waitlist": {
+        "question": "İlan doluysa ne yapabilirim?",
+        "answer": "Doldu görünen bir ilanda 'Koltuk Açılınca Haber Ver' seçeneğiyle bekleme listesine katılabilirsin; bir koltuk iptal ya da açık kalırsa bildirim alırsın."
+      },
       "safety": {
         "question": "Güvenlik için neler yapılıyor?",
         "answer": "Her hesap kayıt sırasında e-posta adresine gönderilen bir kodla doğrulanır. Ödeme öncesi sürücünün üyelik tarihini, tamamladığı yolculuk sayısını ve puanını görebilirsin. Sistemimiz şüpheli hesap ve ilanları otomatik kurallarla tespit edip inceliyor."
@@ -373,9 +393,21 @@
         "question": "Kadın Şoför filtresi nasıl çalışır?",
         "answer": "Profilinde cinsiyetini kadın olarak belirtmiş kullanıcılar, arama sonuçlarını yalnızca kadın sürücülerin ilanlarıyla sınırlayabilir. Sürücünün cinsiyeti herkese açık değildir; bu filtre yalnızca kendisi kadın olduğunu beyan etmiş kullanıcılara sonuç döndürür."
       },
+      "pickupCode": {
+        "question": "Alım doğrulama kodu nedir?",
+        "answer": "Rezervasyonun onaylanmasıyla sana özel 4 haneli bir kod oluşturulur. Sürücüyle buluştuğunda bu kodu ona söylersin; sürücü kodu uygulamaya girdiğinde yolculuğun başlamış sayılır."
+      },
+      "dispute": {
+        "question": "Sürücü veya yolcuyla anlaşmazlık yaşarsam ne yapmalıyım?",
+        "answer": "İlgili rezervasyon üzerinden 'Sorun Bildir' seçeneğiyle bir anlaşmazlık açabilirsin; ekibimiz talebi inceleyip sonucu sana bildirir."
+      },
       "suspendedAccount": {
         "question": "Hesabım neden askıya alınabilir?",
         "answer": "Şüpheli davranış tespit edilen ya da kurallara aykırı hareket eden hesaplar bir yönetici tarafından askıya alınabilir. Askıya alınan bir hesap yeni ilan veremez, rezervasyon yapamaz, mesaj gönderemez ve yorum yapamaz."
+      },
+      "carPlate": {
+        "question": "Neden araç plakası istiyorsunuz?",
+        "answer": "Sürücü olarak ilan verebilmek için profiline geçerli formatta bir araç plakası eklemen gerekir. Bu bilgi, yolcunun buluşma noktasında doğru aracı tanıyabilmesi için ilan ve profil sayfalarında herkese açık gösterilir."
       }
     }
   },
@@ -456,7 +488,8 @@
       "cancelFailed": "İlan iptal edilemedi. Lütfen tekrar deneyin.",
       "pauseFailed": "Tekrarlanan ilan durdurulamadı. Lütfen tekrar deneyin.",
       "tooManyRequests": "Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin.",
-      "ibanRequired": "İlan verebilmek için önce profilinize IBAN ve hesap sahibi ad soyad bilgisi ekleyin."
+      "ibanRequired": "İlan verebilmek için önce profilinize IBAN ve hesap sahibi ad soyad bilgisi ekleyin.",
+      "carPlateRequired": "İlan verebilmek için önce profilinize geçerli bir araç plakası ekleyin."
     },
     "status": {
       "active": "Aktif",
@@ -910,6 +943,13 @@
     "learnMore": "Detaylı bilgi",
     "accept": "Kabul Et",
     "reject": "Reddet"
+  },
+  "WelcomeModal": {
+    "title": "GötürBeni'ye hoş geldin",
+    "description": "Şehirler arası yolculuk ilanlarını görmek, rezervasyon yapmak veya kendi ilanını vermek için giriş yap ya da ücretsiz hesap oluştur.",
+    "register": "Kayıt Ol",
+    "login": "Giriş Yap",
+    "dismiss": "Şimdi değil, siteye göz atmaya devam et"
   },
   "Legal": {
     "terms": {

@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
-import { CarFront, MapPinned, MessageCircleQuestion, Search, ShieldCheck } from "lucide-react"
+import { KeyRound, MessageCircleQuestion, Search, ShieldCheck, Star, Wallet } from "lucide-react"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { languageAlternates } from "@/i18n/hreflang"
@@ -23,8 +23,9 @@ export default async function HowItWorksPage() {
 
   const steps = [
     { icon: Search, title: t("steps.search.title"), description: t("steps.search.description") },
-    { icon: MapPinned, title: t("steps.request.title"), description: t("steps.request.description") },
-    { icon: CarFront, title: t("steps.travel.title"), description: t("steps.travel.description") },
+    { icon: Wallet, title: t("steps.book.title"), description: t("steps.book.description") },
+    { icon: KeyRound, title: t("steps.pickup.title"), description: t("steps.pickup.description") },
+    { icon: Star, title: t("steps.complete.title"), description: t("steps.complete.description") },
   ]
 
   return (
@@ -34,7 +35,7 @@ export default async function HowItWorksPage() {
         <p className="text-muted-foreground mt-3 text-lg leading-relaxed text-balance">{t("subtitle")}</p>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {steps.map((step, index) => (
           <Card key={step.title} className="ring-foreground/5 border-0 shadow-sm">
             <CardContent className="flex flex-col items-start gap-4">

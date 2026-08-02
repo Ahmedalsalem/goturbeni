@@ -14,6 +14,7 @@ import { logError } from "@/lib/logger"
 import { sendSearchAlertNotifications } from "@/lib/search-alert-notifications"
 import { parseIstanbulDateTime } from "@/utils/istanbul-time"
 import { buildRideSchema, type RideActionState, type RideFormValues } from "@/features/rides/schemas"
+import { TR_PLATE_PATTERN } from "@/features/profile/schemas"
 
 const CREATE_RIDE_RATE_LIMIT = { limit: 10, windowMs: 60 * 60 * 1000 }
 
@@ -68,6 +69,15 @@ export async function createRide(values: RideFormValues): Promise<RideActionStat
   const { data: paymentInfo } = await supabase.from("profiles_private").select("iban, iban_holder_name").eq("id", user.id).maybeSingle()
   if (!paymentInfo?.iban || !paymentInfo?.iban_holder_name) {
     return { error: tErrors("ibanRequired") }
+  }
+
+  // Sürücü geçerli formatta bir plaka olmadan ilan açamaz — yolcunun aracı
+  // teşhis edebilmesi (bkz. 0050_car_plate.sql) artık zorunlu, IBAN kontrolüyle
+  // aynı desende. profiles.car_plate serbest yazılmış olabilir (eski kayıtlar),
+  // bu yüzden format burada da doğrulanır, sadece boş olmadığı değil.
+  const { data: driverProfile } = await supabase.from("profiles").select("car_plate").eq("id", user.id).maybeSingle()
+  if (!driverProfile?.car_plate || !TR_PLATE_PATTERN.test(driverProfile.car_plate)) {
+    return { error: tErrors("carPlateRequired") }
   }
 
   const { data: ride, error } = await supabase

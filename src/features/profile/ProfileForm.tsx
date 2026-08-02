@@ -31,6 +31,7 @@ import type { Profile } from "@/types/profile"
 const LOCALE_LABELS: Record<AppLocale, string> = {
   tr: "Türkçe",
   ar: "العربية",
+  en: "English",
 }
 
 export function ProfileForm({ profile, email }: { profile: Profile; email: string }) {

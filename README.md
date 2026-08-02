@@ -2,7 +2,7 @@
 
 Türkiye'de şehirler arası masraf paylaşımı esaslı yolculuk platformu (BlaBlaCar benzeri). Kullanıcılar araç ilanı verip yolculuk masrafını paylaşabilir, ilan arayabilir ve kendi ilanlarını yönetebilir.
 
-**Faz 0 – Faz 16 tamamlandı; `0001`–`0043` migration'ları gerçek (production) Supabase projesine uygulanmış ve canlıda çalışıyor durumda. Faz 16'nın beş migration'ı (`0044`–`0048`: anlaşmazlık çözümü, dolandırıcılık tespiti v2, toplu dekont onayı, alım doğrulama kodu) bu oturumda kod seviyesinde tamamlandı ve yerel olarak doğrulandı (lint/typecheck/build/test) ama henüz `supabase db push` ile production projesine uygulanmadı — bkz. "Bilinen Sınırlamalar".** Uygulama Vercel'de yayında ve GitHub'a bağlı sürekli deploy ile çalışıyor. Ayrıntılı durum raporu için [PROJECT_STATUS.md](./PROJECT_STATUS.md), sürüm geçmişi için [CHANGELOG.md](./CHANGELOG.md) dosyalarına bakın.
+**Faz 0 – Faz 16 tamamlandı; `0001`–`0052` migration'larının tamamı gerçek (production) Supabase projesine uygulanmış ve canlıda çalışıyor durumda** (anlaşmazlık çözümü, dolandırıcılık tespiti v2, toplu dekont onayı, alım doğrulama kodu, plaka format doğrulaması, İngilizce dil desteği dahil). Uygulama Vercel'de yayında ve GitHub'a bağlı sürekli deploy ile çalışıyor. Ayrıntılı durum raporu için [PROJECT_STATUS.md](./PROJECT_STATUS.md), sürüm geçmişi için [CHANGELOG.md](./CHANGELOG.md) dosyalarına bakın.
 
 ## Proje Amacı
 
@@ -11,7 +11,7 @@ Türkiye'de şehirler arası masraf paylaşımı esaslı yolculuk platformu (Bla
 ## Özellikler
 
 - **Kimlik doğrulama ve hesap onayı**: E-posta/şifre ile kayıt ve giriş (Supabase Auth). Zorunlu hesap doğrulaması, 6 haneli bir kodun Resend ile e-postaya gönderilip `verify_email_otp` RPC'siyle onaylanmasına dayanır (`0035_email_based_verification.sql`). **Telefon numarası doğrulama yükü taşımaz** — yalnızca iletişim/güven bilgisi olarak kayıt sırasında toplanıp saklanır; eskiden (Twilio Verify ile) SMS/OTP tabanlıydı, Twilio'nun ücretsiz deneme hesabı yalnızca önceden doğrulanmış numaralara SMS gönderebildiğinden ve gerçek SMS gönderiminin operatör maliyeti olduğundan bu model terk edildi (bkz. CHANGELOG). Doğrulama sonucu hâlâ `profiles_private.phone_verified` sütununda tutulur — isim tarihsel nedenlerle "telefon doğrulandı" gibi görünse de artık gerçekte "hesap e-posta koduyla doğrulandı" anlamına gelir.
-- **Profil yönetimi**: Ad, telefon, biyografi, cinsiyet (kendi beyanına dayalı, kimlik doğrulamalı değil), araç marka/modeli düzenleme; Supabase Storage üzerinden avatar yükleme (kullanıcı başına izole klasör).
+- **Profil yönetimi**: Ad, telefon, biyografi, cinsiyet (kendi beyanına dayalı, kimlik doğrulamalı değil), araç marka/modeli/plakası düzenleme; Supabase Storage üzerinden avatar yükleme (kullanıcı başına izole klasör). Plaka, girildiğinde standart Türk plaka formatına göre doğrulanır (uygulama katmanında Zod, veritabanında `NOT VALID` bir check constraint, `0051_car_plate_format_check.sql`) ve bir ilan yayınlayabilmek için sürücü profilinde geçerli formatta bir plaka bulunması **zorunludur** (IBAN kontrolüyle aynı desende, `features/rides/actions.ts` → `createRide`).
 - **İlan sistemi**: İlan oluşturma/düzenleme/iptal etme, 81 il + opsiyonel ilçe arasından kalkış/varış seçimi, tarih/saat/koltuk/masraf payı/açıklama alanları, evcil hayvan/sigara tercihleri, VIP (tek yolcu) ilan seçeneği.
 - **Tekrarlanan (haftalık) ilan**: Sürücü bir ilanı "her hafta tekrarla" olarak işaretleyebilir (`ride_series`); her gece çalışan bir cron, seri hâlâ aktifse ve sürücünün IBAN'ı kayıtlıysa bir sonraki haftanın ilanını otomatik açar (`0039_ride_series.sql`). Bir haftanın ilanını iptal etmek yalnızca o haftayı etkiler, seriyi durdurmak ayrı bir işlemdir.
 - **Arama ve filtreleme**: `/` ve `/rides` üzerinde kalkış/varış/tarih filtresi + tarih/masraf payına göre artan/azalan sıralama, "kadın şoför" filtresi, harita/GPS konum seçimi; filtreler URL search params'a yazılır. Arama üç kademelidir: tam ilçe → aynı il → 150km içindeki coğrafi olarak yakın iller (haversine mesafesi, `0032`/geo-fallback). Aranan güzergahta ilan yoksa kullanıcı bir arama uyarısına (`ride_search_alerts`) kaydolabilir; o güzergahta yeni bir ilan açıldığında bir kez push/e-posta bildirimi alır (`0043_ride_search_alerts.sql`).
@@ -25,22 +25,23 @@ Türkiye'de şehirler arası masraf paylaşımı esaslı yolculuk platformu (Bla
 - **Mesajlaşma**: Sürücü ile onaylanmış rezervasyonu olan yolcu arasında 1:1 sohbet (`/rides/[id]/chat`), Supabase Realtime ile anlık mesaj/okundu bilgisi, ephemeral broadcast ile "yazıyor..." göstergesi, konum paylaşımı (ayrı bir mesaj tipi olarak). Onaylanmış bir rezervasyonda taraflar birbirinin telefon numarasını da görebilir (`get_ride_counterparty_phone`, `0037`). Bir ilanda birden fazla onaylanmış yolcu varsa sürücü hangi yolcuyla konuşacağını seçer.
 - **Değerlendirme (review)**: Yolculuğun kalkış zamanı geçmiş, onaylanmış bir rezervasyon üzerinden sürücü ve yolcu birbirini 1-5 yıldız + opsiyonel yorumla değerlendirebilir (yolculuk başına bir kez). Profil sayfasında ortalama puan/toplam yorum/toplam yolculuk, ilan detay sayfasında sürücünün ortalama puanı ve son yorumları gösterilir.
 - **Anlaşmazlık (itiraz) çözümü**: Rezervasyonun yolcusu ya da ilanın sürücüsü, karşı taraf hakkında formel bir anlaşmazlık açabilir (ödeme alınmadı, tutar uyuşmazlığı, hizmet tanımdan farklı, güvenlik endişesi, diğer). Admin `/admin/disputes`'ta açık/incelenen anlaşmazlıkları görüp durumunu ilerletir (open → in_review → resolved/dismissed), bir çözüm notu ekler (`0044_disputes.sql`).
-- **Çok dilli ve RTL**: Türkçe / Arapça arayüz, cookie tabanlı locale seçimi, tam RTL desteği (yön ikonları dahil).
+- **Çok dilli ve RTL**: Türkçe / Arapça / İngilizce arayüz (`messages/tr.json`, `messages/ar.json`, `messages/en.json` — 752 anahtar birebir eşleşir), cookie tabanlı locale seçimi, Arapça için tam RTL desteği (yön ikonları dahil).
 - **Tema**: Açık/koyu mod (next-themes).
-- **Misafir modu**: Supabase kimlik bilgileri boşken bile herkese açık sayfalar (`/`, `/rides`, `/rides/[id]`) çalışır; korumalı sayfalar `/login`'e yönlendirir.
-- **PWA**: `manifest.webmanifest`, uygulama ikonları, `theme-color`, temel düzeyde offline fallback (`public/sw.js` yalnızca `/offline` sayfasını önbelleğe alır).
+- **Misafir modu**: Supabase kimlik bilgileri boşken bile herkese açık sayfalar (`/`, `/rides`, `/rides/[id]`) çalışır; korumalı sayfalar `/login`'e yönlendirir. Giriş yapmamış bir ziyaretçiye cihaz başına yalnızca ilk ziyarette (localStorage, auth sayfalarında hiç gösterilmez) bir karşılama modalı (`WelcomeAuthModal`) giriş/kayıt CTA'sı gösterir; mobil header'da da misafir için "Giriş Yap" her genişlikte doğrudan görünür (eskiden yalnızca `sm:` üzerinde görünüyordu).
+- **PWA**: `manifest.webmanifest`, uygulama ikonları, `theme-color`, temel düzeyde offline fallback (`public/sw.js` yalnızca `/offline` sayfasını önbelleğe alır). iOS'ta yükleme rehberi (`IOSInstallPrompt`) yalnızca gerçek Safari'de Paylaş→Ana Ekrana Ekle adımlarını gösterir; iOS'taki diğer tarayıcılarda (Chrome/Firefox/Edge/Opera — hepsi aynı WebKit UA'yı paylaşır ama yalnızca Safari'nin Paylaş sayfası gerçek bir PWA kurar) kullanıcıya sayfayı Safari'de açması söylenir.
 - **Push notification + e-posta**: booking/chat/no-show/bekleme listesi/arama uyarısı olayları Web Push (VAPID, `src/lib/notifications.ts`) ile gerçek tarayıcı bildirimleri, aynı olaylar için Resend ile e-posta (`src/lib/email.ts`) gönderir — kullanıcı siteyi açık tutmasa bile bildirimi kaçırmaz (ikisi de üçüncü parti hesap boşken no-op'a düşer). Üst menüdeki "İlanlarım"/"Rezervasyonlarım" öğelerinde ve sohbet listelerinde, kalıcı bir `notification_events`/`messages.read_at` tablosundan türetilen küçük kırmızı rozetler de kullanıcıyı yeni bir şeyden haberdar eder.
 - **Ödeme takibi**: komisyonsuz, doğrudan-şahıslar-arası "yarı başta / yarı sonda" IBAN ödemesi — her iki yarı için de dekont yükleme + admin inceleme (onay/red + gerekçe), süresi geçmiş ödenmemiş talepler otomatik iptal edilir, ilan iptalinde iade takibi. Admin, dekont incelerken sürücünün kayıtlı IBAN'ını dekonttaki adla göz kontrolü için görür. Bekleyen dekontlar hesap yaşı/şüpheli hesap/geçmiş red/açık anlaşmazlık sinyallerine göre "düşük riskli"/"yüksek riskli" olarak etiketlenir; düşük riskli olanlar admin tarafından tek tıkla toplu onaylanabilir (`admin_bulk_approve_receipts`, `0047_bulk_receipt_review.sql`) — bu otomasyon yalnızca tıklamayı azaltır, her satır yine `*_reviewed_at` ile damgalanır ve OCR/tutar doğrulaması yapmaz.
 - **Rate limiting**: kayıt, giriş, şifre sıfırlama, ilan/rezervasyon/mesaj/dekont yükleme, anlaşmazlık açma, alım kodu doğrulama işlemleri IP/kullanıcı bazlı, Upstash Redis'te (çoklu-instance production'da paylaşılan durum) tutulan bir sabit-pencere limitleyiciyle (`src/lib/rate-limit.ts`) korunur.
 - **Admin paneli**: `/admin` analytics (kullanıcı/ilan/rezervasyon sayıları, trend grafiği), `/admin/users` (kullanıcı askıya alma + kural-tabanlı şüpheli hesap işaretleme, v1→v2, toplam 10 kural), `/admin/rides` (ilan kaldırma), `/admin/payments` (dekont/iade inceleme, risk etiketli toplu onay), `/admin/disputes` (açık/çözülmüş anlaşmazlık kuyruğu).
 - **Production hardening**: güvenlik başlıkları (`X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, vb.), merkezi hata loglama (`src/lib/logger.ts`), Sentry hata izleme (`@sentry/nextjs`, `src/sentry.*.config.ts`), Google Analytics (Consent Mode v2), `metadataBase`/OpenGraph/canonical URL'lerle SEO.
+- **Bilgilendirme sayfaları**: `/how-it-works`, gerçek uçtan uca akışı (ara/filtrele → rezervasyon + kapora öde → sürücüyle iletişim + alım kodu → tamamla + değerlendir) dört adımda anlatır; `/support`, kategorilere ayrılmış (Rezervasyon & Ödeme / Güvenlik & Doğrulama / Hesap & Sürücü) SSS ile bir e-posta iletişim kartı (`novarodigitalstudio@gmail.com`) içerir.
 
 ## Teknoloji Stack
 
 - **Next.js 15** (App Router, TypeScript strict, `src/` dizini, Turbopack)
 - **TailwindCSS v4** + **shadcn/ui** (`base-nova` stili, RTL destekli, `@base-ui/react` primitifleri)
 - **Supabase**: Auth, Postgres Database, Storage — `@supabase/ssr` ile
-- **next-intl**: Türkçe / Arapça, cookie tabanlı locale, tam RTL desteği
+- **next-intl**: Türkçe / Arapça / İngilizce, cookie tabanlı locale, Arapça için tam RTL desteği
 - **Doğrulama**: Server Actions + Zod (auth/profil/pickup/dispute formları); **react-hook-form + Zod** (ilan formu)
 - **Leaflet + react-leaflet**: harita/GPS konum seçimi (ilan formu ve arama filtreleri)
 - **web-push**, **resend**: push notification ve e-posta bildirimi
@@ -57,7 +58,7 @@ Türkiye'de şehirler arası masraf paylaşımı esaslı yolculuk platformu (Bla
   - `is-configured.ts` — Supabase env değişkenleri boşken bile middleware ve sayfaların çökmemesini sağlayan guard.
 - **Çift katmanlı yetkilendirme**: `middleware.ts` ucuz, cookie tabanlı bir ön kontrol yapar (asıl güvenlik sınırı değildir); her korumalı sayfa ayrıca sunucu tarafında `verifySession()` çağırır. Veritabanı seviyesinde de RLS politikaları aynı sahiplik kuralını tekrar uygular (bkz. "RLS Yapısı") — üç katman da bağımsız olarak sahiplik kontrolü yapar.
 - **Server Actions + Zod**: Tüm yazma işlemleri (`actions.ts`) sunucu tarafında Zod ile doğrulanır; formlar `useActionState` (auth/profil) veya `react-hook-form` + zod resolver (ilan formu) kullanır. Veritabanı `check` kısıtlamaları, Zod doğrulamasının bir savunma-derinliği yedeği olarak şemada da tekrarlanır (bkz. migration dosyalarındaki yorumlar).
-- **i18n**: `next-intl`, cookie tabanlı locale (`src/i18n/`), `messages/tr.json` ve `messages/ar.json` (anahtar sayısı birebir eşleşir).
+- **i18n**: `next-intl`, cookie tabanlı locale (`src/i18n/`), `messages/tr.json`, `messages/ar.json`, `messages/en.json` (anahtar sayısı birebir eşleşir — 752). Desteklenen locale listesi `src/i18n/locale-config.ts`'te tek bir yerde tanımlı (`SUPPORTED_LOCALES`); yeni bir locale eklerken `profiles.language` üzerindeki DB check constraint'inin de güncellenmesi gerekir (bkz. `0052_profiles_language_add_en.sql`).
 - **Sabit saat dilimi (`Europe/Istanbul`)**: uygulama tek bir hedef saat dilimi varsayar, çalışma zamanının kendi varsayılanına (yerelde geliştiricinin makinesi, production'da Vercel'in UTC'si) **hiç** güvenmez. İlan kalkış tarihi/saati oluşturma ve gösterimi `src/utils/istanbul-time.ts` üzerinden geçer (Türkiye 2016'dan beri DST kullanmıyor, bu yüzden sabit bir `+03:00` ofseti yeterli ve kesin); `next-intl`'in `timeZone` ayarı da (`src/i18n/request.ts`) tüm `format.dateTime` gösterimlerini aynı şekilde sabitler. Tekrarlanan ilan cron'u (`generate_recurring_rides`, `0039`) da aynı gerekçeyle veritabanı içinde açıkça `Europe/Istanbul` kullanır. Bkz. CHANGELOG → "Kritik — saat dilimi" için bu olmadan yaşanan gerçek production hatası.
 - **Kural-tabanlı dolandırıcılık/kötüye kullanım tespiti (v1→v2)**: `admin_get_suspicious_accounts` (`0026`, `0028`/`0029`, `0042`, `0045`/`0046`), toplam **10** basit eşiği (ilan/rezervasyon yoğunluğu, iptal/red oranı, yeni-hesap-yüksek-tutar, geç iptal, yolcu/sürücü no-show, aynı IBAN'ın birden fazla hesapta kayıtlı olması, tekrar şikayet edilme, tekrarlanan dekont/iade reddi) `/admin/users` ve `/admin/payments` üzerinde işaretler. **Bir ML sistemi değildir** — eşikler gerçek kullanım verisiyle ayarlanması gereken makul varsayımlardır; kesin kanıt değil, yalnızca admin'in gözden geçirmesi gereken bir işarettir.
 
@@ -86,7 +87,7 @@ src/
     manifest.ts                  # PWA manifest.webmanifest üretici
     error.tsx / global-error.tsx  # segment / root-layout hata sınırları
   components/
-    layout/                   # Header, Footer, LocaleSwitcher, ThemeToggle, InstallAppButton
+    layout/                   # Header, Footer, LocaleSwitcher, ThemeToggle, InstallAppButton, IOSInstallPrompt, WelcomeAuthModal
     ui/                       # shadcn bileşenleri
     EmptyState.tsx             # paylaşılan boş durum bileşeni
     ServiceWorkerRegister.tsx  # public/sw.js'i kaydeden client bileşeni
@@ -118,14 +119,14 @@ src/
   types/                      # profile.ts, ride.ts, booking.ts, message.ts, review.ts, dispute.ts
   utils/                      # turkish-provinces.ts (81 il), turkish-provinces-ar.ts (AR görünen adları), turkish-provinces-geo.ts (il merkezi koordinatları), currency.ts, istanbul-time.ts
   middleware.ts               # Supabase session refresh + korumalı rota kontrolü
-messages/                      # tr.json, ar.json
-loadtest/                      # k6 yerine Node/@supabase-js tabanlı yük testi script'leri — HENÜZ ÇALIŞTIRILMADI, bkz. Bilinen Sınırlamalar
-e2e/                            # Playwright uçtan uca testleri (booking-chat-review, double-booking, payment-review)
+messages/                      # tr.json, ar.json, en.json
+loadtest/                      # k6 yerine Node/@supabase-js tabanlı yük testi script'leri — bkz. Bilinen Sınırlamalar için sonuçlar
+e2e/                            # Playwright uçtan uca testleri (booking-chat-review, double-booking, payment-review, new-features)
 public/
   sw.js                        # temel offline fallback service worker
   icons/, apple-touch-icon.png # PWA ikonları
 supabase/
-  migrations/                  # 0001–0048, bkz. "Migration Sırası"
+  migrations/                  # 0001–0052, bkz. "Migration Sırası"
 ```
 
 ## Kurulum
@@ -210,10 +211,14 @@ Migration'lar dosya adı sırasına göre (`0001`, `0002`, `0003`, ...) uygulan�
 26. `supabase/migrations/0041_no_show_and_late_cancellation.sql` — no-show/geç iptal takibi: `bookings.cancelled_at`/`passenger_no_show`/`driver_no_show` kolonları, `report_no_show` RPC'si.
 27. `supabase/migrations/0042_suspicious_accounts_no_show_rules.sql` — şüpheli hesap kural motoruna `0041`'in ürettiği sinyalleri (geç iptal, yolcu/sürücü no-show) ekleyen üç yeni kural (toplam 7).
 28. `supabase/migrations/0043_ride_search_alerts.sql` — "bu güzergahta ilan açılınca haber ver" arama uyarıları (`ride_search_alerts`), ilan başına en fazla bir kez bildirim garantisi (`ride_search_alert_dispatches`).
-29. `supabase/migrations/0044_disputes.sql` *(bu oturum, henüz production'a uygulanmadı)* — formal anlaşmazlık (itiraz) çözüm sistemi: `disputes` tablosu, `open_dispute`/`admin_set_dispute_status` RPC'leri, `/admin/disputes` kuyruğu.
-30. `supabase/migrations/0045_fraud_v2_columns_and_enum.sql` + `0046_suspicious_accounts_fraud_v2.sql` *(bu oturum, henüz production'a uygulanmadı)* — dolandırıcılık tespiti v2: üç yeni sinyal (aynı IBAN'ın birden fazla hesapta kayıtlı olması, tekrar şikayet edilme, tekrarlanan dekont/iade reddi) — toplam **10** kural.
-31. `supabase/migrations/0047_bulk_receipt_review.sql` *(bu oturum, henüz production'a uygulanmadı)* — risk katmanlı toplu dekont onayı (`admin_bulk_approve_receipts`) — yalnızca dar, kural-tabanlı "güvenilir" katmanı (hesap yaşı ≥14 gün, şüpheli değil, geçmiş red yok, açık anlaşmazlık yok) fast-track'ler; OCR/tutar doğrulaması yapmaz.
-32. `supabase/migrations/0048_pickup_verification_code.sql` *(bu oturum, henüz production'a uygulanmadı)* — 4 haneli alım doğrulama kodu (`booking_pickup_codes`, `get_my_pickup_code`/`verify_pickup_code`/`get_pickup_verification_status`) — bkz. RLS Yapısı için bu tablonun RLS'siz tasarımı.
+29. `supabase/migrations/0044_disputes.sql` — formal anlaşmazlık (itiraz) çözüm sistemi: `disputes` tablosu, `open_dispute`/`admin_set_dispute_status` RPC'leri, `/admin/disputes` kuyruğu.
+30. `supabase/migrations/0045_fraud_v2_columns_and_enum.sql` + `0046_suspicious_accounts_fraud_v2.sql` — dolandırıcılık tespiti v2: üç yeni sinyal (aynı IBAN'ın birden fazla hesapta kayıtlı olması, tekrar şikayet edilme, tekrarlanan dekont/iade reddi) — toplam **10** kural.
+31. `supabase/migrations/0047_bulk_receipt_review.sql` — risk katmanlı toplu dekont onayı (`admin_bulk_approve_receipts`) — yalnızca dar, kural-tabanlı "güvenilir" katmanı (hesap yaşı ≥14 gün, şüpheli değil, geçmiş red yok, açık anlaşmazlık yok) fast-track'ler; OCR/tutar doğrulaması yapmaz.
+32. `supabase/migrations/0048_pickup_verification_code.sql` — 4 haneli alım doğrulama kodu (`booking_pickup_codes`, `get_my_pickup_code`/`verify_pickup_code`/`get_pickup_verification_status`) — bkz. RLS Yapısı için bu tablonun RLS'siz tasarımı.
+33. `supabase/migrations/0049_fix_search_alert_recipients_email_cast.sql` — `get_search_alert_recipients`'te bir tip cast hatasının düzeltmesi.
+34. `supabase/migrations/0050_car_plate.sql` — `profiles.car_plate` kolonu (`car_brand`/`car_model` ile aynı gerekçe, `0018`), `update_own_profile`'ın genişletilmiş imzası.
+35. `supabase/migrations/0051_car_plate_format_check.sql` — `car_plate` için standart Türk plaka formatını zorunlu kılan bir check constraint, **`NOT VALID`** olarak eklendi (var olan satırları geriye dönük doğrulamaz, yalnızca bundan sonraki INSERT/UPDATE'leri zorlar).
+36. `supabase/migrations/0052_profiles_language_add_en.sql` — `profiles.language` check constraint'ine `'en'` eklendi (İngilizce locale desteğiyle birlikte; unutulsaydı bir kullanıcının profilde İngilizce'yi dil olarak seçip kaydetmesi DB seviyesinde hata verirdi).
 
 ## RLS Yapısı
 
@@ -327,10 +332,9 @@ Proje Vercel'e deploy edilmeye hazırdır ve GitHub'a bağlı sürekli deploy il
 
 ## Bilinen Sınırlamalar
 
-- **`0044`–`0048` migration'ları henüz production Supabase projesine uygulanmadı**: kod seviyesinde tamamlandı, yerelde lint/typecheck/build/test ile doğrulandı, ama `supabase db push` ile canlı projeye henüz gönderilmedi — anlaşmazlık çözümü, dolandırıcılık tespiti v2, toplu dekont onayı ve alım doğrulama kodu özellikleri production'da **henüz aktif değil**.
 - **Yük/eşzamanlılık testleri 2026-07-31'de yerel Docker + `npx supabase start` ile ilk kez çalıştırıldı** (`loadtest/`): `last-seat-race.mjs` (20 eşzamanlı `approve_booking`, 1 koltuklu ilan) ve `cancel-approve-race.mjs` (30 iterasyon eşzamanlı `cancel_booking`/`approve_booking`) **PASS** — aşırı rezervasyon veya kayıp güncelleme gözlenmedi. `browse-load.mjs` (75 sanal kullanıcı × 6 istek) de tamamlandı (450/450 başarılı) ama p50 gecikme ~14.9s, p95 ~16.6s çıktı — bu, `next dev`'in tek süreçte/derlemeli çalışmasından kaynaklanıyor olabilir, production build (`next build && next start`) ile yeniden ölçülmeden gerçek bir performans sorunu olup olmadığı belirsizdir.
 - **KVKK/Gizlilik Politikası/Kullanım Şartları sayfalarında hâlâ doldurulmamış yer tutucular var**: iletişim e-postası bu oturumda `novarodigitalstudio@gmail.com` ile dolduruldu, ama `[Şirket Unvanı]` (şirket unvanı), `[Şirket Adresi]` (2 yerde) ve `[MERSİS No]` hâlâ gerçek şirket bilgileriyle değiştirilmedi. Bu gerçek yasal belgeler için üretim öncesi mutlaka doldurulmalı.
-- **PWA'nın "yükle" düğmesi**: `beforeinstallprompt` olayını yakalayan özel düğme (`InstallAppButton.tsx`) iOS Safari'de hiç görünmez — bu bir platform kısıtıdır, kod tarafında düzeltilemez.
+- **PWA'nın "yükle" düğmesi**: `beforeinstallprompt` olayını yakalayan özel düğme (`InstallAppButton.tsx`) iOS Safari'de hiç görünmez — bu bir platform kısıtıdır, kod tarafında düzeltilemez. `IOSInstallPrompt.tsx` bu boşluğu manuel bir Paylaş→Ana Ekrana Ekle rehberiyle dolduruyor (yalnızca gerçek Safari'de; diğer iOS tarayıcılarında kullanıcıya Safari'ye geçmesi söyleniyor) ama bu da bir UI ipucu — gerçek `beforeinstallprompt` deneyimini iOS'ta hiçbir şekilde tetikleyemez.
 - **IBAN'ın gerçek sahiplik doğrulaması yok**: `profiles_private.iban`/`iban_holder_name` yalnızca format kontrolünden geçer; girilen IBAN'ın gerçekten o kullanıcıya ait olduğunu doğrulayan bir banka API entegrasyonu yok (üçüncü taraf hesap/anlaşma gerektirir, bu depoda kurulmadı). Ara çözümler: admin dekont incelerken sürücünün kayıtlı IBAN/ad bilgisini görüp göz kontrolü yapabiliyor, ve aynı IBAN'ın birden fazla hesapta kayıtlı olması artık bir şüpheli-hesap sinyali (`duplicate_iban`, `0046`) — ikisi de gerçek bir doğrulama değil, yalnızca bir işaret/ara çözüm.
 - **Dekont incelemesi hâlâ büyük ölçüde manuel**: risk katmanlı toplu onay (`0047`), yalnızca dar, kural-tabanlı bir "güvenilir" katmanı (hesap yaşı ≥14 gün, şüpheli hesap değil, geçmiş red yok, açık anlaşmazlık yok) fast-track'ler — geri kalan her dekont tek tek admin incelemesi gerektirir. Bulk-approve de dahil olmak üzere hiçbir yerde OCR/görsel analiz yok; dekonttaki gerçek tutar/görsel hiçbir zaman otomatik doğrulanmaz, admin'in gözüne güvenilir.
 - **Ödeme/komisyon altyapısı bilinçli olarak yok**: gerçek bir ödeme gateway'i (Stripe/iyzico vb.) entegre edilmedi ve **planlanmıyor** — komisyonsuz, doğrudan-IBAN, "yarı başta/yarı sonda" modelin bilinçli olarak korunmasına karar verildi (bkz. Roadmap).

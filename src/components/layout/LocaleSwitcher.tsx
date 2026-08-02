@@ -18,6 +18,7 @@ import {
 const LOCALE_LABELS: Record<AppLocale, string> = {
   tr: "Türkçe",
   ar: "العربية",
+  en: "English",
 }
 
 export function LocaleSwitcher() {

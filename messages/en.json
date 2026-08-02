@@ -1,0 +1,1178 @@
+{
+  "Metadata": {
+    "title": "GötürBeni",
+    "description": "GötürBeni is a cost-sharing carpooling platform that connects drivers and passengers for intercity trips. Join for free, post a ride, or find one that suits you."
+  },
+  "Nav": {
+    "skipToContent": "Skip to content",
+    "home": "Home",
+    "rides": "Find a Ride",
+    "createRide": "Post a Ride",
+    "myRides": "My Rides",
+    "bookings": "My Bookings",
+    "howItWorks": "How It Works",
+    "support": "Support",
+    "menu": "Menu",
+    "profile": "Profile",
+    "unreadNotifications": "You have a new notification",
+    "admin": "Admin Panel",
+    "login": "Log In",
+    "register": "Sign Up",
+    "logout": "Log Out"
+  },
+  "Push": {
+    "enable": "Enable Notifications",
+    "enabledLabel": "Notifications enabled",
+    "manageInSettings": "Notifications are enabled. To turn them off, use your device's or browser's notification settings.",
+    "permissionDenied": "Notification permission denied.",
+    "subscribeError": "Notifications could not be enabled.",
+    "notifications": {
+      "bookingRequestedTitle": "New booking request",
+      "bookingRequestedBody": "Your listing has a new booking request.",
+      "bookingApprovedTitle": "Your booking was approved",
+      "bookingApprovedBody": "Your booking request was approved.",
+      "bookingRejectedTitle": "Your booking was declined",
+      "bookingRejectedBody": "Your booking request was declined.",
+      "newMessageTitle": "New message",
+      "newMessageBody": "You have a new message.",
+      "seatOpenedTitle": "A seat opened up",
+      "seatOpenedBody": "A seat opened up on a listing you're on the waitlist for. Send your booking request now.",
+      "searchAlertMatchTitle": "New listing on your route",
+      "searchAlertMatchBody": "A new listing was posted on a route you asked to be notified about."
+    },
+    "unsupported": "Notifications aren't supported in this browser. To use them on iPhone with Safari, first add the site to your Home Screen."
+  },
+  "LiveLocation": {
+    "startSharing": "Share My Location",
+    "stopSharing": "Stop Sharing",
+    "unavailable": "Location could not be retrieved.",
+    "denied": "Location permission denied.",
+    "notSharing": "The driver isn't sharing their location yet.",
+    "stoppedSharing": "The driver stopped sharing their location. Last seen: {time}",
+    "lastUpdated": "Last updated: {time}",
+    "distanceMeters": "{meters} m away",
+    "distanceKm": "{km} km away",
+    "approaching": "approaching",
+    "viewLiveLocation": "View Live Location"
+  },
+  "Email": {
+    "viewLinkLabel": "View",
+    "verificationCodeSubject": "Your GötürBeni verification code",
+    "verificationCodeBody": "Your verification code is: <strong>{code}</strong>. This code is valid for 10 minutes."
+  },
+  "Pwa": {
+    "install": "Install App",
+    "iosPrompt": {
+      "title": "Add GötürBeni to your Home Screen",
+      "step1": "Share",
+      "step2": "button, then tap \"Add to Home Screen\"",
+      "openInSafari": "This browser doesn't support installing the app. To add it to your Home Screen, open this page in Safari and try again.",
+      "dismiss": "Dismiss"
+    }
+  },
+  "Footer": {
+    "tagline": "Split the cost of your intercity trips.",
+    "rights": "All rights reserved.",
+    "privacyLink": "Privacy Policy",
+    "termsLink": "Terms of Use",
+    "kvkkLink": "KVKK Notice",
+    "paymentDisclaimer": "Our platform doesn't take a commission — payments are made directly between individuals.",
+    "socialAriaLabel": "Follow us on {platform}"
+  },
+  "HomePage": {
+    "heroTitle": "Share your ride, split the cost with GötürBeni",
+    "heroSubtitle": "Find reliable travel companions for your intercity trips.",
+    "ctaFindRide": "Find a Ride",
+    "ctaOfferRide": "Post a Ride",
+    "metaDescription": "Match with reliable drivers and passengers for intercity trips. Travel affordably and practically with cost-sharing carpooling. Post a ride or find one now.",
+    "geoPrompt": {
+      "message": "Can we use your location to show you rides nearby?",
+      "accept": "Allow"
+    },
+    "trustSection": {
+      "pricing": {
+        "title": "Get where you're going at a fair price",
+        "description": "With cost-sharing rides, find the option that fits your budget among dozens of listings and routes in every city you're headed to. We don't take a commission — what you pay goes straight toward the cost of the trip."
+      },
+      "safety": {
+        "title": "Trust the person you're traveling with",
+        "description": "Every user verifies their phone number, and you can view their profile and past trips. Before booking, we show you the driver's member-since date, number of completed trips, and rating."
+      },
+      "payment": {
+        "title": "Transparent, secure payment",
+        "description": "Payment goes directly to the driver's IBAN, and receipts are uploaded and reviewed through the system. We automatically detect and review suspicious accounts and listings."
+      }
+    }
+  },
+  "Auth": {
+    "login": {
+      "title": "Log In",
+      "description": "Log in to your account.",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Log In",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Sign Up",
+      "forgotPasswordLink": "Forgot your password?",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password"
+    },
+    "register": {
+      "title": "Create an Account",
+      "description": "Create a free account.",
+      "email": "Email",
+      "password": "Password",
+      "passwordHint": "At least 8 characters.",
+      "confirmPassword": "Confirm Password",
+      "phone": "Phone",
+      "phoneHint": "Enter without the leading 0 (e.g. 5XX XXX XX XX). To complete registration, you'll need to verify your account with the code sent to your email.",
+      "gender": "Gender",
+      "genderPlaceholder": "Select",
+      "genderOptions": {
+        "female": "Female",
+        "male": "Male"
+      },
+      "submit": "Create Account",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Log in",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "commercialBanTitle": "Commercial transport is prohibited",
+      "commercialBanNotice": "This platform strictly prohibits commercial transport services. Drivers may only share travel costs. Accounts operating for profit will be closed.",
+      "termsPrefix": "By registering, I confirm that I have read and accept the",
+      "termsLink": "Terms of Use",
+      "termsSuffix": "."
+    },
+    "verifyEmail": {
+      "title": "Check Your Email",
+      "description": "We've sent you a link to confirm your account. Check your inbox (and spam folder)."
+    },
+    "validation": {
+      "invalidEmail": "Enter a valid email address.",
+      "passwordMin": "Password must be at least 8 characters.",
+      "passwordRequired": "Password is required.",
+      "passwordsMismatch": "Passwords don't match.",
+      "genderRequired": "Gender selection is required.",
+      "phoneRequired": "Phone number is required.",
+      "phoneMax": "Phone number must be at most 20 characters.",
+      "phoneInvalid": "Enter a valid phone number (e.g. 05XX XXX XX XX).",
+      "termsRequired": "You must accept the Terms of Use to continue."
+    },
+    "errors": {
+      "invalidForm": "Invalid form.",
+      "invalidCredentials": "Incorrect email or password.",
+      "emailAlreadyRegistered": "This email address is already registered.",
+      "signupFailed": "Registration failed. Please try again.",
+      "notConfigured": "Authentication is not currently configured. Please try again later.",
+      "tooManyRequests": "Too many attempts. Please try again later.",
+      "resetFailed": "Password could not be updated. Please try again.",
+      "sessionExpired": "Your session has expired. Please request a new reset link."
+    },
+    "forgotPassword": {
+      "title": "Forgot Your Password?",
+      "description": "Enter your email address and we'll send you a password reset link.",
+      "email": "Email",
+      "submit": "Send Reset Link",
+      "backToLogin": "Back to login",
+      "successTitle": "Link sent",
+      "successDescription": "If an account exists with this email address, we've sent a password reset link. Check your inbox (and spam folder)."
+    },
+    "resetPassword": {
+      "title": "Set a New Password",
+      "description": "Create a new password for your account.",
+      "password": "New Password",
+      "passwordHint": "At least 8 characters.",
+      "confirmPassword": "Confirm New Password",
+      "submit": "Update Password",
+      "invalidLink": "This link is invalid or has expired. Please request a new reset link.",
+      "requestNewLink": "Request a new link",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password"
+    }
+  },
+  "VerifyPhone": {
+    "title": "Account Verification",
+    "description": "You need to verify your account by email to sign up, post a ride, or make a booking.",
+    "phoneLabel": "Phone",
+    "phoneHint": "Enter without the leading 0 (e.g. 5XX XXX XX XX).",
+    "genderLabel": "Gender",
+    "genderPlaceholder": "Select",
+    "genderOptions": {
+      "female": "Female",
+      "male": "Male"
+    },
+    "continueCta": "Continue",
+    "codeSentTitle": "A verification code has been sent to your email.",
+    "codeLabel": "Verification Code",
+    "confirmCta": "Confirm Code",
+    "resendCta": "Resend Code",
+    "sendCta": "Send Verification Code",
+    "verifySuccess": "Your account has been verified."
+  },
+  "ProfilePage": {
+    "title": "Profile",
+    "description": "Update your information.",
+    "loadError": "Profile could not be loaded."
+  },
+  "Profile": {
+    "form": {
+      "fullName": "Full Name",
+      "email": "Email",
+      "gender": "Gender",
+      "genderOptions": {
+        "female": "Female",
+        "male": "Male"
+      },
+      "phone": "Phone",
+      "phoneHint": "Enter without the leading 0 (e.g. 5XX XXX XX XX).",
+      "iban": "IBAN",
+      "ibanHint": "Required to post listings as a driver — passengers send their first-half payment here.",
+      "ibanHolderName": "Account Holder Full Name",
+      "carBrand": "Car Make",
+      "carModel": "Car Model",
+      "carPlate": "License Plate",
+      "carHint": "Required to post listings as a driver. You can leave this blank if you don't have a vehicle (e.g. 34 ABC 123).",
+      "bio": "About Me",
+      "bioHint": "Up to 500 characters.",
+      "language": "Language",
+      "changeAvatar": "Upload Photo",
+      "save": "Save",
+      "saved": "Profile updated."
+    },
+    "phone": {
+      "verified": "Verified",
+      "verifyCta": "Verify Account",
+      "codeSentTitle": "A verification code has been sent to your email.",
+      "codeLabel": "Verification Code",
+      "confirmCta": "Confirm Code",
+      "cancelCta": "Cancel",
+      "verifySuccess": "Your account has been verified.",
+      "sendError": "Code could not be sent. Please try again.",
+      "verifyError": "Incorrect or expired code.",
+      "tooManyRequests": "Too many attempts. Please try again later."
+    },
+    "validation": {
+      "fullNameRequired": "Full name is required.",
+      "fullNameMax": "Full name must be at most 100 characters.",
+      "phoneMax": "Phone number must be at most 20 characters.",
+      "phoneInvalid": "Enter a valid phone number (e.g. 05XX XXX XX XX or +90 5XX XXX XX XX).",
+      "bioMax": "About Me must be at most 500 characters.",
+      "ibanInvalid": "Enter a valid IBAN (26 characters, starting with TR).",
+      "ibanHolderNameMax": "Account holder name must be at most 100 characters.",
+      "carBrandMax": "Car make must be at most 50 characters.",
+      "carModelMax": "Car model must be at most 50 characters.",
+      "carPlateMax": "License plate must be at most 15 characters.",
+      "carPlateInvalid": "Enter a valid license plate (e.g. 34 ABC 123)."
+    },
+    "errors": {
+      "invalidForm": "Invalid form.",
+      "avatarTooLarge": "Photo must be at most 5 MB.",
+      "avatarInvalidType": "Photo must be PNG, JPEG, or WEBP.",
+      "avatarUploadFailed": "Photo could not be uploaded.",
+      "updateFailed": "Profile could not be updated."
+    }
+  },
+  "RidesPage": {
+    "title": "Rides",
+    "metaDescription": "Browse active intercity ride listings, filter by departure and arrival city, and book an available seat instantly.",
+    "createCta": "Post a Ride",
+    "emptyTitle": "No rides yet",
+    "emptyDescription": "There are no active ride listings right now. Be the first to post one.",
+    "emptyFilteredDescription": "No listings match these criteria. Try a different search.",
+    "nearbyDistrictsNotice": "No matching listings found in the district you selected — showing options in nearby districts.",
+    "nearbyProvincesNotice": "No matching listings found in the province you selected — showing options in geographically nearby provinces.",
+    "filters": {
+      "fromLabel": "From",
+      "toLabel": "To",
+      "fromDistrictLabel": "Departure District",
+      "toDistrictLabel": "Arrival District",
+      "dateLabel": "Date",
+      "allCities": "All",
+      "allDistricts": "All",
+      "selectCityFirst": "Select a city first",
+      "noResults": "No results found",
+      "clearSelection": "Clear selection",
+      "searchCta": "Search",
+      "petsAllowed": "Pets Allowed",
+      "smokingAllowed": "Smoking Allowed",
+      "vipOnly": "VIP (Single Passenger)",
+      "femaleDriverOnly": "Female Driver",
+      "sortLabel": "Sort",
+      "sort": {
+        "date_asc": "Date (Ascending)",
+        "date_desc": "Date (Descending)",
+        "cost_asc": "Cost Share (Ascending)",
+        "cost_desc": "Cost Share (Descending)"
+      }
+    }
+  },
+  "CreateRidePage": {
+    "title": "Post a Ride",
+    "description": "Enter the details of your trip."
+  },
+  "EditRidePage": {
+    "title": "Edit Ride",
+    "description": "Update the details of your ride."
+  },
+  "MyRidesPage": {
+    "title": "My Rides",
+    "createCta": "New Ride",
+    "emptyTitle": "You don't have any rides yet",
+    "emptyDescription": "Create a listing to start sharing rides."
+  },
+  "HowItWorksPage": {
+    "title": "How It Works",
+    "subtitle": "With GötürBeni, sharing an intercity ride is completed in four steps.",
+    "stepLabel": "Step {number}",
+    "steps": {
+      "search": {
+        "title": "Search for your ride",
+        "description": "Choose your departure, destination, and date; filter by map or GPS location to instantly see active listings that match. As a passenger, search for a seat; as a driver, list your open seats."
+      },
+      "book": {
+        "title": "Book your seat, pay your deposit",
+        "description": "Once the driver approves your booking request, your trip is confirmed. The passenger sends half of the total fare (the deposit) to the driver's IBAN and uploads the receipt; the remaining half is paid after the trip."
+      },
+      "pickup": {
+        "title": "Get in touch with your driver",
+        "description": "Work out the meeting details through in-app chat and track the driver's live location. At pickup, the passenger just tells the driver their 4-digit verification code — that's how the trip officially starts."
+      },
+      "complete": {
+        "title": "Finish the trip, leave a review",
+        "description": "After arrival, the remaining payment is settled, and both sides rate each other with 1–5 stars and a comment — these reviews appear on each user's profile."
+      }
+    },
+    "trust": {
+      "title": "Trusted profiles",
+      "description": "Every user has a profile with a history of past trips and mutual star ratings and reviews, so you can see who you're traveling with. You'll need to verify your account, and if you're a driver, add a valid license plate."
+    },
+    "help": {
+      "title": "Need help?",
+      "description": "Check out our Support page for frequently asked questions, or email us directly."
+    }
+  },
+  "SupportPage": {
+    "title": "Support",
+    "subtitle": "Frequently asked questions and what you need to know about how the platform works.",
+    "contact": {
+      "title": "Contact Us",
+      "description": "If you couldn't find the answer you were looking for below, email us directly and we'll get back to you as quickly as we can.",
+      "emailCta": "Send Email"
+    },
+    "categories": {
+      "booking": "Booking & Payment",
+      "safety": "Safety & Verification",
+      "account": "Account & Driver"
+    },
+    "faq": {
+      "booking": {
+        "question": "How does booking work?",
+        "answer": "You send a seat request on a listing; the request goes to the driver as 'Pending.' If the driver approves it, your booking is confirmed; if declined, the seat isn't affected."
+      },
+      "cancellation": {
+        "question": "Can I cancel my booking or listing?",
+        "answer": "Yes. Passengers can cancel a pending or approved booking from the 'My Bookings' page; drivers can cancel their own listing from the 'My Rides' page."
+      },
+      "payment": {
+        "question": "How does payment work?",
+        "answer": "GötürBeni doesn't take a commission. Once your booking is approved, you send the deposit amount to the IBAN shown on the driver's profile and upload the receipt through the app; once it's reviewed and approved, your booking is confirmed. The same receipt/approval process is used for the remaining balance after the trip."
+      },
+      "depositRejected": {
+        "question": "What happens if my uploaded receipt is rejected?",
+        "answer": "You'll be shown the reason for the rejection, and you can fix the issue and upload a new receipt for the same booking."
+      },
+      "waitlist": {
+        "question": "What can I do if a listing is full?",
+        "answer": "On a listing that shows as full, you can join the waitlist using 'Notify Me When a Seat Opens Up'; you'll get a notification if a seat is cancelled or opens up."
+      },
+      "safety": {
+        "question": "What's being done for safety?",
+        "answer": "Every account is verified with a code sent to its email address at registration. Before payment, you can see the driver's member-since date, number of completed trips, and rating. Our system automatically detects and reviews suspicious accounts and listings using automated rules."
+      },
+      "femaleDriver": {
+        "question": "How does the Female Driver filter work?",
+        "answer": "Users who have set their gender as female on their profile can limit search results to listings from female drivers only. A driver's gender isn't public; this filter only returns results for users who have themselves declared they are female."
+      },
+      "pickupCode": {
+        "question": "What is the pickup verification code?",
+        "answer": "A unique 4-digit code is generated for you once your booking is approved. When you meet the driver, you tell them this code; once the driver enters it in the app, your trip is considered started."
+      },
+      "dispute": {
+        "question": "What should I do if I have a dispute with a driver or passenger?",
+        "answer": "You can open a dispute from the relevant booking using the 'Report a Problem' option; our team will review your request and let you know the outcome."
+      },
+      "suspendedAccount": {
+        "question": "Why might my account be suspended?",
+        "answer": "Accounts showing suspicious behavior or violating the rules may be suspended by an administrator. A suspended account cannot post new listings, make bookings, send messages, or leave reviews."
+      },
+      "carPlate": {
+        "question": "Why do you ask for a license plate?",
+        "answer": "To post listings as a driver, you need to add a license plate in a valid format to your profile. This information is shown publicly on listing and profile pages so passengers can recognize the correct vehicle at the meeting point."
+      }
+    }
+  },
+  "BookingsPage": {
+    "title": "My Bookings",
+    "emptyTitle": "You don't have any bookings yet",
+    "emptyDescription": "Find a ride and send a booking request.",
+    "chat": "Chat"
+  },
+  "RideBookingsPage": {
+    "title": "Booking Requests",
+    "description": "Manage the booking requests for this listing.",
+    "emptyTitle": "No booking requests yet",
+    "emptyDescription": "No one has requested a booking on this listing yet.",
+    "chat": "Chat",
+    "waitlistCount": "{count} people waiting for a seat to open up"
+  },
+  "ChatPage": {
+    "title": "Chat",
+    "passengerPicker": {
+      "title": "Select Passenger",
+      "description": "Choose the passenger you want to chat with.",
+      "unknownPassenger": "Passenger"
+    }
+  },
+  "Rides": {
+    "form": {
+      "departureCity": "Departure City",
+      "arrivalCity": "Arrival City",
+      "departureDistrict": "Departure District",
+      "arrivalDistrict": "Arrival District",
+      "selectCity": "Search or select a city",
+      "selectDistrict": "Search or select a district",
+      "selectCityFirst": "Select a city first",
+      "noResults": "No results found.",
+      "clearSelection": "Clear selection",
+      "optional": "(optional)",
+      "useMyLocation": "Use My Location",
+      "detectingLocation": "Detecting location...",
+      "locationDenied": "Location permission denied.",
+      "locationUnavailable": "Location could not be retrieved. Please try again.",
+      "locationNoMatch": "Your location couldn't be matched automatically — please select from the list.",
+      "showMap": "Choose on Map",
+      "hideMap": "Hide Map",
+      "mapInstructions": "Tap a point on the map to set your location.",
+      "departureDate": "Date",
+      "departureTime": "Time",
+      "seatCount": "Number of Seats",
+      "costShare": "Cost Share (₺)",
+      "description": "Description",
+      "descriptionHint": "Up to 500 characters.",
+      "petsAllowed": "Pets allowed",
+      "smokingAllowed": "Smoking allowed",
+      "vipSolo": "VIP (Single Passenger) — only one passenger should book this listing",
+      "vipSoloHint": "Seat count is automatically fixed at 1 for VIP listings; the ride won't be shared with other passengers.",
+      "repeatWeekly": "Repeat this listing every week on this day and time",
+      "repeatWeeklyHint": "Next week's listing is automatically posted about a week before its departure. You can stop it anytime from \"My Rides.\"",
+      "createSubmit": "Publish Listing",
+      "updateSubmit": "Update Listing"
+    },
+    "validation": {
+      "cityRequired": "Select a city.",
+      "sameCities": "Departure and arrival cities must be different.",
+      "districtInvalid": "Select a valid district for the chosen city.",
+      "dateRequired": "Date is required.",
+      "timeRequired": "Time is required.",
+      "departureInPast": "Departure time must be in the future.",
+      "seatCountRange": "Number of seats must be between 1 and 8.",
+      "costShareMin": "Cost share cannot be negative.",
+      "descriptionMax": "Description must be at most 500 characters.",
+      "vipSoloSingleSeat": "VIP (single passenger) listings must have a seat count of 1."
+    },
+    "errors": {
+      "invalidForm": "Invalid form.",
+      "notConfigured": "Database connection is not currently configured. Please try again later.",
+      "createFailed": "Listing could not be created. Please try again.",
+      "updateFailed": "Listing could not be updated. Please try again.",
+      "cancelFailed": "Listing could not be cancelled. Please try again.",
+      "pauseFailed": "Recurring listing could not be stopped. Please try again.",
+      "tooManyRequests": "Too many attempts. Please try again later.",
+      "ibanRequired": "To post a listing, first add your IBAN and account holder name to your profile.",
+      "carPlateRequired": "To post a listing, first add a valid license plate to your profile."
+    },
+    "status": {
+      "active": "Active",
+      "full": "Full",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "card": {
+      "availableSeats": "{count} seats available",
+      "unknownDriver": "Driver",
+      "petsAllowed": "Pets allowed",
+      "smokingAllowed": "Smoking allowed",
+      "vipSolo": "VIP (Single Passenger)"
+    },
+    "myRides": {
+      "edit": "Edit",
+      "cancel": "Cancel",
+      "confirmCancel": "Are you sure?",
+      "cancelled": "Listing cancelled.",
+      "bookings": "Bookings",
+      "activeSeriesTitle": "My recurring listings",
+      "everyWeekday": "every {weekday}",
+      "stopSeries": "Stop Repeating",
+      "seriesStopped": "Recurring listing stopped."
+    }
+  },
+  "RideDetailPage": {
+    "seats": "{available} / {total} seats available",
+    "descriptionLabel": "Description",
+    "metaDescription": "Ride on {date} - {cost}",
+    "waitlistMessage": "This listing is currently full. Would you like us to notify you when a seat opens up?"
+  },
+  "Bookings": {
+    "form": {
+      "seatCount": "Number of Seats"
+    },
+    "validation": {
+      "seatCountMin": "Select at least 1 seat."
+    },
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Declined",
+      "cancelled": "Cancelled"
+    },
+    "actions": {
+      "reserve": "Book Now",
+      "approve": "I've Received the First Half Payment, Approve",
+      "reject": "Decline",
+      "cancel": "Cancel",
+      "confirmCancel": "Are you sure?",
+      "confirmApprove": "Do you confirm you've received the first-half payment?",
+      "confirmReject": "Decline this request?",
+      "reportDriverNoShow": "Driver Didn't Show Up",
+      "reportPassengerNoShow": "Passenger Didn't Show Up",
+      "alreadyReportedNoShow": "Reported",
+      "confirmNoShow": "Are you sure you want to report this?"
+    },
+    "success": {
+      "created": "Your booking request has been sent.",
+      "approved": "Booking approved.",
+      "rejected": "Booking declined.",
+      "cancelled": "Booking cancelled.",
+      "noShowReported": "Reported."
+    },
+    "errors": {
+      "invalidForm": "Invalid form.",
+      "notConfigured": "Database connection is not currently configured. Please try again later.",
+      "notEnoughSeats": "Not enough seats available.",
+      "alreadyBooked": "You already have a booking request for this listing.",
+      "ownRide": "You can't book your own listing.",
+      "rideNotActive": "This listing is no longer active.",
+      "createFailed": "Booking could not be created. Please try again.",
+      "approveFailed": "Booking could not be approved. Please try again.",
+      "rejectFailed": "Booking could not be declined. Please try again.",
+      "cancelFailed": "Booking could not be cancelled. Please try again.",
+      "tooManyRequests": "Too many attempts. Please try again later.",
+      "settleFailed": "Payment could not be marked as settled. Please try again.",
+      "actionFailed": "The action could not be completed. Please try again.",
+      "receiptRequired": "Please select a receipt file.",
+      "receiptTooLarge": "Receipt file must be at most 5 MB.",
+      "receiptInvalidType": "Receipt must be PNG, JPEG, WEBP, or PDF.",
+      "receiptUploadFailed": "Receipt could not be uploaded. Please try again."
+    },
+    "card": {
+      "seatCount": "{count} seats",
+      "unknownPassenger": "Passenger",
+      "uploadSettlementReceipt": "Upload Remaining Payment Receipt",
+      "settlementReceiptStatus": {
+        "pending": "Remaining payment receipt under review",
+        "approved": "Remaining payment receipt approved",
+        "rejected": "Remaining payment receipt rejected — please re-upload"
+      }
+    },
+    "loginPrompt": {
+      "message": "You need to log in to make a booking.",
+      "cta": "Log In",
+      "verifyMessage": "You need to complete phone verification to make a booking.",
+      "verifyCta": "Complete Verification"
+    },
+    "payment": {
+      "depositInstructionTitle": "To confirm your booking, send 50% of the fare to the IBAN below by {deadline}",
+      "ibanLabel": "IBAN",
+      "ibanHolderLabel": "Account Holder",
+      "noCommissionDisclaimer": "Our platform doesn't take a commission — payments are made directly between individuals.",
+      "driverMemberSince": "Member since: {date}",
+      "driverCompletedRides": "{count} completed trips",
+      "settleCta": "Mark Remaining Payment as Complete",
+      "settleSuccess": "Remaining payment marked as complete.",
+      "uploadReceipt": "Upload Receipt",
+      "receiptUploadSuccess": "Receipt uploaded, awaiting review.",
+      "receiptStatus": {
+        "pending": "Receipt under review",
+        "approved": "Receipt approved",
+        "rejected": "Receipt rejected — please re-upload"
+      }
+    },
+    "refund": {
+      "uploadProof": "Upload Refund Receipt",
+      "proofRejected": "Refund receipt rejected",
+      "status": {
+        "pending": "Refund pending",
+        "proof_submitted": "Refund receipt under review",
+        "confirmed": "Refund confirmed"
+      }
+    }
+  },
+  "Chat": {
+    "unknownUser": "User",
+    "emptyTitle": "No messages yet",
+    "emptyDescription": "Send the first message about this ride.",
+    "locationShared": "📍 Location shared",
+    "form": {
+      "placeholder": "Write a message...",
+      "send": "Send",
+      "shareLocation": "Share My Location",
+      "locationDenied": "Location permission denied.",
+      "locationUnavailable": "Location could not be retrieved. Please try again."
+    },
+    "validation": {
+      "messageRequired": "Message cannot be empty.",
+      "messageMax": "Message must be at most 2000 characters."
+    },
+    "status": {
+      "typing": "typing...",
+      "seen": "Seen",
+      "sent": "Sent"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDelete": "Are you sure you want to delete this message?",
+      "cancel": "Cancel",
+      "save": "Save",
+      "edited": "(edited)",
+      "deletedPlaceholder": "This message was deleted."
+    },
+    "errors": {
+      "invalidForm": "Invalid form.",
+      "notConfigured": "Database connection is not currently configured. Please try again later.",
+      "sendFailed": "Message could not be sent. Please try again.",
+      "tooManyRequests": "Too many attempts. Please try again later.",
+      "editWindowExpired": "Edit window has expired (15 minutes).",
+      "actionFailed": "The action could not be completed. Please try again."
+    }
+  },
+  "Reviews": {
+    "sectionTitle": "Reviews",
+    "totalReviews": "{count} reviews",
+    "totalRides": "{count} trips total",
+    "recentReviews": "Recent Reviews",
+    "emptyTitle": "No reviews yet",
+    "emptyDescription": "This user hasn't received any reviews yet.",
+    "unknownReviewer": "User",
+    "form": {
+      "ratingLabel": "Rating",
+      "commentLabel": "Comment (optional)",
+      "commentHint": "Up to 500 characters.",
+      "submit": "Submit Review"
+    },
+    "validation": {
+      "ratingRequired": "Select a rating.",
+      "commentMax": "Comment must be at most 500 characters."
+    },
+    "actions": {
+      "leaveReview": "Leave a Review",
+      "alreadyReviewed": "You've left a review",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDelete": "Are you sure you want to delete this review?",
+      "cancel": "Cancel",
+      "save": "Save",
+      "edited": "(edited)",
+      "deletedPlaceholder": "This review was deleted."
+    },
+    "success": {
+      "created": "Your review has been submitted."
+    },
+    "errors": {
+      "invalidForm": "Invalid form.",
+      "notConfigured": "Database connection is not currently configured. Please try again later.",
+      "notEligible": "You can't leave a review for this trip.",
+      "alreadyReviewed": "You've already left a review for this trip.",
+      "editWindowExpired": "Edit window has expired (15 minutes).",
+      "actionFailed": "The action could not be completed. Please try again."
+    }
+  },
+  "Disputes": {
+    "form": {
+      "reportProblem": "Report a Problem",
+      "reasonLabel": "Issue Type",
+      "reason": {
+        "payment_not_received": "Payment Not Received",
+        "payment_amount_mismatch": "Payment Amount Mismatch",
+        "service_not_as_described": "Service Not as Described",
+        "safety_concern": "Safety Concern",
+        "other": "Other"
+      },
+      "descriptionPlaceholder": "Describe the issue you experienced (at least 10 characters)",
+      "cancel": "Cancel",
+      "submit": "Submit",
+      "alreadyOpenBadge": "Reported, under review"
+    },
+    "status": {
+      "open": "Open",
+      "in_review": "Under Review",
+      "resolved": "Resolved",
+      "dismissed": "Dismissed"
+    },
+    "validation": {
+      "descriptionMin": "Description must be at least 10 characters.",
+      "descriptionMax": "Description must be at most 2000 characters."
+    },
+    "success": {
+      "opened": "Your report has been received; our team will review it."
+    },
+    "errors": {
+      "invalidForm": "Invalid form.",
+      "notConfigured": "Database connection is not currently configured. Please try again later.",
+      "notAdmin": "You don't have admin permissions for this action.",
+      "alreadyOpen": "You already have an open report for this booking.",
+      "notAuthorized": "You can't file a report for this booking.",
+      "tooManyRequests": "Too many attempts. Please try again later.",
+      "actionFailed": "The action could not be completed. Please try again."
+    }
+  },
+  "Pickup": {
+    "passenger": {
+      "codeLabel": "Tell this code to the driver",
+      "verified": "Your trip has started"
+    },
+    "driver": {
+      "codeInputLabel": "Passenger Code",
+      "codePlaceholder": "4-digit code",
+      "verify": "Confirm",
+      "verified": "Passenger Picked Up"
+    },
+    "validation": {
+      "codeInvalid": "Code must be 4 digits."
+    },
+    "success": {
+      "verified": "Passenger code confirmed, trip has started."
+    },
+    "errors": {
+      "invalidForm": "Invalid form.",
+      "notConfigured": "Database connection is not currently configured. Please try again later.",
+      "notAuthorized": "You don't have permission for this action.",
+      "bookingNotApproved": "This booking hasn't been approved yet.",
+      "alreadyVerified": "This passenger has already been marked as picked up.",
+      "invalidCode": "Incorrect code. Please ask the passenger again.",
+      "tooManyRequests": "Too many attempts. Please try again later.",
+      "actionFailed": "The action could not be completed. Please try again."
+    }
+  },
+  "Admin": {
+    "nav": {
+      "analytics": "Analytics",
+      "users": "Users",
+      "rides": "Listings",
+      "payments": "Payments",
+      "disputes": "Disputes",
+      "backToSite": "Back to Site"
+    },
+    "analytics": {
+      "title": "Analytics",
+      "description": "Summary statistics on the overall state of the platform.",
+      "totalUsers": "Total Users",
+      "totalRides": "Total Listings",
+      "totalBookings": "Total Bookings",
+      "usersLast7Days": "Joined in Last 7 Days",
+      "usersLast30Days": "Joined in Last 30 Days",
+      "ridesLast7Days": "Listings Posted in Last 7 Days",
+      "ridesLast30Days": "Listings Posted in Last 30 Days",
+      "bookingsByStatusTitle": "Bookings by Status",
+      "ridesTrendTitle": "Last 7 Days — Listings Posted"
+    },
+    "suspicious": {
+      "title": "Suspicious Accounts",
+      "description": "Rule-based automated detection (v1) — not definitive proof of fraud, but a signal that requires manual review.",
+      "none": "No accounts are currently flagged.",
+      "reason": {
+        "ride_spam": "High listing volume",
+        "high_cancellation_rate": "High cancellation rate",
+        "high_rejection_rate": "High rejection rate",
+        "booking_spam": "High booking request volume",
+        "new_account_high_value": "New account + high-value listing",
+        "frequent_late_cancellation": "Frequent late cancellation",
+        "frequent_passenger_no_show": "Frequent no-show (passenger)",
+        "frequent_driver_no_show": "Frequent no-show (driver)",
+        "duplicate_iban": "Same IBAN on multiple accounts",
+        "disputed_repeatedly": "Repeated dispute subject",
+        "repeated_receipt_rejection": "Repeated receipt/refund rejection"
+      }
+    },
+    "users": {
+      "title": "Users",
+      "description": "View, suspend, or unsuspend users.",
+      "emptyTitle": "No users yet",
+      "emptyDescription": "No one has registered on the platform yet.",
+      "unknownUser": "User",
+      "thatsYou": "That's you",
+      "adminBadge": "Admin",
+      "suspendedBadge": "Suspended",
+      "phoneVerified": "Phone Verified",
+      "phoneUnverified": "Phone Not Verified",
+      "phoneUnknown": "Phone Status Hidden",
+      "verificationStatus": {
+        "unverified": "Not Verified",
+        "pending": "Pending",
+        "verified": "Verified"
+      },
+      "suspend": "Suspend",
+      "unsuspend": "Unsuspend",
+      "confirmToggle": "Are you sure?",
+      "suspendSuccess": "User suspended.",
+      "unsuspendSuccess": "User unsuspended."
+    },
+    "rides": {
+      "title": "Listings",
+      "description": "View all listings and remove them if necessary.",
+      "emptyTitle": "No listings yet",
+      "emptyDescription": "No listing has been created on the platform yet.",
+      "unknownDriver": "Driver",
+      "cancel": "Remove",
+      "confirmCancel": "Remove this listing?",
+      "cancelSuccess": "Listing removed."
+    },
+    "payments": {
+      "title": "Payments",
+      "description": "Review pending payment receipts and refund requests.",
+      "depositReceiptsTitle": "Receipts Awaiting Review",
+      "noPendingReceipts": "No pending receipts",
+      "settlementReceiptsTitle": "Remaining Payment Receipts Awaiting Review",
+      "noPendingSettlements": "No pending remaining payment receipts",
+      "refundsTitle": "Refunds Awaiting Review",
+      "noPendingRefunds": "No pending refunds",
+      "viewReceipt": "View Receipt",
+      "driverLabel": "Driver",
+      "passengerLabel": "Passenger",
+      "unknownUser": "User",
+      "driverIbanLabel": "Driver IBAN",
+      "approve": "Approve",
+      "reject": "Decline",
+      "cancel": "Cancel",
+      "confirmReject": "Confirm Rejection",
+      "rejectReasonPlaceholder": "Reason for rejection (optional, shown to the relevant user)",
+      "receiptApproved": "Receipt approved.",
+      "receiptRejected": "Receipt rejected.",
+      "confirmRefund": "Confirm Refund",
+      "refundConfirmed": "Refund confirmed.",
+      "riskLow": "Low Risk",
+      "riskHigh": "Review Required",
+      "bulkApprove": "Approve {count} low-risk receipts",
+      "bulkApproveSuccess": "{count} receipts approved."
+    },
+    "disputes": {
+      "title": "Disputes",
+      "description": "Review and resolve disputes reported by users.",
+      "openTitle": "Open Disputes",
+      "noOpenDisputes": "No open disputes right now.",
+      "resolvedTitle": "Resolved Disputes",
+      "noResolvedDisputes": "No resolved disputes yet.",
+      "unknownUser": "User",
+      "reason": {
+        "payment_not_received": "Payment Not Received",
+        "payment_amount_mismatch": "Payment Amount Mismatch",
+        "service_not_as_described": "Service Not as Described",
+        "safety_concern": "Safety Concern",
+        "other": "Other"
+      },
+      "resolutionNoteLabel": "Resolution Note",
+      "resolutionNotePlaceholder": "Resolution note (optional, shown to both parties)",
+      "startReview": "Start Review",
+      "dismiss": "Dismiss",
+      "resolve": "Mark as Resolved",
+      "statusUpdated": "Dispute status updated."
+    },
+    "errors": {
+      "notConfigured": "Database connection is not currently configured. Please try again later.",
+      "notAdmin": "You don't have admin permissions for this action.",
+      "cannotSuspendSelf": "You can't suspend your own account.",
+      "rideNotCancellable": "This listing can no longer be removed.",
+      "actionFailed": "The action could not be completed. Please try again."
+    }
+  },
+  "NotFound": {
+    "title": "Page Not Found",
+    "description": "The page you're looking for may have moved or never existed.",
+    "backHome": "Back to Home"
+  },
+  "ErrorPage": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred.",
+    "retry": "Try Again"
+  },
+  "Offline": {
+    "title": "No internet connection",
+    "description": "You need an internet connection to view this page. Check your connection and try again.",
+    "retry": "Try Again"
+  },
+  "SuspendedPage": {
+    "title": "Your Account Has Been Suspended",
+    "description": "Your account was suspended by an administrator. During this time you cannot post new listings, make bookings, send messages, or leave reviews. Contact our support team for more information."
+  },
+  "LocaleSwitcher": {
+    "label": "Language"
+  },
+  "SearchAlerts": {
+    "subscribe": "Notify Me About This Route",
+    "unsubscribe": "Unsubscribe",
+    "subscribed": "We'll notify you about this route.",
+    "unsubscribed": "Subscription cancelled.",
+    "errors": {
+      "createFailed": "Subscription could not be created. Please try again.",
+      "deleteFailed": "Subscription could not be cancelled. Please try again."
+    }
+  },
+  "Waitlist": {
+    "join": "Notify Me When a Seat Opens Up",
+    "leave": "Leave Waitlist",
+    "joined": "You've been added to the waitlist.",
+    "left": "You've been removed from the waitlist.",
+    "errors": {
+      "joinFailed": "Could not join the waitlist. Please try again.",
+      "leaveFailed": "Could not leave the waitlist. Please try again."
+    }
+  },
+  "CookieConsent": {
+    "label": "Cookie consent",
+    "message": "We use analytics cookies to improve your experience.",
+    "learnMore": "Learn more",
+    "accept": "Accept",
+    "reject": "Reject"
+  },
+  "WelcomeModal": {
+    "title": "Welcome to GötürBeni",
+    "description": "Log in or create a free account to see intercity ride listings, make a booking, or post your own listing.",
+    "register": "Sign Up",
+    "login": "Log In",
+    "dismiss": "Not now, keep browsing the site"
+  },
+  "Legal": {
+    "terms": {
+      "title": "Terms of Use",
+      "intro": "These Terms of Use govern the rules that apply to drivers and passengers using the GötürBeni platform (“Platform”). By using the Platform, you are deemed to have accepted these terms.",
+      "sections": {
+        "service": {
+          "heading": "Description of the Service",
+          "body": [
+            "GötürBeni is a matching platform that connects car-owning drivers with passengers who want to travel the same route on intercity trips.",
+            "The Platform is not a taxi operator, commercial passenger transport company, or travel agency; drivers arrange trips using their own vehicles on a cost-sharing basis.",
+            "This platform strictly prohibits commercial transport services. Drivers may only share travel costs; accounts found to be operating for profit will be suspended or closed.",
+            "The Platform does not currently charge any commission or service fee on trips."
+          ],
+          "items": []
+        },
+        "obligations": {
+          "heading": "User Obligations",
+          "body": [
+            "By registering on the Platform, you confirm that the name, email, phone number, and other profile information you provide are accurate, current, and belong to you.",
+            "The following behaviors are prohibited:"
+          ],
+          "items": [
+            "Arranging trips for commercial purposes or profit, or reselling seats to third parties — accounts found doing so will be suspended or closed",
+            "Using false, misleading, or another person's identity or contact information",
+            "Engaging in harassment, discrimination, or threatening behavior toward other users",
+            "Using the Platform for purposes other than its intended use (advertising, spam, fraud, etc.)"
+          ]
+        },
+        "booking": {
+          "heading": "Booking and Cancellation Policy",
+          "body": [
+            "Passengers submit seat requests on a ride listing; the driver may approve or decline the request. An approved booking may be cancelled by either the driver or the passenger before the trip takes place.",
+            "The Platform is not a payment institution and does not hold funds at any stage. The cost of the trip is shared via direct bank transfer to the driver's IBAN; the passenger uploads the transfer receipt to the system, and the driver — and the Platform when necessary — reviews this receipt to confirm the payment was made.",
+            "If a driver cancels a booking for which payment has already been received, the Platform automatically initiates a refund process; the driver is expected to upload a receipt showing the refund was made, and this refund is reviewed by the Platform.",
+            "The Platform is not a party to cost-sharing disputes between users; the receipt review process described above is an oversight convenience and does not guarantee that payment has actually taken place."
+          ],
+          "items": []
+        },
+        "liability": {
+          "heading": "Limitation of Liability",
+          "body": [
+            "GötürBeni is solely an intermediary platform that connects drivers and passengers; it is not a party to the travel arrangement formed between them.",
+            "The Platform cannot be held responsible for drivers' vehicle use, compliance with traffic rules, insurance obligations, or conduct during the trip, nor for passengers' conduct.",
+            "The Platform bears no legal responsibility for accidents, delays, loss of property or life, or other damages that may occur during trips between users. Users take part in trips voluntarily and at their own risk."
+          ],
+          "items": []
+        },
+        "termination": {
+          "heading": "Account Suspension and Termination",
+          "body": [
+            "In the event of a breach of these terms, a safety concern, or complaints from other users, GötürBeni reserves the right to temporarily suspend or permanently close an account, with or without prior notice.",
+            "Users may close their accounts at any time."
+          ],
+          "items": []
+        },
+        "disputes": {
+          "heading": "Dispute Resolution and Governing Law",
+          "body": [
+            "These Terms of Use are governed by the laws of the Republic of Turkey. Turkish courts and enforcement offices have jurisdiction over any disputes arising from these terms.",
+            "For disputes between users, we recommend first attempting an amicable resolution."
+          ],
+          "items": []
+        },
+        "contact": {
+          "heading": "Contact",
+          "body": [
+            "For questions about these Terms of Use, you can reach us at novarodigitalstudio@gmail.com."
+          ],
+          "items": []
+        }
+      }
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "intro": "This Privacy Policy explains what personal data is collected when you use the GötürBeni platform, how it is used, and what your rights are.",
+      "sections": {
+        "dataCollected": {
+          "heading": "Data We Collect",
+          "body": [
+            "When you register on the Platform and use it, we process the following personal data:"
+          ],
+          "items": [
+            "Identity and contact information: full name, email address, phone number",
+            "Profile information: profile photo, short bio",
+            "Trip data: departure and arrival city, date, seat count, cost share amount",
+            "Communication data: messages sent within the app between driver and passenger",
+            "Rating data: ratings and reviews you give to or receive from other users"
+          ]
+        },
+        "purposes": {
+          "heading": "Purposes of Processing",
+          "body": [
+            "Your personal data is processed for the following purposes:"
+          ],
+          "items": [
+            "Creating, approving, and managing booking requests",
+            "Enabling communication between driver and passenger",
+            "Operating the rating/review system to ensure user trust and platform safety",
+            "Creating and managing your account"
+          ]
+        },
+        "storage": {
+          "heading": "Data Storage",
+          "body": [
+            "Your data is hosted on our infrastructure provider, Supabase. Supabase's servers may be located outside Turkey, in which case your data is transferred abroad. This is explicitly disclosed here as an international data transfer.",
+            "Your data is protected with industry-standard security measures (encrypted connections, access control)."
+          ],
+          "items": []
+        },
+        "retention": {
+          "heading": "Retention Period",
+          "body": [
+            "Your personal data is retained for as long as your account is active and for as long as required by the purposes stated above. When you delete your account, your data is deleted or anonymized within a reasonable period, subject to legal retention obligations."
+          ],
+          "items": []
+        },
+        "rights": {
+          "heading": "Your Rights",
+          "body": [
+            "You have the right to learn whether your personal data is being processed, to request access to your data, to request correction of inaccurate or incomplete data, and, where permitted by law, to request deletion of your data.",
+            "For users based in Turkey, you can find the full list of your rights under KVKK (Turkey's Personal Data Protection Law) on the /kvkk page."
+          ],
+          "items": []
+        },
+        "cookies": {
+          "heading": "Cookies",
+          "body": [
+            "The Platform uses a cookie named NEXT_LOCALE to remember your language preference, and Supabase authentication cookies to keep you signed in.",
+            "The Platform does not use any analytics or advertising cookies."
+          ],
+          "items": []
+        },
+        "contact": {
+          "heading": "Contact",
+          "body": [
+            "For questions about our privacy practices, you can reach us at novarodigitalstudio@gmail.com."
+          ],
+          "items": []
+        }
+      }
+    },
+    "kvkk": {
+      "title": "KVKK Notice (Turkey's Personal Data Protection Law)",
+      "intro": "This Disclosure Notice has been prepared to inform you about your personal data processed by the GötürBeni platform, in accordance with Article 10 of Turkish Law No. 6698 on the Protection of Personal Data (“KVKK”).",
+      "sections": {
+        "controller": {
+          "heading": "Identity of the Data Controller",
+          "body": [
+            "Your personal data is processed by [Company Name] (“Company”) as the data controller, for the purposes and within the scope described below.",
+            "Address: [Company Address]",
+            "MERSIS No: [MERSIS No]",
+            "Contact: novarodigitalstudio@gmail.com"
+          ],
+          "items": []
+        },
+        "categories": {
+          "heading": "Categories of Personal Data Processed",
+          "body": [
+            "The following categories of your personal data are processed through the Platform:"
+          ],
+          "items": [
+            "Identity data: first name, last name",
+            "Contact data: email address, phone number",
+            "Location/travel data: departure and arrival city, trip date, seat count, cost share amount",
+            "Transaction security data: account creation and login records, IP address, and similar technical access information"
+          ]
+        },
+        "purposes": {
+          "heading": "Purposes of Processing Personal Data",
+          "body": [
+            "Your personal data is processed for the purposes of managing membership and accounts, carrying out trip booking processes (request, approval, rejection, cancellation), enabling communication between driver and passenger, ensuring user and platform safety, and operating the rating/review system."
+          ],
+          "items": []
+        },
+        "legalBasis": {
+          "heading": "Legal Basis for Processing Personal Data",
+          "body": [
+            "Your personal data is processed on the legal grounds set out in Article 5/2 of the KVKK: that “processing is necessary for the establishment or performance of a contract, provided it is directly related to the parties to the contract,” and that “processing is necessary for the legitimate interests of the data controller, provided this does not harm the fundamental rights and freedoms of the data subject.”"
+          ],
+          "items": []
+        },
+        "collectionMethod": {
+          "heading": "Method of Collecting Personal Data",
+          "body": [
+            "Your personal data is collected electronically and automatically, through information you provide directly via the GötürBeni web application during registration, profile editing, ride listing creation, booking, and messaging."
+          ],
+          "items": []
+        },
+        "transfer": {
+          "heading": "Transfer of Personal Data",
+          "body": [
+            "Your personal data is hosted on Supabase, which provides the Platform's technical infrastructure. Since Supabase's server infrastructure may be located outside Turkey, your personal data may be transferred abroad under Article 9 of the KVKK.",
+            "This transfer is carried out in accordance with the conditions set out in Article 9 of the KVKK (explicit consent, transfer to countries deemed by the Personal Data Protection Board to provide adequate protection, or adequate protection ensured through a written undertaking)."
+          ],
+          "items": []
+        },
+        "rights": {
+          "heading": "Your Rights Under Article 11 of the KVKK",
+          "body": [
+            "Under Article 11 of the KVKK, everyone has the right to apply to the data controller and request the following regarding themselves:"
+          ],
+          "items": [
+            "To learn whether their personal data is being processed",
+            "To request information about it if their personal data has been processed",
+            "To learn the purpose for which their personal data is processed and whether it is used in accordance with that purpose",
+            "To know the third parties, domestic or foreign, to whom their personal data is transferred",
+            "To request correction of personal data that has been processed incompletely or incorrectly",
+            "To request deletion or destruction of personal data within the conditions set out in Article 7 of the KVKK",
+            "To request that any correction or deletion/destruction be notified to third parties to whom the personal data has been transferred",
+            "To object to a result that is to their detriment arising from the analysis of processed data exclusively through automated systems",
+            "To request compensation for damages suffered due to unlawful processing of personal data"
+          ]
+        },
+        "application": {
+          "heading": "How to Apply",
+          "body": [
+            "To exercise the rights listed above, you may submit your request in writing, along with identity-verifying documents, to [Company Address], or apply via novarodigitalstudio@gmail.com using a secure electronic signature, mobile signature, or the email address you previously registered with the Company and that is on file in our system.",
+            "Your application will be concluded free of charge within 30 days at the latest, in accordance with Article 13 of the KVKK; however, if the process requires an additional cost, a fee may be charged according to the tariff set by the Personal Data Protection Board."
+          ],
+          "items": []
+        }
+      }
+    }
+  }
+}

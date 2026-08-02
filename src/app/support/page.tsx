@@ -1,9 +1,21 @@
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
-import { HelpCircle } from "lucide-react"
+import { HelpCircle, Mail } from "lucide-react"
 
 import { Card, CardContent } from "@/components/ui/card"
+import { buttonVariants } from "@/components/ui/button"
 import { languageAlternates } from "@/i18n/hreflang"
+
+// Same address already used on Terms/Privacy/KVKK pages (messages/*.json) —
+// there's no SUPPORT_EMAIL constant anywhere in the codebase yet, so this
+// keeps that existing per-string duplication pattern rather than inventing one.
+const SUPPORT_EMAIL = "novarodigitalstudio@gmail.com"
+
+const FAQ_CATEGORIES = [
+  { key: "booking", items: ["booking", "cancellation", "payment", "depositRejected", "waitlist"] },
+  { key: "safety", items: ["safety", "femaleDriver", "pickupCode", "dispute"] },
+  { key: "account", items: ["suspendedAccount", "carPlate"] },
+] as const
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("SupportPage")
@@ -21,20 +33,12 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function SupportPage() {
   const t = await getTranslations("SupportPage")
 
-  const faqKeys = [
-    "booking",
-    "cancellation",
-    "payment",
-    "depositRejected",
-    "safety",
-    "femaleDriver",
-    "suspendedAccount",
-  ] as const
+  const allFaqKeys = FAQ_CATEGORIES.flatMap((category) => category.items)
 
   const faqStructuredData = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: faqKeys.map((key) => ({
+    mainEntity: allFaqKeys.map((key) => ({
       "@type": "Question",
       name: t(`faq.${key}.question`),
       acceptedAnswer: {
@@ -52,17 +56,39 @@ export default async function SupportPage() {
         <p className="text-muted-foreground mt-3 text-lg leading-relaxed text-balance">{t("subtitle")}</p>
       </div>
 
-      <div className="flex flex-col gap-4">
-        {faqKeys.map((key) => (
-          <Card key={key} className="ring-foreground/5 border-0 shadow-sm">
-            <CardContent className="flex items-start gap-4">
-              <HelpCircle className="text-primary mt-0.5 size-5 shrink-0" aria-hidden="true" />
-              <div>
-                <h2 className="font-semibold">{t(`faq.${key}.question`)}</h2>
-                <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">{t(`faq.${key}.answer`)}</p>
-              </div>
-            </CardContent>
-          </Card>
+      <Card className="ring-foreground/5 border-0 shadow-sm mb-10">
+        <CardContent className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-4">
+            <Mail className="text-primary mt-0.5 size-5 shrink-0" aria-hidden="true" />
+            <div>
+              <h2 className="font-semibold">{t("contact.title")}</h2>
+              <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">{t("contact.description")}</p>
+            </div>
+          </div>
+          <a href={`mailto:${SUPPORT_EMAIL}`} className={buttonVariants({ variant: "outline", className: "shrink-0" })}>
+            {t("contact.emailCta")}
+          </a>
+        </CardContent>
+      </Card>
+
+      <div className="flex flex-col gap-10">
+        {FAQ_CATEGORIES.map((category) => (
+          <div key={category.key}>
+            <h2 className="mb-4 text-sm font-medium tracking-wide uppercase text-muted-foreground">{t(`categories.${category.key}`)}</h2>
+            <div className="flex flex-col gap-4">
+              {category.items.map((key) => (
+                <Card key={key} className="ring-foreground/5 border-0 shadow-sm">
+                  <CardContent className="flex items-start gap-4">
+                    <HelpCircle className="text-primary mt-0.5 size-5 shrink-0" aria-hidden="true" />
+                    <div>
+                      <h3 className="font-semibold">{t(`faq.${key}.question`)}</h3>
+                      <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">{t(`faq.${key}.answer`)}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
     </div>

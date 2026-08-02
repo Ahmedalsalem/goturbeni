@@ -13,7 +13,9 @@ import { Toaster } from "@/components/ui/sonner"
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister"
 import { CookieConsent } from "@/components/CookieConsent"
 import { IOSInstallPrompt } from "@/components/layout/IOSInstallPrompt"
+import { WelcomeAuthModal } from "@/components/layout/WelcomeAuthModal"
 import { SOCIAL_LINKS } from "@/lib/social-links"
+import { getCurrentUser } from "@/lib/supabase/dal"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +34,7 @@ export const viewport: Viewport = {
   themeColor: "#47a736",
 }
 
-const OG_LOCALES: Record<string, string> = { tr: "tr_TR", ar: "ar_AR" }
+const OG_LOCALES: Record<string, string> = { tr: "tr_TR", ar: "ar_AR", en: "en_US" }
 
 export async function generateMetadata(): Promise<Metadata> {
   const [t, locale, requestHeaders] = await Promise.all([getTranslations("Metadata"), getLocale(), headers()])
@@ -58,6 +60,7 @@ export async function generateMetadata(): Promise<Metadata> {
       languages: {
         tr: pathname,
         ar: pathname,
+        en: pathname,
         "x-default": pathname,
       },
     },
@@ -86,7 +89,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const locale = await getLocale()
+  const [locale, user] = await Promise.all([getLocale(), getCurrentUser()])
   const dir = isRtlLocale(locale) ? "rtl" : "ltr"
   const t = await getTranslations("Nav")
   const tMeta = await getTranslations("Metadata")
@@ -172,6 +175,7 @@ export default async function RootLayout({
             <ServiceWorkerRegister />
             <CookieConsent gaMeasurementId={GA_MEASUREMENT_ID} />
             <IOSInstallPrompt />
+            <WelcomeAuthModal isGuest={!user} />
           </DirectionProvider>
         </NextIntlClientProvider>
       </body>

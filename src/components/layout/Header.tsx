@@ -139,19 +139,22 @@ export async function Header() {
             </>
           ) : (
             <>
-              <div className="hidden items-center gap-1.5 sm:flex">
-                <Link href="/login" className={buttonVariants({ variant: "ghost" })}>
+              {/* "Giriş Yap" is now visible at every width, not just sm+ —
+                  a logged-out mobile visitor's top-right affordance should
+                  be the login CTA itself, not a menu icon hiding it. */}
+              <div className="flex items-center gap-1.5">
+                <Link href="/login" className={buttonVariants({ variant: "ghost", className: "px-2.5 sm:px-4" })}>
                   {t("login")}
                 </Link>
-                <Link href="/register" className={buttonVariants()}>
+                <Link href="/register" className={buttonVariants({ className: "hidden sm:inline-flex" })}>
                   {t("register")}
                 </Link>
               </div>
 
-              {/* Logged-out mobile nav trigger, last (rightmost) icon in the
-                  header — mirrors the logged-in state's separate nav-links
-                  menu above, just paired with login/register instead of a
-                  profile menu. */}
+              {/* Logged-out mobile nav-links trigger, last (rightmost) icon
+                  in the header — mirrors the logged-in state's separate
+                  nav-links menu above. Login/register live outside this menu
+                  now (see above), so this is links-only. */}
               <DropdownMenu>
                 <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", size: "icon", className: "md:hidden" })} aria-label={t("menu")}>
                   <Menu />
@@ -163,7 +166,6 @@ export async function Header() {
                     </DropdownMenuItem>
                   ))}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem render={<Link href="/login" />}>{t("login")}</DropdownMenuItem>
                   <DropdownMenuItem render={<Link href="/register" />}>{t("register")}</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

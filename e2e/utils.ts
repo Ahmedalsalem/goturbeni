@@ -93,13 +93,15 @@ export async function createRide(
 ): Promise<string> {
   // createRide (src/features/rides/actions.ts) refuses to insert a ride
   // unless the driver's profile already has an IBAN + holder name (the
-  // half-up-front/half-on-arrival payment flow needs it from the start) —
-  // ensure it's set first so callers that don't otherwise care about
-  // payment info (most of them) don't hit that guard.
+  // half-up-front/half-on-arrival payment flow needs it from the start) and,
+  // as of the car-plate-format check, a valid Turkish plate on file too —
+  // ensure both are set first so callers that don't otherwise care about
+  // payment/vehicle info (most of them) don't hit either guard.
   await page.goto("/profile")
   await page.locator("#fullName").fill("E2E Sürücü")
   await page.locator("#iban").fill("TR330006100519786457841326")
   await page.locator("#ibanHolderName").fill("E2E Sürücü")
+  await page.locator("#carPlate").fill("34 ABC 123")
   await page.getByRole("button", { name: "Kaydet" }).click()
   await page.getByText("Profil güncellendi.").waitFor()
 
