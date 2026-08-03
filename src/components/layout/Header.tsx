@@ -1,7 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { getTranslations } from "next-intl/server"
-import { CalendarCheck, CarFront, ChevronDown, LogOut, Menu, MoreHorizontal, ShieldCheck, User } from "lucide-react"
+import { CalendarCheck, CarFront, ChevronDown, LogOut, MoreHorizontal, ShieldCheck, User } from "lucide-react"
 
 import { buttonVariants } from "@/components/ui/button"
 import {
@@ -142,38 +142,23 @@ export async function Header() {
               </DropdownMenu>
             </>
           ) : (
-            <>
-              {/* "Giriş Yap" is now visible at every width, not just sm+ —
-                  a logged-out mobile visitor's top-right affordance should
-                  be the login CTA itself, not a menu icon hiding it. */}
-              <div className="flex items-center gap-1.5">
-                <Link href="/login" className={buttonVariants({ variant: "ghost", className: "px-2.5 sm:px-4" })}>
-                  {t("login")}
-                </Link>
-                <Link href="/register" className={buttonVariants({ className: "hidden sm:inline-flex" })}>
-                  {t("register")}
-                </Link>
-              </div>
-
-              {/* Logged-out mobile nav-links trigger, last (rightmost) icon
-                  in the header — mirrors the logged-in state's separate
-                  nav-links menu above. Login/register live outside this menu
-                  now (see above), so this is links-only. */}
-              <DropdownMenu>
-                <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", size: "icon", className: "md:hidden" })} aria-label={t("menu")}>
-                  <Menu />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  {links.map((link) => (
-                    <DropdownMenuItem key={link.href} render={<Link href={link.href} />}>
-                      {link.label}
-                    </DropdownMenuItem>
-                  ))}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem render={<Link href="/register" />}>{t("register")}</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
+            // No mobile menu trigger here on purpose — a guest's header only
+            // needs to get them to login/register. The 4 nav links (visible
+            // in the desktop bar above, md:flex) are reachable on mobile via
+            // the homepage's own CTAs and the Footer (which now also carries
+            // "Nasıl Çalışır"/"Destek", the two that had no other entry
+            // point) — see Footer.tsx. "Giriş Yap"/"Kayıt Ol" are both
+            // visible at every width so there's always a way to register
+            // even without the old fallback menu item (and /login itself
+            // has a "Hesabınız yok mu?" cross-link either way).
+            <div className="flex items-center gap-1.5">
+              <Link href="/login" className={buttonVariants({ variant: "ghost", className: "px-2.5 sm:px-4" })}>
+                {t("login")}
+              </Link>
+              <Link href="/register" className={buttonVariants({ className: "px-2.5 sm:px-4" })}>
+                {t("register")}
+              </Link>
+            </div>
           )}
         </div>
       </div>

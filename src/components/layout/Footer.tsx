@@ -24,6 +24,7 @@ const SOCIAL_ICONS: Record<(typeof SOCIAL_LINKS)[number]["name"], React.ReactNod
 
 export async function Footer() {
   const t = await getTranslations("Footer")
+  const tNav = await getTranslations("Nav")
   const year = new Date().getFullYear()
 
   return (
@@ -34,7 +35,13 @@ export async function Footer() {
           GötürBeni
         </div>
         <p className="text-muted-foreground text-sm">{t("tagline")}</p>
-        <nav className="flex items-center gap-4 text-sm">
+        <nav className="flex flex-wrap items-center justify-center gap-4 text-sm">
+          <Link href="/how-it-works" className="text-muted-foreground hover:text-foreground">
+            {tNav("howItWorks")}
+          </Link>
+          <Link href="/support" className="text-muted-foreground hover:text-foreground">
+            {tNav("support")}
+          </Link>
           <Link href="/privacy" className="text-muted-foreground hover:text-foreground">
             {t("privacyLink")}
           </Link>

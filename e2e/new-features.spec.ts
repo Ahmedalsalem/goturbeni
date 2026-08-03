@@ -17,13 +17,21 @@ test("guest sees the welcome modal on first visit only", async ({ page }) => {
   await expect(page.getByText("GötürBeni'ye hoş geldin")).not.toBeVisible()
 })
 
-test("mobile guest sees Giriş Yap in the header, not just a menu icon", async ({ page }) => {
+test("mobile guest sees Giriş Yap and Kayıt Ol directly, with no menu icon to hide them behind", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto("/")
   // Dismiss the welcome modal so it doesn't intercept the header click target.
   await page.getByText("Şimdi değil").click()
   await expect(page.locator("header a", { hasText: "Giriş Yap" })).toBeVisible()
-  await expect(page.locator("header button[aria-label='Menü']")).toBeVisible()
+  await expect(page.locator("header a", { hasText: "Kayıt Ol" })).toBeVisible()
+  // Regression guard: a guest's mobile header used to have a "Menü" trigger
+  // (nav links only, since login/register already live outside it) — removed
+  // in favor of putting "Nasıl Çalışır"/"Destek" in the Footer instead, since
+  // that trigger was the only way to reach them on mobile and it's gone now.
+  await expect(page.locator("header button[aria-label='Menü']")).toHaveCount(0)
+  await page.locator("footer a", { hasText: "Nasıl Çalışır" }).scrollIntoViewIfNeeded()
+  await expect(page.locator("footer a", { hasText: "Nasıl Çalışır" })).toBeVisible()
+  await expect(page.locator("footer a", { hasText: "Destek" })).toBeVisible()
 })
 
 test("support page shows the contact card and categorized FAQ", async ({ page }) => {

@@ -4,6 +4,10 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) kullanır.
 
 ## [Unreleased]
 
+### Değiştirildi — mobilde misafir için hamburger menü kaldırıldı (bu oturum)
+
+Mobilde, giriş yapmamış bir ziyaretçinin header'ının en sağında bir hamburger menü ikonu duruyordu (yalnızca 4 nav linkini — Yolculuk Bul/İlan Ver/Nasıl Çalışır/Destek — ve bir "Kayıt Ol" yedeğini içeriyordu). Kaldırıldı; "Giriş Yap" ve "Kayıt Ol" artık her genişlikte doğrudan görünüyor. "Nasıl Çalışır"/"Destek" sayfalarının Footer'da hiç linki yoktu (bu menü tek erişim yoluydu) — ikisi de Footer'a eklendi, böylece erişilebilirlikleri korundu. `e2e/new-features.spec.ts`'teki ilgili test güncellendi (artık menünün *olmadığını* doğruluyor).
+
 ### Düzeltildi — okunmamış mesaj bir bildirim rozetini kime ait olduğunu belli etmeden yakıyordu (bu oturum)
 
 Bir sohbet mesajı geldiğinde yalnızca üst menüdeki genel profil noktası yanıyordu — menüyü açınca ne "Benim İlanlarım" ne de "Rezervasyonlarım" bir şey gösteriyordu, hangisine bakılacağı belli değildi. `getUnreadNavBadges` (`src/features/notifications/queries.ts`) artık okunmamış mesajların ait olduğu ilanları, alıcının o ilandaki rolüne göre (sürücüyse "Benim İlanlarım", yolcuysa "Rezervasyonlarım") doğru öğeye işliyor. `e2e/booking-chat-review.spec.ts`'e regresyon testi eklendi.

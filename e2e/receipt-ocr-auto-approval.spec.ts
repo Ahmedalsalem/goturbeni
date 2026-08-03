@@ -78,13 +78,17 @@ test.describe.serial("deposit/settlement receipt OCR auto-approval", () => {
     // The OCR check runs in the background (next/server's after(), see
     // submitDepositReceipt) after the upload response already returned, so
     // this polls rather than expecting it to have finished immediately.
+    // Tesseract's worker_thread + WASM spin-up has genuine cold-start
+    // variance (usually ~1-3s, occasionally much longer under load) —
+    // observed timing out at 20s and then completing in 3s on an immediate
+    // re-run, so this window is intentionally generous rather than tight.
     await expect
       .poll(
         async () => {
           await driverPage.goto(`/rides/${rideId}/bookings`)
           return driverPage.getByText("Onaylandı").isVisible()
         },
-        { timeout: 20_000, intervals: [1_000, 2_000, 3_000] }
+        { timeout: 45_000, intervals: [1_000, 2_000, 3_000, 5_000] }
       )
       .toBe(true)
 
@@ -111,14 +115,15 @@ test.describe.serial("deposit/settlement receipt OCR auto-approval", () => {
     // Auto-settlement confirms *both* sides at once (see 0054's comment for
     // why) — the "Kalan Ödeme Tamamlandı" button disappears once
     // payment_status reaches 'settled', on both the passenger's and driver's
-    // pages, without either of them clicking it.
+    // pages, without either of them clicking it. Generous timeout for the
+    // same Tesseract cold-start variance as the deposit test above.
     await expect
       .poll(
         async () => {
           await passengerPage.goto("/bookings")
           return passengerPage.getByRole("button", { name: "Kalan Ödeme Tamamlandı", exact: true }).isVisible()
         },
-        { timeout: 20_000, intervals: [1_000, 2_000, 3_000] }
+        { timeout: 45_000, intervals: [1_000, 2_000, 3_000, 5_000] }
       )
       .toBe(false)
 
