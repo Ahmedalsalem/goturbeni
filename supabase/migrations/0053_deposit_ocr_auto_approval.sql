@@ -328,6 +328,17 @@ begin
   end if;
 
   perform public._apply_booking_approval(p_booking_id, v_ride.id, v_booking.seat_count);
+
+  -- Also clear the receipt off the admin's pending queue (getPendingDepositReceipts
+  -- filters strictly on deposit_receipt_status='pending', independent of the
+  -- booking's own status) — otherwise an auto-approved booking's receipt sat
+  -- in "pending review" forever, showing the driver's IBAN there alongside
+  -- every other still-genuinely-pending receipt.
+  update public.bookings
+    set deposit_receipt_status = 'approved',
+        deposit_receipt_reviewed_at = now()
+    where id = p_booking_id;
+
   return true;
 end;
 $$;
