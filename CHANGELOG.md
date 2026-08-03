@@ -4,6 +4,10 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) kullanır.
 
 ## [Unreleased]
 
+### Düzeltildi — okunmamış mesaj bir bildirim rozetini kime ait olduğunu belli etmeden yakıyordu (bu oturum)
+
+Bir sohbet mesajı geldiğinde yalnızca üst menüdeki genel profil noktası yanıyordu — menüyü açınca ne "Benim İlanlarım" ne de "Rezervasyonlarım" bir şey gösteriyordu, hangisine bakılacağı belli değildi. `getUnreadNavBadges` (`src/features/notifications/queries.ts`) artık okunmamış mesajların ait olduğu ilanları, alıcının o ilandaki rolüne göre (sürücüyse "Benim İlanlarım", yolcuysa "Rezervasyonlarım") doğru öğeye işliyor. `e2e/booking-chat-review.spec.ts`'e regresyon testi eklendi.
+
 ### Değiştirildi — e-postalar markalı, profesyonel bir şablona kavuştu (bu oturum)
 
 - Tüm giden e-postalar (doğrulama kodu, rezervasyon/mesaj/dekont bildirimleri, arama uyarısı) artık çıplak `<p>metin</p>` yerine ortak, markalı bir HTML şablonundan (`renderEmailHtml`, `src/lib/email.ts`) geçiyor: koyu lacivert (#022844) marka başlığı, "Merhaba,"/"Hello,"/"مرحباً،" selamlaması, stilize CTA butonu (yeşil #47A736), "GötürBeni Ekibi" imzası ve alt bilgi notu. Arapça için `dir="rtl"` ve aynalanmış hizalama dahil — üç dilde de tarayıcıda görsel olarak doğrulandı.

@@ -23,9 +23,13 @@ import { PushNotificationToggle } from "@/features/push/PushNotificationToggle"
 export async function Header() {
   const t = await getTranslations("Nav")
   const user = await getCurrentUser()
-  const [unreadMessages, isAdmin, navBadges] = user
-    ? await Promise.all([getUnreadMessages(user.id), checkIsAdmin(user.id), getUnreadNavBadges(user.id)])
-    : [null, false, { myRides: false, myBookings: false }]
+  // getUnreadMessages runs first (not in the same Promise.all as the other
+  // two) — getUnreadNavBadges needs its rideIds to fold unread chat messages
+  // into the "İlanlarım"/"Rezervasyonlarım" dots themselves, see there.
+  const unreadMessages = user ? await getUnreadMessages(user.id) : null
+  const [isAdmin, navBadges] = user
+    ? await Promise.all([checkIsAdmin(user.id), getUnreadNavBadges(user.id, unreadMessages!.rideIds)])
+    : [false, { myRides: false, myBookings: false }]
   const hasUnreadMessages = unreadMessages ? unreadMessages.count > 0 : false
   // The trigger's own dot must reflect EVERYTHING inside the menu — otherwise
   // a booking-related notification (navBadges) lights up "Rezervasyonlarım"

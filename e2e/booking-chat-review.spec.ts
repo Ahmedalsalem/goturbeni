@@ -114,6 +114,29 @@ test.describe.serial("booking, chat, and review flow", () => {
     await expect(driverPage.getByText(passengerMessage)).toBeVisible({ timeout: 15_000 })
   })
 
+  // Regression for a real UX complaint: an unread chat message used to only
+  // light up the generic profile-menu dot, with neither "Benim İlanlarım"
+  // nor "Rezervasyonlarım" showing anything — so opening the menu gave no
+  // clue which one had it. getUnreadNavBadges (src/features/notifications/queries.ts)
+  // now folds a ride's unread messages into whichever of those two the
+  // recipient's role on that ride actually is.
+  test("an unread chat message lights up the recipient's specific nav item, not just the generic dot", async () => {
+    // The driver must not be on the chat page when this is sent, or the
+    // message gets marked read the instant it renders (see ChatWindow's
+    // markMessagesRead) and there'd be nothing left unread to test.
+    await driverPage.goto("/")
+
+    const followUpMessage = `Az kaldı, 5 dakikaya oradayım. ${Date.now()}`
+    await passengerPage.getByLabel("Bir mesaj yaz...").fill(followUpMessage)
+    await passengerPage.getByRole("button", { name: "Gönder" }).click()
+    await expect(passengerPage.getByText(followUpMessage)).toBeVisible({ timeout: 15_000 })
+
+    await driverPage.reload()
+    await driverPage.getByRole("button", { name: "Profil", exact: true }).click()
+    const myRidesItem = driverPage.getByRole("menuitem", { name: /Benim İlanlarım/ })
+    await expect(myRidesItem.locator(".bg-destructive")).toBeVisible()
+  })
+
   test("both sides leave a review after the ride departs", async () => {
     await backdateRideDeparture(rideId, 10)
 
