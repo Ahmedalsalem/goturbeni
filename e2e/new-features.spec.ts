@@ -41,8 +41,12 @@ test("switching to English persists across navigation", async ({ page }) => {
   await page.getByRole("menuitem", { name: "English" }).click()
   await page.waitForLoadState("networkidle")
 
+  // First (and only) visit to /how-it-works in the whole suite — Turbopack
+  // compiles routes on demand, so this request can take much longer than the
+  // default 5s assertion timeout on a cold CI runner (see playwright.config.ts
+  // for the same cold-compile issue on other routes).
   await page.goto("/how-it-works")
-  await expect(page.getByRole("heading", { name: "How It Works" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "How It Works" })).toBeVisible({ timeout: 30_000 })
 })
 
 // Regression for the new guard in features/rides/actions.ts createRide():
