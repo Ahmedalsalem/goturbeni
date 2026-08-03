@@ -10,7 +10,17 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   forbidOnly: !!process.env.CI,
-  retries: 0,
+  // The chat test (booking-chat-review.spec.ts) has no optimistic append —
+  // the sender only sees their own message once the Realtime postgres_changes
+  // INSERT event round-trips back (see comment there) — so it's inherently
+  // sensitive to websocket delivery latency. It ran reliably at retries: 0
+  // for a long time, but started intermittently missing that 15s window
+  // once the suite grew another spec file (more accounts/requests ahead of
+  // it in the same single-worker run, more load on the same local Supabase
+  // Realtime container by the time it runs). One retry absorbs that without
+  // masking a real regression — a genuinely broken chat flow still fails
+  // twice in a row.
+  retries: process.env.CI ? 1 : 0,
   // Headroom for cold Turbopack compiles on each route's first visit across
   // the suite (webServer's readiness check only confirms "/" responds, not
   // that e.g. /create-ride, /rides/mine, or /login have compiled yet —
