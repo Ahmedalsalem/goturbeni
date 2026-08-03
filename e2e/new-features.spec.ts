@@ -39,7 +39,15 @@ test("switching to English persists across navigation", async ({ page }) => {
   await page.getByText("Şimdi değil").click()
   await page.locator("header button[aria-label='Dil']").click()
   await page.getByRole("menuitem", { name: "English" }).click()
-  await page.waitForLoadState("networkidle")
+
+  // Wait for the locale switch to actually take effect (the header's own nav
+  // link re-rendering in English) instead of `waitForLoadState("networkidle")`
+  // — that idle heuristic is unreliable here because Next dev's HMR
+  // websocket keeps a connection open, so it doesn't reliably signal that the
+  // setUserLocale server action + router.refresh() have landed. This was the
+  // actual cause of CI-only flakiness (passed locally every time, failed
+  // consistently in CI where the extra websocket-notify latency mattered).
+  await expect(page.locator("header").getByText("How It Works")).toBeVisible()
 
   // First (and only) visit to /how-it-works in the whole suite — Turbopack
   // compiles routes on demand, so this request can take much longer than the
