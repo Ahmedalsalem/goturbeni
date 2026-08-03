@@ -33,6 +33,8 @@
       "bookingApprovedBody": "تمت الموافقة على طلب حجزك.",
       "bookingRejectedTitle": "تم رفض حجزك",
       "bookingRejectedBody": "تم رفض طلب حجزك.",
+      "depositAutoApprovedTitle": "تم التحقق من العربون تلقائيًا",
+      "depositAutoApprovedBody": "تم التحقق تلقائيًا من إيصال العربون الذي أرسله الراكب، وتمت الموافقة على الحجز.",
       "newMessageTitle": "رسالة جديدة",
       "newMessageBody": "لديك رسالة جديدة.",
       "seatOpenedTitle": "تم فتح مقعد",

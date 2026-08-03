@@ -171,6 +171,21 @@ export async function backdateRideDeparture(rideId: string, secondsAgo: number):
   }
 }
 
+// The OCR auto-approval risk gate (submit_deposit_receipt_ocr,
+// 0053_deposit_ocr_auto_approval.sql) requires the account be ≥14 days
+// old — a freshly signed-up e2e test account never qualifies, so tests
+// exercising the auto-approval path need to backdate it, same idea as
+// backdateRideDeparture above.
+export async function backdateAccountAge(email: string, daysAgo: number): Promise<void> {
+  const admin = createAdminClient()
+  const user = await findAuthUserByEmail(admin, email)
+  const createdAt = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000).toISOString()
+  const { error } = await admin.from("profiles").update({ created_at: createdAt }).eq("id", user.id)
+  if (error) {
+    throw error
+  }
+}
+
 // GoTrue lowercases stored emails; uniqueEmail()'s prefixes aren't always
 // lowercase ("passengerA", "payDriver") so a case-sensitive match here always
 // missed them — every prefix without an uppercase letter ("driver",
@@ -241,4 +256,29 @@ const ONE_PIXEL_PNG_BASE64 =
 
 export function receiptFilePayload(name: string): { name: string; mimeType: string; buffer: Buffer } {
   return { name, mimeType: "image/png", buffer: Buffer.from(ONE_PIXEL_PNG_BASE64, "base64") }
+}
+
+// Unlike receiptFilePayload's blank pixel, this renders actual IBAN/amount
+// text into a screenshot — for exercising the OCR auto-approval path
+// (submit_deposit_receipt_ocr, src/lib/ocr.ts), which needs something a real
+// bank app screenshot's text to recognize. Uses a throwaway page in the same
+// browser context rather than a separate image library dependency.
+export async function realisticReceiptFilePayload(
+  page: Page,
+  name: string,
+  iban: string,
+  amount: number
+): Promise<{ name: string; mimeType: string; buffer: Buffer }> {
+  const scratchPage = await page.context().newPage()
+  await scratchPage.setContent(`
+    <html><body style="font-family: Arial; font-size: 22px; padding: 20px; width: 500px;">
+      <div>Gonderen: E2E Yolcu</div>
+      <div>Alici IBAN: ${iban}</div>
+      <div>Tutar: ${amount.toFixed(2).replace(".", ",")} TL</div>
+      <div>Aciklama: Yolculuk kaporasi</div>
+    </body></html>
+  `)
+  const buffer = await scratchPage.screenshot()
+  await scratchPage.close()
+  return { name, mimeType: "image/png", buffer }
 }

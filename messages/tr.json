@@ -33,6 +33,8 @@
       "bookingApprovedBody": "Rezervasyon talebiniz onaylandı.",
       "bookingRejectedTitle": "Rezervasyonunuz reddedildi",
       "bookingRejectedBody": "Rezervasyon talebiniz reddedildi.",
+      "depositAutoApprovedTitle": "Kapora otomatik onaylandı",
+      "depositAutoApprovedBody": "Yolcunun kapora dekontu otomatik doğrulandı, rezervasyon onaylandı.",
       "newMessageTitle": "Yeni mesaj",
       "newMessageBody": "Yeni bir mesajınız var.",
       "seatOpenedTitle": "Koltuk açıldı",

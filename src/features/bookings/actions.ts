@@ -1,6 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+import { after } from "next/server"
 import { getTranslations } from "next-intl/server"
 
 import { createClient } from "@/lib/supabase/server"
@@ -12,6 +13,7 @@ import { checkRateLimit } from "@/lib/rate-limit"
 import { logError } from "@/lib/logger"
 import { getRide } from "@/features/rides/queries"
 import { getBookingPassengerId } from "@/features/bookings/queries"
+import { extractReceiptFields } from "@/lib/ocr"
 import { recordNotificationEvent, sendPushNotification, sendSeatOpenedPushNotifications } from "@/lib/notifications"
 import { sendEmailNotification, sendSeatOpenedEmailNotifications } from "@/lib/email"
 import { buildBookingSchema, type BookingActionState, type BookingFormValues } from "@/features/bookings/schemas"
@@ -249,8 +251,61 @@ export async function submitDepositReceipt(bookingId: string, rideId: string, fo
     return { error: tErrors("actionFailed") }
   }
 
+  // OCR takes several seconds (image recognition) — running it inline here
+  // would make the passenger wait that long just to see "receipt uploaded".
+  // after() runs it once the response has already gone back to the client;
+  // it hands the raw IBAN/amount candidates to submit_deposit_receipt_ocr,
+  // which independently re-checks them against the real driver IBAN and ride
+  // amount (see 0053_deposit_ocr_auto_approval.sql) — never trust a "matched"
+  // verdict computed here, only the RPC's own comparison counts. A failure
+  // here (bad image, tesseract error) just leaves the booking in its normal
+  // awaiting-manual-approval state, same as before this existed.
+  //
+  // The file's bytes are read into a plain Buffer *before* scheduling
+  // after() rather than re-reading `file` lazily inside the callback — the
+  // File/formData is tied to this request's lifecycle, and a plain Buffer
+  // has no such dependency, so this avoids relying on that lifecycle
+  // extending into code that runs after the response has already gone out.
+  const receiptBuffer = Buffer.from(await file.arrayBuffer())
+  after(async () => {
+    try {
+      const { iban, amounts } = await extractReceiptFields(receiptBuffer)
+      const { data: autoApproved, error: ocrError } = await supabase.rpc("submit_deposit_receipt_ocr", {
+        p_booking_id: bookingId,
+        p_iban: iban,
+        p_amounts: amounts,
+      })
+      if (ocrError) {
+        logError(ocrError, "bookings.submitDepositReceipt.ocr")
+        return
+      }
+      if (!autoApproved) {
+        return
+      }
+
+      revalidatePath(`/rides/${rideId}`)
+      revalidatePath(`/rides/${rideId}/bookings`)
+      revalidatePath("/bookings")
+
+      const ride = await getRide(rideId)
+      if (ride) {
+        await Promise.all([
+          sendPushNotification({ type: "deposit_auto_approved", recipientId: ride.driver_id, rideId }),
+          sendEmailNotification({ type: "deposit_auto_approved", recipientId: ride.driver_id, rideId }),
+          recordNotificationEvent({ type: "deposit_auto_approved", recipientId: ride.driver_id, rideId }),
+          sendPushNotification({ type: "booking_approved", recipientId: user.id, rideId }),
+          sendEmailNotification({ type: "booking_approved", recipientId: user.id, rideId }),
+          recordNotificationEvent({ type: "booking_approved", recipientId: user.id, rideId }),
+        ])
+      }
+    } catch (ocrException) {
+      logError(ocrException, "bookings.submitDepositReceipt.ocr")
+    }
+  })
+
   revalidatePath(`/rides/${rideId}`)
   revalidatePath(`/rides/${rideId}/bookings`)
+  revalidatePath("/bookings")
   return { success: true }
 }
 
