@@ -9,9 +9,21 @@ import { backdateRideDeparture, createRide, logIn, selectCombobox, signUpAndVeri
 // browser contexts, one per account) rather than three isolated specs
 // because each step depends on state produced by the previous one.
 test.describe.serial("booking, chat, and review flow", () => {
-  const driverEmail = uniqueEmail("driver")
-  const passengerEmail = uniqueEmail("passenger")
+  // Scoped to this file only (see playwright.config.ts for why retries
+  // aren't global): the chat test below has no optimistic append, so the
+  // sender only sees their own message once the Realtime postgres_changes
+  // INSERT event round-trips back — inherently sensitive to websocket
+  // delivery latency, and it started intermittently missing its 15s window
+  // once the suite grew another spec file ahead of it in the same
+  // single-worker run. A retry here re-runs the whole serial journey from
+  // "driver and passenger sign up" — driverEmail/passengerEmail are
+  // (re-)generated in beforeAll (which itself re-runs per retry attempt),
+  // not as file-scope consts, so a retry signs up fresh accounts instead of
+  // re-submitting the same already-registered email from the failed attempt.
+  test.describe.configure({ retries: 1 })
 
+  let driverEmail: string
+  let passengerEmail: string
   let driverContext: BrowserContext
   let passengerContext: BrowserContext
   let driverPage: Page
@@ -19,6 +31,8 @@ test.describe.serial("booking, chat, and review flow", () => {
   let rideId: string
 
   test.beforeAll(async ({ browser }: { browser: Browser }) => {
+    driverEmail = uniqueEmail("driver")
+    passengerEmail = uniqueEmail("passenger")
     driverContext = await browser.newContext()
     passengerContext = await browser.newContext()
     driverPage = await driverContext.newPage()
@@ -57,7 +71,11 @@ test.describe.serial("booking, chat, and review flow", () => {
     await passengerPage.getByRole("button", { name: "Ara", exact: true }).click()
     await passengerPage.waitForURL(/\/rides\?/)
 
-    await passengerPage.getByRole("link", { name: /Ankara.*İstanbul/ }).click()
+    // Matched by href to this specific rideId, not by route-name text — other
+    // spec files (and, with retries, a previous attempt of this same file)
+    // can leave other Ankara→İstanbul rides in the DB, which would otherwise
+    // make this a strict-mode violation (multiple matching links).
+    await passengerPage.locator(`a[href="/rides/${rideId}"]`).click()
     await passengerPage.waitForURL(new RegExp(`/rides/${rideId}$`))
 
     await passengerPage.getByRole("button", { name: "Rezervasyon Yap", exact: true }).click()
