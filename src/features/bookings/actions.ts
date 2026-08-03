@@ -378,6 +378,30 @@ export async function submitSettlementReceipt(bookingId: string, rideId: string,
     return { error: tErrors("actionFailed") }
   }
 
+  // Same OCR-verify-in-the-background approach as submitDepositReceipt above
+  // (see 0054_settlement_ocr_auto_approval.sql) — a match here confirms both
+  // parties' "I sent it"/"I received it" at once, since a receipt showing the
+  // right IBAN and amount already is the passenger's proof of sending it.
+  const receiptBuffer = Buffer.from(await file.arrayBuffer())
+  after(async () => {
+    try {
+      const { iban, amounts } = await extractReceiptFields(receiptBuffer)
+      const { error: ocrError } = await supabase.rpc("submit_settlement_receipt_ocr", {
+        p_booking_id: bookingId,
+        p_iban: iban,
+        p_amounts: amounts,
+      })
+      if (ocrError) {
+        logError(ocrError, "bookings.submitSettlementReceipt.ocr")
+        return
+      }
+      revalidatePath("/bookings")
+      revalidatePath(`/rides/${rideId}/bookings`)
+    } catch (ocrException) {
+      logError(ocrException, "bookings.submitSettlementReceipt.ocr")
+    }
+  })
+
   revalidatePath("/bookings")
   revalidatePath(`/rides/${rideId}/bookings`)
   return { success: true }

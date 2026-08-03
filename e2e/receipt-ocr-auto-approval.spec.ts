@@ -1,16 +1,24 @@
 import { expect, test, type Browser, type BrowserContext, type Page } from "@playwright/test"
 
-import { backdateAccountAge, createRide, realisticReceiptFilePayload, signUpAndVerify, uniqueEmail } from "./utils"
+import {
+  backdateAccountAge,
+  backdateRideDeparture,
+  createRide,
+  realisticReceiptFilePayload,
+  signUpAndVerify,
+  uniqueEmail,
+} from "./utils"
 
-// Coverage for the OCR-based deposit auto-approval added this session
-// (submit_deposit_receipt_ocr, supabase/migrations/0053_deposit_ocr_auto_approval.sql):
-// when the uploaded receipt's IBAN and amount match the ride's driver/cost
-// share, the booking is approved automatically — the driver never has to
-// click "İlk Yarı Ödemesini Aldım, Onayla". The driver's manual button stays
-// as a fallback (still covered by booking-chat-review.spec.ts and
-// payment-review.spec.ts, both of which upload a blank receipt that OCR
-// can't match, and confirm the manual flow is untouched).
-test.describe.serial("deposit receipt OCR auto-approval", () => {
+// Coverage for the OCR-based deposit/settlement auto-approval added this
+// session (submit_deposit_receipt_ocr/submit_settlement_receipt_ocr,
+// 0053/0054_*_ocr_auto_approval.sql): when an uploaded receipt's IBAN and
+// amount match the ride's driver/cost share, the booking (deposit) or
+// payment (settlement) is approved automatically — neither side has to click
+// a manual confirm button. Those manual buttons stay as a fallback (still
+// covered by booking-chat-review.spec.ts and payment-review.spec.ts, both of
+// which upload a blank receipt that OCR can't match, confirming the manual
+// flow is untouched).
+test.describe.serial("deposit/settlement receipt OCR auto-approval", () => {
   const driverEmail = uniqueEmail("ocrDriver")
   const passengerEmail = uniqueEmail("ocrPassenger")
 
@@ -84,5 +92,37 @@ test.describe.serial("deposit receipt OCR auto-approval", () => {
     // it's still on the page, auto-approval didn't actually happen and some
     // other booking/state is showing "Onaylandı" instead.
     await expect(driverPage.getByRole("button", { name: "İlk Yarı Ödemesini Aldım, Onayla", exact: true })).not.toBeVisible()
+  })
+
+  test("after the ride departs, a matching settlement receipt auto-settles the remaining payment for both sides", async () => {
+    await backdateRideDeparture(rideId, 10)
+
+    await passengerPage.goto("/bookings")
+    // Confirms the button is genuinely shown pre-settlement (payment_status
+    // still 'deposit_confirmed') — otherwise the "not visible" check below
+    // would be trivially true for the wrong reason.
+    await expect(passengerPage.getByRole("button", { name: "Kalan Ödeme Tamamlandı", exact: true })).toBeVisible()
+
+    // Same amount as the deposit — cost_share (200) * seat_count (1) * 0.5.
+    const receipt = await realisticReceiptFilePayload(passengerPage, "settlement.png", "TR33 0006 1005 1978 6457 8413 26", 100)
+    await passengerPage.locator('input[type="file"]').setInputFiles(receipt)
+    await expect(passengerPage.getByText("Dekont yüklendi, inceleme bekleniyor.")).toBeVisible()
+
+    // Auto-settlement confirms *both* sides at once (see 0054's comment for
+    // why) — the "Kalan Ödeme Tamamlandı" button disappears once
+    // payment_status reaches 'settled', on both the passenger's and driver's
+    // pages, without either of them clicking it.
+    await expect
+      .poll(
+        async () => {
+          await passengerPage.goto("/bookings")
+          return passengerPage.getByRole("button", { name: "Kalan Ödeme Tamamlandı", exact: true }).isVisible()
+        },
+        { timeout: 20_000, intervals: [1_000, 2_000, 3_000] }
+      )
+      .toBe(false)
+
+    await driverPage.goto(`/rides/${rideId}/bookings`)
+    await expect(driverPage.getByRole("button", { name: "Kalan Ödeme Tamamlandı", exact: true })).not.toBeVisible()
   })
 })
