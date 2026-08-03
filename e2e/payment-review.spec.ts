@@ -17,10 +17,18 @@ import {
 // (turkish-provinces-geo.ts). None of these had any test before this session
 // — see PROJECT_STATUS.md.
 test.describe.serial("payment receipt review, reject reasons, and nearby-province search", () => {
-  const driverEmail = uniqueEmail("payDriver")
-  const passengerEmail = uniqueEmail("payPassenger")
-  const adminEmail = uniqueEmail("payAdmin")
+  // The deposit-upload step below has intermittently missed its 5s default
+  // assertion window on both a loaded local machine and a clean CI runner —
+  // not chased down to a root cause, but a single retry absorbs it the same
+  // way as booking-chat-review.spec.ts's realtime chat flake. Emails are
+  // (re-)generated in beforeAll (which itself re-runs per retry attempt), and
+  // the nearby-province test above matches by href not route-name text, so a
+  // retry re-running "driver creates a ride" doesn't collide with itself.
+  test.describe.configure({ retries: 1 })
 
+  let driverEmail: string
+  let passengerEmail: string
+  let adminEmail: string
   let driverContext: BrowserContext
   let passengerContext: BrowserContext
   let adminContext: BrowserContext
@@ -30,6 +38,9 @@ test.describe.serial("payment receipt review, reject reasons, and nearby-provinc
   let rideId: string
 
   test.beforeAll(async ({ browser }: { browser: Browser }) => {
+    driverEmail = uniqueEmail("payDriver")
+    passengerEmail = uniqueEmail("payPassenger")
+    adminEmail = uniqueEmail("payAdmin")
     driverContext = await browser.newContext()
     passengerContext = await browser.newContext()
     adminContext = await browser.newContext()
@@ -83,7 +94,12 @@ test.describe.serial("payment receipt review, reject reasons, and nearby-provinc
     await passengerPage.waitForURL(/\/rides\?/)
 
     await expect(passengerPage.getByText("coğrafi olarak yakın illerdeki seçenekler")).toBeVisible()
-    await expect(passengerPage.getByRole("link", { name: /İstanbul.*Ankara/ })).toBeVisible()
+    // Matched by href to this specific rideId, not by route-name text — a
+    // retry of this serial group (see test.describe.configure below) creates
+    // a second İstanbul→Ankara ride, which would otherwise make this a
+    // strict-mode violation (multiple matching links), same issue fixed in
+    // booking-chat-review.spec.ts.
+    await expect(passengerPage.locator(`a[href="/rides/${rideId}"]`)).toBeVisible()
   })
 
   test("passenger books the ride", async () => {
