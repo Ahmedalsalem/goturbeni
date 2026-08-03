@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/server"
 import { logError } from "@/lib/logger"
 import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-config"
 import { isVapidConfigured } from "@/lib/notifications"
-import { isResendConfigured } from "@/lib/email"
+import { isResendConfigured, renderEmailHtml } from "@/lib/email"
 
 interface SearchAlertRecipientRow {
   user_id: string
@@ -86,7 +86,14 @@ export async function sendSearchAlertNotifications(rideId: string): Promise<void
                 from: process.env.RESEND_FROM_EMAIL!,
                 to: email,
                 subject: t("searchAlertMatchTitle"),
-                html: `<p>${t("searchAlertMatchBody")}</p><p><a href="${siteUrl}${url}">${tCommon("viewLinkLabel")}</a></p>`,
+                html: renderEmailHtml(locale, {
+                  greeting: tCommon("greeting"),
+                  bodyHtml: t("searchAlertMatchBody"),
+                  ctaLabel: tCommon("viewLinkLabel"),
+                  ctaUrl: `${siteUrl}${url}`,
+                  signoff: tCommon("signoff"),
+                  footerNote: tCommon("footerNote"),
+                }),
               })
             } catch (sendError) {
               logError(sendError, "searchAlertNotifications.email")

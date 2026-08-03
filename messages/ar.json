@@ -59,8 +59,12 @@
   },
   "Email": {
     "viewLinkLabel": "عرض",
-    "verificationCodeSubject": "رمز التحقق الخاص بك في GötürBeni",
-    "verificationCodeBody": "رمز التحقق الخاص بك: <strong>{code}</strong>. هذا الرمز صالح لمدة 10 دقائق."
+    "greeting": "مرحباً،",
+    "signoff": "فريق GötürBeni",
+    "footerNote": "تم إرسال هذا البريد الإلكتروني تلقائياً بخصوص إجراء يتعلق بحسابك في GötürBeni.",
+    "verificationCodeSubject": "رمز التحقق من حسابك في GötürBeni",
+    "verificationCodeIntro": "استخدم الرمز أدناه للتحقق من حسابك في GötürBeni:",
+    "verificationCodeOutro": "هذا الرمز صالح لمدة 10 دقائق. إذا لم تطلب هذا، يمكنك تجاهل هذه الرسالة بأمان."
   },
   "Pwa": {
     "install": "تثبيت التطبيق",

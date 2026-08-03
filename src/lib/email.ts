@@ -5,12 +5,63 @@ import { getTranslations } from "next-intl/server"
 
 import { createClient } from "@/lib/supabase/server"
 import { logError } from "@/lib/logger"
-import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-config"
+import { DEFAULT_LOCALE, isRtlLocale, type AppLocale } from "@/i18n/locale-config"
 import { NOTIFICATION_KEY, NOTIFICATION_URL, type NotificationEvent } from "@/lib/notifications"
 
 // Exported for src/lib/search-alert-notifications.ts.
 export function isResendConfigured(): boolean {
   return Boolean(process.env.RESEND_API_KEY && process.env.RESEND_FROM_EMAIL)
+}
+
+// Shared branded wrapper for every outgoing email — a bare `<p>text</p>` had
+// no greeting, sign-off, or visual identity at all. RTL-aware (Arabic mail
+// clients need dir="rtl" and mirrored alignment, not just RTL-shaped text).
+export function renderEmailHtml(
+  locale: AppLocale,
+  params: { greeting: string; bodyHtml: string; ctaLabel?: string; ctaUrl?: string; signoff: string; footerNote: string }
+): string {
+  const dir = isRtlLocale(locale) ? "rtl" : "ltr"
+  const align = dir === "rtl" ? "right" : "left"
+  const logoMargin = dir === "rtl" ? "margin-right" : "margin-left"
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  const logoUrl = `${siteUrl}/icons/icon-192.png`
+  const cta =
+    params.ctaLabel && params.ctaUrl
+      ? `<p style="margin:0 0 24px;"><a href="${params.ctaUrl}" style="display:inline-block;background-color:#47A736;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:bold;">${params.ctaLabel}</a></p>`
+      : ""
+
+  return `<!DOCTYPE html>
+<html dir="${dir}" lang="${locale}">
+  <body style="margin:0;padding:0;background-color:#f4f4f5;font-family:Arial,Helvetica,sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f5;padding:32px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;max-width:480px;width:100%;">
+            <tr>
+              <td style="background-color:#022844;padding:24px 32px;text-align:${align};">
+                <img src="${logoUrl}" width="32" height="32" alt="GötürBeni" style="vertical-align:middle;border-radius:8px;" />
+                <span style="color:#ffffff;font-size:18px;font-weight:bold;${logoMargin}:8px;vertical-align:middle;">GötürBeni</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:32px;text-align:${align};color:#022844;font-size:15px;line-height:1.6;">
+                <p style="margin:0 0 16px;">${params.greeting}</p>
+                <div style="margin:0 0 24px;">${params.bodyHtml}</div>
+                ${cta}
+                <p style="margin:0;color:#022844;">${params.signoff}</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:16px 32px;background-color:#f4f4f5;text-align:${align};color:#64748b;font-size:12px;">
+                ${params.footerNote}
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`
 }
 
 // Mandatory account verification (src/features/profile/actions.ts) — unlike
@@ -25,11 +76,20 @@ export async function sendVerificationCodeEmail(to: string, code: string, locale
   const t = await getTranslations({ locale, namespace: "Email" })
   const resend = new Resend(process.env.RESEND_API_KEY)
   try {
+    // The code's styling lives here, not in the translated string — next-intl's
+    // t() can't format a message containing raw HTML tags (a `<strong>` with an
+    // attribute, or `<br>`, both trip INVALID_TAG); see email.test.ts.
+    const codeBlockHtml = `<p style="margin:0 0 20px;">${t("verificationCodeIntro")}</p><p style="margin:0 0 20px;font-size:28px;font-weight:bold;letter-spacing:6px;text-align:center;background-color:#f4f4f5;border-radius:8px;padding:16px;">${code}</p><p style="margin:0;">${t("verificationCodeOutro")}</p>`
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL!,
       to,
       subject: t("verificationCodeSubject"),
-      html: `<p>${t.rich("verificationCodeBody", { code, strong: (chunks) => `<strong>${chunks}</strong>` })}</p>`,
+      html: renderEmailHtml(locale, {
+        greeting: t("greeting"),
+        bodyHtml: codeBlockHtml,
+        signoff: t("signoff"),
+        footerNote: t("footerNote"),
+      }),
     })
     return true
   } catch (error) {
@@ -74,7 +134,14 @@ export async function sendEmailNotification(event: NotificationEvent): Promise<v
       from: process.env.RESEND_FROM_EMAIL!,
       to: recipientEmail as string,
       subject: t(`${key}Title`),
-      html: `<p>${t(`${key}Body`)}</p><p><a href="${url}">${tCommon("viewLinkLabel")}</a></p>`,
+      html: renderEmailHtml(locale, {
+        greeting: tCommon("greeting"),
+        bodyHtml: t(`${key}Body`),
+        ctaLabel: tCommon("viewLinkLabel"),
+        ctaUrl: url,
+        signoff: tCommon("signoff"),
+        footerNote: tCommon("footerNote"),
+      }),
     })
   } catch (error) {
     logError(error, "email.sendEmailNotification")
@@ -123,7 +190,14 @@ export async function sendSeatOpenedEmailNotifications(rideId: string): Promise<
           from: process.env.RESEND_FROM_EMAIL!,
           to: recipient.email,
           subject: t("seatOpenedTitle"),
-          html: `<p>${t("seatOpenedBody")}</p><p><a href="${url}">${tCommon("viewLinkLabel")}</a></p>`,
+          html: renderEmailHtml(locale, {
+            greeting: tCommon("greeting"),
+            bodyHtml: t("seatOpenedBody"),
+            ctaLabel: tCommon("viewLinkLabel"),
+            ctaUrl: url,
+            signoff: tCommon("signoff"),
+            footerNote: tCommon("footerNote"),
+          }),
         })
       } catch (sendError) {
         logError(sendError, "email.sendSeatOpenedEmailNotifications")

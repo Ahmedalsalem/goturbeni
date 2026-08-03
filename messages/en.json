@@ -59,8 +59,12 @@
   },
   "Email": {
     "viewLinkLabel": "View",
-    "verificationCodeSubject": "Your GötürBeni verification code",
-    "verificationCodeBody": "Your verification code is: <strong>{code}</strong>. This code is valid for 10 minutes."
+    "greeting": "Hello,",
+    "signoff": "The GötürBeni Team",
+    "footerNote": "This email was sent automatically regarding an action on your GötürBeni account.",
+    "verificationCodeSubject": "Your GötürBeni account verification code",
+    "verificationCodeIntro": "Use the code below to verify your GötürBeni account:",
+    "verificationCodeOutro": "This code is valid for 10 minutes. If you didn't request this, you can safely ignore this email."
   },
   "Pwa": {
     "install": "Install App",

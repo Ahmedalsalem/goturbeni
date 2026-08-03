@@ -59,8 +59,12 @@
   },
   "Email": {
     "viewLinkLabel": "Görüntüle",
-    "verificationCodeSubject": "GötürBeni doğrulama kodunuz",
-    "verificationCodeBody": "Doğrulama kodunuz: <strong>{code}</strong>. Bu kod 10 dakika geçerlidir."
+    "greeting": "Merhaba,",
+    "signoff": "GötürBeni Ekibi",
+    "footerNote": "Bu e-posta, GötürBeni hesabınızla ilgili bir işlem nedeniyle otomatik olarak gönderilmiştir.",
+    "verificationCodeSubject": "GötürBeni hesap doğrulama kodunuz",
+    "verificationCodeIntro": "GötürBeni hesabınızı doğrulamak için aşağıdaki kodu kullanın:",
+    "verificationCodeOutro": "Bu kod 10 dakika süreyle geçerlidir. Bu isteği siz yapmadıysanız bu e-postayı yok sayabilirsiniz."
   },
   "Pwa": {
     "install": "Uygulamayı Yükle",

@@ -4,6 +4,12 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) kullanır.
 
 ## [Unreleased]
 
+### Değiştirildi — e-postalar markalı, profesyonel bir şablona kavuştu (bu oturum)
+
+- Tüm giden e-postalar (doğrulama kodu, rezervasyon/mesaj/dekont bildirimleri, arama uyarısı) artık çıplak `<p>metin</p>` yerine ortak, markalı bir HTML şablonundan (`renderEmailHtml`, `src/lib/email.ts`) geçiyor: koyu lacivert (#022844) marka başlığı, "Merhaba,"/"Hello,"/"مرحباً،" selamlaması, stilize CTA butonu (yeşil #47A736), "GötürBeni Ekibi" imzası ve alt bilgi notu. Arapça için `dir="rtl"` ve aynalanmış hizalama dahil — üç dilde de tarayıcıda görsel olarak doğrulandı.
+- Doğrulama kodu artık büyük, ortalanmış, ayrı bir kutuda gösteriliyor (önceki satır içi `<strong>` yerine).
+- **Bulunup düzeltilen bir regresyon riski**: doğrulama kodu metnini tek bir `<strong>` etiketiyle (ve `<br>` ile) yeniden yazmak, next-intl'in `t()`'sinde (ki mevcut bir testin tam olarak koruduğu gerçek bir production hatasıydı — bkz. `email.test.ts`) veya `t.rich()`'te (etiket bir style attribute'u içerince next-intl `INVALID_TAG` hatası veriyor) sessizce kırılırdı. Çözüm: çevrilen metinler tamamen etiketsiz düz yazı olarak kalıyor (`verificationCodeIntro`/`Outro`), stilleme tamamen kod tarafında yapılıyor.
+
 ### Değiştirildi — KVKK yasal placeholder'ları dolduruldu (bu oturum)
 
 - KVKK Aydınlatma Metni'ndeki `[Şirket Unvanı]`/`[Şirket Adresi]`/`[MERSİS No]` placeholder'ları, gerçek bir şirket kurulmadığından (kullanıcının onayı) şirket bilgisiyle değil, gerçeğe uygun şekilde dolduruldu: veri sorumlusu olarak Ahmed Alsalem (gerçek kişi), iletişim yalnızca e-posta (`novarodigitalstudio@gmail.com`), ve "GötürBeni bir şahıs faaliyeti olarak yürütülmekte olup ayrı bir tüzel kişiliği (şirket) bulunmamaktadır, bu nedenle MERSİS kaydı da yoktur" ifadesi eklendi — tr/en/ar üçünde de, "Başvuru Yöntemi" bölümündeki fiziksel adrese başvuru seçeneği kaldırılıp yalnızca e-posta bırakıldı. Üç dilde de tarayıcıda görsel olarak doğrulandı (RTL dahil).
