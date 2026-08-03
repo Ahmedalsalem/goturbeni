@@ -48,10 +48,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# tesseract.js (src/lib/ocr.ts) caches its downloaded language data here
-# when run from the project root (e.g. local dev/test) instead of a
-# dedicated cache dir.
-*.traineddata
+# tesseract.js (src/lib/ocr.ts) would cache downloaded language data at the
+# project root by default — not expected anymore now that ocr.ts passes
+# cacheMethod: "none" and a vendored langPath, but ignored defensively.
+# assets/tesseract-lang/ (the vendored copy) is intentionally NOT excluded.
+/*.traineddata
 
 .vercel
 .env*

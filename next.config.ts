@@ -15,6 +15,15 @@ const nextConfig: NextConfig = {
   // worker never starts, so Tesseract.recognize() hangs forever. Marking it
   // external keeps it on Node's native require, unbundled.
   serverExternalPackages: ["tesseract.js"],
+  // Bundles the vendored English traineddata (assets/tesseract-lang/, see
+  // src/lib/ocr.ts) into the serverless functions for the routes whose
+  // server actions call it — otherwise tesseract.js would only find it via
+  // its default runtime fetch from jsdelivr's CDN on every cold start.
+  outputFileTracingIncludes: {
+    "/rides/[id]": ["./assets/tesseract-lang/**"],
+    "/rides/[id]/bookings": ["./assets/tesseract-lang/**"],
+    "/bookings": ["./assets/tesseract-lang/**"],
+  },
   // Removes the `X-Powered-By: Next.js` response header (minor info-disclosure hardening).
   poweredByHeader: false,
   async headers() {

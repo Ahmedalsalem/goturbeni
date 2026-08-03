@@ -1,4 +1,11 @@
+import path from "path"
 import Tesseract from "tesseract.js"
+
+// Vendored so recognize() never depends on jsdelivr's CDN being reachable at
+// runtime — see next.config.ts's outputFileTracingIncludes for why this
+// specific directory (not bundled by default, since tesseract.js loads it by
+// a runtime-constructed path, not a static import Next.js can trace itself).
+const LANG_PATH = path.join(process.cwd(), "assets/tesseract-lang")
 
 // Extracts raw candidate fields from a deposit receipt image so the caller
 // (submitDepositReceipt) can hand them, unmodified, to the
@@ -43,7 +50,7 @@ function parseAmountToken(raw: string): number | null {
 export async function extractReceiptFields(image: Buffer): Promise<ReceiptOcrResult> {
   const {
     data: { text },
-  } = await Tesseract.recognize(image, "eng")
+  } = await Tesseract.recognize(image, "eng", { langPath: LANG_PATH, gzip: false, cacheMethod: "none" })
 
   const ibanMatch = text.replace(/\s+/g, "").match(IBAN_PATTERN)
   const textWithoutIban = text.replace(IBAN_WITH_SPACES_PATTERN, "")

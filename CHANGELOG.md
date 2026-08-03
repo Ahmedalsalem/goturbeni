@@ -14,6 +14,10 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) kullanır.
 - **Next.js yapılandırması**: `tesseract.js` (`worker_threads` ile kendi worker script'ini/WASM'ını dosya yolundan yüklüyor) `serverExternalPackages`'a eklendi — bundlanmadan Node'un native `require`'ına bırakılmazsa worker hiç başlamıyor, `Tesseract.recognize()` süresiz askıda kalıyordu.
 - Instagram/Facebook resmi hesap linkleri güncellendi (`src/lib/social-links.ts` — `@goturbenitr`).
 
+### Eklendi — Tesseract dil verisi projeye gömüldü (bu oturum)
+
+- `assets/tesseract-lang/eng.traineddata` (~5MB) repo'ya eklendi; `next.config.ts`'e eklenen `outputFileTracingIncludes`, bunu `/rides/[id]`, `/rides/[id]/bookings`, `/bookings` route'larının serverless fonksiyonuna dahil ediyor (yerel `npm run build` sonrası `.next/server/app/**/*.nft.json` dosyalarında doğrulandı). `src/lib/ocr.ts` artık `langPath`'i bu dizine, `cacheMethod`'u `"none"`'a ayarlıyor — varsayılan davranışta her soğuk başlangıçta jsdelivr CDN'den indirilen dil verisi, artık hiç ağ isteği yapmadan diskten okunuyor (yerel doğrulama: ~150-250ms, önceki CDN'li haline göre gözle görülür daha hızlı — tam e2e suite'te OCR otomatik onay testinin süresi de düştü).
+
 ### Eklendi — kalan ödeme (settlement) dekontuna da OCR otomatik onay (bu oturum)
 
 - `submit_settlement_receipt_ocr` RPC'si (`0054_settlement_ocr_auto_approval.sql`), kaporadakiyle (`0053`) aynı IBAN/tutar/risk doğrulamasını kalan ödeme dekontuna uygular. Fark: eşleşme, `confirm_remaining_payment`'ın karşılıklı onayının **her iki tarafını da** (driver_settled_at + passenger_settled_at) tek seferde işaretler — yolcunun doğru IBAN'a doğru tutarı gösteren bir dekont yüklemesi zaten kendi "gönderdim" beyanının kanıtı olduğundan, ayrıca butona bastırmak gereksiz sürtünme olurdu.
