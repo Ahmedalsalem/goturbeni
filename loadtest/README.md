@@ -9,9 +9,13 @@ assume are running for e2e tests.
 **Run 2026-07-31** (Docker Desktop + `npx supabase start`, `npm run dev`):
 `last-seat-race.mjs` and `cancel-approve-race.mjs` both PASS (no overbooking,
 no lost update). `browse-load.mjs` completed 450/450 requests but with
-p50≈14.9s / p95≈16.6s latency against `next dev` — not yet re-measured
-against a production build (`next build && next start`), so it's unclear how
-much of that is dev-mode compilation overhead vs. a real bottleneck.
+p50≈14.9s / p95≈16.6s latency against `next dev`.
+
+**Run 2026-08-03** (same setup, `npm run build && npm run start` instead of
+`npm run dev`): `browse-load.mjs` completed 450/450 requests with
+p50=835ms / p95=1571ms / p99=1600ms, 70.2 req/s. Confirms the 2026-07-31
+latency was entirely `next dev`'s per-request compilation overhead, not a
+real bottleneck — production build latency is healthy.
 
 Note: the hardcoded `LOCAL_ANON_KEY`/`LOCAL_SERVICE_ROLE_KEY` in
 `lib/config.mjs` did not match the demo keys this Supabase CLI version
