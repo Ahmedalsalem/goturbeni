@@ -1101,9 +1101,7 @@
         "controller": {
           "heading": "Veri Sorumlusunun Kimliği",
           "body": [
-            "Kişisel verileriniz, veri sorumlusu sıfatıyla [Şirket Unvanı] (“Şirket”) tarafından, aşağıda açıklanan amaç ve kapsamda işlenmektedir.",
-            "Adres: [Şirket Adresi]",
-            "MERSİS No: [MERSİS No]",
+            "Kişisel verileriniz, veri sorumlusu sıfatıyla Ahmed Alsalem tarafından, aşağıda açıklanan amaç ve kapsamda işlenmektedir. GötürBeni platformu bir şahıs faaliyeti olarak yürütülmekte olup ayrı bir tüzel kişiliği (şirket) bulunmamaktadır; bu nedenle bir MERSİS kaydı da yoktur.",
             "İletişim: novarodigitalstudio@gmail.com"
           ],
           "items": []
@@ -1169,7 +1167,7 @@
         "application": {
           "heading": "Başvuru Yöntemi",
           "body": [
-            "Yukarıda sayılan haklarınızı kullanmak amacıyla taleplerinizi, kimliğinizi tespit edici belgelerle birlikte [Şirket Adresi] adresine yazılı olarak iletebilir veya novarodigitalstudio@gmail.com adresine güvenli elektronik imza, mobil imza ya da tarafınızca Şirkete daha önce bildirilen ve sistemimizde kayıtlı bulunan elektronik posta adresini kullanarak başvurabilirsiniz.",
+            "Yukarıda sayılan haklarınızı kullanmak amacıyla taleplerinizi, kimliğinizi tespit edici belgelerle birlikte novarodigitalstudio@gmail.com adresine güvenli elektronik imza, mobil imza ya da tarafınızca veri sorumlusuna daha önce bildirilen ve sistemimizde kayıtlı bulunan elektronik posta adresini kullanarak iletebilirsiniz.",
             "Başvurunuz, KVKK'nın 13. maddesi uyarınca en geç 30 gün içinde ücretsiz olarak sonuçlandırılır; ancak işlemin ayrıca bir maliyet gerektirmesi hâlinde Kişisel Verileri Koruma Kurulunca belirlenen tarifedeki ücret alınabilir."
           ],
           "items": []

@@ -1101,9 +1101,7 @@
         "controller": {
           "heading": "Identity of the Data Controller",
           "body": [
-            "Your personal data is processed by [Company Name] (“Company”) as the data controller, for the purposes and within the scope described below.",
-            "Address: [Company Address]",
-            "MERSIS No: [MERSIS No]",
+            "Your personal data is processed by Ahmed Alsalem as the data controller, for the purposes and within the scope described below. GötürBeni is operated as an individual (sole natural person) activity and has no separate corporate entity (company); accordingly, it has no MERSIS registration.",
             "Contact: novarodigitalstudio@gmail.com"
           ],
           "items": []
@@ -1169,7 +1167,7 @@
         "application": {
           "heading": "How to Apply",
           "body": [
-            "To exercise the rights listed above, you may submit your request in writing, along with identity-verifying documents, to [Company Address], or apply via novarodigitalstudio@gmail.com using a secure electronic signature, mobile signature, or the email address you previously registered with the Company and that is on file in our system.",
+            "To exercise the rights listed above, you may submit your request, along with identity-verifying documents, via novarodigitalstudio@gmail.com using a secure electronic signature, mobile signature, or the email address you previously registered with the data controller and that is on file in our system.",
             "Your application will be concluded free of charge within 30 days at the latest, in accordance with Article 13 of the KVKK; however, if the process requires an additional cost, a fee may be charged according to the tariff set by the Personal Data Protection Board."
           ],
           "items": []

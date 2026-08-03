@@ -4,6 +4,10 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) kullanır.
 
 ## [Unreleased]
 
+### Değiştirildi — KVKK yasal placeholder'ları dolduruldu (bu oturum)
+
+- KVKK Aydınlatma Metni'ndeki `[Şirket Unvanı]`/`[Şirket Adresi]`/`[MERSİS No]` placeholder'ları, gerçek bir şirket kurulmadığından (kullanıcının onayı) şirket bilgisiyle değil, gerçeğe uygun şekilde dolduruldu: veri sorumlusu olarak Ahmed Alsalem (gerçek kişi), iletişim yalnızca e-posta (`novarodigitalstudio@gmail.com`), ve "GötürBeni bir şahıs faaliyeti olarak yürütülmekte olup ayrı bir tüzel kişiliği (şirket) bulunmamaktadır, bu nedenle MERSİS kaydı da yoktur" ifadesi eklendi — tr/en/ar üçünde de, "Başvuru Yöntemi" bölümündeki fiziksel adrese başvuru seçeneği kaldırılıp yalnızca e-posta bırakıldı. Üç dilde de tarayıcıda görsel olarak doğrulandı (RTL dahil).
+
 ### Eklendi — kapora dekontu OCR ile otomatik onay (bu oturum)
 
 - **OCR otomatik onay**: yolcu kapora dekontu yüklediğinde, sunucu tarafında Tesseract (`tesseract.js`, ücretsiz/açık kaynak — `src/lib/ocr.ts`) dekonttan IBAN/tutar adaylarını okur; bunlar yeni `submit_deposit_receipt_ocr` RPC'sinde (`0053_deposit_ocr_auto_approval.sql`) sürücünün gerçek kayıtlı IBAN'ı ve ilanın gerçek kapora tutarıyla (±5₺ tolerans) **veritabanı içinde** yeniden karşılaştırılır — istemciden/server action'dan "eşleşti" diye bir bayrak asla geçilmez, RPC kendi hesaplar. Eşleşme + düşük risk (aynı `0047` kriterleri: hesap ≥14 gün, askıya alınmamış, bu rezervasyonda geçmiş red yok, şüpheli hesap değil, açık anlaşmazlığı yok) koşuluyla rezervasyon sürücü hiçbir şey yapmadan otomatik onaylanır; sürücünün manuel butonu yedek olarak kalır.
