@@ -112,3 +112,9 @@ export function getNearbyProvinces(province: TurkishProvince, maxDistanceKm: num
   const origin = PROVINCE_COORDINATES[province]
   return TURKISH_PROVINCES.filter((candidate) => candidate !== province && haversineDistanceKm(origin, PROVINCE_COORDINATES[candidate]) <= maxDistanceKm)
 }
+
+// Straight-line, not road distance — the coordinates above are approximate
+// provincial-capital points, so callers must label this as "kuş uçuşu".
+export function getProvinceDistanceKm(from: TurkishProvince, to: TurkishProvince): number {
+  return Math.round(haversineDistanceKm(PROVINCE_COORDINATES[from], PROVINCE_COORDINATES[to]))
+}

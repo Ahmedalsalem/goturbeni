@@ -7,6 +7,7 @@
     "skipToContent": "İçeriğe geç",
     "home": "Anasayfa",
     "rides": "Yolculuk Bul",
+    "routes": "Rotalar",
     "createRide": "İlan Ver",
     "myRides": "Benim İlanlarım",
     "bookings": "Rezervasyonlarım",
@@ -355,6 +356,48 @@
     "help": {
       "title": "Yardıma mı ihtiyacın var?",
       "description": "Sık sorulan sorular için Destek sayfamıza göz atabilir, ya da doğrudan bize e-posta gönderebilirsin."
+    }
+  },
+  "RoutePage": {
+    "metaTitle": "{from} - {to} Yolculuk Paylaşımı",
+    "metaDescription": "{from} - {to} arası paylaşımlı yolculuk ilanları. Sürücülerin boş koltuklarını gör, masrafı paylaş, komisyon ödemeden doğrudan anlaş.",
+    "heading": "{from} - {to} Yolculuk Paylaşımı",
+    "intro": "{from} ile {to} arasında araçla seyahat eden sürücülerin boş koltuklarını burada bulabilirsin. Masraf paylaşımı esasına dayanır; GötürBeni komisyon almaz.",
+    "stats": {
+      "distanceLabel": "Kuş uçuşu mesafe",
+      "distanceValue": "yaklaşık {km} km",
+      "listingsLabel": "Aktif ilan",
+      "listingsValue": "{count, plural, =0 {Henüz yok} other {# ilan}}",
+      "commissionLabel": "Komisyon",
+      "commissionValue": "%0"
+    },
+    "listings": {
+      "title": "{from} - {to} aktif ilanlar",
+      "emptyTitle": "{from} - {to} için henüz ilan yok",
+      "emptyDescription": "Bu rotada ilk ilanı sen verebilirsin. İlan vermek ücretsiz ve bir dakika sürüyor.",
+      "createCta": "İlan Ver",
+      "searchCta": "Tüm ilanları filtrele"
+    },
+    "costSharing": {
+      "title": "Masraf nasıl paylaşılır?",
+      "splitTitle": "Yolcu sayısına bölünür",
+      "splitDescription": "Sürücü yolculuğun masrafını ilanında belirtir; bu tutar yolcular arasında paylaşılır. Araçta ne kadar çok kişi olursa kişi başına düşen tutar o kadar azalır.",
+      "directTitle": "Ödeme doğrudan sürücüye",
+      "directDescription": "Ödemeyi yolcu doğrudan sürücünün IBAN'ına yapar; yarısı rezervasyonda, yarısı yolculuk sonrasında. GötürBeni araya girmez ve komisyon almaz.",
+      "disclaimer": "GötürBeni bir ticari taşımacılık hizmeti değildir. İlanlar, zaten o yolculuğu yapacak sürücülerin masraflarını paylaşmasına dayanır. Mesafe kuş uçuşu olarak hesaplanır; karayolu mesafesi daha uzundur."
+    },
+    "related": {
+      "title": "İlgili rotalar",
+      "reverse": "{from} - {to}",
+      "pair": "{from} - {to}",
+      "allRoutes": "Tüm popüler rotalar"
+    },
+    "index": {
+      "metaTitle": "Popüler Yolculuk Rotaları",
+      "metaDescription": "Türkiye'nin en çok seyahat edilen şehirlerarası rotalarında paylaşımlı yolculuk ilanları. Rotanı seç, boş koltukları gör.",
+      "heading": "Popüler Rotalar",
+      "intro": "En çok seyahat edilen şehirlerarası rotalar. Rotanı seç, o güzergâhtaki aktif ilanları ve masraf paylaşımının nasıl işlediğini gör.",
+      "distance": "~{km} km"
     }
   },
   "SupportPage": {
