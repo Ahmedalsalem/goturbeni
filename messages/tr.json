@@ -617,6 +617,7 @@
       "cancelFailed": "Rezervasyon iptal edilemedi. Lütfen tekrar deneyin.",
       "tooManyRequests": "Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin.",
       "settleFailed": "Ödeme tamamlandı olarak işaretlenemedi. Lütfen tekrar deneyin.",
+      "driverNoShow": "Sürücü gelmedi olarak işaretlendiği için kalan ödeme işlenemez. Bir anlaşmazlık otomatik olarak açıldı.",
       "actionFailed": "İşlem gerçekleştirilemedi. Lütfen tekrar deneyin.",
       "receiptRequired": "Lütfen bir dekont dosyası seçin.",
       "receiptTooLarge": "Dekont dosyası en fazla 5 MB olabilir.",
