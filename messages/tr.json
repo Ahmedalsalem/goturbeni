@@ -233,7 +233,7 @@
       "phone": "Telefon",
       "phoneHint": "Başında 0 olmadan girin (örn. 5XX XXX XX XX).",
       "iban": "IBAN",
-      "ibanHint": "Sürücü olarak ilan verebilmek için gerekli — yolcular ilk yarı ödemesini buraya gönderir.",
+      "ibanHint": "Sürücü olarak ilan verebilmek için gerekli — yolcular kapora ödemesini buraya gönderir.",
       "ibanHolderName": "Hesap Sahibi Ad Soyad",
       "carBrand": "Araç Markası",
       "carModel": "Araç Modeli",
@@ -338,7 +338,7 @@
       },
       "book": {
         "title": "Rezervasyon yap, kaporanı öde",
-        "description": "Sürücü rezervasyon talebini onayladığında yolculuğun kesinleşir. Yolcu, toplam ücretin yarısını (kaporayı) sürücünün IBAN'ına gönderir ve dekontu yükler; kalan yarı yolculuk sonrasında ödenir."
+        "description": "Sürücü rezervasyon talebini onayladığında yolculuğun kesinleşir. Yolcu, toplam ücretin %25'ini (kaporayı) sürücünün IBAN'ına gönderir ve dekontu yükler; kalan %75 yolculuk sonrasında ödenir."
       },
       "pickup": {
         "title": "Sürücünle iletişime geç",
@@ -383,7 +383,7 @@
       "splitTitle": "Yolcu sayısına bölünür",
       "splitDescription": "Sürücü yolculuğun masrafını ilanında belirtir; bu tutar yolcular arasında paylaşılır. Araçta ne kadar çok kişi olursa kişi başına düşen tutar o kadar azalır.",
       "directTitle": "Ödeme doğrudan sürücüye",
-      "directDescription": "Ödemeyi yolcu doğrudan sürücünün IBAN'ına yapar; yarısı rezervasyonda, yarısı yolculuk sonrasında. GötürBeni araya girmez ve komisyon almaz.",
+      "directDescription": "Ödemeyi yolcu doğrudan sürücünün IBAN'ına yapar; %25'i rezervasyonda, %75'i yolculuk sonrasında. GötürBeni araya girmez ve komisyon almaz.",
       "disclaimer": "GötürBeni bir ticari taşımacılık hizmeti değildir. İlanlar, zaten o yolculuğu yapacak sürücülerin masraflarını paylaşmasına dayanır. Mesafe kuş uçuşu olarak hesaplanır; karayolu mesafesi daha uzundur."
     },
     "related": {
@@ -586,11 +586,11 @@
     },
     "actions": {
       "reserve": "Rezervasyon Yap",
-      "approve": "İlk Yarı Ödemesini Aldım, Onayla",
+      "approve": "Kaporayı Aldım, Onayla",
       "reject": "Reddet",
       "cancel": "İptal Et",
       "confirmCancel": "Emin misiniz?",
-      "confirmApprove": "İlk yarı ödemesini aldığınızı onaylıyor musunuz?",
+      "confirmApprove": "Kaporayı aldığınızı onaylıyor musunuz?",
       "confirmReject": "Reddedilsin mi?",
       "reportDriverNoShow": "Sürücü Gelmedi",
       "reportPassengerNoShow": "Yolcu Gelmedi",
@@ -641,7 +641,7 @@
       "verifyCta": "Doğrulamayı Tamamla"
     },
     "payment": {
-      "depositInstructionTitle": "Rezervasyonun kesinleşmesi için ücretin %50'sini saat {deadline}'e kadar aşağıdaki IBAN'a gönderin",
+      "depositInstructionTitle": "Rezervasyonun kesinleşmesi için ücretin %25'ini saat {deadline}'e kadar aşağıdaki IBAN'a gönderin",
       "ibanLabel": "IBAN",
       "ibanHolderLabel": "Hesap Sahibi",
       "noCommissionDisclaimer": "Platformumuz komisyon almaz, ödemeler doğrudan şahıslar arasındadır.",
@@ -756,6 +756,7 @@
         "payment_amount_mismatch": "Ödeme Tutarı Uyuşmuyor",
         "service_not_as_described": "Hizmet Anlatıldığı Gibi Değildi",
         "safety_concern": "Güvenlik Endişesi",
+        "no_show": "Gelmedi (No-Show)",
         "other": "Diğer"
       },
       "descriptionPlaceholder": "Yaşadığınız sorunu açıklayın (en az 10 karakter)",
@@ -928,6 +929,7 @@
         "payment_amount_mismatch": "Ödeme Tutarı Uyuşmuyor",
         "service_not_as_described": "Hizmet Anlatıldığı Gibi Değildi",
         "safety_concern": "Güvenlik Endişesi",
+        "no_show": "Gelmedi (No-Show)",
         "other": "Diğer"
       },
       "resolutionNoteLabel": "Sonuç Notu",

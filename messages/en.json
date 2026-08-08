@@ -233,7 +233,7 @@
       "phone": "Phone",
       "phoneHint": "Enter without the leading 0 (e.g. 5XX XXX XX XX).",
       "iban": "IBAN",
-      "ibanHint": "Required to post listings as a driver — passengers send their first-half payment here.",
+      "ibanHint": "Required to post listings as a driver — passengers send their deposit payment here.",
       "ibanHolderName": "Account Holder Full Name",
       "carBrand": "Car Make",
       "carModel": "Car Model",
@@ -338,7 +338,7 @@
       },
       "book": {
         "title": "Book your seat, pay your deposit",
-        "description": "Once the driver approves your booking request, your trip is confirmed. The passenger sends half of the total fare (the deposit) to the driver's IBAN and uploads the receipt; the remaining half is paid after the trip."
+        "description": "Once the driver approves your booking request, your trip is confirmed. The passenger sends 25% of the total fare (the deposit) to the driver's IBAN and uploads the receipt; the remaining 75% is paid after the trip."
       },
       "pickup": {
         "title": "Get in touch with your driver",
@@ -383,7 +383,7 @@
       "splitTitle": "Split across passengers",
       "splitDescription": "The driver states the cost of the trip in the listing, and that amount is shared among the passengers. The more people in the car, the less each person pays.",
       "directTitle": "Paid directly to the driver",
-      "directDescription": "The passenger pays the driver's IBAN directly — half at booking, half after the trip. GötürBeni never sits in the middle and takes no commission.",
+      "directDescription": "The passenger pays the driver's IBAN directly — 25% at booking, 75% after the trip. GötürBeni never sits in the middle and takes no commission.",
       "disclaimer": "GötürBeni is not a commercial transport service. Listings are based on cost-sharing between drivers who are making the trip anyway. Distance is calculated as a straight line; the road distance is longer."
     },
     "related": {
@@ -586,11 +586,11 @@
     },
     "actions": {
       "reserve": "Book Now",
-      "approve": "I've Received the First Half Payment, Approve",
+      "approve": "I've Received the Deposit, Approve",
       "reject": "Decline",
       "cancel": "Cancel",
       "confirmCancel": "Are you sure?",
-      "confirmApprove": "Do you confirm you've received the first-half payment?",
+      "confirmApprove": "Do you confirm you've received the deposit?",
       "confirmReject": "Decline this request?",
       "reportDriverNoShow": "Driver Didn't Show Up",
       "reportPassengerNoShow": "Passenger Didn't Show Up",
@@ -641,7 +641,7 @@
       "verifyCta": "Complete Verification"
     },
     "payment": {
-      "depositInstructionTitle": "To confirm your booking, send 50% of the fare to the IBAN below by {deadline}",
+      "depositInstructionTitle": "To confirm your booking, send 25% of the fare to the IBAN below by {deadline}",
       "ibanLabel": "IBAN",
       "ibanHolderLabel": "Account Holder",
       "noCommissionDisclaimer": "Our platform doesn't take a commission — payments are made directly between individuals.",
@@ -756,6 +756,7 @@
         "payment_amount_mismatch": "Payment Amount Mismatch",
         "service_not_as_described": "Service Not as Described",
         "safety_concern": "Safety Concern",
+        "no_show": "No-Show",
         "other": "Other"
       },
       "descriptionPlaceholder": "Describe the issue you experienced (at least 10 characters)",
@@ -928,6 +929,7 @@
         "payment_amount_mismatch": "Payment Amount Mismatch",
         "service_not_as_described": "Service Not as Described",
         "safety_concern": "Safety Concern",
+        "no_show": "No-Show",
         "other": "Other"
       },
       "resolutionNoteLabel": "Resolution Note",
