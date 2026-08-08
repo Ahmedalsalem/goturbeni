@@ -392,7 +392,7 @@ begin
     return false;
   end if;
 
-  v_expected_amount := round(v_ride.cost_share * v_booking.seat_count * 0.25, 2);
+  v_expected_amount := round(v_ride.cost_share * v_booking.seat_count * 0.75, 2);
   if not exists (select 1 from unnest(p_amounts) as amt where abs(amt - v_expected_amount) <= 5.00) then
     return false;
   end if;

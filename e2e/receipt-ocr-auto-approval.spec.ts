@@ -107,8 +107,9 @@ test.describe.serial("deposit/settlement receipt OCR auto-approval", () => {
     // would be trivially true for the wrong reason.
     await expect(passengerPage.getByRole("button", { name: "Kalan Ödeme Tamamlandı", exact: true })).toBeVisible()
 
-    // Same amount as the deposit — cost_share (200) * seat_count (1) * 0.25.
-    const receipt = await realisticReceiptFilePayload(passengerPage, "settlement.png", "TR33 0006 1005 1978 6457 8413 26", 50)
+    // Settlement is the remaining 75% of the fare, not another 25% — cost_share
+    // (200) * seat_count (1) * 0.75 = 150.
+    const receipt = await realisticReceiptFilePayload(passengerPage, "settlement.png", "TR33 0006 1005 1978 6457 8413 26", 150)
     await passengerPage.locator('input[type="file"]').setInputFiles(receipt)
     await expect(passengerPage.getByText("Dekont yüklendi, inceleme bekleniyor.")).toBeVisible()
 
