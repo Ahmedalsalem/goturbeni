@@ -185,7 +185,7 @@ export async function confirmRemainingPayment(bookingId: string, rideId: string)
 
   if (error) {
     logError(error, "bookings.confirmRemainingPayment")
-    return { error: tErrors("settleFailed") }
+    return { error: error.message.includes("driver_no_show") ? tErrors("driverNoShow") : tErrors("settleFailed") }
   }
 
   revalidatePath("/bookings")
@@ -375,7 +375,7 @@ export async function submitSettlementReceipt(bookingId: string, rideId: string,
   const { error } = await supabase.rpc("submit_settlement_receipt", { p_booking_id: bookingId, p_receipt_url: uploaded.path })
   if (error) {
     logError(error, "bookings.submitSettlementReceipt")
-    return { error: tErrors("actionFailed") }
+    return { error: error.message.includes("driver_no_show") ? tErrors("driverNoShow") : tErrors("actionFailed") }
   }
 
   // Same OCR-verify-in-the-background approach as submitDepositReceipt above

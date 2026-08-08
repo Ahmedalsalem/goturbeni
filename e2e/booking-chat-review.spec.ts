@@ -84,8 +84,8 @@ test.describe.serial("booking, chat, and review flow", () => {
 
   test("driver approves the booking and seat count updates", async () => {
     await driverPage.goto(`/rides/${rideId}/bookings`)
-    await driverPage.getByRole("button", { name: "İlk Yarı Ödemesini Aldım, Onayla", exact: true }).click()
-    await driverPage.getByRole("button", { name: "İlk yarı ödemesini aldığınızı onaylıyor musunuz?", exact: true }).click()
+    await driverPage.getByRole("button", { name: "Kaporayı Aldım, Onayla", exact: true }).click()
+    await driverPage.getByRole("button", { name: "Kaporayı aldığınızı onaylıyor musunuz?", exact: true }).click()
     await expect(driverPage.getByText("Rezervasyon onaylandı.")).toBeVisible()
     await expect(driverPage.getByText("Onaylandı")).toBeVisible()
 

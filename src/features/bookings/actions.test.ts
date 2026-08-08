@@ -42,7 +42,7 @@ vi.mock("next-intl/server", () => ({
   getTranslations: async ({ namespace }: { namespace: string }) => (key: string) => `${namespace}.${key}`,
 }))
 
-import { approveBooking, cancelBooking, createBooking, rejectBooking } from "@/features/bookings/actions"
+import { approveBooking, cancelBooking, confirmRemainingPayment, createBooking, rejectBooking, reportNoShow } from "@/features/bookings/actions"
 
 const FAKE_USER = { id: "user-1" }
 
@@ -262,6 +262,70 @@ describe("bookings/actions", () => {
       const result = await cancelBooking("booking-1", "ride-1")
 
       expect(result).toEqual({ success: true })
+    })
+  })
+
+  describe("reportNoShow", () => {
+    it("calls supabase.rpc with report_no_show and the booking id", async () => {
+      rpcMock.mockResolvedValue({ error: null })
+
+      await reportNoShow("booking-1", "ride-1")
+
+      expect(rpcMock).toHaveBeenCalledWith("report_no_show", { p_booking_id: "booking-1" })
+    })
+
+    it("maps an RPC error to actionFailed", async () => {
+      rpcMock.mockResolvedValue({ error: { message: "boom" } })
+
+      const result = await reportNoShow("booking-1", "ride-1")
+
+      expect(result.error).toBe("Bookings.errors.actionFailed")
+    })
+
+    it("succeeds and revalidates on a clean RPC call", async () => {
+      rpcMock.mockResolvedValue({ error: null })
+
+      const result = await reportNoShow("booking-1", "ride-1")
+
+      expect(result).toEqual({ success: true })
+      expect(revalidatePathMock).toHaveBeenCalledWith("/bookings")
+      expect(revalidatePathMock).toHaveBeenCalledWith("/rides/ride-1/bookings")
+    })
+  })
+
+  describe("confirmRemainingPayment", () => {
+    it("calls supabase.rpc with confirm_remaining_payment and the booking id", async () => {
+      rpcMock.mockResolvedValue({ error: null })
+
+      await confirmRemainingPayment("booking-1", "ride-1")
+
+      expect(rpcMock).toHaveBeenCalledWith("confirm_remaining_payment", { p_booking_id: "booking-1" })
+    })
+
+    it("maps a driver_no_show RPC error to the driverNoShow error path", async () => {
+      rpcMock.mockResolvedValue({ error: { message: "driver_no_show" } })
+
+      const result = await confirmRemainingPayment("booking-1", "ride-1")
+
+      expect(result.error).toBe("Bookings.errors.driverNoShow")
+    })
+
+    it("maps any other RPC error to settleFailed", async () => {
+      rpcMock.mockResolvedValue({ error: { message: "ride_not_completed" } })
+
+      const result = await confirmRemainingPayment("booking-1", "ride-1")
+
+      expect(result.error).toBe("Bookings.errors.settleFailed")
+    })
+
+    it("succeeds and revalidates on a clean RPC call", async () => {
+      rpcMock.mockResolvedValue({ error: null })
+
+      const result = await confirmRemainingPayment("booking-1", "ride-1")
+
+      expect(result).toEqual({ success: true })
+      expect(revalidatePathMock).toHaveBeenCalledWith("/bookings")
+      expect(revalidatePathMock).toHaveBeenCalledWith("/rides/ride-1/bookings")
     })
   })
 })

@@ -146,8 +146,8 @@ test.describe.serial("payment receipt review, reject reasons, and nearby-provinc
     await expect(passengerPage.getByText("Dekont onaylandı")).toBeVisible()
 
     await driverPage.goto(`/rides/${rideId}/bookings`)
-    await driverPage.getByRole("button", { name: "İlk Yarı Ödemesini Aldım, Onayla", exact: true }).click()
-    await driverPage.getByRole("button", { name: "İlk yarı ödemesini aldığınızı onaylıyor musunuz?", exact: true }).click()
+    await driverPage.getByRole("button", { name: "Kaporayı Aldım, Onayla", exact: true }).click()
+    await driverPage.getByRole("button", { name: "Kaporayı aldığınızı onaylıyor musunuz?", exact: true }).click()
     await expect(driverPage.getByText("Rezervasyon onaylandı.")).toBeVisible()
   })
 

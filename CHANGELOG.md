@@ -4,6 +4,13 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) kullanır.
 
 ## [Unreleased]
 
+### Değiştirildi — Faz 1 (ödeme koruması sıkılaştırması) (bu oturum)
+
+- **No-show artık otomatik bir anlaşmazlık açıyor**: `report_no_show` (`0056_no_show_tightening_and_deposit_ratio.sql`), passenger_id/driver_id'yi işaretlerken aynı transaction'da karşı tarafa karşı `no_show` gerekçeli bir dispute açıyor (`dispute_reason` enum'ına `no_show` eklendi, `0055_no_show_dispute_reason.sql`) — önceden bir no-show bildirimi yalnızca şüpheli hesap sinyaline dönüşüyordu, admin'in ayrıca bir anlaşmazlık kaydı görmesi için karşı tarafın elle "İtiraz Aç" demesi gerekiyordu.
+- **No-show'un şüpheli-hesap eşiği 2 → 1**: `frequent_passenger_no_show`/`frequent_driver_no_show` kuralları artık **ilk** no-show'da bile admin kuyruğuna düşüyor — önceki eşik (2), gerçek mağduriyeti olan ilk vakayı kural-tabanlı tespitin dışında bırakıyordu.
+- **Sürücü no-show'unda kalan ödeme akışı kapatıldı**: `confirm_remaining_payment`, `submit_settlement_receipt` ve `submit_settlement_receipt_ocr`, `driver_no_show` işaretli bir rezervasyonda artık `driver_no_show` hatasıyla reddediyor (manuel buton + dekont yükleme + OCR otomatik onay, üçü de) — önceden sürücü gelmese bile yolcu kalan ödemeyi "tamamladım" olarak işaretleyebiliyordu.
+- **Depozito oranı %50 → %25**: rezervasyon talebinde kapora artık masraf payının %50'si değil %25'i; kalan **%75**, kalkıştan sonra settlement olarak ödeniyor. `submit_deposit_receipt_ocr`'nin OCR eşleşme tutarı `× 0.25`'e, `submit_settlement_receipt_ocr`'ninki `× 0.75`'e çekildi. Tüm kullanıcı arayüzü metni (tr/en/ar, `HowItWorksPage`/`RoutePage`) ve driver'ın onay butonu ("İlk Yarı Ödemesini Aldım, Onayla" → "Kaporayı Aldım, Onayla") buna göre güncellendi.
+
 ### Değiştirildi — mobilde misafir için hamburger menü kaldırıldı (bu oturum)
 
 Mobilde, giriş yapmamış bir ziyaretçinin header'ının en sağında bir hamburger menü ikonu duruyordu (yalnızca 4 nav linkini — Yolculuk Bul/İlan Ver/Nasıl Çalışır/Destek — ve bir "Kayıt Ol" yedeğini içeriyordu). Kaldırıldı; "Giriş Yap" ve "Kayıt Ol" artık her genişlikte doğrudan görünüyor. "Nasıl Çalışır"/"Destek" sayfalarının Footer'da hiç linki yoktu (bu menü tek erişim yoluydu) — ikisi de Footer'a eklendi, böylece erişilebilirlikleri korundu. `e2e/new-features.spec.ts`'teki ilgili test güncellendi (artık menünün *olmadığını* doğruluyor).

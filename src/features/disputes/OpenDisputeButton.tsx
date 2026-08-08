@@ -10,9 +10,9 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { openDispute } from "@/features/disputes/actions"
-import type { DisputeReason } from "@/types/dispute"
+import type { ManualDisputeReason } from "@/types/dispute"
 
-const DISPUTE_REASONS: DisputeReason[] = ["payment_not_received", "payment_amount_mismatch", "service_not_as_described", "safety_concern", "other"]
+const DISPUTE_REASONS: ManualDisputeReason[] = ["payment_not_received", "payment_amount_mismatch", "service_not_as_described", "safety_concern", "other"]
 
 // Lets either party on a booking (passenger or driver) formally report a
 // problem — open_dispute (0044_disputes.sql) works out who the complaint is
@@ -24,7 +24,7 @@ export function OpenDisputeButton({ bookingId, alreadyOpen }: { bookingId: strin
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [expanded, setExpanded] = useState(false)
-  const [reason, setReason] = useState<DisputeReason>("payment_not_received")
+  const [reason, setReason] = useState<ManualDisputeReason>("payment_not_received")
   const [description, setDescription] = useState("")
 
   if (alreadyOpen) {
@@ -61,9 +61,9 @@ export function OpenDisputeButton({ bookingId, alreadyOpen }: { bookingId: strin
 
   return (
     <div className="flex w-full max-w-sm flex-col gap-2 sm:w-80">
-      <Select value={reason} onValueChange={(value) => setReason(value as DisputeReason)}>
+      <Select value={reason} onValueChange={(value) => setReason(value as ManualDisputeReason)}>
         <SelectTrigger aria-label={t("reasonLabel")}>
-          <SelectValue>{(value: DisputeReason) => t(`reason.${value}`)}</SelectValue>
+          <SelectValue>{(value: ManualDisputeReason) => t(`reason.${value}`)}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           {DISPUTE_REASONS.map((option) => (
