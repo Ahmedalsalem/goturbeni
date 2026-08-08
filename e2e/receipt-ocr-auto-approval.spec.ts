@@ -68,8 +68,8 @@ test.describe.serial("deposit/settlement receipt OCR auto-approval", () => {
     await passengerPage.getByRole("button", { name: "Rezervasyon Yap", exact: true }).click()
     await expect(passengerPage.getByText("Rezervasyon talebiniz gönderildi.")).toBeVisible({ timeout: 30_000 })
 
-    // Deposit = cost_share (200) * seat_count (1, the booking default) * 0.5.
-    const receipt = await realisticReceiptFilePayload(passengerPage, "deposit.png", "TR33 0006 1005 1978 6457 8413 26", 100)
+    // Deposit = cost_share (200) * seat_count (1, the booking default) * 0.25.
+    const receipt = await realisticReceiptFilePayload(passengerPage, "deposit.png", "TR33 0006 1005 1978 6457 8413 26", 50)
     await passengerPage.locator('input[type="file"]').setInputFiles(receipt)
     await expect(passengerPage.getByText("Dekont yüklendi, inceleme bekleniyor.")).toBeVisible()
   })
@@ -92,10 +92,10 @@ test.describe.serial("deposit/settlement receipt OCR auto-approval", () => {
       )
       .toBe(true)
 
-    // The driver never saw/clicked "İlk Yarı Ödemesini Aldım, Onayla" — if
-    // it's still on the page, auto-approval didn't actually happen and some
-    // other booking/state is showing "Onaylandı" instead.
-    await expect(driverPage.getByRole("button", { name: "İlk Yarı Ödemesini Aldım, Onayla", exact: true })).not.toBeVisible()
+    // The driver never saw/clicked "Kaporayı Aldım, Onayla" — if it's still
+    // on the page, auto-approval didn't actually happen and some other
+    // booking/state is showing "Onaylandı" instead.
+    await expect(driverPage.getByRole("button", { name: "Kaporayı Aldım, Onayla", exact: true })).not.toBeVisible()
   })
 
   test("after the ride departs, a matching settlement receipt auto-settles the remaining payment for both sides", async () => {
@@ -107,8 +107,8 @@ test.describe.serial("deposit/settlement receipt OCR auto-approval", () => {
     // would be trivially true for the wrong reason.
     await expect(passengerPage.getByRole("button", { name: "Kalan Ödeme Tamamlandı", exact: true })).toBeVisible()
 
-    // Same amount as the deposit — cost_share (200) * seat_count (1) * 0.5.
-    const receipt = await realisticReceiptFilePayload(passengerPage, "settlement.png", "TR33 0006 1005 1978 6457 8413 26", 100)
+    // Same amount as the deposit — cost_share (200) * seat_count (1) * 0.25.
+    const receipt = await realisticReceiptFilePayload(passengerPage, "settlement.png", "TR33 0006 1005 1978 6457 8413 26", 50)
     await passengerPage.locator('input[type="file"]').setInputFiles(receipt)
     await expect(passengerPage.getByText("Dekont yüklendi, inceleme bekleniyor.")).toBeVisible()
 
