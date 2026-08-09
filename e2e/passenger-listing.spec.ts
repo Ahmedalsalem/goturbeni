@@ -64,7 +64,7 @@ test.describe.serial("passenger listing reverse booking", () => {
     // "sanity: no stray duplicate text" kontrolü (driver'ın adının GÖRÜNMEMESİ
     // gerektiği) hesap sahibi adıyla çakışıp yanlışlıkla başarısız olurdu.
     await driverPage.locator("#ibanHolderName").fill("E2E Teklif Hesap Sahibi")
-    await driverPage.locator("#carPlate").fill("34 XYZ 789")
+    await driverPage.locator("#carPlate").fill("34 ABC 789")
     await driverPage.getByRole("button", { name: "Kaydet" }).click()
     await driverPage.getByText("Profil güncellendi.").waitFor()
 
