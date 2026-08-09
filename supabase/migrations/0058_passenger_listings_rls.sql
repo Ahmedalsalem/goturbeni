@@ -17,12 +17,19 @@ create policy "insert own ride" on public.rides
 
 -- rides: "update own ride" — 0002_rides.sql'den beri hiç değişmemişti,
 -- driver_id yerine posted_by kullanacak şekilde değiştiriliyor. Sürücü
--- ilanında posted_by = driver_id olduğundan davranış aynı.
+-- ilanında posted_by = driver_id olduğundan davranış aynı. with check'teki
+-- ikinci koşul, eski politikanın auth.uid() = driver_id kontrolüyle örtük
+-- olarak sağladığı driver_id değişmezliğini koruyor: sürücü ilanında
+-- (posted_by_role = 'driver') driver_id hâlâ auth.uid()'e sabitleniyor, bu
+-- yüzden bir doğrudan client UPDATE'i driver_id'yi başka bir kullanıcıya
+-- ya da NULL'a çeviremez (rides.driver_id, karşı taraf iletişim bilgisi,
+-- teslim alma kodu, iptal/iade RPC'leri gibi başka pek çok politika ve
+-- RPC'nin yetkilendirme temelidir).
 drop policy "update own ride" on public.rides;
 create policy "update own ride" on public.rides
   for update to authenticated
   using (auth.uid() = posted_by and status = 'active')
-  with check (auth.uid() = posted_by);
+  with check (auth.uid() = posted_by and (posted_by_role <> 'driver' or auth.uid() = driver_id));
 
 -- bookings: "insert own booking" — 0014_admin.sql'deki son hâlini
 -- rol-farkında yapıyoruz. booker_role = 'passenger' (normal rezervasyon
@@ -61,3 +68,13 @@ create policy "select own or driver bookings" on public.bookings
     or exists (select 1 from public.rides where rides.id = bookings.ride_id and rides.posted_by = auth.uid())
     or public.is_admin()
   );
+
+-- İkinci savunma katmanı — bookings_driver_id_matches_booker_role (0057) ile
+-- aynı desen. RLS'in "update own ride" politikası artık driver_id'yi
+-- sabitliyor (yukarıdaki düzeltme), ama DB seviyesinde de aynı ilişkiyi
+-- garanti altına almak, RLS'teki olası bir gelecekteki hatanın tek başına
+-- veri bütünlüğünü bozamaması anlamına geliyor. Var olan tüm satırlar
+-- posted_by_role='driver' (0057'nin varsayılanı) ve posted_by=driver_id
+-- (0057'nin backfill'i) olduğundan bu kısıt hiçbir var olan satırı reddetmez.
+alter table public.rides add constraint rides_posted_by_matches_driver_when_driver_posted
+  check (posted_by_role <> 'driver' or posted_by = driver_id);
