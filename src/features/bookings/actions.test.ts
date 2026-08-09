@@ -63,6 +63,8 @@ function fakeRide(overrides: Partial<Ride> = {}): Ride {
   return {
     id: "ride-1",
     driver_id: "driver-1",
+    posted_by_role: "driver",
+    posted_by: "driver-1",
     departure_city: "Ankara",
     arrival_city: "İstanbul",
     departure_district: null,
@@ -165,6 +167,15 @@ describe("bookings/actions", () => {
       expect(result).toEqual({ success: true })
       expect(revalidatePathMock).toHaveBeenCalledWith("/rides/ride-1")
     })
+
+    it("rejects when the ride has no driver_id yet (passenger-posted ride awaiting an offer)", async () => {
+      getRideMock.mockResolvedValue(fakeRide({ driver_id: null }))
+
+      const result = await createBooking("ride-1", { seatCount: 1 })
+
+      expect(result.error).toBe("Bookings.errors.createFailed")
+      expect(fromMock).not.toHaveBeenCalled()
+    })
   })
 
   describe("approveBooking", () => {
@@ -202,6 +213,31 @@ describe("bookings/actions", () => {
       expect(result).toEqual({ success: true })
       expect(revalidatePathMock).toHaveBeenCalledWith("/rides/ride-1/bookings")
       expect(revalidatePathMock).toHaveBeenCalledWith("/rides/ride-1")
+    })
+
+    it("rejects approving an offer when the offering driver has no IBAN", async () => {
+      getRideMock.mockResolvedValue(fakeRide({ posted_by_role: "passenger", driver_id: null }))
+      fromMock.mockImplementation((table: string) => {
+        if (table === "bookings") return { select: () => ({ eq: () => ({ single: async () => ({ data: { driver_id: "offering-driver-1" } }) }) }) }
+        if (table === "profiles_private") return { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null }) }) }) }
+        return {}
+      })
+
+      const result = await approveBooking("booking-1", "ride-1")
+
+      expect(result.error).toBe("Bookings.errors.offerDriverIbanRequired")
+      expect(rpcMock).not.toHaveBeenCalled()
+    })
+
+    it("proceeds to the RPC when the offer is on a driver-posted ride (no IBAN check)", async () => {
+      getRideMock.mockResolvedValue(fakeRide({ posted_by_role: "driver" }))
+      rpcMock.mockResolvedValue({ error: null })
+      fromMock.mockReturnValue(fromReturningPassengerId("passenger-1"))
+
+      const result = await approveBooking("booking-1", "ride-1")
+
+      expect(result).toEqual({ success: true })
+      expect(rpcMock).toHaveBeenCalledWith("approve_booking", { p_booking_id: "booking-1" })
     })
   })
 
