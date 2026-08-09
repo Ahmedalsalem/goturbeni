@@ -43,20 +43,25 @@ export default async function BookingsPage() {
   const locale = await getUserLocale()
   const [bookings, unreadMessages] = await Promise.all([getMyBookings(user.id), getUnreadMessages(user.id)])
 
+  // Onaylanmış her booking'de driver_id atanmış olur (approve_booking bunu
+  // garanti eder, yolcu ilanlarında bile) — ama tip artık nullable (Faz 2A),
+  // bu yüzden aşağıdaki her kullanım yerinde savunmacı bir null kontrolü var.
   const completedBookings = bookings.filter(
-    (booking) => booking.status === "approved" && new Date(booking.ride.departure_time) < new Date()
+    (booking) => booking.status === "approved" && booking.ride.driver_id !== null && new Date(booking.ride.departure_time) < new Date()
   )
   const myReviews = await Promise.all(
-    completedBookings.map((booking) => getMyReviewForRide(booking.ride.id, user.id, booking.ride.driver_id))
+    completedBookings.map((booking) => getMyReviewForRide(booking.ride.id, user.id, booking.ride.driver_id!))
   )
   const reviewedRideIds = new Set(completedBookings.filter((_, index) => myReviews[index]).map((booking) => booking.ride.id))
   const approvedBookings = bookings.filter((booking) => booking.status === "approved")
   const upcomingApprovedBookings = approvedBookings.filter((booking) => new Date(booking.ride.departure_time) >= new Date())
   const driverPhones = new Map(
     await Promise.all(
-      approvedBookings.map(
-        async (booking) => [booking.ride.id, await getRideCounterpartyPhone(booking.ride.id, booking.ride.driver_id)] as const
-      )
+      approvedBookings
+        .filter((booking) => booking.ride.driver_id !== null)
+        .map(
+          async (booking) => [booking.ride.id, await getRideCounterpartyPhone(booking.ride.id, booking.ride.driver_id!)] as const
+        )
     )
   )
   const liveLocations = new Map(
@@ -146,9 +151,9 @@ export default async function BookingsPage() {
                     {isCompleted &&
                       (reviewedRideIds.has(booking.ride.id) ? (
                         <Badge variant="secondary">{tReviewActions("alreadyReviewed")}</Badge>
-                      ) : (
+                      ) : booking.ride.driver_id ? (
                         <ReviewButton rideId={booking.ride.id} revieweeId={booking.ride.driver_id} />
-                      ))}
+                      ) : null)}
                     {isCompleted &&
                       (booking.driver_no_show ? (
                         <Badge variant="secondary">{tBookingActions("alreadyReportedNoShow")}</Badge>

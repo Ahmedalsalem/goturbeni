@@ -68,7 +68,7 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
     notFound()
   }
 
-  const [t, tCard, tNav, tReviews, tBookings, format, locale, driverProfile, driverReviewStats, user] = await Promise.all([
+  const [t, tCard, tNav, tReviews, tBookings, format, locale, user] = await Promise.all([
     getTranslations("RideDetailPage"),
     getTranslations("Rides.card"),
     getTranslations("Nav"),
@@ -76,15 +76,19 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
     getTranslations("Bookings.loginPrompt"),
     getFormatter(),
     getUserLocale(),
-    getProfile(ride.driver_id),
-    getReviewStats(ride.driver_id),
     getCurrentUser(),
   ])
+  // Yolcu ilanlarında driver_id onay anına kadar NULL olabilir (Faz 2A) —
+  // bu sayfa henüz yolcu-ilanı UI'ı göstermiyor (Faz 2B), ama backend'in
+  // artık nullable driver_id üretebilmesine karşı burada çökmemesi gerekiyor.
+  const [driverProfile, driverReviewStats] = ride.driver_id
+    ? await Promise.all([getProfile(ride.driver_id), getReviewStats(ride.driver_id)])
+    : [null, { averageRating: null, reviewCount: 0 }]
   const [existingBooking, userVerified] = user
     ? await Promise.all([getMyBookingForRide(ride.id, user.id), isPhoneVerified(user.id)])
     : [null, false]
   const awaitingDeposit = existingBooking?.status === "pending" && existingBooking.payment_status === "awaiting_deposit"
-  const [driverPaymentInfo, driverCompletedRideCount] = awaitingDeposit
+  const [driverPaymentInfo, driverCompletedRideCount] = awaitingDeposit && ride.driver_id
     ? await Promise.all([getRideDriverPaymentInfo(ride.id), getDriverCompletedRideCount(ride.driver_id)])
     : [null, 0]
   // Shown next to the IBAN so the passenger has a trust signal at the exact
@@ -216,7 +220,7 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
             </div>
           )}
 
-          {driverReviewStats.reviewCount > 0 && (
+          {driverReviewStats.reviewCount > 0 && ride.driver_id && (
             <div>
               <h2 className="mb-1 text-sm font-medium">{tReviews("recentReviews")}</h2>
               <ReviewSection userId={ride.driver_id} limit={3} hideStats />

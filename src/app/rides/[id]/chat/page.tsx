@@ -49,7 +49,7 @@ export default async function ChatPage({
     counterpartId = selected.id
   } else {
     const booking = await getMyBookingForRide(id, user.id)
-    if (!booking || booking.status !== "approved") {
+    if (!booking || booking.status !== "approved" || !ride.driver_id) {
       notFound()
     }
     counterpartId = ride.driver_id
