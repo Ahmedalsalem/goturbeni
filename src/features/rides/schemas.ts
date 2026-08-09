@@ -34,6 +34,7 @@ function districtField() {
 export function buildRideSchema(t: ValidationTranslator) {
   return z
     .object({
+      postedByRole: z.enum(["driver", "passenger"]).default("driver"),
       departureCity: z.enum(TURKISH_PROVINCES, { message: t("cityRequired") }),
       arrivalCity: z.enum(TURKISH_PROVINCES, { message: t("cityRequired") }),
       departureDistrict: districtField(),
@@ -85,6 +86,15 @@ export function buildRideSchema(t: ValidationTranslator) {
       message: t("vipSoloSingleSeat"),
       path: ["seatCount"],
     })
+    // Yolcu ilanında araç/politika alanları anlamsız (ilan sahibi henüz
+    // sürücü değil) — form bunları zaten gizliyor (Task 5), ama şema
+    // seviyesinde de zorlanıyor ki tamperlenmiş bir istek bu alanları
+    // dolaylı yoldan set edemesin.
+    .transform((data) =>
+      data.postedByRole === "passenger"
+        ? { ...data, petsAllowed: false, smokingAllowed: false, vipSolo: false, repeatWeekly: false }
+        : data
+    )
 }
 
 // Output type (after zod coercion/transforms) — what the create/update actions receive.

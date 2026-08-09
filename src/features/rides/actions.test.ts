@@ -58,6 +58,7 @@ function futureDateTimeParts(hoursFromNow: number) {
 function validRideValues(overrides: Partial<RideFormValues> = {}): RideFormValues {
   const { departureDate, departureTime } = futureDateTimeParts(24)
   return {
+    postedByRole: "driver",
     departureCity: "Ankara",
     arrivalCity: "İstanbul",
     departureDistrict: undefined,
