@@ -48,12 +48,16 @@ const FAKE_USER = { id: "user-1" }
 
 // Matches the .select("passenger_id").eq("id", ...).single() chain used by
 // getBookingPassengerId (called after a successful approve/reject RPC to
-// find out who to push-notify).
-function fromReturningPassengerId(passengerId: string | null) {
+// find out who to push-notify) — and, since approveBooking also always calls
+// getBookingRideId first now, includes ride_id too (default "ride-1" matches
+// the rideId most tests in this file pass to approveBooking) so that lookup
+// doesn't silently resolve to null and skip the IBAN/plate check for the
+// wrong reason.
+function fromReturningPassengerId(passengerId: string | null, rideId = "ride-1") {
   return {
     select: () => ({
       eq: () => ({
-        single: async () => ({ data: passengerId ? { passenger_id: passengerId } : null }),
+        single: async () => ({ data: passengerId ? { passenger_id: passengerId, ride_id: rideId } : null }),
       }),
     }),
   }
