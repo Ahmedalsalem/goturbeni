@@ -50,4 +50,8 @@ export interface BookingWithPassenger extends Booking {
     full_name: string | null
     avatar_url: string | null
   } | null
+  driver: {
+    full_name: string | null
+    avatar_url: string | null
+  } | null
 }

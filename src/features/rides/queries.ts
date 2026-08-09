@@ -8,7 +8,8 @@ import type { RideSearchFilters, RideSort } from "@/features/rides/filters"
 import type { Ride, RideWithDriver } from "@/types/ride"
 import { getNearbyProvinces } from "@/utils/turkish-provinces-geo"
 
-const RIDE_WITH_DRIVER_SELECT = "*, driver:profiles(full_name, avatar_url, car_brand, car_model, car_plate)"
+const RIDE_WITH_DRIVER_SELECT =
+  "*, driver:profiles!rides_driver_id_fkey(full_name, avatar_url, car_brand, car_model, car_plate), poster:profiles!rides_posted_by_fkey(full_name, avatar_url)"
 
 // How far (km) a province search widens once the exact departure/arrival
 // province has no results — wide enough to catch a genuinely nearby

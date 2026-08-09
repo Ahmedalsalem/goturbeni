@@ -4,8 +4,9 @@ import { createClient } from "@/lib/supabase/server"
 import { isSupabaseConfigured } from "@/lib/supabase/is-configured"
 import type { Booking, BookingWithPassenger, BookingWithRide } from "@/types/booking"
 
-const BOOKING_WITH_RIDE_SELECT = "*, ride:rides(*, driver:profiles(full_name, avatar_url))"
-const BOOKING_WITH_PASSENGER_SELECT = "*, passenger:profiles(full_name, avatar_url)"
+const BOOKING_WITH_RIDE_SELECT = "*, ride:rides(*, driver:profiles!rides_driver_id_fkey(full_name, avatar_url))"
+const BOOKING_WITH_PASSENGER_SELECT =
+  "*, passenger:profiles!bookings_passenger_id_fkey(full_name, avatar_url), driver:profiles!bookings_driver_id_fkey(full_name, avatar_url)"
 
 export async function getMyBookings(passengerId: string): Promise<BookingWithRide[]> {
   const supabase = await createClient()

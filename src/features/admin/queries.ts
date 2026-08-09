@@ -6,7 +6,7 @@ import type { Booking, BookingStatus } from "@/types/booking"
 import type { RideWithDriver } from "@/types/ride"
 
 const ADMIN_LIST_LIMIT = 100
-const RIDE_WITH_DRIVER_SELECT = "*, driver:profiles(full_name, avatar_url)"
+const RIDE_WITH_DRIVER_SELECT = "*, driver:profiles!rides_driver_id_fkey(full_name, avatar_url)"
 const BOOKING_STATUSES: BookingStatus[] = ["pending", "approved", "rejected", "cancelled"]
 const TREND_DAYS = 7
 
@@ -19,7 +19,7 @@ export interface AdminBookingRow extends Booking {
 // so the payments page can compute a risk tier (features/admin/risk.ts)
 // without a second round-trip per row.
 const ADMIN_BOOKING_SELECT =
-  "*, passenger:profiles(id, full_name, created_at, admin_flags(is_suspended)), ride:rides(departure_city, arrival_city, driver:profiles(full_name))"
+  "*, passenger:profiles!bookings_passenger_id_fkey(id, full_name, created_at, admin_flags(is_suspended)), ride:rides(departure_city, arrival_city, driver:profiles!rides_driver_id_fkey(full_name))"
 
 // Deposit receipts a passenger uploaded but nobody has reviewed yet — see
 // submit_deposit_receipt/admin_review_deposit_receipt (0020_payment_receipts.sql).
