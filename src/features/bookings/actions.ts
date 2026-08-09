@@ -59,12 +59,17 @@ export async function createBooking(rideId: string, values: BookingFormValues): 
   }
   if (!ride.driver_id) {
     // Defensive: a passenger-posted ride (posted_by_role='passenger') has no
-    // driver_id until a driver's offer is approved — rides_posted_by_matches_
-    // driver_when_driver_posted (0058) guarantees driver-posted rides always
-    // have one, so this should be unreachable via that path. There's no
-    // "request a seat" flow for a passenger-posted ride yet (that's a driver
-    // making an offer, a separate not-yet-built action), so this just fails
-    // closed rather than sending a notification to a non-existent recipient.
+    // driver_id until a driver's offer is approved — the "insert own ride"
+    // RLS policy (requires auth.uid() = driver_id at insert time for
+    // posted_by_role='driver') plus the revoke on client UPDATEs of driver_id
+    // (0058) guarantee a driver-posted ride always has one, so this should be
+    // unreachable via that path (the rides_posted_by_matches_driver_when_
+    // driver_posted CHECK constraint does NOT by itself enforce this — SQL's
+    // NULL-passes-CHECK semantics mean it doesn't reject driver_id IS NULL).
+    // There's no "request a seat" flow for a passenger-posted ride yet
+    // (that's a driver making an offer, a separate not-yet-built action), so
+    // this just fails closed rather than sending a notification to a
+    // non-existent recipient.
     logError(new Error("createBooking: ride has no driver_id"), "bookings.createBooking")
     return { error: tErrors("createFailed") }
   }
