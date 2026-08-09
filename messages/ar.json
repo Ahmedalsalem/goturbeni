@@ -586,6 +586,10 @@
     },
     "actions": {
       "reserve": "احجز",
+      "makeOffer": "قدّم عرضًا",
+      "manageOffer": "إدارة العرض",
+      "approveOffer": "قبول العرض",
+      "confirmApproveOffer": "هل أنت متأكد أنك تريد قبول هذا العرض؟",
       "approve": "استلمت العربون، موافقة",
       "reject": "رفض",
       "cancel": "إلغاء",
@@ -599,6 +603,8 @@
     },
     "success": {
       "created": "تم إرسال طلب الحجز.",
+      "offerCreated": "تم إرسال عرضك.",
+      "offerApproved": "تم قبول العرض.",
       "approved": "تمت الموافقة على الحجز.",
       "rejected": "تم رفض الحجز.",
       "cancelled": "تم إلغاء الحجز.",
@@ -610,6 +616,8 @@
       "notEnoughSeats": "لا توجد مقاعد كافية.",
       "alreadyBooked": "لديك بالفعل طلب حجز لهذه الرحلة.",
       "ownRide": "لا يمكنك حجز رحلتك الخاصة.",
+      "notPassengerListing": "لا يمكنك تقديم عرض على هذا الإعلان.",
+      "alreadyOffered": "لديك بالفعل عرض على هذا الإعلان.",
       "rideNotActive": "هذه الرحلة لم تعد نشطة.",
       "createFailed": "تعذر إنشاء الحجز. حاول مرة أخرى.",
       "approveFailed": "تعذر الموافقة على الحجز. حاول مرة أخرى.",

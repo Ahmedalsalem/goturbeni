@@ -586,6 +586,10 @@
     },
     "actions": {
       "reserve": "Rezervasyon Yap",
+      "makeOffer": "Teklif Ver",
+      "manageOffer": "Teklifi Yönet",
+      "approveOffer": "Teklifi Kabul Et",
+      "confirmApproveOffer": "Teklifi kabul etmek istediğinize emin misiniz?",
       "approve": "Kaporayı Aldım, Onayla",
       "reject": "Reddet",
       "cancel": "İptal Et",
@@ -599,6 +603,8 @@
     },
     "success": {
       "created": "Rezervasyon talebiniz gönderildi.",
+      "offerCreated": "Teklifiniz gönderildi.",
+      "offerApproved": "Teklif kabul edildi.",
       "approved": "Rezervasyon onaylandı.",
       "rejected": "Rezervasyon reddedildi.",
       "cancelled": "Rezervasyon iptal edildi.",
@@ -610,6 +616,8 @@
       "notEnoughSeats": "Yeterli boş koltuk yok.",
       "alreadyBooked": "Bu ilana zaten bir rezervasyon talebiniz var.",
       "ownRide": "Kendi ilanınıza rezervasyon yapamazsınız.",
+      "notPassengerListing": "Bu ilana teklif veremezsiniz.",
+      "alreadyOffered": "Bu ilana zaten bir teklifiniz var.",
       "rideNotActive": "Bu ilan artık aktif değil.",
       "createFailed": "Rezervasyon oluşturulamadı. Lütfen tekrar deneyin.",
       "approveFailed": "Rezervasyon onaylanamadı. Lütfen tekrar deneyin.",

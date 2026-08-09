@@ -586,6 +586,10 @@
     },
     "actions": {
       "reserve": "Book Now",
+      "makeOffer": "Make an Offer",
+      "manageOffer": "Manage Offer",
+      "approveOffer": "Accept Offer",
+      "confirmApproveOffer": "Are you sure you want to accept this offer?",
       "approve": "I've Received the Deposit, Approve",
       "reject": "Decline",
       "cancel": "Cancel",
@@ -599,6 +603,8 @@
     },
     "success": {
       "created": "Your booking request has been sent.",
+      "offerCreated": "Your offer has been sent.",
+      "offerApproved": "Offer accepted.",
       "approved": "Booking approved.",
       "rejected": "Booking declined.",
       "cancelled": "Booking cancelled.",
@@ -610,6 +616,8 @@
       "notEnoughSeats": "Not enough seats available.",
       "alreadyBooked": "You already have a booking request for this listing.",
       "ownRide": "You can't book your own listing.",
+      "notPassengerListing": "You can't make an offer on this listing.",
+      "alreadyOffered": "You already have an offer on this listing.",
       "rideNotActive": "This listing is no longer active.",
       "createFailed": "Booking could not be created. Please try again.",
       "approveFailed": "Booking could not be approved. Please try again.",

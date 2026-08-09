@@ -78,6 +78,43 @@ export async function getMyBookingForRide(rideId: string, passengerId: string): 
   return data as Booking | null
 }
 
+// createOffer/OfferButton, bir sürücünün bir yolcu ilanına zaten aktif bir
+// teklifi olup olmadığını (varsa durumunu) göstermek için kullanır —
+// getMyBookingForRide'ın aynısı, ama passenger_id yerine driver_id/
+// booker_role üzerinden (bir teklifte passenger_id ilan sahibidir, teklif
+// veren sürücü değil).
+export async function getMyOfferForRide(rideId: string, driverId: string): Promise<Booking | null> {
+  if (!isSupabaseConfigured()) {
+    return null
+  }
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("bookings")
+    .select("*")
+    .eq("ride_id", rideId)
+    .eq("driver_id", driverId)
+    .eq("booker_role", "driver")
+    .in("status", ["pending", "approved"])
+    .maybeSingle()
+
+  return data as Booking | null
+}
+
+// /bookings sayfasının "Verdiğim Teklifler" bölümü için — bir sürücünün
+// başkalarının yolcu ilanlarına verdiği TÜM teklifler (durumu ne olursa
+// olsun), en yeniden eskiye.
+export async function getMyDriverOffers(driverId: string): Promise<BookingWithRide[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("bookings")
+    .select(BOOKING_WITH_RIDE_SELECT)
+    .eq("driver_id", driverId)
+    .eq("booker_role", "driver")
+    .order("created_at", { ascending: false })
+
+  return (data as BookingWithRide[] | null) ?? []
+}
+
 // Exposes the ride driver's IBAN to the passenger of an active booking on
 // that ride, via a security-definer RPC that re-checks the relationship
 // server-side (profiles_private is otherwise owner-only, see

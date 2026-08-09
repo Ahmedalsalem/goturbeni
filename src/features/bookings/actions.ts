@@ -100,6 +100,61 @@ export async function createBooking(rideId: string, values: BookingFormValues): 
   return { success: true }
 }
 
+// createBooking'in "ters" versiyonu — bir sürücü, bir yolcu ilanına teklif
+// verir. seat_count kullanıcıdan alınmaz: bir yolcu ilanı tek bir sürücü
+// tarafından TAM karşılanır (kısmi teklif yok, bkz. tasarım dokümanı),
+// dolayısıyla her zaman ride.seat_count kadar. IBAN/plaka kontrolü burada
+// YAPILMAZ — approveBooking'e taşındı (ilan sahibi onaylayana kadar hangi
+// sürücünün teklifinin kabul edileceği belli değil).
+export async function createOffer(rideId: string): Promise<BookingActionState> {
+  const { tErrors } = await getBookingTranslators()
+  if (!isSupabaseConfigured()) {
+    return { error: tErrors("notConfigured") }
+  }
+
+  const user = await requireVerifiedProfile()
+  if (!(await checkRateLimit(`create-offer:${user.id}`, CREATE_BOOKING_RATE_LIMIT.limit, CREATE_BOOKING_RATE_LIMIT.windowMs))) {
+    return { error: tErrors("tooManyRequests") }
+  }
+
+  const ride = await getRide(rideId)
+  if (!ride || ride.status !== "active") {
+    return { error: tErrors("rideNotActive") }
+  }
+  if (ride.posted_by_role !== "passenger") {
+    return { error: tErrors("notPassengerListing") }
+  }
+  if (ride.posted_by === user.id) {
+    return { error: tErrors("ownRide") }
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase.from("bookings").insert({
+    ride_id: rideId,
+    passenger_id: ride.posted_by,
+    booker_role: "driver",
+    driver_id: user.id,
+    seat_count: ride.seat_count,
+  })
+
+  if (error) {
+    // 23505 = unique_violation — Task 2'nin bookings_one_active_offer_per_driver_ride'ı.
+    if (error.code !== "23505") {
+      logError(error, "bookings.createOffer")
+    }
+    return { error: error.code === "23505" ? tErrors("alreadyOffered") : tErrors("createFailed") }
+  }
+
+  await Promise.all([
+    sendPushNotification({ type: "booking_requested", recipientId: ride.posted_by, rideId }),
+    sendEmailNotification({ type: "booking_requested", recipientId: ride.posted_by, rideId }),
+    recordNotificationEvent({ type: "booking_requested", recipientId: ride.posted_by, rideId }),
+  ])
+
+  revalidatePath(`/rides/${rideId}`)
+  return { success: true }
+}
+
 export async function approveBooking(bookingId: string, rideId: string): Promise<BookingActionState> {
   const { tErrors } = await getBookingTranslators()
   if (!isSupabaseConfigured()) {
