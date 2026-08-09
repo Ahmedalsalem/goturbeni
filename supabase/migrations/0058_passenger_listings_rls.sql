@@ -33,24 +33,57 @@ create policy "insert own ride" on public.rides
 -- Çözüm: RLS yerine (ya da RLS'e ek olarak) kolon bazlı GRANT/REVOKE
 -- kullanmak — bu, Postgres'in RLS'ten tamamen bağımsız, değerlere değil
 -- sadece UPDATE ifadesinin SET listesindeki kolon adlarına bakan ayrı bir
--- yetki katmanı. driver_id ve posted_by_role'ün UPDATE yetkisi
--- authenticated'den tamamen kaldırılıyor (aşağıda) — bu iki kolon artık
--- hiçbir doğrudan client UPDATE'i ile değiştirilemez, değerleri ne
--- olursa olsun. Sadece security-definer fonksiyonlar (approve_booking ->
+-- yetki katmanı.
+--
+-- ÖNEMLİ (üçüncü review turunda, gerçek bir Postgres'e karşı ampirik
+-- olarak doğrulandı): "revoke update (kolon) on rides from authenticated"
+-- TEK BAŞINA işe yaramaz — Postgres'te kolon izinleri tablo izinlerine
+-- SADECE EKLENİR, hiçbir zaman onu daraltmaz. 0015_grant_public_schema_
+-- privileges.sql zaten authenticated'e TABLO SEVİYESİNDE "grant all"
+-- verdiğinden, sonradan gelen bir kolon-bazlı revoke sessizce hiçbir şey
+-- yapmaz (has_column_privilege true dönmeye devam eder, gerçek bir UPDATE
+-- denemesi başarıyla geçer — bu, docker'da postgres:15 container'ında
+-- doğrudan test edilerek doğrulandı). Doğru desen: ÖNCE tablo seviyesinde
+-- TÜM update yetkisini kaldırmak, SONRA sadece izin verilen kolonlara
+-- açıkça update yetkisi vermek. driver_id/posted_by_role dışındaki tüm
+-- kolonlar dinamik olarak (pg_attribute'tan) hesaplanıyor ki elle yazılan
+-- bir liste unutulan/yanlış yazılan bir kolon yüzünden sessizce eksik
+-- kalmasın.
+--
+-- BAKIM NOTU: rides'a bundan sonra eklenecek her yeni kolon, authenticated
+-- tarafından güncellenebilir olması gerekiyorsa AÇIKÇA grant edilmeli —
+-- aksi halde bu migration'ın çalıştığı andaki kolon kümesiyle sınırlı
+-- kalır. Ayrıca ileride "grant all on all tables in schema public"
+-- deseninin (0015'teki gibi) tekrar çalıştırılması bu korumayı sessizce
+-- geri açar — böyle bir migration yazılırsa bu dosyaya bakılmalı.
+--
+-- Sadece security-definer fonksiyonlar (approve_booking ->
 -- _apply_booking_approval), fonksiyon SAHİBİNİN yetkileriyle çalıştığı
 -- için (authenticated'in GRANT/REVOKE'undan etkilenmez — RLS'i bugün
 -- zaten bu şekilde bypass ediyorlar) driver_id'yi değiştirebilir.
--- with check'teki koşul artık sadece posted_by için (zaten kendinden
--- güvenli — auth.uid() = posted_by, çağıran kendinden başka birini
--- posted_by yapamaz), driver_id/posted_by_role koruması GRANT katmanına
--- taşındı.
+-- with check'teki koşul sadece posted_by için (zaten kendinden güvenli —
+-- auth.uid() = posted_by, çağıran kendinden başka birini posted_by
+-- yapamaz), driver_id/posted_by_role koruması GRANT katmanında.
 drop policy "update own ride" on public.rides;
 create policy "update own ride" on public.rides
   for update to authenticated
   using (auth.uid() = posted_by and status = 'active')
   with check (auth.uid() = posted_by);
 
-revoke update (driver_id, posted_by_role) on public.rides from authenticated;
+revoke update on public.rides from authenticated;
+
+do $$
+declare
+  v_columns text;
+begin
+  select string_agg(quote_ident(attname), ', ') into v_columns
+    from pg_attribute
+    where attrelid = 'public.rides'::regclass
+      and attnum > 0
+      and not attisdropped
+      and attname not in ('driver_id', 'posted_by_role');
+  execute format('grant update (%s) on public.rides to authenticated', v_columns);
+end $$;
 
 -- bookings: "insert own booking" — 0014_admin.sql'deki son hâlini
 -- rol-farkında yapıyoruz. booker_role = 'passenger' (normal rezervasyon
