@@ -136,6 +136,34 @@ export async function createRide(
   return match[1]
 }
 
+// createRide'ın yolcu-modu versiyonu — IBAN/plaka profile gerekmiyor
+// (createRide/actions.ts bu kontrolü passenger modda atlıyor), rol
+// toggle'ından "Yolcuyum"a tıklanıyor, pets/smoking/vip alanları form
+// tarafından zaten gizlendiği için hiç doldurulmuyor.
+export async function createPassengerListing(
+  page: Page,
+  options: { departureCity: string; arrivalCity: string; minutesAhead: number; seatCount: number; costShare: number }
+): Promise<string> {
+  await page.goto("/create-ride")
+  await page.getByRole("button", { name: "Yolcuyum", exact: true }).click()
+  await selectCombobox(page, "departureCity", options.departureCity)
+  await selectCombobox(page, "arrivalCity", options.arrivalCity)
+  const { date, time } = nearFutureIstanbulDateTime(options.minutesAhead)
+  await page.locator("#departureDate").fill(date)
+  await page.locator("#departureTime").fill(time)
+  await page.locator("#seatCount").fill(String(options.seatCount))
+  await page.locator("#costShare").fill(String(options.costShare))
+  await page.getByRole("button", { name: "İlanı Yayınla" }).click()
+  await page.waitForURL("**/rides/mine")
+
+  const href = await page.getByRole("link", { name: "Rezervasyonlar" }).first().getAttribute("href")
+  const match = href?.match(/\/rides\/([^/]+)\/bookings/)
+  if (!match) {
+    throw new Error(`Could not extract ride id from "Rezervasyonlar" link href: ${href}`)
+  }
+  return match[1]
+}
+
 // Clicks a booking action button that requires a second confirming click
 // (see src/features/bookings/BookingActions.tsx: "Onayla" -> "Onaylansın
 // mı?", "Reddet" -> "Reddedilsin mi?").
