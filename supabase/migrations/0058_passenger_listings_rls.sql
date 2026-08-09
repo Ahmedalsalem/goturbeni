@@ -16,20 +16,41 @@ create policy "insert own ride" on public.rides
   );
 
 -- rides: "update own ride" — 0002_rides.sql'den beri hiç değişmemişti,
--- driver_id yerine posted_by kullanacak şekilde değiştiriliyor. Sürücü
--- ilanında posted_by = driver_id olduğundan davranış aynı. with check'teki
--- ikinci koşul, eski politikanın auth.uid() = driver_id kontrolüyle örtük
--- olarak sağladığı driver_id değişmezliğini koruyor: sürücü ilanında
--- (posted_by_role = 'driver') driver_id hâlâ auth.uid()'e sabitleniyor, bu
--- yüzden bir doğrudan client UPDATE'i driver_id'yi başka bir kullanıcıya
--- ya da NULL'a çeviremez (rides.driver_id, karşı taraf iletişim bilgisi,
--- teslim alma kodu, iptal/iade RPC'leri gibi başka pek çok politika ve
--- RPC'nin yetkilendirme temelidir).
+-- driver_id yerine posted_by kullanacak şekilde değiştiriliyor.
+--
+-- DÜZELTME (ilk review turunda bulunan bir açığın düzeltmesi de kendi
+-- içinde açık çıktı — bkz. ikinci review): with check içine
+-- "posted_by_role <> 'driver' or auth.uid() = driver_id" gibi bir dal
+-- eklemek yetersiz, çünkü posted_by_role'ün KENDİSİ de aynı UPDATE
+-- ifadesinde değiştirilebilen sıradan bir kolon — bir saldırgan aynı
+-- UPDATE'te hem driver_id'yi hem posted_by_role'ü değiştirip (örn.
+-- posted_by_role = 'passenger' yaparak) with check'in her iki dalını da
+-- NEW satır üzerinden geçersiz kılabilirdi. RLS'in with check'i sadece
+-- NEW satırı görüyor, OLD ile karşılaştıramıyor — bu yüzden "bu kolon hiç
+-- değişmesin" kuralı RLS boolean ifadesiyle güvenilir şekilde ifade
+-- edilemiyor.
+--
+-- Çözüm: RLS yerine (ya da RLS'e ek olarak) kolon bazlı GRANT/REVOKE
+-- kullanmak — bu, Postgres'in RLS'ten tamamen bağımsız, değerlere değil
+-- sadece UPDATE ifadesinin SET listesindeki kolon adlarına bakan ayrı bir
+-- yetki katmanı. driver_id ve posted_by_role'ün UPDATE yetkisi
+-- authenticated'den tamamen kaldırılıyor (aşağıda) — bu iki kolon artık
+-- hiçbir doğrudan client UPDATE'i ile değiştirilemez, değerleri ne
+-- olursa olsun. Sadece security-definer fonksiyonlar (approve_booking ->
+-- _apply_booking_approval), fonksiyon SAHİBİNİN yetkileriyle çalıştığı
+-- için (authenticated'in GRANT/REVOKE'undan etkilenmez — RLS'i bugün
+-- zaten bu şekilde bypass ediyorlar) driver_id'yi değiştirebilir.
+-- with check'teki koşul artık sadece posted_by için (zaten kendinden
+-- güvenli — auth.uid() = posted_by, çağıran kendinden başka birini
+-- posted_by yapamaz), driver_id/posted_by_role koruması GRANT katmanına
+-- taşındı.
 drop policy "update own ride" on public.rides;
 create policy "update own ride" on public.rides
   for update to authenticated
   using (auth.uid() = posted_by and status = 'active')
-  with check (auth.uid() = posted_by and (posted_by_role <> 'driver' or auth.uid() = driver_id));
+  with check (auth.uid() = posted_by);
+
+revoke update (driver_id, posted_by_role) on public.rides from authenticated;
 
 -- bookings: "insert own booking" — 0014_admin.sql'deki son hâlini
 -- rol-farkında yapıyoruz. booker_role = 'passenger' (normal rezervasyon
@@ -69,12 +90,14 @@ create policy "select own or driver bookings" on public.bookings
     or public.is_admin()
   );
 
--- İkinci savunma katmanı — bookings_driver_id_matches_booker_role (0057) ile
--- aynı desen. RLS'in "update own ride" politikası artık driver_id'yi
--- sabitliyor (yukarıdaki düzeltme), ama DB seviyesinde de aynı ilişkiyi
--- garanti altına almak, RLS'teki olası bir gelecekteki hatanın tek başına
--- veri bütünlüğünü bozamaması anlamına geliyor. Var olan tüm satırlar
--- posted_by_role='driver' (0057'nin varsayılanı) ve posted_by=driver_id
--- (0057'nin backfill'i) olduğundan bu kısıt hiçbir var olan satırı reddetmez.
+-- Üçüncü savunma katmanı — bookings_driver_id_matches_booker_role (0057) ile
+-- aynı desen. driver_id/posted_by_role artık GRANT ile (yukarıda) client
+-- UPDATE'inden tamamen korunuyor, ama bu kısıt yine de ekleniyor: hem
+-- INSERT'te (RLS politikası bunu zaten sağlıyor ama iki bağımsız kanıt
+-- bir tane olmasından iyidir) hem de GRANT/RLS'i bypass eden
+-- security-definer fonksiyonlarda ileride çıkabilecek bir hatanın veri
+-- bütünlüğünü bozmasını engeller. Var olan tüm satırlar posted_by_role
+-- ='driver' (0057'nin varsayılanı) ve posted_by=driver_id (0057'nin
+-- backfill'i) olduğundan bu kısıt hiçbir var olan satırı reddetmez.
 alter table public.rides add constraint rides_posted_by_matches_driver_when_driver_posted
   check (posted_by_role <> 'driver' or posted_by = driver_id);
