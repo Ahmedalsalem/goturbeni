@@ -12,10 +12,12 @@ import { CancelBookingButton } from "@/features/bookings/CancelBookingButton"
 import { ReportNoShowButton } from "@/features/bookings/ReportNoShowButton"
 import { SettlementReceiptUpload } from "@/features/bookings/SettlementReceiptUpload"
 import { SettlePaymentButton } from "@/features/bookings/SettlePaymentButton"
+import { ReceiptUploadForm } from "@/features/bookings/ReceiptUploadForm"
+import { submitDepositReceipt } from "@/features/bookings/actions"
 import { OpenDisputeButton } from "@/features/disputes/OpenDisputeButton"
 import { getMyDisputeForBooking } from "@/features/disputes/queries"
 import { getMyPickupCode } from "@/features/pickup/queries"
-import { getMyBookings, getRideCounterpartyPhone } from "@/features/bookings/queries"
+import { getMyBookings, getMyDriverOffers, getRideCounterpartyPhone, getRideDriverPaymentInfo } from "@/features/bookings/queries"
 import { getUnreadMessages } from "@/features/chat/queries"
 import { getRideLiveLocation } from "@/features/live-location/queries"
 import { LiveLocationSection } from "@/features/live-location/LiveLocationSection"
@@ -37,11 +39,25 @@ export default async function BookingsPage() {
   const tCard = await getTranslations("Bookings.card")
   const tReviewActions = await getTranslations("Reviews.actions")
   const tBookingActions = await getTranslations("Bookings.actions")
+  const tPayment = await getTranslations("Bookings.payment")
   const tPickup = await getTranslations("Pickup.passenger")
   const user = await verifySession()
   const format = await getFormatter()
   const locale = await getUserLocale()
   const [bookings, unreadMessages] = await Promise.all([getMyBookings(user.id), getUnreadMessages(user.id)])
+  const myOffers = await getMyDriverOffers(user.id)
+  // Task 2'nin depozito-sırası düzeltmesiyle mümkün olan tek yeni durum:
+  // teklifim onaylandı ama henüz depozito ödemedim (payment_status hâlâ
+  // 'awaiting_deposit' — normal rezervasyonlarda approved olmak zaten
+  // deposit_confirmed anlamına geldiğinden bu satır normalde asla
+  // oluşmaz). Sadece bu durumdaki, kendi (yolcu olarak) rezervasyonlarım
+  // için IBAN'a ihtiyaç var, tek tek çekiliyor.
+  const awaitingOfferDeposits = bookings.filter((booking) => booking.status === "approved" && booking.payment_status === "awaiting_deposit")
+  const offerDepositPaymentInfo = new Map(
+    await Promise.all(
+      awaitingOfferDeposits.map(async (booking) => [booking.id, await getRideDriverPaymentInfo(booking.ride.id)] as const)
+    )
+  )
 
   // Onaylanmış her booking'de driver_id atanmış olur (approve_booking bunu
   // garanti eder, yolcu ilanlarında bile) — ama tip artık nullable (Faz 2A),
@@ -125,6 +141,28 @@ export default async function BookingsPage() {
                       </Badge>
                     </CardFooter>
                   ))}
+                {booking.status === "approved" && booking.payment_status === "awaiting_deposit" && (
+                  <CardFooter className="flex flex-col items-start gap-2">
+                    {offerDepositPaymentInfo.get(booking.id) && (
+                      <div className="text-sm">
+                        <span className="text-muted-foreground">{tPayment("ibanLabel")}: </span>
+                        <span className="font-mono font-medium">{offerDepositPaymentInfo.get(booking.id)?.iban}</span>
+                        <span className="text-muted-foreground"> · {tPayment("ibanHolderLabel")}: </span>
+                        {offerDepositPaymentInfo.get(booking.id)?.iban_holder_name}
+                      </div>
+                    )}
+                    {booking.deposit_receipt_status === null || booking.deposit_receipt_status === "rejected" ? (
+                      <ReceiptUploadForm
+                        action={(formData) => submitDepositReceipt(booking.id, booking.ride.id, formData)}
+                        label={tPayment("uploadReceipt")}
+                      />
+                    ) : (
+                      <Badge variant={booking.deposit_receipt_status === "approved" ? "secondary" : "outline"}>
+                        {tPayment(`receiptStatus.${booking.deposit_receipt_status}`)}
+                      </Badge>
+                    )}
+                  </CardFooter>
+                )}
                 {(booking.status === "pending" || booking.status === "approved") && (
                   <CardFooter className="flex flex-wrap items-center gap-2">
                     <CancelBookingButton bookingId={booking.id} rideId={booking.ride.id} />
@@ -170,6 +208,34 @@ export default async function BookingsPage() {
               </Card>
             )
           })}
+        </div>
+      )}
+
+      {myOffers.length > 0 && (
+        <div className="mt-10 flex flex-col gap-4">
+          <h2 className="text-xl font-semibold">{t("myOffersTitle")}</h2>
+          {myOffers.map((offer) => (
+            <Card key={offer.id}>
+              <CardHeader className="flex items-center justify-between gap-4">
+                <Link href={`/rides/${offer.ride.id}`} className="font-semibold hover:underline">
+                  {getProvinceDisplayName(offer.ride.departure_city, locale)} → {getProvinceDisplayName(offer.ride.arrival_city, locale)}
+                </Link>
+                <BookingStatusBadge status={offer.status} />
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
+                <div>{format.dateTime(new Date(offer.ride.departure_time), { day: "2-digit", month: "2-digit", year: "numeric" })}</div>
+                <div className="font-medium">{formatCostShare(offer.ride.cost_share, locale)}</div>
+              </CardContent>
+              <CardFooter className="flex flex-wrap items-center gap-2">
+                {offer.status === "pending" && <CancelBookingButton bookingId={offer.id} rideId={offer.ride.id} />}
+                {offer.status === "approved" && (
+                  <Link href={`/rides/${offer.ride.id}/bookings`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                    {tBookingActions("manageOffer")}
+                  </Link>
+                )}
+              </CardFooter>
+            </Card>
+          ))}
         </div>
       )}
     </div>

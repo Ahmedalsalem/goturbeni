@@ -468,7 +468,8 @@
     "title": "حجوزاتي",
     "emptyTitle": "ليس لديك حجوزات بعد",
     "emptyDescription": "ابحث عن رحلة وأنشئ طلب حجز.",
-    "chat": "محادثة"
+    "chat": "محادثة",
+    "myOffersTitle": "العروض التي قدمتها"
   },
   "RideBookingsPage": {
     "title": "طلبات الحجز",
