@@ -61,6 +61,7 @@ export function RideForm({ ride }: { ride?: Ride }) {
     // uncontrolled to controlled after the first selection and triggers a
     // React warning.
     defaultValues: {
+      postedByRole: ride?.posted_by_role ?? "driver",
       departureCity: (ride?.departure_city as RideFormInput["departureCity"]) ?? ("" as RideFormInput["departureCity"]),
       arrivalCity: (ride?.arrival_city as RideFormInput["arrivalCity"]) ?? ("" as RideFormInput["arrivalCity"]),
       departureDistrict: ride?.departure_district ?? "",
@@ -82,6 +83,8 @@ export function RideForm({ ride }: { ride?: Ride }) {
   // previous city is no longer valid (see schemas.ts's districtInvalid check).
   const departureCity = watch("departureCity")
   const arrivalCity = watch("arrivalCity")
+  const postedByRole = watch("postedByRole")
+  const isPassengerMode = postedByRole === "passenger"
   const departureDistricts = departureCity ? (TURKISH_PROVINCE_DISTRICTS[departureCity] ?? []) : []
   const arrivalDistricts = arrivalCity ? (TURKISH_PROVINCE_DISTRICTS[arrivalCity] ?? []) : []
 
@@ -102,6 +105,28 @@ export function RideForm({ ride }: { ride?: Ride }) {
       )}
 
       <FieldGroup>
+        {!ride && (
+          <Field>
+            <FieldLabel>{t("postedByRoleLabel")}</FieldLabel>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant={postedByRole === "driver" ? "default" : "outline"}
+                onClick={() => setValue("postedByRole", "driver")}
+              >
+                {t("iAmDriver")}
+              </Button>
+              <Button
+                type="button"
+                variant={postedByRole === "passenger" ? "default" : "outline"}
+                onClick={() => setValue("postedByRole", "passenger")}
+              >
+                {t("iAmPassenger")}
+              </Button>
+            </div>
+          </Field>
+        )}
+
         <div className="grid gap-4 sm:grid-cols-2">
           <Field>
             <FieldLabel htmlFor="departureCity">{t("departureCity")}</FieldLabel>
@@ -361,59 +386,61 @@ export function RideForm({ ride }: { ride?: Ride }) {
           {errors.description && <FieldError id="description-error" errors={[{ message: errors.description.message }]} />}
         </Field>
 
-        <Field orientation="horizontal">
-          <Controller
-            control={control}
-            name="petsAllowed"
-            render={({ field }) => (
-              <Checkbox id="petsAllowed" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-            )}
-          />
-          <FieldLabel htmlFor="petsAllowed" className="font-normal">
-            {t("petsAllowed")}
-          </FieldLabel>
-        </Field>
-
-        <Field orientation="horizontal">
-          <Controller
-            control={control}
-            name="smokingAllowed"
-            render={({ field }) => (
-              <Checkbox id="smokingAllowed" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-            )}
-          />
-          <FieldLabel htmlFor="smokingAllowed" className="font-normal">
-            {t("smokingAllowed")}
-          </FieldLabel>
-        </Field>
-
-        <Field orientation="horizontal">
-          <Controller
-            control={control}
-            name="vipSolo"
-            render={({ field }) => (
-              <Checkbox
-                id="vipSolo"
-                checked={field.value}
-                onCheckedChange={(checked) => {
-                  const isVip = checked === true
-                  field.onChange(isVip)
-                  // VIP ilanlar tek yolcu içindir — bkz. schemas.ts'teki
-                  // vipSoloSingleSeat refine'ı ve DB'deki aynı check constraint.
-                  if (isVip) {
-                    setValue("seatCount", 1)
-                  }
-                }}
+        {!isPassengerMode && (
+          <>
+            <Field orientation="horizontal">
+              <Controller
+                control={control}
+                name="petsAllowed"
+                render={({ field }) => (
+                  <Checkbox id="petsAllowed" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
+                )}
               />
-            )}
-          />
-          <FieldLabel htmlFor="vipSolo" className="font-normal">
-            {t("vipSolo")}
-          </FieldLabel>
-        </Field>
-        {watch("vipSolo") && <FieldDescription>{t("vipSoloHint")}</FieldDescription>}
+              <FieldLabel htmlFor="petsAllowed" className="font-normal">
+                {t("petsAllowed")}
+              </FieldLabel>
+            </Field>
 
-        {!ride && (
+            <Field orientation="horizontal">
+              <Controller
+                control={control}
+                name="smokingAllowed"
+                render={({ field }) => (
+                  <Checkbox id="smokingAllowed" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
+                )}
+              />
+              <FieldLabel htmlFor="smokingAllowed" className="font-normal">
+                {t("smokingAllowed")}
+              </FieldLabel>
+            </Field>
+
+            <Field orientation="horizontal">
+              <Controller
+                control={control}
+                name="vipSolo"
+                render={({ field }) => (
+                  <Checkbox
+                    id="vipSolo"
+                    checked={field.value}
+                    onCheckedChange={(checked) => {
+                      const isVip = checked === true
+                      field.onChange(isVip)
+                      if (isVip) {
+                        setValue("seatCount", 1)
+                      }
+                    }}
+                  />
+                )}
+              />
+              <FieldLabel htmlFor="vipSolo" className="font-normal">
+                {t("vipSolo")}
+              </FieldLabel>
+            </Field>
+            {watch("vipSolo") && <FieldDescription>{t("vipSoloHint")}</FieldDescription>}
+          </>
+        )}
+
+        {!ride && !isPassengerMode && (
           <Field orientation="horizontal">
             <Controller
               control={control}
@@ -427,7 +454,7 @@ export function RideForm({ ride }: { ride?: Ride }) {
             </FieldLabel>
           </Field>
         )}
-        {watch("repeatWeekly") && <FieldDescription>{t("repeatWeeklyHint")}</FieldDescription>}
+        {!isPassengerMode && watch("repeatWeekly") && <FieldDescription>{t("repeatWeeklyHint")}</FieldDescription>}
       </FieldGroup>
 
       <Button type="submit" size="lg" className="w-full sm:w-fit" disabled={isSubmitting}>
