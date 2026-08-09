@@ -38,6 +38,16 @@ export async function getBookingPassengerId(bookingId: string): Promise<string |
   return data?.passenger_id ?? null
 }
 
+// approveBooking, bir yolcu ilanına verilen teklifi onaylarken teklif veren
+// sürücünün IBAN/plaka bilgisini kontrol etmek için bu sürücünün id'sine
+// ihtiyaç duyar (bookings.driver_id, sadece booker_role='driver' satırlarında
+// dolu) — getBookingPassengerId ile aynı desen.
+export async function getBookingDriverId(bookingId: string): Promise<string | null> {
+  const supabase = await createClient()
+  const { data } = await supabase.from("bookings").select("driver_id").eq("id", bookingId).single()
+  return data?.driver_id ?? null
+}
+
 // Only the passenger's currently active (pending/approved) booking, if any —
 // a past rejected/cancelled booking doesn't block re-booking the same ride
 // (see the partial unique index in supabase/migrations/0003_bookings.sql).

@@ -12,11 +12,12 @@ import { requireVerifiedProfile, verifySession } from "@/lib/supabase/dal"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { logError } from "@/lib/logger"
 import { getRide } from "@/features/rides/queries"
-import { getBookingPassengerId } from "@/features/bookings/queries"
+import { getBookingDriverId, getBookingPassengerId } from "@/features/bookings/queries"
 import { extractReceiptFields } from "@/lib/ocr"
 import { recordNotificationEvent, sendPushNotification, sendSeatOpenedPushNotifications } from "@/lib/notifications"
 import { sendEmailNotification, sendSeatOpenedEmailNotifications } from "@/lib/email"
 import { buildBookingSchema, type BookingActionState, type BookingFormValues } from "@/features/bookings/schemas"
+import { TR_PLATE_PATTERN } from "@/features/profile/schemas"
 
 const CREATE_BOOKING_RATE_LIMIT = { limit: 20, windowMs: 60 * 60 * 1000 }
 const RECEIPT_UPLOAD_RATE_LIMIT = { limit: 20, windowMs: 60 * 60 * 1000 }
@@ -91,6 +92,32 @@ export async function approveBooking(bookingId: string, rideId: string): Promise
 
   await verifySession()
   const supabase = await createClient()
+
+  // Yolcu ilanına verilen bir teklif onaylanıyorsa, teklif veren sürücünün
+  // IBAN + plaka bilgisi burada kontrol edilir — sürücü ilanında bu kontrol
+  // createRide'da (ilan açılırken) yapılıyordu; yolcu ilanında henüz bir
+  // sürücü atanmadığından kontrol onay anına kayıyor (bkz. tasarım
+  // dokümanı "Ödeme akışı sıralaması").
+  const ride = await getRide(rideId)
+  if (ride?.posted_by_role === "passenger") {
+    const offeringDriverId = await getBookingDriverId(bookingId)
+    if (offeringDriverId) {
+      const { data: paymentInfo } = await supabase
+        .from("profiles_private")
+        .select("iban, iban_holder_name")
+        .eq("id", offeringDriverId)
+        .maybeSingle()
+      if (!paymentInfo?.iban || !paymentInfo?.iban_holder_name) {
+        return { error: tErrors("offerDriverIbanRequired") }
+      }
+
+      const { data: driverProfile } = await supabase.from("profiles").select("car_plate").eq("id", offeringDriverId).maybeSingle()
+      if (!driverProfile?.car_plate || !TR_PLATE_PATTERN.test(driverProfile.car_plate)) {
+        return { error: tErrors("offerDriverCarPlateRequired") }
+      }
+    }
+  }
+
   const { error } = await supabase.rpc("approve_booking", { p_booking_id: bookingId })
 
   if (error) {
