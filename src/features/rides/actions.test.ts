@@ -109,6 +109,31 @@ describe("rides/actions", () => {
         expect.objectContaining({ driver_id: FAKE_USER.id, posted_by_role: "driver", posted_by: FAKE_USER.id })
       )
     })
+
+    it("creates a passenger listing with null driver_id and no IBAN/plate check", async () => {
+      const insertMock = vi.fn().mockReturnValue({
+        select: () => ({ single: async () => ({ data: { id: "ride-1" }, error: null }) }),
+      })
+      // profiles_private/profiles hiç sorgulanmamalı (IBAN/plaka kontrolü atlanıyor) —
+      // fromMock'u sadece "rides" için kur, başka bir table sorgulanırsa boş dön.
+      fromMock.mockImplementation((table: string) => {
+        if (table === "rides") return { insert: insertMock }
+        return {}
+      })
+
+      await createRide(validRideValues({ postedByRole: "passenger" }))
+
+      expect(insertMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          driver_id: null,
+          posted_by_role: "passenger",
+          posted_by: FAKE_USER.id,
+          pets_allowed: false,
+          smoking_allowed: false,
+          vip_solo: false,
+        })
+      )
+    })
   })
 
   describe("updateRide", () => {

@@ -42,7 +42,7 @@ vi.mock("next-intl/server", () => ({
   getTranslations: async ({ namespace }: { namespace: string }) => (key: string) => `${namespace}.${key}`,
 }))
 
-import { approveBooking, cancelBooking, confirmRemainingPayment, createBooking, rejectBooking, reportNoShow } from "@/features/bookings/actions"
+import { approveBooking, cancelBooking, confirmRemainingPayment, createBooking, createOffer, rejectBooking, reportNoShow } from "@/features/bookings/actions"
 
 const FAKE_USER = { id: "user-1" }
 
@@ -190,6 +190,54 @@ describe("bookings/actions", () => {
 
       expect(result.error).toBe("Bookings.errors.createFailed")
       expect(fromMock).not.toHaveBeenCalled()
+    })
+  })
+
+  describe("createOffer", () => {
+    it("rejects when the ride is not a passenger listing", async () => {
+      getRideMock.mockResolvedValue(fakeRide({ posted_by_role: "driver" }))
+
+      const result = await createOffer("ride-1")
+
+      expect(result.error).toBe("Bookings.errors.notPassengerListing")
+      expect(fromMock).not.toHaveBeenCalled()
+    })
+
+    it("rejects offering on your own passenger listing", async () => {
+      getRideMock.mockResolvedValue(fakeRide({ posted_by_role: "passenger", posted_by: FAKE_USER.id, driver_id: null }))
+
+      const result = await createOffer("ride-1")
+
+      expect(result.error).toBe("Bookings.errors.ownRide")
+      expect(fromMock).not.toHaveBeenCalled()
+    })
+
+    it("inserts a driver-role booking with the ride's full seat_count", async () => {
+      getRideMock.mockResolvedValue(
+        fakeRide({ posted_by_role: "passenger", posted_by: "passenger-1", driver_id: null, seat_count: 3 })
+      )
+      const insertMock = vi.fn().mockResolvedValue({ error: null })
+      fromMock.mockReturnValue({ insert: insertMock })
+
+      const result = await createOffer("ride-1")
+
+      expect(result).toEqual({ success: true })
+      expect(insertMock).toHaveBeenCalledWith({
+        ride_id: "ride-1",
+        passenger_id: "passenger-1",
+        booker_role: "driver",
+        driver_id: FAKE_USER.id,
+        seat_count: 3,
+      })
+    })
+
+    it("maps a unique-violation to alreadyOffered", async () => {
+      getRideMock.mockResolvedValue(fakeRide({ posted_by_role: "passenger", posted_by: "passenger-1", driver_id: null }))
+      fromMock.mockReturnValue({ insert: vi.fn().mockResolvedValue({ error: { code: "23505", message: "duplicate" } }) })
+
+      const result = await createOffer("ride-1")
+
+      expect(result.error).toBe("Bookings.errors.alreadyOffered")
     })
   })
 
