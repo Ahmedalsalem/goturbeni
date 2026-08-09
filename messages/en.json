@@ -469,7 +469,8 @@
     "emptyTitle": "You don't have any bookings yet",
     "emptyDescription": "Find a ride and send a booking request.",
     "chat": "Chat",
-    "myOffersTitle": "My Offers"
+    "myOffersTitle": "My Offers",
+    "awaitingDepositTitle": "Deposit Payment for Accepted Offers"
   },
   "RideBookingsPage": {
     "title": "Booking Requests",

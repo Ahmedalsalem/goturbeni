@@ -229,6 +229,7 @@ export default async function BookingsPage() {
 
       {awaitingOfferDeposits.length > 0 && (
         <div className="mt-10 flex flex-col gap-4">
+          <h2 className="text-xl font-semibold">{t("awaitingDepositTitle")}</h2>
           {awaitingOfferDeposits.map((booking) => (
             <Card key={booking.id}>
               <CardHeader className="flex items-center justify-between gap-4">

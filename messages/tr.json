@@ -469,7 +469,8 @@
     "emptyTitle": "Henüz rezervasyonun yok",
     "emptyDescription": "Bir yolculuk bulup rezervasyon talebi oluşturabilirsin.",
     "chat": "Sohbet",
-    "myOffersTitle": "Verdiğim Teklifler"
+    "myOffersTitle": "Verdiğim Teklifler",
+    "awaitingDepositTitle": "Onaylanan Teklifler İçin Depozito Ödemesi"
   },
   "RideBookingsPage": {
     "title": "Rezervasyon Talepleri",

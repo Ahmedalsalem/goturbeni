@@ -469,7 +469,8 @@
     "emptyTitle": "ليس لديك حجوزات بعد",
     "emptyDescription": "ابحث عن رحلة وأنشئ طلب حجز.",
     "chat": "محادثة",
-    "myOffersTitle": "العروض التي قدمتها"
+    "myOffersTitle": "العروض التي قدمتها",
+    "awaitingDepositTitle": "دفع العربون للعروض المقبولة"
   },
   "RideBookingsPage": {
     "title": "طلبات الحجز",
