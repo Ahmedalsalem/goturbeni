@@ -200,12 +200,17 @@ export async function approveBooking(bookingId: string, rideId: string): Promise
     return { error: error.message.includes("not_enough_seats") ? tErrors("notEnoughSeats") : tErrors("approveFailed") }
   }
 
-  const passengerId = await getBookingPassengerId(bookingId)
-  if (passengerId) {
+  // Bir yolcu ilanına verilen teklif onaylanıyorsa bildirim, onay işlemini
+  // BİZZAT YAPAN ilan sahibine (passenger_id) değil, sonucu öğrenmesi
+  // gereken teklif veren sürücüye (driver_id) gitmeli — offeringDriverId,
+  // yukarıdaki IBAN/plaka kontrolünün if bloğu içinde kaldığından burada
+  // tekrar çekiliyor (düşük trafikli bir aksiyon, kritik olmayan bir yol).
+  const recipientId = ride?.posted_by_role === "passenger" ? await getBookingDriverId(bookingId) : await getBookingPassengerId(bookingId)
+  if (recipientId) {
     await Promise.all([
-      sendPushNotification({ type: "booking_approved", recipientId: passengerId, rideId }),
-      sendEmailNotification({ type: "booking_approved", recipientId: passengerId, rideId }),
-      recordNotificationEvent({ type: "booking_approved", recipientId: passengerId, rideId }),
+      sendPushNotification({ type: "booking_approved", recipientId, rideId }),
+      sendEmailNotification({ type: "booking_approved", recipientId, rideId }),
+      recordNotificationEvent({ type: "booking_approved", recipientId, rideId }),
     ])
   }
 
@@ -229,12 +234,18 @@ export async function rejectBooking(bookingId: string, rideId: string): Promise<
     return { error: tErrors("rejectFailed") }
   }
 
-  const passengerId = await getBookingPassengerId(bookingId)
-  if (passengerId) {
+  // approveBooking ile aynı mantık — reddedilen bir yolcu-ilanı teklifinde
+  // bildirim, reddi yapan ilan sahibine değil, teklif veren sürücüye
+  // gitmeli. approveBooking'in aksine rejectBooking ride'ı hiç çekmiyordu,
+  // bu yüzden aynı getBookingRideId → getRide deseni burada da ekleniyor.
+  const authoritativeRideId = await getBookingRideId(bookingId)
+  const ride = authoritativeRideId ? await getRide(authoritativeRideId) : null
+  const recipientId = ride?.posted_by_role === "passenger" ? await getBookingDriverId(bookingId) : await getBookingPassengerId(bookingId)
+  if (recipientId) {
     await Promise.all([
-      sendPushNotification({ type: "booking_rejected", recipientId: passengerId, rideId }),
-      sendEmailNotification({ type: "booking_rejected", recipientId: passengerId, rideId }),
-      recordNotificationEvent({ type: "booking_rejected", recipientId: passengerId, rideId }),
+      sendPushNotification({ type: "booking_rejected", recipientId, rideId }),
+      sendEmailNotification({ type: "booking_rejected", recipientId, rideId }),
+      recordNotificationEvent({ type: "booking_rejected", recipientId, rideId }),
     ])
   }
 

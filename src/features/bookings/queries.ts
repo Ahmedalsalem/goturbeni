@@ -8,12 +8,25 @@ const BOOKING_WITH_RIDE_SELECT = "*, ride:rides(*, driver:profiles!rides_driver_
 const BOOKING_WITH_PASSENGER_SELECT =
   "*, passenger:profiles!bookings_passenger_id_fkey(full_name, avatar_url), driver:profiles!bookings_driver_id_fkey(full_name, avatar_url)"
 
+// Faz 2B final review Finding 1 düzeltmesi: booker_role='passenger' filtresi
+// olmadan bu sorgu, bir yolcu ilanına gelen HER sürücü teklifini de
+// döndürürdü (bu tekliflerde de passenger_id = ilan sahibi) — ilan sahibinin
+// kendi /bookings sayfasında, kendi gerçek rezervasyonlarından ayırt
+// edilemeyen ve CancelBookingButton'ı her zaman not_booking_owner ile
+// başarısız olan sahte "booking" kartları olarak sızardı. Gelen teklifler
+// ilan sahibi için /rides/[id]/bookings üzerinden yönetilir (onay/red/chat/
+// settle/review/no-show hepsi orada), driver tarafı için getMyDriverOffers
+// üzerinden — bu ikisi zaten var. Tek istisna: onaylanmış ama henüz
+// depozito ödenmemiş teklif — bkz. getMyAwaitingDepositOffers (bu satırlar
+// booker_role='driver' olduğundan aşağıdaki filtreyle burada hiç
+// dönmeyecek, /bookings sayfası o durumu ayrı bir sorguyla çekiyor).
 export async function getMyBookings(passengerId: string): Promise<BookingWithRide[]> {
   const supabase = await createClient()
   const { data } = await supabase
     .from("bookings")
     .select(BOOKING_WITH_RIDE_SELECT)
     .eq("passenger_id", passengerId)
+    .eq("booker_role", "passenger")
     .order("created_at", { ascending: false })
 
   return (data as BookingWithRide[] | null) ?? []
@@ -62,6 +75,28 @@ export async function getBookingRideId(bookingId: string): Promise<string | null
 // Only the passenger's currently active (pending/approved) booking, if any —
 // a past rejected/cancelled booking doesn't block re-booking the same ride
 // (see the partial unique index in supabase/migrations/0003_bookings.sql).
+//
+// Faz 2B final review Finding 2 düzeltmesi: bir yolcu ilanında, ilana
+// verilen HER sürücü teklifinin passenger_id'si de ilan sahibiyle aynıdır
+// (bkz. getMyBookings'teki not) — booker_role='passenger,approved' ikilisi
+// üzerindeki partial unique index (0061) yalnızca booker_role='passenger'
+// satırlarını kapsadığından, aynı ilana birden fazla sürücü aynı anda teklif
+// verebilir (biri onaylı, kalanı hâlâ pending). Bu fonksiyon hem normal
+// rezervasyon akışında (rides/[id]/page.tsx, sadece sürücü ilanlarında
+// çağrılıyor, booker_role her zaman 'passenger') hem de chat/page.tsx'in
+// "sürücü değilim" dalında kullanılıyor — ikinci kullanımda, bir yolcu
+// ilanının SAHİBİ için "kendim" olan booking, ilana verilip onaylanan
+// TEK teklif satırıdır (booker_role='driver'). Katı bir
+// `.eq("booker_role","passenger")` filtresi bu satırı tamamen dışlar ve
+// ilan sahibini kendi chat'inden KALICI olarak 404'e düşürür — mevcut
+// haldeki "birden fazla bekleyen rakip teklif varsa 404" hatasından daha
+// kötü bir regresyon olurdu. Bunun yerine satır ya booker_role='passenger'
+// (normal rezervasyon, pending veya approved) ya da status='approved'
+// (herhangi bir booker_role — ilana verilip KABUL EDİLMİŞ tek teklif)
+// olmalı; bir ilanda aynı anda en fazla bir onaylı booking olabileceğinden
+// (approve_booking, koltuk tükendiğinde ikinci onayı 'not_enough_seats' ile
+// reddeder) bu ikinci dal de en fazla bir satırla eşleşir, maybeSingle()
+// güvenle çalışır.
 export async function getMyBookingForRide(rideId: string, passengerId: string): Promise<Booking | null> {
   if (!isSupabaseConfigured()) {
     return null
@@ -73,6 +108,7 @@ export async function getMyBookingForRide(rideId: string, passengerId: string): 
     .eq("ride_id", rideId)
     .eq("passenger_id", passengerId)
     .in("status", ["pending", "approved"])
+    .or("booker_role.eq.passenger,status.eq.approved")
     .maybeSingle()
 
   return data as Booking | null
@@ -110,6 +146,29 @@ export async function getMyDriverOffers(driverId: string): Promise<BookingWithRi
     .select(BOOKING_WITH_RIDE_SELECT)
     .eq("driver_id", driverId)
     .eq("booker_role", "driver")
+    .order("created_at", { ascending: false })
+
+  return (data as BookingWithRide[] | null) ?? []
+}
+
+// /bookings sayfasının depozito ekranı için — bir yolcu ilanı sahibinin,
+// KABUL ETTİĞİ ama henüz depozito ödemediği teklifleri (getMyBookings artık
+// booker_role='passenger' ile sınırlı olduğundan — Finding 1 — bu satırlar
+// oradan hiç gelmiyor, ayrı ve dar kapsamlı bir sorguya ihtiyaç var).
+// status='approved' + payment_status='awaiting_deposit' ikilisi sadece
+// booker_role='driver' satırlarında oluşabilir (_apply_booking_approval,
+// 0061, booker_role='passenger' satırlarında onay anında payment_status'u
+// hep 'deposit_confirmed' yapar) — booker_role filtresi burada sadece
+// netlik için, veri modeli zaten aynı sonucu garanti ediyor.
+export async function getMyAwaitingDepositOffers(passengerId: string): Promise<BookingWithRide[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("bookings")
+    .select(BOOKING_WITH_RIDE_SELECT)
+    .eq("passenger_id", passengerId)
+    .eq("booker_role", "driver")
+    .eq("status", "approved")
+    .eq("payment_status", "awaiting_deposit")
     .order("created_at", { ascending: false })
 
   return (data as BookingWithRide[] | null) ?? []

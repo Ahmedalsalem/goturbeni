@@ -17,13 +17,23 @@ import { submitDepositReceipt } from "@/features/bookings/actions"
 import { OpenDisputeButton } from "@/features/disputes/OpenDisputeButton"
 import { getMyDisputeForBooking } from "@/features/disputes/queries"
 import { getMyPickupCode } from "@/features/pickup/queries"
-import { getMyBookings, getMyDriverOffers, getRideCounterpartyPhone, getRideDriverPaymentInfo } from "@/features/bookings/queries"
+import {
+  getMyAwaitingDepositOffers,
+  getMyBookings,
+  getMyDriverOffers,
+  getRideCounterpartyPhone,
+  getRideDriverPaymentInfo,
+} from "@/features/bookings/queries"
+import type { DriverTrustInfo } from "@/features/bookings/BookingButton"
 import { getUnreadMessages } from "@/features/chat/queries"
 import { getRideLiveLocation } from "@/features/live-location/queries"
 import { LiveLocationSection } from "@/features/live-location/LiveLocationSection"
 import { MarkNotificationsRead } from "@/features/notifications/MarkNotificationsRead"
+import { getProfile } from "@/features/profile/queries"
+import { getDriverCompletedRideCount } from "@/features/rides/queries"
 import { ReviewButton } from "@/features/reviews/ReviewButton"
-import { getMyReviewForRide } from "@/features/reviews/queries"
+import { getMyReviewForRide, getReviewStats } from "@/features/reviews/queries"
+import { StarRating } from "@/features/reviews/StarRating"
 import { verifySession } from "@/lib/supabase/dal"
 import { formatCostShare } from "@/utils/currency"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
@@ -49,13 +59,41 @@ export default async function BookingsPage() {
   // Task 2'nin depozito-sırası düzeltmesiyle mümkün olan tek yeni durum:
   // teklifim onaylandı ama henüz depozito ödemedim (payment_status hâlâ
   // 'awaiting_deposit' — normal rezervasyonlarda approved olmak zaten
-  // deposit_confirmed anlamına geldiğinden bu satır normalde asla
-  // oluşmaz). Sadece bu durumdaki, kendi (yolcu olarak) rezervasyonlarım
-  // için IBAN'a ihtiyaç var, tek tek çekiliyor.
-  const awaitingOfferDeposits = bookings.filter((booking) => booking.status === "approved" && booking.payment_status === "awaiting_deposit")
+  // deposit_confirmed anlamına geldiğinden bu durum normalde asla oluşmaz).
+  // Bu satırlar booker_role='driver'dır, bu yüzden getMyBookings'ten (Finding
+  // 1 düzeltmesi sonrası booker_role='passenger' ile sınırlı) gelmezler —
+  // ayrı, dar kapsamlı bir sorgu (getMyAwaitingDepositOffers) kullanılıyor.
+  const awaitingOfferDeposits = await getMyAwaitingDepositOffers(user.id)
   const offerDepositPaymentInfo = new Map(
     await Promise.all(
       awaitingOfferDeposits.map(async (booking) => [booking.id, await getRideDriverPaymentInfo(booking.ride.id)] as const)
+    )
+  )
+  // Finding 4: bu ekranda, ilan sahibi hiç tanımadığı bir sürücünün IBAN'ına
+  // depozito göndermeye karar veriyor — normal akıştaki BookingButton'ın
+  // awaitingDeposit bloğuyla aynı güven sinyali (üyelik tarihi, tamamlanmış
+  // yolculuk sayısı, puan) burada da gösteriliyor, aynı JSX deseni kopyalanıp
+  // ride.driver_id için dolduruluyor (approved durumunda garanti dolu, ama
+  // tip hâlâ nullable olduğundan filtre + null kontrolü var).
+  const offerDriverTrustInfo = new Map(
+    await Promise.all(
+      awaitingOfferDeposits
+        .filter((booking) => booking.ride.driver_id !== null)
+        .map(async (booking) => {
+          const driverId = booking.ride.driver_id!
+          const [driverProfile, completedRideCount, reviewStats] = await Promise.all([
+            getProfile(driverId),
+            getDriverCompletedRideCount(driverId),
+            getReviewStats(driverId),
+          ])
+          const trustInfo: DriverTrustInfo = {
+            memberSinceIso: driverProfile?.created_at ?? booking.ride.created_at,
+            completedRideCount,
+            averageRating: reviewStats.averageRating,
+            reviewCount: reviewStats.reviewCount,
+          }
+          return [booking.id, trustInfo] as const
+        })
     )
   )
 
@@ -141,28 +179,6 @@ export default async function BookingsPage() {
                       </Badge>
                     </CardFooter>
                   ))}
-                {booking.status === "approved" && booking.payment_status === "awaiting_deposit" && (
-                  <CardFooter className="flex flex-col items-start gap-2">
-                    {offerDepositPaymentInfo.get(booking.id) && (
-                      <div className="text-sm">
-                        <span className="text-muted-foreground">{tPayment("ibanLabel")}: </span>
-                        <span className="font-mono font-medium">{offerDepositPaymentInfo.get(booking.id)?.iban}</span>
-                        <span className="text-muted-foreground"> · {tPayment("ibanHolderLabel")}: </span>
-                        {offerDepositPaymentInfo.get(booking.id)?.iban_holder_name}
-                      </div>
-                    )}
-                    {booking.deposit_receipt_status === null || booking.deposit_receipt_status === "rejected" ? (
-                      <ReceiptUploadForm
-                        action={(formData) => submitDepositReceipt(booking.id, booking.ride.id, formData)}
-                        label={tPayment("uploadReceipt")}
-                      />
-                    ) : (
-                      <Badge variant={booking.deposit_receipt_status === "approved" ? "secondary" : "outline"}>
-                        {tPayment(`receiptStatus.${booking.deposit_receipt_status}`)}
-                      </Badge>
-                    )}
-                  </CardFooter>
-                )}
                 {(booking.status === "pending" || booking.status === "approved") && (
                   <CardFooter className="flex flex-wrap items-center gap-2">
                     <CancelBookingButton bookingId={booking.id} rideId={booking.ride.id} />
@@ -208,6 +224,68 @@ export default async function BookingsPage() {
               </Card>
             )
           })}
+        </div>
+      )}
+
+      {awaitingOfferDeposits.length > 0 && (
+        <div className="mt-10 flex flex-col gap-4">
+          {awaitingOfferDeposits.map((booking) => (
+            <Card key={booking.id}>
+              <CardHeader className="flex items-center justify-between gap-4">
+                <Link href={`/rides/${booking.ride.id}`} className="font-semibold hover:underline">
+                  {getProvinceDisplayName(booking.ride.departure_city, locale)} → {getProvinceDisplayName(booking.ride.arrival_city, locale)}
+                </Link>
+                <BookingStatusBadge status={booking.status} />
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
+                <div>{format.dateTime(new Date(booking.ride.departure_time), { day: "2-digit", month: "2-digit", year: "numeric" })}</div>
+                <div>{tCard("seatCount", { count: booking.seat_count })}</div>
+                <div className="font-medium">{formatCostShare(booking.ride.cost_share, locale)}</div>
+              </CardContent>
+              <CardFooter className="flex flex-col items-start gap-2">
+                {offerDepositPaymentInfo.get(booking.id) && (
+                  <div className="text-sm">
+                    <span className="text-muted-foreground">{tPayment("ibanLabel")}: </span>
+                    <span className="font-mono font-medium">{offerDepositPaymentInfo.get(booking.id)?.iban}</span>
+                    <span className="text-muted-foreground"> · {tPayment("ibanHolderLabel")}: </span>
+                    {offerDepositPaymentInfo.get(booking.id)?.iban_holder_name}
+                  </div>
+                )}
+                {offerDriverTrustInfo.get(booking.id) && (
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t pt-2">
+                    <span className="text-muted-foreground text-xs">
+                      {tPayment("driverMemberSince", {
+                        date: format.dateTime(new Date(offerDriverTrustInfo.get(booking.id)!.memberSinceIso), {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        }),
+                      })}
+                    </span>
+                    <span className="text-muted-foreground text-xs">
+                      {tPayment("driverCompletedRides", { count: offerDriverTrustInfo.get(booking.id)!.completedRideCount })}
+                    </span>
+                    {offerDriverTrustInfo.get(booking.id)!.averageRating !== null && (
+                      <span className="flex items-center gap-1">
+                        <StarRating rating={offerDriverTrustInfo.get(booking.id)!.averageRating!} size="sm" />
+                        <span className="text-muted-foreground text-xs">({offerDriverTrustInfo.get(booking.id)!.reviewCount})</span>
+                      </span>
+                    )}
+                  </div>
+                )}
+                {booking.deposit_receipt_status === null || booking.deposit_receipt_status === "rejected" ? (
+                  <ReceiptUploadForm
+                    action={(formData) => submitDepositReceipt(booking.id, booking.ride.id, formData)}
+                    label={tPayment("uploadReceipt")}
+                  />
+                ) : (
+                  <Badge variant={booking.deposit_receipt_status === "approved" ? "secondary" : "outline"}>
+                    {tPayment(`receiptStatus.${booking.deposit_receipt_status}`)}
+                  </Badge>
+                )}
+              </CardFooter>
+            </Card>
+          ))}
         </div>
       )}
 
