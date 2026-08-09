@@ -647,6 +647,7 @@
     "card": {
       "seatCount": "{count} مقعد",
       "unknownPassenger": "الراكب",
+      "unknownDriver": "السائق",
       "uploadSettlementReceipt": "رفع إيصال الدفعة المتبقية",
       "settlementReceiptStatus": {
         "pending": "إيصال الدفعة المتبقية قيد المراجعة",

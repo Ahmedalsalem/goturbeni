@@ -647,6 +647,7 @@
     "card": {
       "seatCount": "{count} seats",
       "unknownPassenger": "Passenger",
+      "unknownDriver": "Driver",
       "uploadSettlementReceipt": "Upload Remaining Payment Receipt",
       "settlementReceiptStatus": {
         "pending": "Remaining payment receipt under review",

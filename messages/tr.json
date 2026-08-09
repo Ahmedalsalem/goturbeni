@@ -647,6 +647,7 @@
     "card": {
       "seatCount": "{count} koltuk",
       "unknownPassenger": "Yolcu",
+      "unknownDriver": "Sürücü",
       "uploadSettlementReceipt": "Kalan Ödeme Dekontu Yükle",
       "settlementReceiptStatus": {
         "pending": "Kalan ödeme dekontu inceleniyor",
