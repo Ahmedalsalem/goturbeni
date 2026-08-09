@@ -1,8 +1,11 @@
 export type RideStatus = "active" | "full" | "completed" | "cancelled"
+export type RidePostedByRole = "driver" | "passenger"
 
 export interface Ride {
   id: string
-  driver_id: string
+  driver_id: string | null
+  posted_by_role: RidePostedByRole
+  posted_by: string
   departure_city: string
   arrival_city: string
   departure_district: string | null

@@ -4,12 +4,15 @@ export type BookingStatus = "pending" | "approved" | "rejected" | "cancelled"
 export type BookingPaymentStatus = "awaiting_deposit" | "deposit_confirmed" | "settled"
 export type ReceiptStatus = "pending" | "approved" | "rejected"
 export type RefundStatus = "not_applicable" | "pending" | "proof_submitted" | "confirmed"
+export type BookingBookerRole = "passenger" | "driver"
 
 export interface Booking {
   id: string
   ride_id: string
   passenger_id: string
   seat_count: number
+  booker_role: BookingBookerRole
+  driver_id: string | null
   status: BookingStatus
   payment_status: BookingPaymentStatus
   deposit_deadline_at: string
