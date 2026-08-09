@@ -208,12 +208,12 @@ export async function getMyActiveRideSeries(driverId: string): Promise<RideSerie
   return (data as RideSeries[] | null) ?? []
 }
 
-export async function getMyRides(driverId: string): Promise<RideWithDriver[]> {
+export async function getMyRides(userId: string): Promise<RideWithDriver[]> {
   const supabase = await createClient()
   const { data } = await supabase
     .from("rides")
     .select(RIDE_WITH_DRIVER_SELECT)
-    .eq("driver_id", driverId)
+    .eq("posted_by", userId)
     .order("created_at", { ascending: false })
 
   return (data as RideWithDriver[] | null) ?? []

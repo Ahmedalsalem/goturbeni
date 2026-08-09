@@ -82,7 +82,7 @@ export async function createRide(values: RideFormValues): Promise<RideActionStat
 
   const { data: ride, error } = await supabase
     .from("rides")
-    .insert({ driver_id: user.id, ...buildRideRow(parsed.data) })
+    .insert({ driver_id: user.id, posted_by_role: "driver", posted_by: user.id, ...buildRideRow(parsed.data) })
     .select("id")
     .single()
 
@@ -165,7 +165,7 @@ export async function updateRide(rideId: string, values: RideFormValues): Promis
     .from("rides")
     .update(buildRideRow(parsed.data))
     .eq("id", rideId)
-    .eq("driver_id", user.id)
+    .eq("posted_by", user.id)
     .eq("status", "active")
 
   if (error) {
