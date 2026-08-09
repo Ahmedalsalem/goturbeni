@@ -43,6 +43,7 @@ function buildQueryString(filters: Partial<RideSearchFilters>): string {
   if (filters.smokingAllowed) params.set("smokingAllowed", "1")
   if (filters.vipOnly) params.set("vipOnly", "1")
   if (filters.femaleDriverOnly) params.set("femaleDriverOnly", "1")
+  if (filters.postedByRole) params.set("type", filters.postedByRole)
   const qs = params.toString()
   return qs ? `/rides?${qs}` : "/rides"
 }
@@ -81,6 +82,7 @@ export function RideFilters({
   const [smokingAllowed, setSmokingAllowed] = useState(initial.smokingAllowed ?? false)
   const [vipOnly, setVipOnly] = useState(initial.vipOnly ?? false)
   const [femaleDriverOnly, setFemaleDriverOnly] = useState(initial.femaleDriverOnly ?? false)
+  const [postedByRole, setPostedByRole] = useState<"driver" | "passenger" | undefined>(initial.postedByRole)
 
   const fromDistricts = from ? (TURKISH_PROVINCE_DISTRICTS[from] ?? []) : []
   const toDistricts = to ? (TURKISH_PROVINCE_DISTRICTS[to] ?? []) : []
@@ -98,6 +100,7 @@ export function RideFilters({
         smokingAllowed,
         vipOnly,
         femaleDriverOnly,
+        postedByRole,
       })
     )
   }
@@ -115,6 +118,7 @@ export function RideFilters({
         smokingAllowed,
         vipOnly,
         femaleDriverOnly,
+        postedByRole,
       }),
       { scroll: false }
     )
@@ -326,6 +330,23 @@ export function RideFilters({
             </FieldLabel>
           </Field>
         </div>
+
+        <Field className="sm:w-44">
+          <FieldLabel htmlFor="filter-type">{t("typeLabel")}</FieldLabel>
+          <Select
+            value={postedByRole ?? "all"}
+            onValueChange={(value) => setPostedByRole(value === "all" ? undefined : (value as "driver" | "passenger"))}
+          >
+            <SelectTrigger id="filter-type" aria-label={t("typeLabel")} className="w-full">
+              <SelectValue>{(value: string) => (value === "all" ? t("typeAll") : value === "driver" ? t("typeDriver") : t("typePassenger"))}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("typeAll")}</SelectItem>
+              <SelectItem value="driver">{t("typeDriver")}</SelectItem>
+              <SelectItem value="passenger">{t("typePassenger")}</SelectItem>
+            </SelectContent>
+          </Select>
+        </Field>
 
         {showSort && (
           <Field className="sm:w-52">

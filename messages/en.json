@@ -304,6 +304,10 @@
       "smokingAllowed": "Smoking Allowed",
       "vipOnly": "VIP (Single Passenger)",
       "femaleDriverOnly": "Female Driver",
+      "typeLabel": "Listing Type",
+      "typeAll": "All",
+      "typeDriver": "Driver Listings",
+      "typePassenger": "Passenger Listings",
       "sortLabel": "Sort",
       "sort": {
         "date_asc": "Date (Ascending)",
@@ -554,7 +558,10 @@
       "unknownDriver": "Driver",
       "petsAllowed": "Pets allowed",
       "smokingAllowed": "Smoking allowed",
-      "vipSolo": "VIP (Single Passenger)"
+      "vipSolo": "VIP (Single Passenger)",
+      "unknownPoster": "Passenger",
+      "passengerListingBadge": "Passenger Listing",
+      "driverListingBadge": "Driver Listing"
     },
     "myRides": {
       "edit": "Edit",

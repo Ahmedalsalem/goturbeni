@@ -304,6 +304,10 @@
       "smokingAllowed": "يُسمح بالتدخين",
       "vipOnly": "VIP (راكب واحد)",
       "femaleDriverOnly": "سائقة",
+      "typeLabel": "نوع الإعلان",
+      "typeAll": "الكل",
+      "typeDriver": "إعلانات السائقين",
+      "typePassenger": "إعلانات الركاب",
       "sortLabel": "الترتيب",
       "sort": {
         "date_asc": "التاريخ (تصاعدي)",
@@ -554,7 +558,10 @@
       "unknownDriver": "السائق",
       "petsAllowed": "يُسمح بالحيوانات الأليفة",
       "smokingAllowed": "يُسمح بالتدخين",
-      "vipSolo": "VIP (راكب واحد)"
+      "vipSolo": "VIP (راكب واحد)",
+      "unknownPoster": "راكب",
+      "passengerListingBadge": "إعلان راكب",
+      "driverListingBadge": "إعلان سائق"
     },
     "myRides": {
       "edit": "تعديل",

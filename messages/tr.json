@@ -304,6 +304,10 @@
       "smokingAllowed": "Sigara İçilebilir",
       "vipOnly": "VIP (Tek Yolcu)",
       "femaleDriverOnly": "Kadın Şoför",
+      "typeLabel": "İlan Türü",
+      "typeAll": "Tümü",
+      "typeDriver": "Sürücü İlanları",
+      "typePassenger": "Yolcu İlanları",
       "sortLabel": "Sırala",
       "sort": {
         "date_asc": "Tarih (Artan)",
@@ -554,7 +558,10 @@
       "unknownDriver": "Sürücü",
       "petsAllowed": "Evcil hayvan kabul edilir",
       "smokingAllowed": "Sigara içilebilir",
-      "vipSolo": "VIP (Tek Yolcu)"
+      "vipSolo": "VIP (Tek Yolcu)",
+      "unknownPoster": "Yolcu",
+      "passengerListingBadge": "Yolcu İlanı",
+      "driverListingBadge": "Sürücü İlanı"
     },
     "myRides": {
       "edit": "Düzenle",

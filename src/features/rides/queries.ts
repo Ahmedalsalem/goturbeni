@@ -81,6 +81,9 @@ function buildRidesQuery(
   if (femaleDriverRideIds) {
     query = query.in("id", femaleDriverRideIds)
   }
+  if (filters?.postedByRole) {
+    query = query.eq("posted_by_role", filters.postedByRole)
+  }
 
   const { column, ascending } = SORT_COLUMN[filters?.sort ?? "date_asc"]
   return query.order(column, { ascending })
@@ -117,6 +120,9 @@ function buildNearbyProvinceRidesQuery(
   }
   if (femaleDriverRideIds) {
     query = query.in("id", femaleDriverRideIds)
+  }
+  if (filters.postedByRole) {
+    query = query.eq("posted_by_role", filters.postedByRole)
   }
 
   const { column, ascending } = SORT_COLUMN[filters.sort ?? "date_asc"]
