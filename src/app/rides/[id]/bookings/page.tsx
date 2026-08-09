@@ -37,7 +37,7 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
   const user = await verifySession()
   const ride = await getRide(id)
 
-  if (!ride || ride.driver_id !== user.id) {
+  if (!ride || ride.posted_by !== user.id) {
     notFound()
   }
 

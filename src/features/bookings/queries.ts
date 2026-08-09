@@ -48,6 +48,16 @@ export async function getBookingDriverId(bookingId: string): Promise<string | nu
   return data?.driver_id ?? null
 }
 
+// approveBooking's IBAN/plate pre-check must derive the ride from the
+// booking itself, not trust the separately-passed rideId parameter (which
+// could be mismatched) — same defensive pattern as getBookingPassengerId/
+// getBookingDriverId.
+export async function getBookingRideId(bookingId: string): Promise<string | null> {
+  const supabase = await createClient()
+  const { data } = await supabase.from("bookings").select("ride_id").eq("id", bookingId).single()
+  return data?.ride_id ?? null
+}
+
 // Only the passenger's currently active (pending/approved) booking, if any —
 // a past rejected/cancelled booking doesn't block re-booking the same ride
 // (see the partial unique index in supabase/migrations/0003_bookings.sql).

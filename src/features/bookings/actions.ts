@@ -12,7 +12,7 @@ import { requireVerifiedProfile, verifySession } from "@/lib/supabase/dal"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { logError } from "@/lib/logger"
 import { getRide } from "@/features/rides/queries"
-import { getBookingDriverId, getBookingPassengerId } from "@/features/bookings/queries"
+import { getBookingDriverId, getBookingPassengerId, getBookingRideId } from "@/features/bookings/queries"
 import { extractReceiptFields } from "@/lib/ocr"
 import { recordNotificationEvent, sendPushNotification, sendSeatOpenedPushNotifications } from "@/lib/notifications"
 import { sendEmailNotification, sendSeatOpenedEmailNotifications } from "@/lib/email"
@@ -113,8 +113,12 @@ export async function approveBooking(bookingId: string, rideId: string): Promise
   // IBAN + plaka bilgisi burada kontrol edilir — sürücü ilanında bu kontrol
   // createRide'da (ilan açılırken) yapılıyordu; yolcu ilanında henüz bir
   // sürücü atanmadığından kontrol onay anına kayıyor (bkz. tasarım
-  // dokümanı "Ödeme akışı sıralaması").
-  const ride = await getRide(rideId)
+  // dokümanı "Ödeme akışı sıralaması"). Ride, bookingId'nin gerçek
+  // ride_id'sinden çekiliyor — ayrıca geçirilen rideId parametresine
+  // güvenilmiyor, çünkü onunla bookingId arasındaki eşleşmeyi hiçbir şey
+  // zorunlu kılmıyor (uyuşmayan bir rideId bu kontrolü atlatabilirdi).
+  const authoritativeRideId = await getBookingRideId(bookingId)
+  const ride = authoritativeRideId ? await getRide(authoritativeRideId) : null
   if (ride?.posted_by_role === "passenger") {
     const offeringDriverId = await getBookingDriverId(bookingId)
     if (offeringDriverId) {

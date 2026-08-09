@@ -91,6 +91,17 @@ describe("bookings/actions", () => {
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "anon-key")
     verifySessionMock.mockResolvedValue(FAKE_USER)
     createClientMock.mockResolvedValue({ rpc: rpcMock, from: fromMock })
+    // Default: any unmocked .from(...).select(...).eq(...).single()/maybeSingle()
+    // chain (e.g. approveBooking's unconditional getBookingRideId lookup)
+    // resolves to no row, rather than throwing on an unconfigured mock.
+    fromMock.mockReturnValue({
+      select: () => ({
+        eq: () => ({
+          single: async () => ({ data: null }),
+          maybeSingle: async () => ({ data: null }),
+        }),
+      }),
+    })
   })
 
   afterEach(() => {
@@ -218,12 +229,40 @@ describe("bookings/actions", () => {
     it("rejects approving an offer when the offering driver has no IBAN", async () => {
       getRideMock.mockResolvedValue(fakeRide({ posted_by_role: "passenger", driver_id: null }))
       fromMock.mockImplementation((table: string) => {
-        if (table === "bookings") return { select: () => ({ eq: () => ({ single: async () => ({ data: { driver_id: "offering-driver-1" } }) }) }) }
+        if (table === "bookings")
+          return {
+            select: () => ({ eq: () => ({ single: async () => ({ data: { driver_id: "offering-driver-1", ride_id: "ride-1" } }) }) }),
+          }
         if (table === "profiles_private") return { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null }) }) }) }
         return {}
       })
 
       const result = await approveBooking("booking-1", "ride-1")
+
+      expect(result.error).toBe("Bookings.errors.offerDriverIbanRequired")
+      expect(rpcMock).not.toHaveBeenCalled()
+    })
+
+    it("derives the IBAN/plate check's ride from the booking's real ride_id, not the passed rideId parameter", async () => {
+      // The booking's authoritative ride ("real-ride-1") is a passenger
+      // listing missing the offering driver's IBAN — the caller-supplied
+      // rideId ("malicious-ride-2") is a driver-posted ride, which would
+      // skip the IBAN check entirely if it were trusted instead.
+      getRideMock.mockImplementation((rideId: string) =>
+        Promise.resolve(
+          rideId === "real-ride-1" ? fakeRide({ posted_by_role: "passenger", driver_id: null }) : fakeRide({ posted_by_role: "driver" })
+        )
+      )
+      fromMock.mockImplementation((table: string) => {
+        if (table === "bookings")
+          return {
+            select: () => ({ eq: () => ({ single: async () => ({ data: { driver_id: "offering-driver-1", ride_id: "real-ride-1" } }) }) }),
+          }
+        if (table === "profiles_private") return { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null }) }) }) }
+        return {}
+      })
+
+      const result = await approveBooking("booking-1", "malicious-ride-2")
 
       expect(result.error).toBe("Bookings.errors.offerDriverIbanRequired")
       expect(rpcMock).not.toHaveBeenCalled()

@@ -17,7 +17,7 @@ export default async function EditRidePage({ params }: { params: Promise<{ id: s
   const user = await verifySession()
   const ride = await getRide(id)
 
-  if (!ride || ride.driver_id !== user.id || ride.status !== "active") {
+  if (!ride || ride.posted_by !== user.id || ride.status !== "active") {
     notFound()
   }
 
