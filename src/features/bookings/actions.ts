@@ -57,6 +57,17 @@ export async function createBooking(rideId: string, values: BookingFormValues): 
   if (parsed.data.seatCount > ride.available_seats) {
     return { error: tErrors("notEnoughSeats") }
   }
+  if (!ride.driver_id) {
+    // Defensive: a passenger-posted ride (posted_by_role='passenger') has no
+    // driver_id until a driver's offer is approved — rides_posted_by_matches_
+    // driver_when_driver_posted (0058) guarantees driver-posted rides always
+    // have one, so this should be unreachable via that path. There's no
+    // "request a seat" flow for a passenger-posted ride yet (that's a driver
+    // making an offer, a separate not-yet-built action), so this just fails
+    // closed rather than sending a notification to a non-existent recipient.
+    logError(new Error("createBooking: ride has no driver_id"), "bookings.createBooking")
+    return { error: tErrors("createFailed") }
+  }
 
   const supabase = await createClient()
   const { error } = await supabase.from("bookings").insert({
@@ -315,7 +326,12 @@ export async function submitDepositReceipt(bookingId: string, rideId: string, fo
       revalidatePath("/bookings")
 
       const ride = await getRide(rideId)
-      if (ride) {
+      if (ride?.driver_id) {
+        // driver_id is guaranteed set here: submit_deposit_receipt_ocr (0056)
+        // only reaches autoApproved=true after successfully matching the
+        // receipt against the ride's driver's own IBAN, which is impossible
+        // while driver_id is still null (a not-yet-approved passenger-posted
+        // ride) — so this narrows for TS as much as it defends at runtime.
         await Promise.all([
           sendPushNotification({ type: "deposit_auto_approved", recipientId: ride.driver_id, rideId }),
           sendEmailNotification({ type: "deposit_auto_approved", recipientId: ride.driver_id, rideId }),
