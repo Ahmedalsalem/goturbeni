@@ -218,6 +218,9 @@ describe("bookings/actions", () => {
       )
       const insertMock = vi.fn().mockResolvedValue({ error: null })
       fromMock.mockReturnValue({ insert: insertMock })
+      // recordNotificationEvent (src/lib/notifications.ts) calls supabase.rpc
+      // unconditionally — needs a resolved rpc call.
+      rpcMock.mockResolvedValue({ error: null })
 
       const result = await createOffer("ride-1")
 
