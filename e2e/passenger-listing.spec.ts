@@ -10,30 +10,36 @@ test.describe.serial("passenger listing reverse booking", () => {
   // Scoped to this file only (see playwright.config.ts for why retries
   // aren't global): observed two independent CI runs (an initial attempt and
   // its own retry, both against fresh accounts/data) fail identically at the
-  // "Teklif kabul edildi." assertion below. Trace analysis on both runs
-  // showed the click sequence completing with no Playwright-level error, no
-  // server-side error logged, and the server-action POST eventually landing
-  // ~5.3s after the click — just past toBeVisible()'s default 5s window (see
-  // that assertion's explicit { timeout: 15_000 } below, matching the
-  // precedent in booking-chat-review.spec.ts/receipt-ocr-auto-approval.spec.ts
-  // for other latency-sensitive assertions). Plausible cause: this is the
-  // only approve flow in the whole e2e suite that takes the
-  // posted_by_role==='passenger' branch in approveBooking (src/features/
-  // bookings/actions.ts), which does several extra sequential Supabase
-  // round-trips (getBookingRideId/getRide/getBookingDriverId + the IBAN/
-  // plate pre-check + the booker_role-aware notification-recipient lookup
-  // added in the final-review fix wave) before the RPC call that every other
-  // passing approve-flow test skips — under CI's Docker-networked local
-  // Supabase this adds up to more latency than the default assertion budget,
-  // not an application bug (independently re-verified via two rounds of
-  // code review, Docker-based RPC tests, and this trace analysis). The
-  // retries:1 here is a safety margin on top of the timeout increase, not a
-  // substitute for it — a retry re-runs the whole serial journey from
-  // "passenger and driver sign up" — passengerEmail/driverEmail are
-  // (re-)generated in beforeAll (which itself re-runs per retry attempt),
-  // not as file-scope consts, so a retry signs up fresh accounts instead of
-  // re-submitting the same already-registered email from the failed attempt
-  // (same reasoning as booking-chat-review.spec.ts).
+  // "Teklif kabul edildi." assertion below, with no Playwright-level click
+  // error and no server-side error logged either time — the response simply
+  // didn't land inside the default 5s window. NOTE: an earlier version of
+  // this comment claimed this test's approveBooking call was the only one in
+  // the suite to take the posted_by_role==='passenger' branch — that's false
+  // (the "passenger cannot approve..." test three lines below takes the same
+  // branch and passes at the default 5s timeout), so the extra-queries-in-
+  // approveBooking theory alone doesn't explain the gap. The more likely
+  // factor: this is the first test in the whole suite to reach an *approved*
+  // booking on a passenger-posted ride, so the post-approval re-render of
+  // /rides/[id]/bookings mounts several client components
+  // (ShareLocationToggle, VerifyPickupCodeForm, SettlePaymentButton,
+  // ReviewButton, ReportNoShowButton, OpenDisputeButton) for the first time
+  // in this run — under `next dev --turbopack` those compile on demand
+  // inside the server action's response, the same class of cold-compile
+  // latency playwright.config.ts and receipt-ocr-auto-approval.spec.ts
+  // already document (the latter uses a 30s timeout for exactly this
+  // reason, matched below rather than the 15s originally used here). Two
+  // real optimizations were also made to approveBooking/rejectBooking
+  // (src/features/bookings/actions.ts) as part of diagnosing this — fewer
+  // sequential queries and notifications deferred to after() — but a cold
+  // Turbopack compile of a whole new component subtree isn't something a
+  // server action can route around, hence the generous timeout staying in
+  // place regardless. The retries:1 here is a safety margin on top of the
+  // timeout increase, not a substitute for it — a retry re-runs the whole
+  // serial journey from "passenger and driver sign up" — passengerEmail/
+  // driverEmail are (re-)generated in beforeAll (which itself re-runs per
+  // retry attempt), not as file-scope consts, so a retry signs up fresh
+  // accounts instead of re-submitting the same already-registered email
+  // from the failed attempt (same reasoning as booking-chat-review.spec.ts).
   test.describe.configure({ retries: 1 })
 
   let passengerEmail: string
@@ -100,11 +106,10 @@ test.describe.serial("passenger listing reverse booking", () => {
 
     await passengerPage.goto(`/rides/${rideId}/bookings`)
     await clickWithConfirm(passengerPage, "Teklifi Kabul Et", "Teklifi kabul etmek istediğinize emin misiniz?")
-    // { timeout: 15_000 }: see the test.describe.configure comment above —
-    // this specific approve flow does more sequential Supabase round-trips
-    // than any other approve-flow test in the suite, observed taking >5s
-    // under CI's Docker-networked local Supabase.
-    await expect(passengerPage.getByText("Teklif kabul edildi.")).toBeVisible({ timeout: 15_000 })
+    // { timeout: 30_000 }: see the test.describe.configure comment above —
+    // matches receipt-ocr-auto-approval.spec.ts's precedent for a cold
+    // Turbopack compile inside a server action's response window.
+    await expect(passengerPage.getByText("Teklif kabul edildi.")).toBeVisible({ timeout: 30_000 })
   })
 
   test("approval assigns driver_id — passenger sees deposit instructions, driver reaches the ride's management page", async () => {
