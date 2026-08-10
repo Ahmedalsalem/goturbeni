@@ -39,7 +39,6 @@ export async function Header() {
 
   const links = [
     { href: "/rides", label: t("rides") },
-    { href: "/rota", label: t("routes") },
     { href: "/create-ride", label: t("createRide") },
     { href: "/how-it-works", label: t("howItWorks") },
     { href: "/support", label: t("support") },
@@ -144,11 +143,11 @@ export async function Header() {
             </>
           ) : (
             // No mobile menu trigger here on purpose — a guest's header only
-            // needs to get them to login/register. The 5 nav links (visible
+            // needs to get them to login/register. The nav links (visible
             // in the desktop bar above, md:flex) are reachable on mobile via
             // the homepage's own CTAs and the Footer (which now also carries
-            // "Rotalar"/"Nasıl Çalışır"/"Destek", the ones that had no other
-            // entry point) — see Footer.tsx. "Giriş Yap"/"Kayıt Ol" are both
+            // "Nasıl Çalışır"/"Destek", the ones that had no other entry
+            // point) — see Footer.tsx. "Giriş Yap"/"Kayıt Ol" are both
             // visible at every width so there's always a way to register
             // even without the old fallback menu item (and /login itself
             // has a "Hesabınız yok mu?" cross-link either way).
