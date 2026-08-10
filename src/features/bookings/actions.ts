@@ -248,8 +248,7 @@ export async function rejectBooking(bookingId: string, rideId: string): Promise<
   // approveBooking ile aynı mantık — reddedilen bir yolcu-ilanı teklifinde
   // bildirim, reddi yapan ilan sahibine değil, teklif veren sürücüye
   // gitmeli. ride_id/driver_id/passenger_id tek bir getBookingParties
-  // okumasıyla birlikte çekiliyor (approveBooking'deki gibi, ayrı ayrı
-  // getBookingRideId + getBookingDriverId/getBookingPassengerId yerine).
+  // okumasıyla birlikte çekiliyor (approveBooking'deki gibi).
   const parties = await getBookingParties(bookingId)
   const ride = parties ? await getRide(parties.rideId) : null
   const recipientId = ride?.posted_by_role === "passenger" ? (parties?.driverId ?? null) : (parties?.passengerId ?? null)

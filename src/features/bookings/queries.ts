@@ -43,35 +43,6 @@ export async function getRideBookings(rideId: string): Promise<BookingWithPassen
   return (data as BookingWithPassenger[] | null) ?? []
 }
 
-// Used by bookings/actions.ts to know who to notify after approve/reject —
-// the RPCs that perform those mutations return void, so the passenger id
-// isn't otherwise available in the action.
-export async function getBookingPassengerId(bookingId: string): Promise<string | null> {
-  const supabase = await createClient()
-  const { data } = await supabase.from("bookings").select("passenger_id").eq("id", bookingId).single()
-  return data?.passenger_id ?? null
-}
-
-// approveBooking, bir yolcu ilanına verilen teklifi onaylarken teklif veren
-// sürücünün IBAN/plaka bilgisini kontrol etmek için bu sürücünün id'sine
-// ihtiyaç duyar (bookings.driver_id, sadece booker_role='driver' satırlarında
-// dolu) — getBookingPassengerId ile aynı desen.
-export async function getBookingDriverId(bookingId: string): Promise<string | null> {
-  const supabase = await createClient()
-  const { data } = await supabase.from("bookings").select("driver_id").eq("id", bookingId).single()
-  return data?.driver_id ?? null
-}
-
-// approveBooking's IBAN/plate pre-check must derive the ride from the
-// booking itself, not trust the separately-passed rideId parameter (which
-// could be mismatched) — same defensive pattern as getBookingPassengerId/
-// getBookingDriverId.
-export async function getBookingRideId(bookingId: string): Promise<string | null> {
-  const supabase = await createClient()
-  const { data } = await supabase.from("bookings").select("ride_id").eq("id", bookingId).single()
-  return data?.ride_id ?? null
-}
-
 // approveBooking/rejectBooking need ride_id + driver_id + passenger_id
 // together (to resolve the ride, the offering driver for the IBAN/plate
 // check, and the notification recipient) — one row read instead of two or

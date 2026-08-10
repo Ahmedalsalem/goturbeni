@@ -351,6 +351,33 @@ describe("bookings/actions", () => {
       expect(rpcMock).not.toHaveBeenCalled()
     })
 
+    it("reports the IBAN error (not the plate error) when both the IBAN and the plate are missing", async () => {
+      // IBAN and car_plate are read concurrently (Promise.all) but the code
+      // still checks the IBAN result before the plate result regardless of
+      // which underlying query actually resolved first — Promise.all
+      // preserves positional order. The two tests above can no longer prove
+      // that ordering on their own, since they give a VALID plate alongside
+      // the missing IBAN: either ordering produces offerDriverIbanRequired
+      // there. This test gives BOTH a missing IBAN and a missing/invalid
+      // plate — only "IBAN is checked first" produces
+      // offerDriverIbanRequired instead of offerDriverCarPlateRequired.
+      getRideMock.mockResolvedValue(fakeRide({ posted_by_role: "passenger", driver_id: null }))
+      fromMock.mockImplementation((table: string) => {
+        if (table === "bookings")
+          return {
+            select: () => ({ eq: () => ({ single: async () => ({ data: { driver_id: "offering-driver-1", ride_id: "ride-1" } }) }) }),
+          }
+        if (table === "profiles_private") return { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null }) }) }) }
+        if (table === "profiles") return { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: { car_plate: null } }) }) }) }
+        return {}
+      })
+
+      const result = await approveBooking("booking-1", "ride-1")
+
+      expect(result.error).toBe("Bookings.errors.offerDriverIbanRequired")
+      expect(rpcMock).not.toHaveBeenCalled()
+    })
+
     it("proceeds to the RPC when the offer is on a driver-posted ride (no IBAN check)", async () => {
       getRideMock.mockResolvedValue(fakeRide({ posted_by_role: "driver" }))
       rpcMock.mockResolvedValue({ error: null })
@@ -360,17 +387,46 @@ describe("bookings/actions", () => {
 
       expect(result).toEqual({ success: true })
       expect(rpcMock).toHaveBeenCalledWith("approve_booking", { p_booking_id: "booking-1" })
+
+      // The notification fan-out is deferred into after() (see the afterMock
+      // comment at the top of this file) — nothing above actually exercised
+      // it. Manually invoke the recorded callback here, inside this test's
+      // own await chain, to prove both that approveBooking schedules exactly
+      // one deferred notification and that getBookingParties's field mapping
+      // ({ passengerId: data.passenger_id, ... }) correctly identifies
+      // "passenger-1" (this ride is driver-posted, so the approving party is
+      // the driver and the notification recipient is the passenger) as the
+      // create_notification_event recipient — a driverId/passengerId swap in
+      // that mapping would otherwise fail zero tests.
+      expect(afterMock).toHaveBeenCalledTimes(1)
+      await afterMock.mock.calls[0][0]()
+      expect(rpcMock).toHaveBeenCalledWith("create_notification_event", expect.objectContaining({ p_recipient_id: "passenger-1" }))
     })
   })
 
   describe("rejectBooking", () => {
     it("calls supabase.rpc with reject_booking and the booking id", async () => {
+      // Explicitly a driver-posted ride (rather than relying on whatever
+      // getRideMock was last set to by an earlier test) so the notification
+      // recipient below is deterministic regardless of test execution order.
+      getRideMock.mockResolvedValue(fakeRide({ posted_by_role: "driver" }))
       rpcMock.mockResolvedValue({ error: null })
       fromMock.mockReturnValue(fromReturningPassengerId("passenger-1"))
 
       await rejectBooking("booking-1", "ride-1")
 
       expect(rpcMock).toHaveBeenCalledWith("reject_booking", { p_booking_id: "booking-1" })
+
+      // Same as approveBooking's "succeeds and revalidates" test above —
+      // manually invoke the deferred after() callback, inside this test's
+      // own await chain, to prove rejectBooking schedules exactly one
+      // deferred notification and that getBookingParties correctly resolves
+      // "passenger-1" (this ride is driver-posted, so the rejecting party is
+      // the driver and the notification recipient is the passenger) as the
+      // create_notification_event recipient.
+      expect(afterMock).toHaveBeenCalledTimes(1)
+      await afterMock.mock.calls[0][0]()
+      expect(rpcMock).toHaveBeenCalledWith("create_notification_event", expect.objectContaining({ p_recipient_id: "passenger-1" }))
     })
 
     it("maps an RPC error to rejectFailed", async () => {
