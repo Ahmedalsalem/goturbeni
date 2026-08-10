@@ -4,13 +4,27 @@ import type { Ride } from "@/types/ride"
 
 // vi.hoisted lets these mock fns exist before the vi.mock factories below run
 // (vi.mock calls are hoisted to the top of the file by vitest).
-const { rpcMock, fromMock, createClientMock, verifySessionMock, getRideMock, revalidatePathMock } = vi.hoisted(() => ({
+const { rpcMock, fromMock, createClientMock, verifySessionMock, getRideMock, revalidatePathMock, afterMock } = vi.hoisted(() => ({
   rpcMock: vi.fn(),
   fromMock: vi.fn(),
   createClientMock: vi.fn(),
   verifySessionMock: vi.fn(),
   getRideMock: vi.fn(),
   revalidatePathMock: vi.fn(),
+  // approveBooking/rejectBooking now schedule their notification fan-out via
+  // next/server's after() (see the same pattern already used by
+  // submitDepositReceipt/submitSettlementReceipt, which this file doesn't
+  // test). after() throws if called outside a real Next.js request scope
+  // (no AsyncLocalStorage work store — see node_modules/next/dist/server/
+  // after/after.js), which this plain-vitest environment never provides, so
+  // it must be mocked. It's intentionally a bare recorder that never invokes
+  // the scheduled callback: actually running it would fire a second,
+  // unawaited round of fromMock/rpcMock calls (via recordNotificationEvent)
+  // racing against whatever the NEXT test configures those shared mocks to
+  // do — exactly the cross-test mock-state bleed this file has been bitten
+  // by before. No test here asserts on notification content, so not
+  // executing the callback costs nothing.
+  afterMock: vi.fn(),
 }))
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -30,6 +44,10 @@ vi.mock("next/cache", () => ({
   revalidatePath: revalidatePathMock,
 }))
 
+vi.mock("next/server", () => ({
+  after: afterMock,
+}))
+
 vi.mock("next/headers", () => ({
   cookies: async () => ({
     get: () => undefined,
@@ -46,18 +64,18 @@ import { approveBooking, cancelBooking, confirmRemainingPayment, createBooking, 
 
 const FAKE_USER = { id: "user-1" }
 
-// Matches the .select("passenger_id").eq("id", ...).single() chain used by
-// getBookingPassengerId (called after a successful approve/reject RPC to
-// find out who to push-notify) — and, since approveBooking also always calls
-// getBookingRideId first now, includes ride_id too (default "ride-1" matches
-// the rideId most tests in this file pass to approveBooking) so that lookup
-// doesn't silently resolve to null and skip the IBAN/plate check for the
-// wrong reason.
+// Matches the .select("ride_id, driver_id, passenger_id").eq("id", ...).single()
+// chain used by getBookingParties (both approveBooking and rejectBooking now
+// call it exactly once — for the pre-RPC IBAN/plate ride lookup and the
+// post-RPC notification-recipient lookup alike) — default "ride-1" matches
+// the rideId most tests in this file pass to approveBooking/rejectBooking so
+// that lookup doesn't silently resolve to null and skip the IBAN/plate check
+// for the wrong reason.
 function fromReturningPassengerId(passengerId: string | null, rideId = "ride-1") {
   return {
     select: () => ({
       eq: () => ({
-        single: async () => ({ data: passengerId ? { passenger_id: passengerId, ride_id: rideId } : null }),
+        single: async () => ({ data: passengerId ? { passenger_id: passengerId, ride_id: rideId, driver_id: null } : null }),
       }),
     }),
   }
@@ -96,8 +114,8 @@ describe("bookings/actions", () => {
     verifySessionMock.mockResolvedValue(FAKE_USER)
     createClientMock.mockResolvedValue({ rpc: rpcMock, from: fromMock })
     // Default: any unmocked .from(...).select(...).eq(...).single()/maybeSingle()
-    // chain (e.g. approveBooking's unconditional getBookingRideId lookup)
-    // resolves to no row, rather than throwing on an unconfigured mock.
+    // chain (e.g. approveBooking/rejectBooking's unconditional getBookingParties
+    // lookup) resolves to no row, rather than throwing on an unconfigured mock.
     fromMock.mockReturnValue({
       select: () => ({
         eq: () => ({
@@ -289,6 +307,12 @@ describe("bookings/actions", () => {
             select: () => ({ eq: () => ({ single: async () => ({ data: { driver_id: "offering-driver-1", ride_id: "ride-1" } }) }) }),
           }
         if (table === "profiles_private") return { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null }) }) }) }
+        // IBAN and car_plate are now read concurrently (Promise.all), so
+        // "profiles" is queried even though the IBAN check (checked first)
+        // is what ultimately fails here — unlike the old sequential version,
+        // which never reached "profiles" once "profiles_private" came back
+        // empty.
+        if (table === "profiles") return { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: { car_plate: "34 ABC 123" } }) }) }) }
         return {}
       })
 
@@ -314,6 +338,10 @@ describe("bookings/actions", () => {
             select: () => ({ eq: () => ({ single: async () => ({ data: { driver_id: "offering-driver-1", ride_id: "real-ride-1" } }) }) }),
           }
         if (table === "profiles_private") return { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null }) }) }) }
+        // Same as above — IBAN and car_plate are now read concurrently, so
+        // "profiles" must resolve to something even though the IBAN check
+        // is what fails first.
+        if (table === "profiles") return { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: { car_plate: "34 ABC 123" } }) }) }) }
         return {}
       })
 

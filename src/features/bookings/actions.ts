@@ -12,7 +12,7 @@ import { requireVerifiedProfile, verifySession } from "@/lib/supabase/dal"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { logError } from "@/lib/logger"
 import { getRide } from "@/features/rides/queries"
-import { getBookingDriverId, getBookingPassengerId, getBookingRideId } from "@/features/bookings/queries"
+import { getBookingParties } from "@/features/bookings/queries"
 import { extractReceiptFields } from "@/lib/ocr"
 import { recordNotificationEvent, sendPushNotification, sendSeatOpenedPushNotifications } from "@/lib/notifications"
 import { sendEmailNotification, sendSeatOpenedEmailNotifications } from "@/lib/email"
@@ -172,21 +172,24 @@ export async function approveBooking(bookingId: string, rideId: string): Promise
   // ride_id'sinden çekiliyor — ayrıca geçirilen rideId parametresine
   // güvenilmiyor, çünkü onunla bookingId arasındaki eşleşmeyi hiçbir şey
   // zorunlu kılmıyor (uyuşmayan bir rideId bu kontrolü atlatabilirdi).
-  const authoritativeRideId = await getBookingRideId(bookingId)
-  const ride = authoritativeRideId ? await getRide(authoritativeRideId) : null
+  // ride_id/driver_id/passenger_id tek bir getBookingParties okumasıyla
+  // birlikte çekiliyor — hem ride'ı çözmek + IBAN/plaka kontrolü için, hem
+  // de aşağıda bildirim alıcısını belirlemek için; driver_id RPC'den önce
+  // ve sonra ayrı ayrı sorgulanmıyor artık (approve_booking sadece
+  // status/payment_status yazıyor, driver_id'yi hiç değiştirmiyor — bkz.
+  // _apply_booking_approval, 0059_passenger_listings_approve_reject.sql).
+  const parties = await getBookingParties(bookingId)
+  const ride = parties ? await getRide(parties.rideId) : null
   if (ride?.posted_by_role === "passenger") {
-    const offeringDriverId = await getBookingDriverId(bookingId)
+    const offeringDriverId = parties?.driverId ?? null
     if (offeringDriverId) {
-      const { data: paymentInfo } = await supabase
-        .from("profiles_private")
-        .select("iban, iban_holder_name")
-        .eq("id", offeringDriverId)
-        .maybeSingle()
+      const [{ data: paymentInfo }, { data: driverProfile }] = await Promise.all([
+        supabase.from("profiles_private").select("iban, iban_holder_name").eq("id", offeringDriverId).maybeSingle(),
+        supabase.from("profiles").select("car_plate").eq("id", offeringDriverId).maybeSingle(),
+      ])
       if (!paymentInfo?.iban || !paymentInfo?.iban_holder_name) {
         return { error: tErrors("offerDriverIbanRequired") }
       }
-
-      const { data: driverProfile } = await supabase.from("profiles").select("car_plate").eq("id", offeringDriverId).maybeSingle()
       if (!driverProfile?.car_plate || !TR_PLATE_PATTERN.test(driverProfile.car_plate)) {
         return { error: tErrors("offerDriverCarPlateRequired") }
       }
@@ -202,16 +205,24 @@ export async function approveBooking(bookingId: string, rideId: string): Promise
 
   // Bir yolcu ilanına verilen teklif onaylanıyorsa bildirim, onay işlemini
   // BİZZAT YAPAN ilan sahibine (passenger_id) değil, sonucu öğrenmesi
-  // gereken teklif veren sürücüye (driver_id) gitmeli — offeringDriverId,
-  // yukarıdaki IBAN/plaka kontrolünün if bloğu içinde kaldığından burada
-  // tekrar çekiliyor (düşük trafikli bir aksiyon, kritik olmayan bir yol).
-  const recipientId = ride?.posted_by_role === "passenger" ? await getBookingDriverId(bookingId) : await getBookingPassengerId(bookingId)
+  // gereken teklif veren sürücüye (driver_id) gitmeli — driver_id yukarıdaki
+  // parties okumasından zaten elde edildi, burada tekrar sorgulanmıyor.
+  const recipientId = ride?.posted_by_role === "passenger" ? (parties?.driverId ?? null) : (parties?.passengerId ?? null)
   if (recipientId) {
-    await Promise.all([
-      sendPushNotification({ type: "booking_approved", recipientId, rideId }),
-      sendEmailNotification({ type: "booking_approved", recipientId, rideId }),
-      recordNotificationEvent({ type: "booking_approved", recipientId, rideId }),
-    ])
+    // Bildirim gönderimi (push/email/notification-event) yanıtı bloke
+    // etmesin diye after() içine alındı — bu dosyanın submitDepositReceipt/
+    // submitSettlementReceipt'te zaten kullandığı desen.
+    after(async () => {
+      try {
+        await Promise.all([
+          sendPushNotification({ type: "booking_approved", recipientId, rideId }),
+          sendEmailNotification({ type: "booking_approved", recipientId, rideId }),
+          recordNotificationEvent({ type: "booking_approved", recipientId, rideId }),
+        ])
+      } catch (error) {
+        logError(error, "bookings.approveBooking.notify")
+      }
+    })
   }
 
   revalidatePath(`/rides/${rideId}/bookings`)
@@ -236,17 +247,25 @@ export async function rejectBooking(bookingId: string, rideId: string): Promise<
 
   // approveBooking ile aynı mantık — reddedilen bir yolcu-ilanı teklifinde
   // bildirim, reddi yapan ilan sahibine değil, teklif veren sürücüye
-  // gitmeli. approveBooking'in aksine rejectBooking ride'ı hiç çekmiyordu,
-  // bu yüzden aynı getBookingRideId → getRide deseni burada da ekleniyor.
-  const authoritativeRideId = await getBookingRideId(bookingId)
-  const ride = authoritativeRideId ? await getRide(authoritativeRideId) : null
-  const recipientId = ride?.posted_by_role === "passenger" ? await getBookingDriverId(bookingId) : await getBookingPassengerId(bookingId)
+  // gitmeli. ride_id/driver_id/passenger_id tek bir getBookingParties
+  // okumasıyla birlikte çekiliyor (approveBooking'deki gibi, ayrı ayrı
+  // getBookingRideId + getBookingDriverId/getBookingPassengerId yerine).
+  const parties = await getBookingParties(bookingId)
+  const ride = parties ? await getRide(parties.rideId) : null
+  const recipientId = ride?.posted_by_role === "passenger" ? (parties?.driverId ?? null) : (parties?.passengerId ?? null)
   if (recipientId) {
-    await Promise.all([
-      sendPushNotification({ type: "booking_rejected", recipientId, rideId }),
-      sendEmailNotification({ type: "booking_rejected", recipientId, rideId }),
-      recordNotificationEvent({ type: "booking_rejected", recipientId, rideId }),
-    ])
+    // approveBooking'deki gibi — yanıtı bloke etmesin diye after() içinde.
+    after(async () => {
+      try {
+        await Promise.all([
+          sendPushNotification({ type: "booking_rejected", recipientId, rideId }),
+          sendEmailNotification({ type: "booking_rejected", recipientId, rideId }),
+          recordNotificationEvent({ type: "booking_rejected", recipientId, rideId }),
+        ])
+      } catch (error) {
+        logError(error, "bookings.rejectBooking.notify")
+      }
+    })
   }
 
   revalidatePath(`/rides/${rideId}/bookings`)

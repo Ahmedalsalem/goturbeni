@@ -72,6 +72,17 @@ export async function getBookingRideId(bookingId: string): Promise<string | null
   return data?.ride_id ?? null
 }
 
+// approveBooking/rejectBooking need ride_id + driver_id + passenger_id
+// together (to resolve the ride, the offering driver for the IBAN/plate
+// check, and the notification recipient) — one row read instead of two or
+// three separate single-column selects on the same booking.
+export async function getBookingParties(bookingId: string): Promise<{ rideId: string; driverId: string | null; passengerId: string } | null> {
+  const supabase = await createClient()
+  const { data } = await supabase.from("bookings").select("ride_id, driver_id, passenger_id").eq("id", bookingId).single()
+  if (!data) return null
+  return { rideId: data.ride_id, driverId: data.driver_id, passengerId: data.passenger_id }
+}
+
 // Only the passenger's currently active (pending/approved) booking, if any —
 // a past rejected/cancelled booking doesn't block re-booking the same ride
 // (see the partial unique index in supabase/migrations/0003_bookings.sql).
