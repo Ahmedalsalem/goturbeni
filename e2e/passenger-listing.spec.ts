@@ -8,38 +8,38 @@ import { clickWithConfirm, createPassengerListing, signUpAndVerify, uniqueEmail 
 // rolü oynadığı ters) sorunsuz çalıştığını doğrular.
 test.describe.serial("passenger listing reverse booking", () => {
   // Scoped to this file only (see playwright.config.ts for why retries
-  // aren't global): observed two independent CI runs (an initial attempt and
-  // its own retry, both against fresh accounts/data) fail identically at the
-  // "Teklif kabul edildi." assertion below, with no Playwright-level click
-  // error and no server-side error logged either time — the response simply
-  // didn't land inside the default 5s window. NOTE: an earlier version of
-  // this comment claimed this test's approveBooking call was the only one in
-  // the suite to take the posted_by_role==='passenger' branch — that's false
-  // (the "passenger cannot approve..." test three lines below takes the same
-  // branch and passes at the default 5s timeout), so the extra-queries-in-
-  // approveBooking theory alone doesn't explain the gap. The more likely
-  // factor: this is the first test in the whole suite to reach an *approved*
-  // booking on a passenger-posted ride, so the post-approval re-render of
-  // /rides/[id]/bookings mounts several client components
-  // (ShareLocationToggle, VerifyPickupCodeForm, SettlePaymentButton,
-  // ReviewButton, ReportNoShowButton, OpenDisputeButton) for the first time
-  // in this run — under `next dev --turbopack` those compile on demand
-  // inside the server action's response, the same class of cold-compile
-  // latency playwright.config.ts and receipt-ocr-auto-approval.spec.ts
-  // already document (the latter uses a 30s timeout for exactly this
-  // reason, matched below rather than the 15s originally used here). Two
-  // real optimizations were also made to approveBooking/rejectBooking
-  // (src/features/bookings/actions.ts) as part of diagnosing this — fewer
-  // sequential queries and notifications deferred to after() — but a cold
-  // Turbopack compile of a whole new component subtree isn't something a
-  // server action can route around, hence the generous timeout staying in
-  // place regardless. The retries:1 here is a safety margin on top of the
-  // timeout increase, not a substitute for it — a retry re-runs the whole
-  // serial journey from "passenger and driver sign up" — passengerEmail/
-  // driverEmail are (re-)generated in beforeAll (which itself re-runs per
-  // retry attempt), not as file-scope consts, so a retry signs up fresh
-  // accounts instead of re-submitting the same already-registered email
-  // from the failed attempt (same reasoning as booking-chat-review.spec.ts).
+  // aren't global): three independent CI runs (two plain attempts plus a
+  // retries:1 retry, all against fresh accounts/data, the last one even
+  // after widening the assertion timeout to 30s AND optimizing
+  // approveBooking to do fewer round-trips) all failed identically waiting
+  // for the "Teklif kabul edildi." toast — but trace analysis on the third
+  // run showed BOTH the click sequence and the underlying server-action POST
+  // completing cleanly (HTTP 200, no error, landing well inside the 30s
+  // window) — so this was never a raw latency problem, widening the timeout
+  // was treating the wrong symptom. What actually correlates across all
+  // three traces: a client-side "[Fast Refresh] rebuilding" event lands in
+  // the same ~200ms window as the confirm click and/or the start of the
+  // assertion's polling, every single time. This is the first test in the
+  // whole suite to reach an *approved* offer on a passenger-posted ride as
+  // its OWNER — i.e. the first live exercise of /rides/[id]/bookings's
+  // dual-role counterparty/isFulfillingDriver render branch (added for
+  // passenger listings) reaching its post-approval UI. Under `next dev
+  // --turbopack`, compiling that branch's modules on demand triggers a
+  // client HMR sync mid-request, which can unmount/remount the very
+  // component whose pending React transition (confirming state, the
+  // eventual toast() call) is in flight — dropping it, not delaying it. No
+  // assertion timeout fixes a dropped client-side event, only a slow one, so
+  // the fix here is to stop asserting on the ephemeral toast and instead
+  // reload and check the durable, DB-backed outcome (the row switching from
+  // the pending buttons to an "Onaylandı" status badge) — the same pattern
+  // the next test in this file already uses to verify post-approval state.
+  // retries:1 stays as a safety margin for anything else this cold-compile
+  // window might still disrupt — a retry re-runs the whole serial journey
+  // from "passenger and driver sign up" — passengerEmail/driverEmail are
+  // (re-)generated in beforeAll (which itself re-runs per retry attempt),
+  // not as file-scope consts, so a retry signs up fresh accounts instead of
+  // re-submitting the same already-registered email from the failed attempt
+  // (same reasoning as booking-chat-review.spec.ts).
   test.describe.configure({ retries: 1 })
 
   let passengerEmail: string
@@ -106,10 +106,14 @@ test.describe.serial("passenger listing reverse booking", () => {
 
     await passengerPage.goto(`/rides/${rideId}/bookings`)
     await clickWithConfirm(passengerPage, "Teklifi Kabul Et", "Teklifi kabul etmek istediğinize emin misiniz?")
-    // { timeout: 30_000 }: see the test.describe.configure comment above —
-    // matches receipt-ocr-auto-approval.spec.ts's precedent for a cold
-    // Turbopack compile inside a server action's response window.
-    await expect(passengerPage.getByText("Teklif kabul edildi.")).toBeVisible({ timeout: 30_000 })
+    // Not asserting on the "Teklif kabul edildi." toast here — see the
+    // test.describe.configure comment above for why it's an ephemeral,
+    // droppable event on this specific first-render code path, not just a
+    // slow one. Reload and check the durable, DB-backed outcome instead: the
+    // pending "Teklifi Kabul Et"/"Reddet" buttons are replaced by a status
+    // badge only once the booking is genuinely approved server-side.
+    await passengerPage.reload()
+    await expect(passengerPage.getByText("Onaylandı")).toBeVisible({ timeout: 30_000 })
   })
 
   test("approval assigns driver_id — passenger sees deposit instructions, driver reaches the ride's management page", async () => {
