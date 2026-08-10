@@ -289,6 +289,10 @@ describe("bookings/actions", () => {
     })
 
     it("succeeds and revalidates on a clean RPC call", async () => {
+      // Explicit even though a prior test may leave a compatible value behind
+      // (vi.clearAllMocks() doesn't reset mockResolvedValue) — this test's
+      // correctness shouldn't depend on file execution order.
+      getRideMock.mockResolvedValue(fakeRide())
       rpcMock.mockResolvedValue({ error: null })
       fromMock.mockReturnValue(fromReturningPassengerId("passenger-1"))
 
