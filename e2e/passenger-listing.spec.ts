@@ -7,9 +7,24 @@ import { clickWithConfirm, createPassengerListing, signUpAndVerify, uniqueEmail 
 // (sürücü ilanındaki ile birebir aynı kod yolu, sadece hangi tarafın hangi
 // rolü oynadığı ters) sorunsuz çalıştığını doğrular.
 test.describe.serial("passenger listing reverse booking", () => {
-  const passengerEmail = uniqueEmail("plpassenger")
-  const driverEmail = uniqueEmail("pldriver")
+  // Scoped to this file only (see playwright.config.ts for why retries
+  // aren't global): observed one CI run where the offer-approval click on
+  // /rides/[id]/bookings landed cleanly (confirmed via trace — both the arm
+  // and confirm clicks completed with no error) but the "Teklif kabul
+  // edildi." toast never appeared within the assertion window, with a
+  // Next.js dev-server "Fast Refresh: rebuilding" HMR event logged in the
+  // same ~500ms as the second click — a cold Turbopack recompile racing the
+  // interaction, the same class of flake playwright.config.ts already
+  // documents for on-demand route compilation. A retry re-runs the whole
+  // serial journey from "passenger and driver sign up" — passengerEmail/
+  // driverEmail are (re-)generated in beforeAll (which itself re-runs per
+  // retry attempt), not as file-scope consts, so a retry signs up fresh
+  // accounts instead of re-submitting the same already-registered email
+  // from the failed attempt (same reasoning as booking-chat-review.spec.ts).
+  test.describe.configure({ retries: 1 })
 
+  let passengerEmail: string
+  let driverEmail: string
   let passengerContext: BrowserContext
   let driverContext: BrowserContext
   let passengerPage: Page
@@ -17,6 +32,8 @@ test.describe.serial("passenger listing reverse booking", () => {
   let rideId: string
 
   test.beforeAll(async ({ browser }: { browser: Browser }) => {
+    passengerEmail = uniqueEmail("plpassenger")
+    driverEmail = uniqueEmail("pldriver")
     passengerContext = await browser.newContext()
     driverContext = await browser.newContext()
     passengerPage = await passengerContext.newPage()
