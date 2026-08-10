@@ -36,9 +36,6 @@ export async function Footer() {
         </div>
         <p className="text-muted-foreground text-sm">{t("tagline")}</p>
         <nav className="flex flex-wrap items-center justify-center gap-4 text-sm">
-          <Link href="/rota" className="text-muted-foreground hover:text-foreground">
-            {tNav("routes")}
-          </Link>
           <Link href="/how-it-works" className="text-muted-foreground hover:text-foreground">
             {tNav("howItWorks")}
           </Link>

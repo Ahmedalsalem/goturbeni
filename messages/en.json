@@ -7,7 +7,6 @@
     "skipToContent": "Skip to content",
     "home": "Home",
     "rides": "Find a Ride",
-    "routes": "Routes",
     "createRide": "Post a Ride",
     "myRides": "My Rides",
     "bookings": "My Bookings",
@@ -356,48 +355,6 @@
     "help": {
       "title": "Need help?",
       "description": "Check out our Support page for frequently asked questions, or email us directly."
-    }
-  },
-  "RoutePage": {
-    "metaTitle": "{from} to {to} Carpooling",
-    "metaDescription": "Shared ride listings between {from} and {to}. See drivers' empty seats, split the cost, and arrange it directly with no commission.",
-    "heading": "{from} to {to} Carpooling",
-    "intro": "Find empty seats offered by drivers travelling between {from} and {to}. It works on a cost-sharing basis, and GötürBeni charges no commission.",
-    "stats": {
-      "distanceLabel": "Straight-line distance",
-      "distanceValue": "about {km} km",
-      "listingsLabel": "Active listings",
-      "listingsValue": "{count, plural, =0 {None yet} one {# listing} other {# listings}}",
-      "commissionLabel": "Commission",
-      "commissionValue": "0%"
-    },
-    "listings": {
-      "title": "Active listings from {from} to {to}",
-      "emptyTitle": "No listings yet from {from} to {to}",
-      "emptyDescription": "You can post the first listing on this route. Posting is free and takes about a minute.",
-      "createCta": "Post a Ride",
-      "searchCta": "Filter all listings"
-    },
-    "costSharing": {
-      "title": "How is the cost shared?",
-      "splitTitle": "Split across passengers",
-      "splitDescription": "The driver states the cost of the trip in the listing, and that amount is shared among the passengers. The more people in the car, the less each person pays.",
-      "directTitle": "Paid directly to the driver",
-      "directDescription": "The passenger pays the driver's IBAN directly — 25% at booking, 75% after the trip. GötürBeni never sits in the middle and takes no commission.",
-      "disclaimer": "GötürBeni is not a commercial transport service. Listings are based on cost-sharing between drivers who are making the trip anyway. Distance is calculated as a straight line; the road distance is longer."
-    },
-    "related": {
-      "title": "Related routes",
-      "reverse": "{from} to {to}",
-      "pair": "{from} to {to}",
-      "allRoutes": "All popular routes"
-    },
-    "index": {
-      "metaTitle": "Popular Travel Routes",
-      "metaDescription": "Shared ride listings on Türkiye's busiest intercity routes. Pick your route and see the empty seats available.",
-      "heading": "Popular Routes",
-      "intro": "The most travelled intercity routes. Pick a route to see its active listings and how cost sharing works on it.",
-      "distance": "~{km} km"
     }
   },
   "SupportPage": {
