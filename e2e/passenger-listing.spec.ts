@@ -8,19 +8,32 @@ import { clickWithConfirm, createPassengerListing, signUpAndVerify, uniqueEmail 
 // rolü oynadığı ters) sorunsuz çalıştığını doğrular.
 test.describe.serial("passenger listing reverse booking", () => {
   // Scoped to this file only (see playwright.config.ts for why retries
-  // aren't global): observed one CI run where the offer-approval click on
-  // /rides/[id]/bookings landed cleanly (confirmed via trace — both the arm
-  // and confirm clicks completed with no error) but the "Teklif kabul
-  // edildi." toast never appeared within the assertion window, with a
-  // Next.js dev-server "Fast Refresh: rebuilding" HMR event logged in the
-  // same ~500ms as the second click — a cold Turbopack recompile racing the
-  // interaction, the same class of flake playwright.config.ts already
-  // documents for on-demand route compilation. A retry re-runs the whole
-  // serial journey from "passenger and driver sign up" — passengerEmail/
-  // driverEmail are (re-)generated in beforeAll (which itself re-runs per
-  // retry attempt), not as file-scope consts, so a retry signs up fresh
-  // accounts instead of re-submitting the same already-registered email
-  // from the failed attempt (same reasoning as booking-chat-review.spec.ts).
+  // aren't global): observed two independent CI runs (an initial attempt and
+  // its own retry, both against fresh accounts/data) fail identically at the
+  // "Teklif kabul edildi." assertion below. Trace analysis on both runs
+  // showed the click sequence completing with no Playwright-level error, no
+  // server-side error logged, and the server-action POST eventually landing
+  // ~5.3s after the click — just past toBeVisible()'s default 5s window (see
+  // that assertion's explicit { timeout: 15_000 } below, matching the
+  // precedent in booking-chat-review.spec.ts/receipt-ocr-auto-approval.spec.ts
+  // for other latency-sensitive assertions). Plausible cause: this is the
+  // only approve flow in the whole e2e suite that takes the
+  // posted_by_role==='passenger' branch in approveBooking (src/features/
+  // bookings/actions.ts), which does several extra sequential Supabase
+  // round-trips (getBookingRideId/getRide/getBookingDriverId + the IBAN/
+  // plate pre-check + the booker_role-aware notification-recipient lookup
+  // added in the final-review fix wave) before the RPC call that every other
+  // passing approve-flow test skips — under CI's Docker-networked local
+  // Supabase this adds up to more latency than the default assertion budget,
+  // not an application bug (independently re-verified via two rounds of
+  // code review, Docker-based RPC tests, and this trace analysis). The
+  // retries:1 here is a safety margin on top of the timeout increase, not a
+  // substitute for it — a retry re-runs the whole serial journey from
+  // "passenger and driver sign up" — passengerEmail/driverEmail are
+  // (re-)generated in beforeAll (which itself re-runs per retry attempt),
+  // not as file-scope consts, so a retry signs up fresh accounts instead of
+  // re-submitting the same already-registered email from the failed attempt
+  // (same reasoning as booking-chat-review.spec.ts).
   test.describe.configure({ retries: 1 })
 
   let passengerEmail: string
@@ -87,7 +100,11 @@ test.describe.serial("passenger listing reverse booking", () => {
 
     await passengerPage.goto(`/rides/${rideId}/bookings`)
     await clickWithConfirm(passengerPage, "Teklifi Kabul Et", "Teklifi kabul etmek istediğinize emin misiniz?")
-    await expect(passengerPage.getByText("Teklif kabul edildi.")).toBeVisible()
+    // { timeout: 15_000 }: see the test.describe.configure comment above —
+    // this specific approve flow does more sequential Supabase round-trips
+    // than any other approve-flow test in the suite, observed taking >5s
+    // under CI's Docker-networked local Supabase.
+    await expect(passengerPage.getByText("Teklif kabul edildi.")).toBeVisible({ timeout: 15_000 })
   })
 
   test("approval assigns driver_id — passenger sees deposit instructions, driver reaches the ride's management page", async () => {
