@@ -276,9 +276,9 @@ export async function makeAdminForTest(email: string): Promise<void> {
 }
 
 // A minimal valid PNG (1x1 transparent pixel) as a Playwright file payload —
-// submitDepositReceipt/submitRefundProof/submitSettlementReceipt only check
-// size/mime type (see MAX_RECEIPT_BYTES/ALLOWED_RECEIPT_TYPES in
-// src/features/bookings/actions.ts), so a real photo isn't needed.
+// submitRefundProof/submitSettlementReceipt only check size/mime type (see
+// MAX_RECEIPT_BYTES/ALLOWED_RECEIPT_TYPES in src/features/bookings/actions.ts),
+// so a real photo isn't needed.
 const ONE_PIXEL_PNG_BASE64 =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
 

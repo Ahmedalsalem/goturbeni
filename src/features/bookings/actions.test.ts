@@ -13,8 +13,8 @@ const { rpcMock, fromMock, createClientMock, verifySessionMock, getRideMock, rev
   revalidatePathMock: vi.fn(),
   // approveBooking/rejectBooking now schedule their notification fan-out via
   // next/server's after() (see the same pattern already used by
-  // submitDepositReceipt/submitSettlementReceipt, which this file doesn't
-  // test). after() throws if called outside a real Next.js request scope
+  // submitSettlementReceipt, which this file doesn't test). after() throws
+  // if called outside a real Next.js request scope
   // (no AsyncLocalStorage work store — see node_modules/next/dist/server/
   // after/after.js), which this plain-vitest environment never provides, so
   // it must be mocked. It's intentionally a bare recorder that never invokes
