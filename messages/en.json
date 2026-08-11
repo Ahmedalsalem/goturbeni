@@ -340,8 +340,8 @@
         "description": "Choose your departure, destination, and date; filter by map or GPS location to instantly see active listings that match. As a passenger, search for a seat; as a driver, list your open seats."
       },
       "book": {
-        "title": "Book your seat, pay your deposit",
-        "description": "Once the driver approves your booking request, your trip is confirmed. The passenger sends 25% of the total fare (the deposit) to the driver's IBAN and uploads the receipt; the remaining 75% is paid after the trip."
+        "title": "Book your seat",
+        "description": "Once the driver approves your booking request, your trip is confirmed. No payment is made at this stage — the full fare is paid after the trip is completed."
       },
       "pickup": {
         "title": "Get in touch with your driver",
@@ -349,7 +349,7 @@
       },
       "complete": {
         "title": "Finish the trip, leave a review",
-        "description": "After arrival, the remaining payment is settled, and both sides rate each other with 1–5 stars and a comment — these reviews appear on each user's profile."
+        "description": "After the trip is completed, the passenger sends the full fare to the driver's IBAN and uploads the receipt; both sides rate each other with 1–5 stars and a comment — these reviews appear on each user's profile."
       }
     },
     "trust": {

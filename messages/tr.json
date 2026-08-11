@@ -340,8 +340,8 @@
         "description": "Kalkış, varış ve tarihi seç; haritadan veya GPS konumundan filtrele, sana uygun aktif ilanları anında listele. Yolcuysan koltuk ara, sürücüysen boş koltuklarını ilan olarak paylaş."
       },
       "book": {
-        "title": "Rezervasyon yap, kaporanı öde",
-        "description": "Sürücü rezervasyon talebini onayladığında yolculuğun kesinleşir. Yolcu, toplam ücretin %25'ini (kaporayı) sürücünün IBAN'ına gönderir ve dekontu yükler; kalan %75 yolculuk sonrasında ödenir."
+        "title": "Rezervasyon yap",
+        "description": "Sürücü rezervasyon talebini onayladığında yolculuğun kesinleşir. Bu aşamada herhangi bir ödeme yapılmaz; ücretin tamamı yolculuk tamamlandıktan sonra ödenir."
       },
       "pickup": {
         "title": "Sürücünle iletişime geç",
@@ -349,7 +349,7 @@
       },
       "complete": {
         "title": "Yolculuğu tamamla, değerlendir",
-        "description": "Varışın ardından kalan ödeme tamamlanır, iki taraf da birbirini 1-5 yıldız ve yorumla değerlendirir — bu değerlendirmeler diğer kullanıcıların profilinde görünür."
+        "description": "Yolculuk tamamlandıktan sonra yolcu, ücretin tamamını sürücünün IBAN'ına gönderir ve dekontu yükler; iki taraf da birbirini 1-5 yıldız ve yorumla değerlendirir — bu değerlendirmeler diğer kullanıcıların profilinde görünür."
       }
     },
     "trust": {
