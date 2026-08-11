@@ -10,15 +10,14 @@ import {
   uniqueEmail,
 } from "./utils"
 
-// Regression coverage for this session's payment-review additions: deposit
-// receipt reject-with-reason (0025_settlement_receipts_and_reject_reasons.sql),
-// the settlement (post-trip remaining-half) receipt flow, the admin IBAN
+// Regression coverage for payment-review: settlement receipt reject-with-reason
+// (0025_settlement_receipts_and_reject_reasons.sql, now the only payment
+// step — see 0062_single_payment_at_settlement.sql), the admin IBAN
 // cross-check display, and the geographic nearby-province search fallback
-// (turkish-provinces-geo.ts). None of these had any test before this session
-// — see PROJECT_STATUS.md.
+// (turkish-provinces-geo.ts).
 test.describe.serial("payment receipt review, reject reasons, and nearby-province search", () => {
-  // The deposit-upload step below has intermittently missed its 5s default
-  // assertion window on both a loaded local machine and a clean CI runner —
+  // The settlement-receipt-upload step below has intermittently missed its
+  // 5s default assertion window on both a loaded local machine and a clean CI runner —
   // not chased down to a root cause, but a single retry absorbs it the same
   // way as booking-chat-review.spec.ts's realtime chat flake. Emails are
   // (re-)generated in beforeAll (which itself re-runs per retry attempt), and
@@ -102,56 +101,18 @@ test.describe.serial("payment receipt review, reject reasons, and nearby-provinc
     await expect(passengerPage.locator(`a[href="/rides/${rideId}"]`)).toBeVisible()
   })
 
-  test("passenger books the ride", async () => {
+  test("passenger books the ride and the driver approves it (no payment involved yet)", async () => {
     await passengerPage.goto(`/rides/${rideId}`)
     await passengerPage.getByRole("button", { name: "Rezervasyon Yap", exact: true }).click()
     await expect(passengerPage.getByText("Rezervasyon talebiniz gönderildi.")).toBeVisible()
-  })
-
-  // The deposit-instructions alert and receipt upload are only shown while
-  // the booking is still 'pending' (BookingButton.tsx's `awaitingDeposit` —
-  // driver approval is itself the "I received the deposit" confirmation and
-  // the whole payment panel disappears once that happens), so this has to
-  // run before the driver approves, not after.
-  test("passenger uploads a deposit receipt and the admin rejects it with a reason", async () => {
-    await passengerPage.goto(`/rides/${rideId}`)
-    await passengerPage.locator('input[type="file"]').setInputFiles(receiptFilePayload("deposit1.png"))
-    await expect(passengerPage.getByText("Dekont yüklendi, inceleme bekleniyor.")).toBeVisible()
-
-    await adminPage.goto("/admin/payments")
-    // The driver's registered IBAN/holder name shown next to the receipt —
-    // the eyeball-cross-check mitigation for the "no real bank verification"
-    // gap (README → Bilinen Sınırlamalar).
-    await expect(adminPage.getByText("TR330006100519786457841326")).toBeVisible()
-
-    await adminPage.getByRole("button", { name: "Reddet", exact: true }).first().click()
-    await adminPage.getByPlaceholder("Red gerekçesi").fill("Dekont tutarı eksik görünüyor.")
-    await adminPage.getByRole("button", { name: "Reddi Onayla", exact: true }).click()
-    await expect(adminPage.getByText("Dekont reddedildi.")).toBeVisible()
-
-    await passengerPage.goto(`/rides/${rideId}`)
-    await expect(passengerPage.getByText("Dekont tutarı eksik görünüyor.")).toBeVisible()
-  })
-
-  test("passenger re-uploads the receipt, the admin approves it, and the driver approves the booking", async () => {
-    await passengerPage.goto(`/rides/${rideId}`)
-    await passengerPage.locator('input[type="file"]').setInputFiles(receiptFilePayload("deposit2.png"))
-    await expect(passengerPage.getByText("Dekont yüklendi, inceleme bekleniyor.")).toBeVisible()
-
-    await adminPage.goto("/admin/payments")
-    await adminPage.getByRole("button", { name: "Onayla", exact: true }).first().click()
-    await expect(adminPage.getByText("Dekont onaylandı.")).toBeVisible()
-
-    await passengerPage.goto(`/rides/${rideId}`)
-    await expect(passengerPage.getByText("Dekont onaylandı")).toBeVisible()
 
     await driverPage.goto(`/rides/${rideId}/bookings`)
-    await driverPage.getByRole("button", { name: "Kaporayı Aldım, Onayla", exact: true }).click()
-    await driverPage.getByRole("button", { name: "Kaporayı aldığınızı onaylıyor musunuz?", exact: true }).click()
+    await driverPage.getByRole("button", { name: "Onayla", exact: true }).click()
+    await driverPage.getByRole("button", { name: "Bu rezervasyon talebini onaylamak istediğinize emin misiniz?", exact: true }).click()
     await expect(driverPage.getByText("Rezervasyon onaylandı.")).toBeVisible()
   })
 
-  test("after the ride departs, the passenger uploads a settlement receipt and the admin approves it", async () => {
+  test("after the ride departs, the passenger uploads a settlement receipt and the admin rejects it with a reason", async () => {
     await backdateRideDeparture(rideId, 10)
 
     await passengerPage.goto("/bookings")
@@ -159,10 +120,32 @@ test.describe.serial("payment receipt review, reject reasons, and nearby-provinc
     await expect(passengerPage.getByText("Dekont yüklendi, inceleme bekleniyor.")).toBeVisible()
 
     await adminPage.goto("/admin/payments")
+    // The driver's registered IBAN/holder name shown next to the receipt —
+    // the eyeball-cross-check mitigation for the "no real bank verification"
+    // gap (README → Bilinen Sınırlamalar). This admin page no longer has a
+    // separate deposit-receipts section (Task 9), so this is now the only
+    // pending-receipts list.
+    await expect(adminPage.getByText("TR330006100519786457841326")).toBeVisible()
+
+    await adminPage.getByRole("button", { name: "Reddet", exact: true }).first().click()
+    await adminPage.getByPlaceholder("Red gerekçesi").fill("Dekont tutarı eksik görünüyor.")
+    await adminPage.getByRole("button", { name: "Reddi Onayla", exact: true }).click()
+    await expect(adminPage.getByText("Dekont reddedildi.")).toBeVisible()
+
+    await passengerPage.goto("/bookings")
+    await expect(passengerPage.getByText("Dekont tutarı eksik görünüyor.")).toBeVisible()
+  })
+
+  test("passenger re-uploads the settlement receipt and the admin approves it", async () => {
+    await passengerPage.goto("/bookings")
+    await passengerPage.locator('input[type="file"]').setInputFiles(receiptFilePayload("settlement2.png"))
+    await expect(passengerPage.getByText("Dekont yüklendi, inceleme bekleniyor.")).toBeVisible()
+
+    await adminPage.goto("/admin/payments")
     await adminPage.getByRole("button", { name: "Onayla", exact: true }).first().click()
     await expect(adminPage.getByText("Dekont onaylandı.")).toBeVisible()
 
     await passengerPage.goto("/bookings")
-    await expect(passengerPage.getByText("Kalan ödeme dekontu onaylandı")).toBeVisible()
+    await expect(passengerPage.getByText("Ödeme dekontu onaylandı")).toBeVisible()
   })
 })

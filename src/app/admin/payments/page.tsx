@@ -12,6 +12,7 @@ import { RejectRefundButton } from "@/features/admin/RejectRefundButton"
 import { SettlementReceiptReviewActions } from "@/features/admin/SettlementReceiptReviewActions"
 import { computeReceiptRiskTier, type ReceiptRiskTier } from "@/features/admin/risk"
 import {
+  getDriverPaymentInfoForAdmin,
   getPendingRefunds,
   getPendingSettlementReceipts,
   getSuspiciousAccounts,
@@ -73,6 +74,10 @@ export default async function AdminPaymentsPage() {
   const settlementReceiptUrls = await Promise.all(
     pendingSettlements.map((booking) => (booking.settlement_receipt_url ? getSignedReceiptUrl(booking.settlement_receipt_url) : null))
   )
+  // Shown next to each pending settlement receipt so the admin can eyeball
+  // the IBAN holder name against the uploaded receipt — there's no bank API
+  // verifying the two actually match (see README → Bilinen Sınırlamalar).
+  const driverPaymentInfos = await Promise.all(pendingSettlements.map((booking) => getDriverPaymentInfoForAdmin(booking.id)))
   const refundProofUrls = await Promise.all(
     pendingRefunds.map((booking) => (booking.refund_proof_url ? getSignedReceiptUrl(booking.refund_proof_url) : null))
   )
@@ -103,6 +108,11 @@ export default async function AdminPaymentsPage() {
                     </div>
                     <RouteLabel booking={booking} locale={locale} />
                     <p className="text-muted-foreground text-xs">{t("driverLabel")}: {booking.ride.driver?.full_name ?? t("unknownUser")}</p>
+                    {driverPaymentInfos[index] && (
+                      <p className="text-muted-foreground text-xs">
+                        {t("driverIbanLabel")}: <span className="font-mono">{driverPaymentInfos[index]!.iban}</span> ({driverPaymentInfos[index]!.iban_holder_name})
+                      </p>
+                    )}
                   </div>
                   <div className="flex items-center gap-3">
                     {settlementReceiptUrls[index] && (
