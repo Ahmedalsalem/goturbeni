@@ -1,30 +1,35 @@
 import Link from "next/link"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { getTranslations } from "next-intl/server"
+import { getFormatter, getTranslations } from "next-intl/server"
 import { MessageCircle, Phone, Users } from "lucide-react"
 
 import { EmptyState } from "@/components/EmptyState"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { BookingStatusBadge } from "@/features/bookings/BookingStatusBadge"
 import { BookingActions } from "@/features/bookings/BookingActions"
+import type { DriverTrustInfo } from "@/features/bookings/BookingButton"
 import { RefundProofUpload } from "@/features/bookings/RefundProofUpload"
 import { ReportNoShowButton } from "@/features/bookings/ReportNoShowButton"
 import { SettlePaymentButton } from "@/features/bookings/SettlePaymentButton"
+import { SettlementReceiptUpload } from "@/features/bookings/SettlementReceiptUpload"
 import { OpenDisputeButton } from "@/features/disputes/OpenDisputeButton"
 import { getMyDisputeForBooking } from "@/features/disputes/queries"
 import { VerifyPickupCodeForm } from "@/features/pickup/VerifyPickupCodeForm"
 import { getPickupVerificationStatus } from "@/features/pickup/queries"
-import { getRide } from "@/features/rides/queries"
-import { getRideBookings, getRideCounterpartyPhone } from "@/features/bookings/queries"
+import { getProfile } from "@/features/profile/queries"
+import { getDriverCompletedRideCount, getRide } from "@/features/rides/queries"
+import { getRideBookings, getRideCounterpartyPhone, getRideDriverPaymentInfo } from "@/features/bookings/queries"
 import { ShareLocationToggle } from "@/features/live-location/ShareLocationToggle"
 import { getRideWaitlistCount } from "@/features/waitlist/queries"
 import { getUnreadMessages } from "@/features/chat/queries"
 import { ReviewButton } from "@/features/reviews/ReviewButton"
-import { getMyReviewForRide } from "@/features/reviews/queries"
+import { getMyReviewForRide, getReviewStats } from "@/features/reviews/queries"
+import { StarRating } from "@/features/reviews/StarRating"
 import { verifySession } from "@/lib/supabase/dal"
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -51,6 +56,8 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
   const tCard = await getTranslations("Bookings.card")
   const tReviewActions = await getTranslations("Reviews.actions")
   const tBookingActions = await getTranslations("Bookings.actions")
+  const tPayment = await getTranslations("Bookings.payment")
+  const format = await getFormatter()
   const [allBookings, unreadMessages, waitlistCount] = await Promise.all([
     getRideBookings(id),
     getUnreadMessages(user.id),
@@ -62,6 +69,37 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
   const bookings = isOwner ? allBookings : allBookings.filter((booking) => booking.driver_id === user.id)
   const isRideOver = new Date(ride.departure_time) < new Date()
   const approvedBookings = bookings.filter((booking) => booking.status === "approved")
+  // Bu sayfa iki farklı görüntüleyici rolünü tek şablonda barındırır (bkz.
+  // isFulfillingDriver yorumu yukarıda): normal sürücü-ilanında sahibi hep
+  // sürücü tarafıdır; yolcu ilanında sahibi (yolcu) ödeyen taraftır, teklifi
+  // onaylanan sürücü (isFulfillingDriver, her zaman true döner) alan
+  // taraftır. Bu, isOwner/ride.posted_by_role dışında hiçbir şeye bağlı
+  // olmadığından booking bazlı değil, sayfa bazlı bir sabit.
+  const viewerIsDriverSide = isOwner ? ride.posted_by_role === "driver" : true
+  const isPayer = !viewerIsDriverSide
+  // Yolcu ilanında, ödeyen taraf (ilan sahibi) onaylanmış teklifin sürücü
+  // IBAN'ını burada görmeli — normal sürücü-ilanı akışında bu zaten
+  // rides/[id]/page.tsx'teki BookingButton üzerinden gösteriliyor, ama o
+  // sayfa yolcu ilanları için existingBooking'i hiç çekmiyor (bkz. Finding),
+  // bu yüzden yolcu ilanı akışının TEK ödeme-bilgisi yüzeyi burasıdır.
+  const [driverPaymentInfo, driverProfile, driverCompletedRideCount, driverReviewStats] =
+    isPayer && ride.driver_id
+      ? await Promise.all([
+          getRideDriverPaymentInfo(id),
+          getProfile(ride.driver_id),
+          getDriverCompletedRideCount(ride.driver_id),
+          getReviewStats(ride.driver_id),
+        ])
+      : [null, null, 0, { averageRating: null, reviewCount: 0 }]
+  const driverTrustInfo: DriverTrustInfo | null =
+    isPayer && ride.driver_id
+      ? {
+          memberSinceIso: driverProfile?.created_at ?? ride.created_at,
+          completedRideCount: driverCompletedRideCount,
+          averageRating: driverReviewStats.averageRating,
+          reviewCount: driverReviewStats.reviewCount,
+        }
+      : null
   // Karşı taraf: eğer BEN bu satırın teklif veren sürücüyüyüm, karşı taraf
   // ilan sahibi (passenger_id); değilsem (ilan sahibiyim) karşı taraf ya
   // teklif veren sürücü (driver_id, yolcu ilanında) ya da rezervasyon
@@ -129,8 +167,8 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
             // Karşılıklı "Kalan Ödeme Tamamlandı" onayı — confirmRemainingPayment
             // RPC'si auth.uid()'in hangi taraf olduğunu kendi belirliyor, burada
             // sadece HANGİ flag'in (driver_settled_at/passenger_settled_at)
-            // izleyene ait olduğu seçiliyor.
-            const viewerIsDriverSide = isOwner ? ride.posted_by_role === "driver" : true
+            // izleyene ait olduğu seçiliyor. viewerIsDriverSide sayfa
+            // seviyesinde hesaplanıyor (yukarıda) — booking'e göre değişmiyor.
             const viewerSettled = viewerIsDriverSide ? booking.driver_settled_at : booking.passenger_settled_at
 
             return (
@@ -167,6 +205,40 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                     />
                   </CardFooter>
                 )}
+                {isApproved && isPayer && booking.payment_status !== "settled" && driverPaymentInfo && (
+                  <CardFooter>
+                    <Alert>
+                      <AlertTitle>{tPayment("settlementInstructionTitle")}</AlertTitle>
+                      <AlertDescription className="flex flex-col gap-1">
+                        <span>
+                          {tPayment("ibanLabel")}: <span className="font-mono font-medium">{driverPaymentInfo.iban}</span>
+                        </span>
+                        <span>
+                          {tPayment("ibanHolderLabel")}: {driverPaymentInfo.iban_holder_name}
+                        </span>
+                        <span className="text-muted-foreground">{tPayment("noCommissionDisclaimer")}</span>
+                        {driverTrustInfo && (
+                          <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 border-t pt-2">
+                            <span className="text-muted-foreground text-xs">
+                              {tPayment("driverMemberSince", {
+                                date: format.dateTime(new Date(driverTrustInfo.memberSinceIso), { day: "2-digit", month: "2-digit", year: "numeric" }),
+                              })}
+                            </span>
+                            <span className="text-muted-foreground text-xs">
+                              {tPayment("driverCompletedRides", { count: driverTrustInfo.completedRideCount })}
+                            </span>
+                            {driverTrustInfo.averageRating !== null && (
+                              <span className="flex items-center gap-1">
+                                <StarRating rating={driverTrustInfo.averageRating} size="sm" />
+                                <span className="text-muted-foreground text-xs">({driverTrustInfo.reviewCount})</span>
+                              </span>
+                            )}
+                          </span>
+                        )}
+                      </AlertDescription>
+                    </Alert>
+                  </CardFooter>
+                )}
                 {isApproved && (
                   <CardFooter className="flex flex-wrap items-center gap-2">
                     <Link
@@ -182,6 +254,14 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                     <VerifyPickupCodeForm bookingId={booking.id} rideId={id} alreadyVerified={pickupVerified.get(booking.id) ?? false} />
                     {isRideOver && booking.payment_status === "awaiting_settlement" && !viewerSettled && (
                       <SettlePaymentButton bookingId={booking.id} rideId={id} />
+                    )}
+                    {isPayer && isRideOver && booking.payment_status !== "settled" && (
+                      <SettlementReceiptUpload
+                        bookingId={booking.id}
+                        rideId={id}
+                        status={booking.settlement_receipt_status}
+                        rejectReason={booking.settlement_receipt_reject_reason}
+                      />
                     )}
                     {isRideOver &&
                       (alreadyReviewed ? (

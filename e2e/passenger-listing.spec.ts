@@ -116,11 +116,18 @@ test.describe.serial("passenger listing reverse booking", () => {
     await expect(passengerPage.getByText("Onaylandı")).toBeVisible({ timeout: 30_000 })
   })
 
-  test("approval assigns driver_id — passenger sees deposit instructions, driver reaches the ride's management page", async () => {
-    // Task 2'nin depozito-sırası düzeltmesi: onay depozitoyu OTOMATİK
-    // "alındı" saymıyor — /bookings'te IBAN + dekont yükleme ekranı çıkmalı.
-    await passengerPage.goto("/bookings")
-    await expect(passengerPage.getByText("E2E Teklif Sürücüsü")).not.toBeVisible() // sanity: no stray duplicate text
+  test("approval assigns driver_id — passenger sees settlement instructions on the ride's management page, driver reaches it too", async () => {
+    // Single-payment model: approval alone doesn't mean money moved — the
+    // passenger (ride owner, the payer here) must see the driver's IBAN
+    // somewhere. /bookings excludes booker_role='driver' rows by design
+    // (see getMyBookings's own comment), so this surfaces on
+    // /rides/[id]/bookings instead, alongside the rest of this offer's
+    // management tools (chat/pickup/settle/no-show/review already lived
+    // here). Not checking "driver's full name invisible" here like the old
+    // /bookings-based version did — on THIS page the driver's name is
+    // legitimately shown as the counterparty in the card header, so that
+    // check would no longer distinguish anything.
+    await passengerPage.goto(`/rides/${rideId}/bookings`)
     await expect(passengerPage.getByText("TR330006100519786457841326")).toBeVisible()
 
     // driver_id artık teklif veren sürücü olduğundan, sürücü ride'ın
