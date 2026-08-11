@@ -205,7 +205,7 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                     />
                   </CardFooter>
                 )}
-                {isApproved && isPayer && booking.payment_status !== "settled" && driverPaymentInfo && (
+                {isApproved && isPayer && booking.driver_id === ride.driver_id && booking.payment_status !== "settled" && driverPaymentInfo && (
                   <CardFooter>
                     <Alert>
                       <AlertTitle>{tPayment("settlementInstructionTitle")}</AlertTitle>

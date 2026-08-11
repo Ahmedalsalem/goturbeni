@@ -94,11 +94,12 @@ test.describe.serial("passenger listing reverse booking", () => {
     await driverPage.goto("/profile")
     await driverPage.locator("#fullName").fill("E2E Teklif Sürücüsü")
     await driverPage.locator("#iban").fill("TR330006100519786457841326")
-    // Kasıtlı olarak fullName'den FARKLI — /bookings sayfasındaki depozito
-    // talimatları bölümü iban_holder_name'i düz metin olarak render ediyor
-    // (src/app/bookings/page.tsx), bu yüzden aynı değer kullanılırsa aşağıdaki
-    // "sanity: no stray duplicate text" kontrolü (driver'ın adının GÖRÜNMEMESİ
-    // gerektiği) hesap sahibi adıyla çakışıp yanlışlıkla başarısız olurdu.
+    // Kasıtlı olarak fullName'den FARKLI — /rides/[id]/bookings sayfasındaki
+    // ödeme talimatı bloğu iban_holder_name'i düz metin olarak render ediyor
+    // (src/app/rides/[id]/bookings/page.tsx), fullName ise aynı sayfada karşı
+    // taraf başlığı olarak zaten görünüyor; aynı değer kullanılırsa aşağıdaki
+    // testteki "/bookings'te sızıntı yok" kontrolü hesap sahibi adıyla
+    // çakışıp yanlışlıkla başarısız olurdu.
     await driverPage.locator("#ibanHolderName").fill("E2E Teklif Hesap Sahibi")
     await driverPage.locator("#carPlate").fill("34 ABC 789")
     await driverPage.getByRole("button", { name: "Kaydet" }).click()
@@ -117,16 +118,25 @@ test.describe.serial("passenger listing reverse booking", () => {
   })
 
   test("approval assigns driver_id — passenger sees settlement instructions on the ride's management page, driver reaches it too", async () => {
+    // Faz 2B Finding 1 regresyon bekçisi: getMyBookings booker_role='passenger'
+    // ile filtrelidir (src/features/bookings/queries.ts) — bu teklif satırı
+    // (booker_role='driver') ilan sahibinin /bookings sayfasına hayalet bir
+    // kart olarak SIZMAMALI. Bu kontrolü kaldırıp doğrudan
+    // /rides/[id]/bookings'e geçmek, bu filtrenin tek otomatik bekçisini
+    // kaybederdi (o sayfada ilan sahibinin zaten hiç satırı yok, bu yüzden
+    // hâlâ anlamlı bir regresyon kontrolü).
+    await passengerPage.goto("/bookings")
+    await expect(passengerPage.getByText("E2E Teklif Sürücüsü")).not.toBeVisible()
+
     // Single-payment model: approval alone doesn't mean money moved — the
     // passenger (ride owner, the payer here) must see the driver's IBAN
-    // somewhere. /bookings excludes booker_role='driver' rows by design
-    // (see getMyBookings's own comment), so this surfaces on
-    // /rides/[id]/bookings instead, alongside the rest of this offer's
-    // management tools (chat/pickup/settle/no-show/review already lived
-    // here). Not checking "driver's full name invisible" here like the old
-    // /bookings-based version did — on THIS page the driver's name is
-    // legitimately shown as the counterparty in the card header, so that
-    // check would no longer distinguish anything.
+    // somewhere. /bookings excludes booker_role='driver' rows by design (see
+    // above), so this surfaces on /rides/[id]/bookings instead, alongside
+    // the rest of this offer's management tools (chat/pickup/settle/no-show/
+    // review already lived here). Not repeating the "driver's full name
+    // invisible" check on THIS page — the driver's name is legitimately
+    // shown here as the counterparty in the card header, so that check
+    // wouldn't distinguish anything on this specific page.
     await passengerPage.goto(`/rides/${rideId}/bookings`)
     await expect(passengerPage.getByText("TR330006100519786457841326")).toBeVisible()
 
