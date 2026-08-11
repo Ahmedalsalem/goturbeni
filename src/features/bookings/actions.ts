@@ -17,7 +17,6 @@ import { extractReceiptFields } from "@/lib/ocr"
 import { recordNotificationEvent, sendPushNotification, sendSeatOpenedPushNotifications } from "@/lib/notifications"
 import { sendEmailNotification, sendSeatOpenedEmailNotifications } from "@/lib/email"
 import { buildBookingSchema, type BookingActionState, type BookingFormValues } from "@/features/bookings/schemas"
-import { TR_PLATE_PATTERN } from "@/features/profile/schemas"
 
 const CREATE_BOOKING_RATE_LIMIT = { limit: 20, windowMs: 60 * 60 * 1000 }
 const RECEIPT_UPLOAD_RATE_LIMIT = { limit: 20, windowMs: 60 * 60 * 1000 }
@@ -178,19 +177,28 @@ export async function approveBooking(bookingId: string, rideId: string): Promise
   // ve sonra ayrı ayrı sorgulanmıyor artık (approve_booking sadece
   // status/payment_status yazıyor, driver_id'yi hiç değiştirmiyor — bkz.
   // _apply_booking_approval, 0059_passenger_listings_approve_reject.sql).
+  //
+  // IBAN/plaka kontrolü get_offer_driver_readiness RPC'si üzerinden yapılıyor
+  // (0063_offer_driver_readiness_rpc.sql) — profiles_private yalnızca
+  // SAHİBİ tarafından okunabildiğinden (0006), ilan sahibinin (burada
+  // çağıran, yolcu) kendi client'ıyla doğrudan
+  // `.from("profiles_private").select(...).eq("id", offeringDriverId)`
+  // sorgulaması RLS tarafından her zaman sıfır satır döndürüyordu — sürücü
+  // IBAN'ını gerçekten doldursa bile approveBooking onu hep "eksik" sayıp
+  // reddediyordu, bu yüzden bir yolcu ilanına verilen hiçbir teklif hiçbir
+  // zaman onaylanamıyordu. Bu, ilk kez Playwright'ın CI'da gerçekten canlı
+  // çalıştırılmasıyla ortaya çıktı.
   const parties = await getBookingParties(bookingId)
   const ride = parties ? await getRide(parties.rideId) : null
   if (ride?.posted_by_role === "passenger") {
     const offeringDriverId = parties?.driverId ?? null
     if (offeringDriverId) {
-      const [{ data: paymentInfo }, { data: driverProfile }] = await Promise.all([
-        supabase.from("profiles_private").select("iban, iban_holder_name").eq("id", offeringDriverId).maybeSingle(),
-        supabase.from("profiles").select("car_plate").eq("id", offeringDriverId).maybeSingle(),
-      ])
-      if (!paymentInfo?.iban || !paymentInfo?.iban_holder_name) {
+      const { data } = await supabase.rpc("get_offer_driver_readiness", { p_booking_id: bookingId }).maybeSingle()
+      const readiness = data as { iban_ok: boolean; plate_ok: boolean } | null
+      if (!readiness?.iban_ok) {
         return { error: tErrors("offerDriverIbanRequired") }
       }
-      if (!driverProfile?.car_plate || !TR_PLATE_PATTERN.test(driverProfile.car_plate)) {
+      if (!readiness?.plate_ok) {
         return { error: tErrors("offerDriverCarPlateRequired") }
       }
     }

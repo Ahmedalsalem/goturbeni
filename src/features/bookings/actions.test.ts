@@ -81,6 +81,23 @@ function fromReturningPassengerId(passengerId: string | null, rideId = "ride-1")
   }
 }
 
+// approveBooking's offer IBAN/plate check now goes through the
+// get_offer_driver_readiness RPC (0063_offer_driver_readiness_rpc.sql)
+// instead of directly querying profiles_private (which RLS blocks for
+// anyone but the row's own owner — see that migration's comment). rpcMock
+// is shared across every RPC name approveBooking/rejectBooking might call,
+// so this branches on the first arg the same way fromMock branches on the
+// table name; approve_booking itself is awaited directly (no .maybeSingle()
+// chain), so it falls through to the plain resolved-value default.
+function rpcMockWithReadiness(ibanOk: boolean, plateOk: boolean) {
+  return (fn: string) => {
+    if (fn === "get_offer_driver_readiness") {
+      return { maybeSingle: async () => ({ data: { iban_ok: ibanOk, plate_ok: plateOk }, error: null }) }
+    }
+    return Promise.resolve({ error: null })
+  }
+}
+
 function fakeRide(overrides: Partial<Ride> = {}): Ride {
   return {
     id: "ride-1",
@@ -310,20 +327,18 @@ describe("bookings/actions", () => {
           return {
             select: () => ({ eq: () => ({ single: async () => ({ data: { driver_id: "offering-driver-1", ride_id: "ride-1" } }) }) }),
           }
-        if (table === "profiles_private") return { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null }) }) }) }
-        // IBAN and car_plate are now read concurrently (Promise.all), so
-        // "profiles" is queried even though the IBAN check (checked first)
-        // is what ultimately fails here — unlike the old sequential version,
-        // which never reached "profiles" once "profiles_private" came back
-        // empty.
-        if (table === "profiles") return { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: { car_plate: "34 ABC 123" } }) }) }) }
         return {}
       })
+      // Valid plate alongside the missing IBAN, same reasoning as the
+      // dedicated ordering test below: proves the IBAN half of the RPC
+      // result is what's being checked, not just "readiness is falsy".
+      rpcMock.mockImplementation(rpcMockWithReadiness(false, true))
 
       const result = await approveBooking("booking-1", "ride-1")
 
       expect(result.error).toBe("Bookings.errors.offerDriverIbanRequired")
-      expect(rpcMock).not.toHaveBeenCalled()
+      expect(rpcMock).toHaveBeenCalledWith("get_offer_driver_readiness", { p_booking_id: "booking-1" })
+      expect(rpcMock).not.toHaveBeenCalledWith("approve_booking", expect.anything())
     })
 
     it("derives the IBAN/plate check's ride from the booking's real ride_id, not the passed rideId parameter", async () => {
@@ -341,45 +356,72 @@ describe("bookings/actions", () => {
           return {
             select: () => ({ eq: () => ({ single: async () => ({ data: { driver_id: "offering-driver-1", ride_id: "real-ride-1" } }) }) }),
           }
-        if (table === "profiles_private") return { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null }) }) }) }
-        // Same as above — IBAN and car_plate are now read concurrently, so
-        // "profiles" must resolve to something even though the IBAN check
-        // is what fails first.
-        if (table === "profiles") return { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: { car_plate: "34 ABC 123" } }) }) }) }
         return {}
       })
+      rpcMock.mockImplementation(rpcMockWithReadiness(false, true))
 
       const result = await approveBooking("booking-1", "malicious-ride-2")
 
       expect(result.error).toBe("Bookings.errors.offerDriverIbanRequired")
-      expect(rpcMock).not.toHaveBeenCalled()
+      expect(rpcMock).not.toHaveBeenCalledWith("approve_booking", expect.anything())
     })
 
     it("reports the IBAN error (not the plate error) when both the IBAN and the plate are missing", async () => {
-      // IBAN and car_plate are read concurrently (Promise.all) but the code
-      // still checks the IBAN result before the plate result regardless of
-      // which underlying query actually resolved first — Promise.all
-      // preserves positional order. The two tests above can no longer prove
-      // that ordering on their own, since they give a VALID plate alongside
-      // the missing IBAN: either ordering produces offerDriverIbanRequired
-      // there. This test gives BOTH a missing IBAN and a missing/invalid
-      // plate — only "IBAN is checked first" produces
-      // offerDriverIbanRequired instead of offerDriverCarPlateRequired.
+      // get_offer_driver_readiness returns both booleans in one RPC call
+      // (unlike the old two-query version, there's no positional-ordering
+      // subtlety to prove here) — but the code still must check iban_ok
+      // before plate_ok. This test gives both flags false — only "IBAN is
+      // checked first" produces offerDriverIbanRequired instead of
+      // offerDriverCarPlateRequired.
       getRideMock.mockResolvedValue(fakeRide({ posted_by_role: "passenger", driver_id: null }))
       fromMock.mockImplementation((table: string) => {
         if (table === "bookings")
           return {
             select: () => ({ eq: () => ({ single: async () => ({ data: { driver_id: "offering-driver-1", ride_id: "ride-1" } }) }) }),
           }
-        if (table === "profiles_private") return { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null }) }) }) }
-        if (table === "profiles") return { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: { car_plate: null } }) }) }) }
         return {}
       })
+      rpcMock.mockImplementation(rpcMockWithReadiness(false, false))
 
       const result = await approveBooking("booking-1", "ride-1")
 
       expect(result.error).toBe("Bookings.errors.offerDriverIbanRequired")
-      expect(rpcMock).not.toHaveBeenCalled()
+      expect(rpcMock).not.toHaveBeenCalledWith("approve_booking", expect.anything())
+    })
+
+    it("rejects approving an offer when the offering driver's IBAN is set but the plate isn't", async () => {
+      getRideMock.mockResolvedValue(fakeRide({ posted_by_role: "passenger", driver_id: null }))
+      fromMock.mockImplementation((table: string) => {
+        if (table === "bookings")
+          return {
+            select: () => ({ eq: () => ({ single: async () => ({ data: { driver_id: "offering-driver-1", ride_id: "ride-1" } }) }) }),
+          }
+        return {}
+      })
+      rpcMock.mockImplementation(rpcMockWithReadiness(true, false))
+
+      const result = await approveBooking("booking-1", "ride-1")
+
+      expect(result.error).toBe("Bookings.errors.offerDriverCarPlateRequired")
+      expect(rpcMock).not.toHaveBeenCalledWith("approve_booking", expect.anything())
+    })
+
+    it("proceeds to approve_booking when the offering driver's IBAN and plate are both ready", async () => {
+      getRideMock.mockResolvedValue(fakeRide({ posted_by_role: "passenger", driver_id: null }))
+      fromMock.mockImplementation((table: string) => {
+        if (table === "bookings")
+          return {
+            select: () => ({ eq: () => ({ single: async () => ({ data: { driver_id: "offering-driver-1", ride_id: "ride-1" } }) }) }),
+          }
+        return {}
+      })
+      rpcMock.mockImplementation(rpcMockWithReadiness(true, true))
+
+      const result = await approveBooking("booking-1", "ride-1")
+
+      expect(result).toEqual({ success: true })
+      expect(rpcMock).toHaveBeenCalledWith("get_offer_driver_readiness", { p_booking_id: "booking-1" })
+      expect(rpcMock).toHaveBeenCalledWith("approve_booking", { p_booking_id: "booking-1" })
     })
 
     it("proceeds to the RPC when the offer is on a driver-posted ride (no IBAN check)", async () => {
