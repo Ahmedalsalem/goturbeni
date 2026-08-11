@@ -121,12 +121,15 @@ test.describe.serial("passenger listing reverse booking", () => {
     // Faz 2B Finding 1 regresyon bekçisi: getMyBookings booker_role='passenger'
     // ile filtrelidir (src/features/bookings/queries.ts) — bu teklif satırı
     // (booker_role='driver') ilan sahibinin /bookings sayfasına hayalet bir
-    // kart olarak SIZMAMALI. Bu kontrolü kaldırıp doğrudan
-    // /rides/[id]/bookings'e geçmek, bu filtrenin tek otomatik bekçisini
-    // kaybederdi (o sayfada ilan sahibinin zaten hiç satırı yok, bu yüzden
-    // hâlâ anlamlı bir regresyon kontrolü).
+    // kart olarak SIZMAMALI. Sayfa hiçbir yerde karşı tarafın full_name'ini
+    // basmıyor (bkz. src/app/bookings/page.tsx), o yüzden "isim görünmüyor"
+    // kontrolü filtre kırılsa da her zaman geçerdi — asıl anlamlı kontrol,
+    // ilan sahibinin gerçek bir rezervasyonu olmadığından "Henüz
+    // rezervasyonun yok" boş-durum mesajının hâlâ göründüğü (yani sızan bir
+    // kart OLMADIĞI): filtre kırılırsa bookings.length 1'e çıkar ve bu mesaj
+    // kaybolur.
     await passengerPage.goto("/bookings")
-    await expect(passengerPage.getByText("E2E Teklif Sürücüsü")).not.toBeVisible()
+    await expect(passengerPage.getByText("Henüz rezervasyonun yok")).toBeVisible()
 
     // Single-payment model: approval alone doesn't mean money moved — the
     // passenger (ride owner, the payer here) must see the driver's IBAN
