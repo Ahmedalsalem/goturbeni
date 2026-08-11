@@ -232,7 +232,7 @@
       "phone": "Phone",
       "phoneHint": "Enter without the leading 0 (e.g. 5XX XXX XX XX).",
       "iban": "IBAN",
-      "ibanHint": "Required to post listings as a driver — passengers send their deposit payment here.",
+      "ibanHint": "Required to post listings as a driver — passengers send the full fare here after the trip.",
       "ibanHolderName": "Account Holder Full Name",
       "carBrand": "Car Make",
       "carModel": "Car Model",

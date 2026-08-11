@@ -232,7 +232,7 @@
       "phone": "Telefon",
       "phoneHint": "Başında 0 olmadan girin (örn. 5XX XXX XX XX).",
       "iban": "IBAN",
-      "ibanHint": "Sürücü olarak ilan verebilmek için gerekli — yolcular kapora ödemesini buraya gönderir.",
+      "ibanHint": "Sürücü olarak ilan verebilmek için gerekli — yolcular yolculuk sonrasında ücretin tamamını buraya gönderir.",
       "ibanHolderName": "Hesap Sahibi Ad Soyad",
       "carBrand": "Araç Markası",
       "carModel": "Araç Modeli",
