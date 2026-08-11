@@ -385,7 +385,7 @@
       },
       "payment": {
         "question": "Ödeme nasıl yapılıyor?",
-        "answer": "GötürBeni komisyon almaz. Rezervasyonun onaylanmasının ardından depozito tutarını sürücünün profilinde görünen IBAN'ına gönderir, dekontunu uygulama üzerinden yüklersin; incelenip onaylanınca rezervasyonun kesinleşir. Yolculuk sonrası kalan tutar için de aynı dekont/onay akışı kullanılır."
+        "answer": "GötürBeni komisyon almaz. Rezervasyonun onaylanması ödeme gerektirmez — yolculuk tamamlandıktan sonra ücretin tamamını sürücünün profilinde görünen IBAN'ına gönderir, dekontunu uygulama üzerinden yüklersin; incelenip onaylanınca ödeme tamamlanmış sayılır."
       },
       "depositRejected": {
         "question": "Yüklediğim dekont reddedilirse ne olur?",
@@ -426,8 +426,7 @@
     "emptyTitle": "Henüz rezervasyonun yok",
     "emptyDescription": "Bir yolculuk bulup rezervasyon talebi oluşturabilirsin.",
     "chat": "Sohbet",
-    "myOffersTitle": "Verdiğim Teklifler",
-    "awaitingDepositTitle": "Onaylanan Teklifler İçin Depozito Ödemesi"
+    "myOffersTitle": "Verdiğim Teklifler"
   },
   "RideBookingsPage": {
     "title": "Rezervasyon Talepleri",
@@ -559,11 +558,11 @@
       "manageOffer": "Teklifi Yönet",
       "approveOffer": "Teklifi Kabul Et",
       "confirmApproveOffer": "Teklifi kabul etmek istediğinize emin misiniz?",
-      "approve": "Kaporayı Aldım, Onayla",
+      "approve": "Onayla",
       "reject": "Reddet",
       "cancel": "İptal Et",
       "confirmCancel": "Emin misiniz?",
-      "confirmApprove": "Kaporayı aldığınızı onaylıyor musunuz?",
+      "confirmApprove": "Bu rezervasyon talebini onaylamak istediğinize emin misiniz?",
       "confirmReject": "Reddedilsin mi?",
       "reportDriverNoShow": "Sürücü Gelmedi",
       "reportPassengerNoShow": "Yolcu Gelmedi",
@@ -607,11 +606,11 @@
       "seatCount": "{count} koltuk",
       "unknownPassenger": "Yolcu",
       "unknownDriver": "Sürücü",
-      "uploadSettlementReceipt": "Kalan Ödeme Dekontu Yükle",
+      "uploadSettlementReceipt": "Ödeme Dekontu Yükle",
       "settlementReceiptStatus": {
-        "pending": "Kalan ödeme dekontu inceleniyor",
-        "approved": "Kalan ödeme dekontu onaylandı",
-        "rejected": "Kalan ödeme dekontu reddedildi — lütfen yeniden yükleyin"
+        "pending": "Ödeme dekontu inceleniyor",
+        "approved": "Ödeme dekontu onaylandı",
+        "rejected": "Ödeme dekontu reddedildi — lütfen yeniden yükleyin"
       }
     },
     "loginPrompt": {
@@ -621,21 +620,15 @@
       "verifyCta": "Doğrulamayı Tamamla"
     },
     "payment": {
-      "depositInstructionTitle": "Rezervasyonun kesinleşmesi için ücretin %25'ini saat {deadline}'e kadar aşağıdaki IBAN'a gönderin",
+      "settlementInstructionTitle": "Yolculuk tamamlandıktan sonra ücretin tamamını aşağıdaki IBAN'a gönder",
       "ibanLabel": "IBAN",
       "ibanHolderLabel": "Hesap Sahibi",
       "noCommissionDisclaimer": "Platformumuz komisyon almaz, ödemeler doğrudan şahıslar arasındadır.",
       "driverMemberSince": "Üyelik: {date}",
       "driverCompletedRides": "{count} tamamlanmış yolculuk",
-      "settleCta": "Kalan Ödeme Tamamlandı",
-      "settleSuccess": "Kalan ödeme tamamlandı olarak işaretlendi.",
-      "uploadReceipt": "Dekont Yükle",
-      "receiptUploadSuccess": "Dekont yüklendi, inceleme bekleniyor.",
-      "receiptStatus": {
-        "pending": "Dekont inceleniyor",
-        "approved": "Dekont onaylandı",
-        "rejected": "Dekont reddedildi — lütfen yeniden yükleyin"
-      }
+      "settleCta": "Ödeme Tamamlandı",
+      "settleSuccess": "Ödeme tamamlandı olarak işaretlendi.",
+      "receiptUploadSuccess": "Dekont yüklendi, inceleme bekleniyor."
     },
     "refund": {
       "uploadProof": "İade Dekontu Yükle",
@@ -871,10 +864,8 @@
     "payments": {
       "title": "Ödemeler",
       "description": "Bekleyen ödeme dekontlarını ve iade taleplerini incele.",
-      "depositReceiptsTitle": "İncelenmeyi Bekleyen Dekontlar",
-      "noPendingReceipts": "Bekleyen dekont yok",
-      "settlementReceiptsTitle": "İncelenmeyi Bekleyen Kalan Ödeme Dekontları",
-      "noPendingSettlements": "Bekleyen kalan ödeme dekontu yok",
+      "settlementReceiptsTitle": "İncelenmeyi Bekleyen Ödeme Dekontları",
+      "noPendingSettlements": "Bekleyen ödeme dekontu yok",
       "refundsTitle": "İncelenmeyi Bekleyen İadeler",
       "noPendingRefunds": "Bekleyen iade yok",
       "viewReceipt": "Dekontu Görüntüle",
