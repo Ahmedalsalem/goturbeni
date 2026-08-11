@@ -180,7 +180,7 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                       )}
                     </Link>
                     <VerifyPickupCodeForm bookingId={booking.id} rideId={id} alreadyVerified={pickupVerified.get(booking.id) ?? false} />
-                    {isRideOver && booking.payment_status === "deposit_confirmed" && !viewerSettled && (
+                    {isRideOver && booking.payment_status === "awaiting_settlement" && !viewerSettled && (
                       <SettlePaymentButton bookingId={booking.id} rideId={id} />
                     )}
                     {isRideOver &&
