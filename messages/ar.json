@@ -385,7 +385,7 @@
       },
       "payment": {
         "question": "كيف تتم عملية الدفع؟",
-        "answer": "GötürBeni لا يأخذ أي عمولة. بعد الموافقة على الحجز، ترسل مبلغ العربون إلى رقم الآيبان (IBAN) الظاهر في ملف السائق، وتقوم برفع إيصال الدفع عبر التطبيق؛ يتأكد حجزك بعد مراجعته والموافقة عليه. يُستخدم نفس نظام الإيصال والموافقة للمبلغ المتبقي بعد الرحلة."
+        "answer": "GötürBeni لا يأخذ أي عمولة. الموافقة على الحجز لا تتطلب أي دفعة — بعد اكتمال الرحلة، ترسل كامل الأجرة إلى رقم الآيبان (IBAN) الظاهر في ملف السائق، وتقوم برفع إيصال الدفع عبر التطبيق؛ وبعد مراجعته والموافقة عليه، تُعتبر الدفعة مكتملة."
       },
       "depositRejected": {
         "question": "ماذا يحدث إذا تم رفض الإيصال الذي رفعته؟",
@@ -426,8 +426,7 @@
     "emptyTitle": "ليس لديك حجوزات بعد",
     "emptyDescription": "ابحث عن رحلة وأنشئ طلب حجز.",
     "chat": "محادثة",
-    "myOffersTitle": "العروض التي قدمتها",
-    "awaitingDepositTitle": "دفع العربون للعروض المقبولة"
+    "myOffersTitle": "العروض التي قدمتها"
   },
   "RideBookingsPage": {
     "title": "طلبات الحجز",
@@ -559,11 +558,11 @@
       "manageOffer": "إدارة العرض",
       "approveOffer": "قبول العرض",
       "confirmApproveOffer": "هل أنت متأكد أنك تريد قبول هذا العرض؟",
-      "approve": "استلمت العربون، موافقة",
+      "approve": "موافقة",
       "reject": "رفض",
       "cancel": "إلغاء",
       "confirmCancel": "هل أنت متأكد؟",
-      "confirmApprove": "هل تؤكد أنك استلمت العربون؟",
+      "confirmApprove": "هل أنت متأكد أنك تريد الموافقة على طلب الحجز هذا؟",
       "confirmReject": "هل تريد الرفض؟",
       "reportDriverNoShow": "السائق لم يحضر",
       "reportPassengerNoShow": "الراكب لم يحضر",
@@ -607,11 +606,11 @@
       "seatCount": "{count} مقعد",
       "unknownPassenger": "الراكب",
       "unknownDriver": "السائق",
-      "uploadSettlementReceipt": "رفع إيصال الدفعة المتبقية",
+      "uploadSettlementReceipt": "رفع إيصال الدفعة",
       "settlementReceiptStatus": {
-        "pending": "إيصال الدفعة المتبقية قيد المراجعة",
-        "approved": "تمت الموافقة على إيصال الدفعة المتبقية",
-        "rejected": "تم رفض إيصال الدفعة المتبقية — يرجى إعادة الرفع"
+        "pending": "إيصال الدفعة قيد المراجعة",
+        "approved": "تمت الموافقة على إيصال الدفعة",
+        "rejected": "تم رفض إيصال الدفعة — يرجى إعادة الرفع"
       }
     },
     "loginPrompt": {
@@ -621,21 +620,15 @@
       "verifyCta": "إكمال التحقق"
     },
     "payment": {
-      "depositInstructionTitle": "لتأكيد حجزك، أرسل 25% من الأجرة قبل الساعة {deadline} إلى رقم IBAN التالي",
+      "settlementInstructionTitle": "بعد اكتمال الرحلة، أرسل كامل الأجرة إلى رقم IBAN التالي",
       "ibanLabel": "IBAN",
       "ibanHolderLabel": "صاحب الحساب",
       "noCommissionDisclaimer": "منصتنا لا تتقاضى عمولة، والمدفوعات مباشرة بين الأشخاص.",
       "driverMemberSince": "عضو منذ: {date}",
       "driverCompletedRides": "{count} رحلة مكتملة",
-      "settleCta": "تم إكمال الدفعة المتبقية",
-      "settleSuccess": "تم تسجيل اكتمال الدفعة المتبقية.",
-      "uploadReceipt": "رفع الإيصال",
-      "receiptUploadSuccess": "تم رفع الإيصال، في انتظار المراجعة.",
-      "receiptStatus": {
-        "pending": "الإيصال قيد المراجعة",
-        "approved": "تمت الموافقة على الإيصال",
-        "rejected": "تم رفض الإيصال — يرجى إعادة الرفع"
-      }
+      "settleCta": "تم إكمال الدفعة",
+      "settleSuccess": "تم تسجيل اكتمال الدفعة.",
+      "receiptUploadSuccess": "تم رفع الإيصال، في انتظار المراجعة."
     },
     "refund": {
       "uploadProof": "رفع إيصال الاسترداد",
@@ -878,10 +871,8 @@
     "payments": {
       "title": "المدفوعات",
       "description": "راجع إيصالات الدفع وطلبات الاسترداد المعلقة.",
-      "depositReceiptsTitle": "إيصالات بانتظار المراجعة",
-      "noPendingReceipts": "لا توجد إيصالات معلقة",
-      "settlementReceiptsTitle": "إيصالات الدفعة المتبقية بانتظار المراجعة",
-      "noPendingSettlements": "لا توجد إيصالات دفعة متبقية معلقة",
+      "settlementReceiptsTitle": "إيصالات الدفعة بانتظار المراجعة",
+      "noPendingSettlements": "لا توجد إيصالات دفعة معلقة",
       "refundsTitle": "طلبات استرداد بانتظار المراجعة",
       "noPendingRefunds": "لا توجد طلبات استرداد معلقة",
       "viewReceipt": "عرض الإيصال",
