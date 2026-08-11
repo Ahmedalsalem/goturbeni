@@ -385,7 +385,7 @@
       },
       "payment": {
         "question": "How does payment work?",
-        "answer": "GötürBeni doesn't take a commission. Once your booking is approved, you send the deposit amount to the IBAN shown on the driver's profile and upload the receipt through the app; once it's reviewed and approved, your booking is confirmed. The same receipt/approval process is used for the remaining balance after the trip."
+        "answer": "GötürBeni doesn't take a commission. Approving a booking doesn't require any payment — once the ride is completed, you send the full fare to the IBAN shown on the driver's profile and upload the receipt through the app; once it's reviewed and approved, the payment is considered complete."
       },
       "depositRejected": {
         "question": "What happens if my uploaded receipt is rejected?",
@@ -426,8 +426,7 @@
     "emptyTitle": "You don't have any bookings yet",
     "emptyDescription": "Find a ride and send a booking request.",
     "chat": "Chat",
-    "myOffersTitle": "My Offers",
-    "awaitingDepositTitle": "Deposit Payment for Accepted Offers"
+    "myOffersTitle": "My Offers"
   },
   "RideBookingsPage": {
     "title": "Booking Requests",
@@ -559,11 +558,11 @@
       "manageOffer": "Manage Offer",
       "approveOffer": "Accept Offer",
       "confirmApproveOffer": "Are you sure you want to accept this offer?",
-      "approve": "I've Received the Deposit, Approve",
+      "approve": "Approve",
       "reject": "Decline",
       "cancel": "Cancel",
       "confirmCancel": "Are you sure?",
-      "confirmApprove": "Do you confirm you've received the deposit?",
+      "confirmApprove": "Are you sure you want to approve this booking request?",
       "confirmReject": "Decline this request?",
       "reportDriverNoShow": "Driver Didn't Show Up",
       "reportPassengerNoShow": "Passenger Didn't Show Up",
@@ -607,11 +606,11 @@
       "seatCount": "{count} seats",
       "unknownPassenger": "Passenger",
       "unknownDriver": "Driver",
-      "uploadSettlementReceipt": "Upload Remaining Payment Receipt",
+      "uploadSettlementReceipt": "Upload Payment Receipt",
       "settlementReceiptStatus": {
-        "pending": "Remaining payment receipt under review",
-        "approved": "Remaining payment receipt approved",
-        "rejected": "Remaining payment receipt rejected — please re-upload"
+        "pending": "Payment receipt under review",
+        "approved": "Payment receipt approved",
+        "rejected": "Payment receipt rejected — please re-upload"
       }
     },
     "loginPrompt": {
@@ -621,21 +620,15 @@
       "verifyCta": "Complete Verification"
     },
     "payment": {
-      "depositInstructionTitle": "To confirm your booking, send 25% of the fare to the IBAN below by {deadline}",
+      "settlementInstructionTitle": "After the ride is completed, send the full fare to the IBAN below",
       "ibanLabel": "IBAN",
       "ibanHolderLabel": "Account Holder",
       "noCommissionDisclaimer": "Our platform doesn't take a commission — payments are made directly between individuals.",
       "driverMemberSince": "Member since: {date}",
       "driverCompletedRides": "{count} completed trips",
-      "settleCta": "Mark Remaining Payment as Complete",
-      "settleSuccess": "Remaining payment marked as complete.",
-      "uploadReceipt": "Upload Receipt",
-      "receiptUploadSuccess": "Receipt uploaded, awaiting review.",
-      "receiptStatus": {
-        "pending": "Receipt under review",
-        "approved": "Receipt approved",
-        "rejected": "Receipt rejected — please re-upload"
-      }
+      "settleCta": "Mark Payment as Complete",
+      "settleSuccess": "Payment marked as complete.",
+      "receiptUploadSuccess": "Receipt uploaded, awaiting review."
     },
     "refund": {
       "uploadProof": "Upload Refund Receipt",
@@ -871,10 +864,8 @@
     "payments": {
       "title": "Payments",
       "description": "Review pending payment receipts and refund requests.",
-      "depositReceiptsTitle": "Receipts Awaiting Review",
-      "noPendingReceipts": "No pending receipts",
-      "settlementReceiptsTitle": "Remaining Payment Receipts Awaiting Review",
-      "noPendingSettlements": "No pending remaining payment receipts",
+      "settlementReceiptsTitle": "Payment Receipts Awaiting Review",
+      "noPendingSettlements": "No pending payment receipts",
       "refundsTitle": "Refunds Awaiting Review",
       "noPendingRefunds": "No pending refunds",
       "viewReceipt": "View Receipt",
