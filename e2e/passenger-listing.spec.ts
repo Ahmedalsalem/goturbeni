@@ -113,8 +113,30 @@ test.describe.serial("passenger listing reverse booking", () => {
     // slow one. Reload and check the durable, DB-backed outcome instead: the
     // pending "Teklifi Kabul Et"/"Reddet" buttons are replaced by a status
     // badge only once the booking is genuinely approved server-side.
-    await passengerPage.reload()
-    await expect(passengerPage.getByText("Onaylandı")).toBeVisible({ timeout: 30_000 })
+    //
+    // A single reload right after clickWithConfirm's second click is its own
+    // race, independent of the HMR issue above: .click() resolves once the
+    // click event dispatches, not once the resulting startTransition's async
+    // approveBooking() server action actually commits — the confirm button's
+    // onClick starts that transition but doesn't await it before returning
+    // control to Playwright. A reload that lands before the commit captures
+    // a stale (still-pending) server render, and since this page has no
+    // client-side polling/websocket, that snapshot never updates on its own
+    // — the 30s toBeVisible wait was re-querying the same stale DOM the
+    // whole time (confirmed via the CI-captured page snapshot: pending
+    // "Teklifi Kabul Et"/"Reddet" buttons, not a stuck spinner). Poll with
+    // fresh reloads instead — the same pattern already established in
+    // settlement-ocr-auto-approval.spec.ts — so a late-committing approval
+    // is still caught by a later iteration.
+    await expect
+      .poll(
+        async () => {
+          await passengerPage.reload()
+          return passengerPage.getByText("Onaylandı").isVisible()
+        },
+        { timeout: 30_000, intervals: [1_000, 2_000, 3_000, 5_000] }
+      )
+      .toBe(true)
   })
 
   test("approval assigns driver_id — passenger sees settlement instructions on the ride's management page, driver reaches it too", async () => {
