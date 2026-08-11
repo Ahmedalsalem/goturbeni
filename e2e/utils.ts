@@ -199,8 +199,8 @@ export async function backdateRideDeparture(rideId: string, secondsAgo: number):
   }
 }
 
-// The OCR auto-approval risk gate (submit_deposit_receipt_ocr,
-// 0053_deposit_ocr_auto_approval.sql) requires the account be ≥14 days
+// The OCR auto-approval risk gate (submit_settlement_receipt_ocr,
+// 0054_settlement_ocr_auto_approval.sql) requires the account be ≥14 days
 // old — a freshly signed-up e2e test account never qualifies, so tests
 // exercising the auto-approval path need to backdate it, same idea as
 // backdateRideDeparture above.
@@ -288,7 +288,7 @@ export function receiptFilePayload(name: string): { name: string; mimeType: stri
 
 // Unlike receiptFilePayload's blank pixel, this renders actual IBAN/amount
 // text into a screenshot — for exercising the OCR auto-approval path
-// (submit_deposit_receipt_ocr, src/lib/ocr.ts), which needs something a real
+// (submit_settlement_receipt_ocr, src/lib/ocr.ts), which needs something a real
 // bank app screenshot's text to recognize. Uses a throwaway page in the same
 // browser context rather than a separate image library dependency.
 export async function realisticReceiptFilePayload(
@@ -303,7 +303,7 @@ export async function realisticReceiptFilePayload(
       <div>Gonderen: E2E Yolcu</div>
       <div>Alici IBAN: ${iban}</div>
       <div>Tutar: ${amount.toFixed(2).replace(".", ",")} TL</div>
-      <div>Aciklama: Yolculuk kaporasi</div>
+      <div>Aciklama: Yolculuk odemesi</div>
     </body></html>
   `)
   const buffer = await scratchPage.screenshot()
