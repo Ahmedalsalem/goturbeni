@@ -9,8 +9,8 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { confirmRemainingPayment } from "@/features/bookings/actions"
 
-// Either party's "Kalan Ödeme Tamamlandı" confirmation, shown on a completed,
-// deposit-confirmed booking (see /bookings and /rides/[id]/bookings) until
+// Either party's "Ödeme Tamamlandı" confirmation, shown on a completed,
+// approved booking (see /bookings and /rides/[id]/bookings) until
 // payment_status reaches 'settled' (both sides confirmed).
 export function SettlePaymentButton({ bookingId, rideId }: { bookingId: string; rideId: string }) {
   const t = useTranslations("Bookings.payment")

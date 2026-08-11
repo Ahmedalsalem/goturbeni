@@ -12,9 +12,9 @@ import { approveBooking, rejectBooking } from "@/features/bookings/actions"
 type PendingAction = "approve" | "reject" | null
 
 // isOffer: bu satır bir yolcu ilanına verilen sürücü teklifiyse (booker_role
-// ='driver') true — "Kaporayı Aldım, Onayla" (depozito zaten alınmış
-// anlamına gelir) burada YANLIŞ olur, çünkü onay burada depozito ÖNCESİ
-// gerçekleşir (bkz. supabase/migrations/0061_passenger_listing_offer_fixes.sql).
+// ='driver') true — o zaman "Teklifi Kabul Et" metni ve
+// confirmApproveOffer/approveOffer i18n anahtarları kullanılır, normal bir
+// rezervasyon talebinde ("approve"/"confirmApprove") değil.
 export function BookingActions({ bookingId, rideId, isOffer = false }: { bookingId: string; rideId: string; isOffer?: boolean }) {
   const t = useTranslations("Bookings.actions")
   const tSuccess = useTranslations("Bookings.success")

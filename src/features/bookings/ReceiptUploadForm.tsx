@@ -8,10 +8,10 @@ import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 
-// Shared by DepositReceiptUpload (passenger -> driver's IBAN) and
-// RefundProofUpload (driver -> passenger, after a cancelled/paid booking) —
-// both just need a file picker that posts to a server action returning
-// { error? }.
+// Shared by SettlementReceiptUpload (passenger -> driver's IBAN, post-trip)
+// and RefundProofUpload (driver -> passenger, after a cancelled/paid
+// booking) — both just need a file picker that posts to a server action
+// returning { error? }.
 export function ReceiptUploadForm({
   action,
   label,
