@@ -77,31 +77,6 @@ export async function cancelRideAsAdmin(rideId: string): Promise<AdminActionStat
   return { success: true }
 }
 
-// Same authorization shape as the others — admin_review_deposit_receipt is
-// the sole enforcement point (0020_payment_receipts.sql, reason param added
-// in 0025_settlement_receipts_and_reject_reasons.sql).
-export async function reviewDepositReceipt(bookingId: string, approved: boolean, reason?: string): Promise<AdminActionState> {
-  const tErrors = await getAdminErrorTranslator()
-  if (!isSupabaseConfigured()) {
-    return { error: tErrors("notConfigured") }
-  }
-
-  await verifySession()
-  const supabase = await createClient()
-  const { error } = await supabase.rpc("admin_review_deposit_receipt", { p_booking_id: bookingId, p_approved: approved, p_reason: reason ?? null })
-
-  if (error) {
-    if (error.message.includes("not_admin")) {
-      return { error: tErrors("notAdmin") }
-    }
-    logError(error, "admin.reviewDepositReceipt")
-    return { error: tErrors("actionFailed") }
-  }
-
-  revalidatePath("/admin/payments")
-  return { success: true }
-}
-
 // Same authorization shape — admin_review_settlement_receipt is the sole
 // enforcement point (0025_settlement_receipts_and_reject_reasons.sql).
 export async function reviewSettlementReceipt(bookingId: string, approved: boolean, reason?: string): Promise<AdminActionState> {
@@ -131,10 +106,10 @@ export interface AdminBulkActionState extends AdminActionState {
 }
 
 // admin_bulk_approve_receipts (0047_bulk_receipt_review.sql) is the sole
-// enforcement point — re-checks p_kind and that each row is still 'pending'
+// enforcement point — re-checks that each row is still 'pending'
 // server-side, so a stale/already-reviewed selection is silently skipped
 // rather than double-applied.
-export async function adminBulkApproveReceipts(bookingIds: string[], kind: "deposit" | "settlement"): Promise<AdminBulkActionState> {
+export async function adminBulkApproveReceipts(bookingIds: string[]): Promise<AdminBulkActionState> {
   const tErrors = await getAdminErrorTranslator()
   if (!isSupabaseConfigured()) {
     return { error: tErrors("notConfigured") }
@@ -142,7 +117,7 @@ export async function adminBulkApproveReceipts(bookingIds: string[], kind: "depo
 
   await verifySession()
   const supabase = await createClient()
-  const { data, error } = await supabase.rpc("admin_bulk_approve_receipts", { p_booking_ids: bookingIds, p_kind: kind })
+  const { data, error } = await supabase.rpc("admin_bulk_approve_receipts", { p_booking_ids: bookingIds })
 
   if (error) {
     if (error.message.includes("not_admin")) {
