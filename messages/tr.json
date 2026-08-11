@@ -768,7 +768,7 @@
     "driver": {
       "codeInputLabel": "Yolcu Kodu",
       "codePlaceholder": "4 haneli kod",
-      "verify": "Onayla",
+      "verify": "Doğrula",
       "verified": "Yolcu Alındı"
     },
     "validation": {
