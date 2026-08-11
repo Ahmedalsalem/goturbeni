@@ -94,15 +94,15 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
         isPhoneVerified(user.id),
       ])
     : [null, null, false]
-  const awaitingDeposit = existingBooking?.status === "pending" && existingBooking.payment_status === "awaiting_deposit"
-  const [driverPaymentInfo, driverCompletedRideCount] = awaitingDeposit && ride.driver_id
+  const isApprovedAwaitingPayment = existingBooking?.status === "approved" && existingBooking.payment_status !== "settled"
+  const [driverPaymentInfo, driverCompletedRideCount] = isApprovedAwaitingPayment && ride.driver_id
     ? await Promise.all([getRideDriverPaymentInfo(ride.id), getDriverCompletedRideCount(ride.driver_id)])
     : [null, 0]
-  // Shown next to the IBAN so the passenger has a trust signal at the exact
-  // moment they're about to send real money — a fresh, reviewless account
-  // asking for a deposit is the actual "post a fake ride, collect, vanish"
-  // fraud pattern; an IBAN checksum wouldn't catch that (see conversation).
-  const driverTrustInfo = awaitingDeposit
+  // Shown next to the IBAN so the passenger has a trust signal alongside the
+  // account they'll eventually send real money to — a fresh, reviewless
+  // account is the actual "post a fake ride, collect, vanish" fraud pattern;
+  // an IBAN checksum wouldn't catch that (see conversation).
+  const driverTrustInfo = isApprovedAwaitingPayment
     ? {
         memberSinceIso: driverProfile?.created_at ?? ride.created_at,
         completedRideCount: driverCompletedRideCount,
