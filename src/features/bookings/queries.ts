@@ -16,10 +16,8 @@ const BOOKING_WITH_PASSENGER_SELECT =
 // başarısız olan sahte "booking" kartları olarak sızardı. Gelen teklifler
 // ilan sahibi için /rides/[id]/bookings üzerinden yönetilir (onay/red/chat/
 // settle/review/no-show hepsi orada), driver tarafı için getMyDriverOffers
-// üzerinden — bu ikisi zaten var. Tek istisna: onaylanmış ama henüz
-// depozito ödenmemiş teklif — bkz. getMyAwaitingDepositOffers (bu satırlar
-// booker_role='driver' olduğundan aşağıdaki filtreyle burada hiç
-// dönmeyecek, /bookings sayfası o durumu ayrı bir sorguyla çekiyor).
+// üzerinden — bu ikisi zaten var, booker_role='driver' satırları burada hiç
+// dönmez.
 export async function getMyBookings(passengerId: string): Promise<BookingWithRide[]> {
   const supabase = await createClient()
   const { data } = await supabase
@@ -128,29 +126,6 @@ export async function getMyDriverOffers(driverId: string): Promise<BookingWithRi
     .select(BOOKING_WITH_RIDE_SELECT)
     .eq("driver_id", driverId)
     .eq("booker_role", "driver")
-    .order("created_at", { ascending: false })
-
-  return (data as BookingWithRide[] | null) ?? []
-}
-
-// /bookings sayfasının depozito ekranı için — bir yolcu ilanı sahibinin,
-// KABUL ETTİĞİ ama henüz depozito ödemediği teklifleri (getMyBookings artık
-// booker_role='passenger' ile sınırlı olduğundan — Finding 1 — bu satırlar
-// oradan hiç gelmiyor, ayrı ve dar kapsamlı bir sorguya ihtiyaç var).
-// status='approved' + payment_status='awaiting_deposit' ikilisi sadece
-// booker_role='driver' satırlarında oluşabilir (_apply_booking_approval,
-// 0061, booker_role='passenger' satırlarında onay anında payment_status'u
-// hep 'deposit_confirmed' yapar) — booker_role filtresi burada sadece
-// netlik için, veri modeli zaten aynı sonucu garanti ediyor.
-export async function getMyAwaitingDepositOffers(passengerId: string): Promise<BookingWithRide[]> {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from("bookings")
-    .select(BOOKING_WITH_RIDE_SELECT)
-    .eq("passenger_id", passengerId)
-    .eq("booker_role", "driver")
-    .eq("status", "approved")
-    .eq("payment_status", "awaiting_deposit")
     .order("created_at", { ascending: false })
 
   return (data as BookingWithRide[] | null) ?? []

@@ -210,8 +210,8 @@ export async function approveBooking(bookingId: string, rideId: string): Promise
   const recipientId = ride?.posted_by_role === "passenger" ? (parties?.driverId ?? null) : (parties?.passengerId ?? null)
   if (recipientId) {
     // Bildirim gönderimi (push/email/notification-event) yanıtı bloke
-    // etmesin diye after() içine alındı — bu dosyanın submitDepositReceipt/
-    // submitSettlementReceipt'te zaten kullandığı desen.
+    // etmesin diye after() içine alındı — bu dosyanın submitSettlementReceipt'te
+    // zaten kullandığı desen.
     after(async () => {
       try {
         await Promise.all([
@@ -324,13 +324,13 @@ export async function confirmRemainingPayment(bookingId: string, rideId: string)
   return { success: true }
 }
 
-// Shared upload helper for both the passenger's deposit receipt and the
-// driver's refund proof — same private bucket, same file constraints, only
-// the destination path prefix and the follow-up RPC differ.
+// Shared upload helper for both the driver's refund proof and the
+// passenger's settlement receipt — same private bucket, same file
+// constraints, only the destination path prefix and the follow-up RPC differ.
 async function uploadReceiptFile(
   supabase: Awaited<ReturnType<typeof createClient>>,
   bookingId: string,
-  kind: "deposit" | "refund" | "settlement",
+  kind: "refund" | "settlement",
   file: File
 ): Promise<{ path: string } | { error: string }> {
   const tErrors = (await getBookingTranslators()).tErrors
@@ -349,100 +349,6 @@ async function uploadReceiptFile(
     return { error: tErrors("receiptUploadFailed") }
   }
   return { path }
-}
-
-// Passenger uploads proof of the IBAN deposit transfer — reviewed by the
-// driver informally and, ultimately, by an admin (admin_review_deposit_receipt
-// in supabase/migrations/0020_payment_receipts.sql).
-export async function submitDepositReceipt(bookingId: string, rideId: string, formData: FormData): Promise<BookingActionState> {
-  const { tErrors } = await getBookingTranslators()
-  if (!isSupabaseConfigured()) {
-    return { error: tErrors("notConfigured") }
-  }
-
-  const file = formData.get("receipt")
-  if (!(file instanceof File) || file.size === 0) {
-    return { error: tErrors("receiptRequired") }
-  }
-
-  const user = await verifySession()
-  if (!(await checkRateLimit(`submit-receipt:${user.id}`, RECEIPT_UPLOAD_RATE_LIMIT.limit, RECEIPT_UPLOAD_RATE_LIMIT.windowMs))) {
-    return { error: tErrors("tooManyRequests") }
-  }
-  const supabase = await createClient()
-
-  const uploaded = await uploadReceiptFile(supabase, bookingId, "deposit", file)
-  if ("error" in uploaded) {
-    return uploaded
-  }
-
-  const { error } = await supabase.rpc("submit_deposit_receipt", { p_booking_id: bookingId, p_receipt_url: uploaded.path })
-  if (error) {
-    logError(error, "bookings.submitDepositReceipt")
-    return { error: tErrors("actionFailed") }
-  }
-
-  // OCR takes several seconds (image recognition) — running it inline here
-  // would make the passenger wait that long just to see "receipt uploaded".
-  // after() runs it once the response has already gone back to the client;
-  // it hands the raw IBAN/amount candidates to submit_deposit_receipt_ocr,
-  // which independently re-checks them against the real driver IBAN and ride
-  // amount (see 0053_deposit_ocr_auto_approval.sql) — never trust a "matched"
-  // verdict computed here, only the RPC's own comparison counts. A failure
-  // here (bad image, tesseract error) just leaves the booking in its normal
-  // awaiting-manual-approval state, same as before this existed.
-  //
-  // The file's bytes are read into a plain Buffer *before* scheduling
-  // after() rather than re-reading `file` lazily inside the callback — the
-  // File/formData is tied to this request's lifecycle, and a plain Buffer
-  // has no such dependency, so this avoids relying on that lifecycle
-  // extending into code that runs after the response has already gone out.
-  const receiptBuffer = Buffer.from(await file.arrayBuffer())
-  after(async () => {
-    try {
-      const { iban, amounts } = await extractReceiptFields(receiptBuffer)
-      const { data: autoApproved, error: ocrError } = await supabase.rpc("submit_deposit_receipt_ocr", {
-        p_booking_id: bookingId,
-        p_iban: iban,
-        p_amounts: amounts,
-      })
-      if (ocrError) {
-        logError(ocrError, "bookings.submitDepositReceipt.ocr")
-        return
-      }
-      if (!autoApproved) {
-        return
-      }
-
-      revalidatePath(`/rides/${rideId}`)
-      revalidatePath(`/rides/${rideId}/bookings`)
-      revalidatePath("/bookings")
-
-      const ride = await getRide(rideId)
-      if (ride?.driver_id) {
-        // driver_id is guaranteed set here: submit_deposit_receipt_ocr (0056)
-        // only reaches autoApproved=true after successfully matching the
-        // receipt against the ride's driver's own IBAN, which is impossible
-        // while driver_id is still null (a not-yet-approved passenger-posted
-        // ride) — so this narrows for TS as much as it defends at runtime.
-        await Promise.all([
-          sendPushNotification({ type: "deposit_auto_approved", recipientId: ride.driver_id, rideId }),
-          sendEmailNotification({ type: "deposit_auto_approved", recipientId: ride.driver_id, rideId }),
-          recordNotificationEvent({ type: "deposit_auto_approved", recipientId: ride.driver_id, rideId }),
-          sendPushNotification({ type: "booking_approved", recipientId: user.id, rideId }),
-          sendEmailNotification({ type: "booking_approved", recipientId: user.id, rideId }),
-          recordNotificationEvent({ type: "booking_approved", recipientId: user.id, rideId }),
-        ])
-      }
-    } catch (ocrException) {
-      logError(ocrException, "bookings.submitDepositReceipt.ocr")
-    }
-  })
-
-  revalidatePath(`/rides/${rideId}`)
-  revalidatePath(`/rides/${rideId}/bookings`)
-  revalidatePath("/bookings")
-  return { success: true }
 }
 
 // Driver uploads proof that a refund was sent back to the passenger, after
@@ -482,10 +388,10 @@ export async function submitRefundProof(bookingId: string, rideId: string, formD
 }
 
 // Passenger uploads proof of the post-trip remaining-half IBAN transfer —
-// same evidence-layer pattern as submitDepositReceipt, reviewed by an admin
-// (admin_review_settlement_receipt in supabase/migrations/0025). This is
-// independent of confirmRemainingPayment's mutual "I received it" buttons —
-// both can be used together.
+// same evidence-layer pattern as submitRefundProof above (upload + admin
+// review), reviewed by an admin (admin_review_settlement_receipt in
+// supabase/migrations/0025). This is independent of confirmRemainingPayment's
+// mutual "I received it" buttons — both can be used together.
 export async function submitSettlementReceipt(bookingId: string, rideId: string, formData: FormData): Promise<BookingActionState> {
   const { tErrors } = await getBookingTranslators()
   if (!isSupabaseConfigured()) {
@@ -514,10 +420,11 @@ export async function submitSettlementReceipt(bookingId: string, rideId: string,
     return { error: error.message.includes("driver_no_show") ? tErrors("driverNoShow") : tErrors("actionFailed") }
   }
 
-  // Same OCR-verify-in-the-background approach as submitDepositReceipt above
-  // (see 0054_settlement_ocr_auto_approval.sql) — a match here confirms both
-  // parties' "I sent it"/"I received it" at once, since a receipt showing the
-  // right IBAN and amount already is the passenger's proof of sending it.
+  // OCR-verify-in-the-background approach, running after() once the response
+  // has already gone back to the client (see 0054_settlement_ocr_auto_approval.sql)
+  // — a match here confirms both parties' "I sent it"/"I received it" at
+  // once, since a receipt showing the right IBAN and amount already is the
+  // passenger's proof of sending it.
   const receiptBuffer = Buffer.from(await file.arrayBuffer())
   after(async () => {
     try {
