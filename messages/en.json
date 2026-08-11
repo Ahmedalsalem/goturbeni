@@ -593,7 +593,7 @@
       "cancelFailed": "Booking could not be cancelled. Please try again.",
       "tooManyRequests": "Too many attempts. Please try again later.",
       "settleFailed": "Payment could not be marked as settled. Please try again.",
-      "driverNoShow": "The remaining payment can't be processed because the driver was reported as a no-show. A dispute has been opened automatically.",
+      "driverNoShow": "The payment can't be processed because the driver was reported as a no-show. A dispute has been opened automatically.",
       "offerDriverIbanRequired": "You can't accept this offer — the offering driver's IBAN is missing.",
       "offerDriverCarPlateRequired": "You can't accept this offer — the offering driver's license plate is missing or invalid.",
       "actionFailed": "The action could not be completed. Please try again.",
