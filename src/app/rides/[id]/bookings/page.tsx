@@ -164,7 +164,7 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
             const viewerReportsDriver = isOwner && isOffer
             const alreadyReportedNoShow = viewerReportsDriver ? booking.driver_no_show : booking.passenger_no_show
             const noShowLabel = viewerReportsDriver ? tBookingActions("reportDriverNoShow") : tBookingActions("reportPassengerNoShow")
-            // Karşılıklı "Kalan Ödeme Tamamlandı" onayı — confirmRemainingPayment
+            // Karşılıklı "Ödeme Tamamlandı" onayı — confirmRemainingPayment
             // RPC'si auth.uid()'in hangi taraf olduğunu kendi belirliyor, burada
             // sadece HANGİ flag'in (driver_settled_at/passenger_settled_at)
             // izleyene ait olduğu seçiliyor. viewerIsDriverSide sayfa

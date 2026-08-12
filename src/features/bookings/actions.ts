@@ -308,7 +308,7 @@ export async function cancelBooking(bookingId: string, rideId: string): Promise<
   return { success: true }
 }
 
-// Either party's "Kalan Ödeme Tamamlandı" confirmation, post-trip. The RPC
+// Either party's "Ödeme Tamamlandı" confirmation, post-trip. The RPC
 // figures out which side the caller is (driver vs passenger) and only flips
 // payment_status to 'settled' once both have confirmed — see
 // confirm_remaining_payment in supabase/migrations/0017_booking_payment_flow.sql.
@@ -395,7 +395,7 @@ export async function submitRefundProof(bookingId: string, rideId: string, formD
   return { success: true }
 }
 
-// Passenger uploads proof of the post-trip remaining-half IBAN transfer —
+// Passenger uploads proof of the post-trip full-fare IBAN transfer —
 // same evidence-layer pattern as submitRefundProof above (upload + admin
 // review), reviewed by an admin (admin_review_settlement_receipt in
 // supabase/migrations/0025). This is independent of confirmRemainingPayment's

@@ -36,7 +36,7 @@ export async function getPendingRefunds(): Promise<AdminBookingRow[]> {
   return (data as unknown as AdminBookingRow[] | null) ?? []
 }
 
-// Settlement (post-trip remaining-half) receipts a passenger uploaded but
+// Settlement (post-trip full-fare) receipts a passenger uploaded but
 // nobody has reviewed yet — see submit_settlement_receipt/
 // admin_review_settlement_receipt (0025_settlement_receipts_and_reject_reasons.sql).
 export async function getPendingSettlementReceipts(): Promise<AdminBookingRow[]> {

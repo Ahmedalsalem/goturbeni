@@ -24,7 +24,7 @@ const IBAN_PATTERN = /TR\d{24}/
 // extraction so its digit groups don't pollute the amount candidates.
 const IBAN_WITH_SPACES_PATTERN = /TR[\d\s]{24,34}/
 // Matches loose number tokens (150 / 150,00 / 1.234,56 / 1,234.56) so the
-// caller can find the expected deposit among them regardless of which
+// caller can find the expected fare amount among them regardless of which
 // decimal/thousands convention the receipt's banking app used.
 const NUMBER_TOKEN_PATTERN = /\d[\d.,]*\d|\d/g
 const MAX_AMOUNT_CANDIDATES = 30

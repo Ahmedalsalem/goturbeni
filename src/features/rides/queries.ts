@@ -226,8 +226,8 @@ export async function getMyRides(userId: string): Promise<RideWithDriver[]> {
   return (data as RideWithDriver[] | null) ?? []
 }
 
-// Trust signal shown to a passenger right before they send a deposit to the
-// driver's IBAN (see BookingButton.tsx) — a driver's own completed-trip
+// Trust signal shown to a passenger alongside the driver's IBAN once a
+// booking is approved (see BookingButton.tsx) — a driver's own completed-trip
 // count specifically (not combined with trips taken as a passenger, unlike
 // getCompletedRidesCount in reviews/queries.ts). Same departure_time-based
 // "completed" check used throughout (rides.status lags pg_cron by up to a
