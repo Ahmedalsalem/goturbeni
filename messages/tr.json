@@ -232,7 +232,7 @@
       "phone": "Telefon",
       "phoneHint": "Başında 0 olmadan girin (örn. 5XX XXX XX XX).",
       "iban": "IBAN",
-      "ibanHint": "Sürücü olarak ilan verebilmek için gerekli — yolcular kapora ödemesini buraya gönderir.",
+      "ibanHint": "Sürücü olarak ilan verebilmek için gerekli — yolcular yolculuk sonrasında ücretin tamamını buraya gönderir.",
       "ibanHolderName": "Hesap Sahibi Ad Soyad",
       "carBrand": "Araç Markası",
       "carModel": "Araç Modeli",
@@ -303,6 +303,10 @@
       "smokingAllowed": "Sigara İçilebilir",
       "vipOnly": "VIP (Tek Yolcu)",
       "femaleDriverOnly": "Kadın Şoför",
+      "typeLabel": "İlan Türü",
+      "typeAll": "Tümü",
+      "typeDriver": "Sürücü İlanları",
+      "typePassenger": "Yolcu İlanları",
       "sortLabel": "Sırala",
       "sort": {
         "date_asc": "Tarih (Artan)",
@@ -336,8 +340,8 @@
         "description": "Kalkış, varış ve tarihi seç; haritadan veya GPS konumundan filtrele, sana uygun aktif ilanları anında listele. Yolcuysan koltuk ara, sürücüysen boş koltuklarını ilan olarak paylaş."
       },
       "book": {
-        "title": "Rezervasyon yap, kaporanı öde",
-        "description": "Sürücü rezervasyon talebini onayladığında yolculuğun kesinleşir. Yolcu, toplam ücretin %25'ini (kaporayı) sürücünün IBAN'ına gönderir ve dekontu yükler; kalan %75 yolculuk sonrasında ödenir."
+        "title": "Rezervasyon yap",
+        "description": "Sürücü rezervasyon talebini onayladığında yolculuğun kesinleşir. Bu aşamada herhangi bir ödeme yapılmaz; ücretin tamamı yolculuk tamamlandıktan sonra ödenir."
       },
       "pickup": {
         "title": "Sürücünle iletişime geç",
@@ -345,7 +349,7 @@
       },
       "complete": {
         "title": "Yolculuğu tamamla, değerlendir",
-        "description": "Varışın ardından kalan ödeme tamamlanır, iki taraf da birbirini 1-5 yıldız ve yorumla değerlendirir — bu değerlendirmeler diğer kullanıcıların profilinde görünür."
+        "description": "Yolculuk tamamlandıktan sonra yolcu, ücretin tamamını sürücünün IBAN'ına gönderir ve dekontu yükler; iki taraf da birbirini 1-5 yıldız ve yorumla değerlendirir — bu değerlendirmeler diğer kullanıcıların profilinde görünür."
       }
     },
     "trust": {
@@ -381,7 +385,7 @@
       },
       "payment": {
         "question": "Ödeme nasıl yapılıyor?",
-        "answer": "GötürBeni komisyon almaz. Rezervasyonun onaylanmasının ardından depozito tutarını sürücünün profilinde görünen IBAN'ına gönderir, dekontunu uygulama üzerinden yüklersin; incelenip onaylanınca rezervasyonun kesinleşir. Yolculuk sonrası kalan tutar için de aynı dekont/onay akışı kullanılır."
+        "answer": "GötürBeni komisyon almaz. Rezervasyonun onaylanması ödeme gerektirmez — yolculuk tamamlandıktan sonra ücretin tamamını sürücünün profilinde görünen IBAN'ına gönderir, dekontunu uygulama üzerinden yüklersin; incelenip onaylanınca ödeme tamamlanmış sayılır."
       },
       "depositRejected": {
         "question": "Yüklediğim dekont reddedilirse ne olur?",
@@ -421,7 +425,8 @@
     "title": "Rezervasyonlarım",
     "emptyTitle": "Henüz rezervasyonun yok",
     "emptyDescription": "Bir yolculuk bulup rezervasyon talebi oluşturabilirsin.",
-    "chat": "Sohbet"
+    "chat": "Sohbet",
+    "myOffersTitle": "Verdiğim Teklifler"
   },
   "RideBookingsPage": {
     "title": "Rezervasyon Talepleri",
@@ -451,6 +456,9 @@
       "noResults": "Sonuç bulunamadı.",
       "clearSelection": "Seçimi temizle",
       "optional": "(opsiyonel)",
+      "postedByRoleLabel": "İlan Türü",
+      "iAmDriver": "Sürücüyüm",
+      "iAmPassenger": "Yolcuyum",
       "useMyLocation": "Konumumu Kullan",
       "detectingLocation": "Konum algılanıyor...",
       "locationDenied": "Konum izni reddedildi.",
@@ -508,7 +516,10 @@
       "unknownDriver": "Sürücü",
       "petsAllowed": "Evcil hayvan kabul edilir",
       "smokingAllowed": "Sigara içilebilir",
-      "vipSolo": "VIP (Tek Yolcu)"
+      "vipSolo": "VIP (Tek Yolcu)",
+      "unknownPoster": "Yolcu",
+      "passengerListingBadge": "Yolcu İlanı",
+      "driverListingBadge": "Sürücü İlanı"
     },
     "myRides": {
       "edit": "Düzenle",
@@ -543,11 +554,15 @@
     },
     "actions": {
       "reserve": "Rezervasyon Yap",
-      "approve": "Kaporayı Aldım, Onayla",
+      "makeOffer": "Teklif Ver",
+      "manageOffer": "Teklifi Yönet",
+      "approveOffer": "Teklifi Kabul Et",
+      "confirmApproveOffer": "Teklifi kabul etmek istediğinize emin misiniz?",
+      "approve": "Onayla",
       "reject": "Reddet",
       "cancel": "İptal Et",
       "confirmCancel": "Emin misiniz?",
-      "confirmApprove": "Kaporayı aldığınızı onaylıyor musunuz?",
+      "confirmApprove": "Bu rezervasyon talebini onaylamak istediğinize emin misiniz?",
       "confirmReject": "Reddedilsin mi?",
       "reportDriverNoShow": "Sürücü Gelmedi",
       "reportPassengerNoShow": "Yolcu Gelmedi",
@@ -556,6 +571,8 @@
     },
     "success": {
       "created": "Rezervasyon talebiniz gönderildi.",
+      "offerCreated": "Teklifiniz gönderildi.",
+      "offerApproved": "Teklif kabul edildi.",
       "approved": "Rezervasyon onaylandı.",
       "rejected": "Rezervasyon reddedildi.",
       "cancelled": "Rezervasyon iptal edildi.",
@@ -567,6 +584,8 @@
       "notEnoughSeats": "Yeterli boş koltuk yok.",
       "alreadyBooked": "Bu ilana zaten bir rezervasyon talebiniz var.",
       "ownRide": "Kendi ilanınıza rezervasyon yapamazsınız.",
+      "notPassengerListing": "Bu ilana teklif veremezsiniz.",
+      "alreadyOffered": "Bu ilana zaten bir teklifiniz var.",
       "rideNotActive": "Bu ilan artık aktif değil.",
       "createFailed": "Rezervasyon oluşturulamadı. Lütfen tekrar deneyin.",
       "approveFailed": "Rezervasyon onaylanamadı. Lütfen tekrar deneyin.",
@@ -574,7 +593,9 @@
       "cancelFailed": "Rezervasyon iptal edilemedi. Lütfen tekrar deneyin.",
       "tooManyRequests": "Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin.",
       "settleFailed": "Ödeme tamamlandı olarak işaretlenemedi. Lütfen tekrar deneyin.",
-      "driverNoShow": "Sürücü gelmedi olarak işaretlendiği için kalan ödeme işlenemez. Bir anlaşmazlık otomatik olarak açıldı.",
+      "driverNoShow": "Sürücü gelmedi olarak işaretlendiği için ödeme işlenemez. Bir anlaşmazlık otomatik olarak açıldı.",
+      "offerDriverIbanRequired": "Bu teklifi kabul edemezsiniz — teklif veren sürücünün IBAN bilgisi eksik.",
+      "offerDriverCarPlateRequired": "Bu teklifi kabul edemezsiniz — teklif veren sürücünün plaka bilgisi eksik veya geçersiz.",
       "actionFailed": "İşlem gerçekleştirilemedi. Lütfen tekrar deneyin.",
       "receiptRequired": "Lütfen bir dekont dosyası seçin.",
       "receiptTooLarge": "Dekont dosyası en fazla 5 MB olabilir.",
@@ -584,11 +605,12 @@
     "card": {
       "seatCount": "{count} koltuk",
       "unknownPassenger": "Yolcu",
-      "uploadSettlementReceipt": "Kalan Ödeme Dekontu Yükle",
+      "unknownDriver": "Sürücü",
+      "uploadSettlementReceipt": "Ödeme Dekontu Yükle",
       "settlementReceiptStatus": {
-        "pending": "Kalan ödeme dekontu inceleniyor",
-        "approved": "Kalan ödeme dekontu onaylandı",
-        "rejected": "Kalan ödeme dekontu reddedildi — lütfen yeniden yükleyin"
+        "pending": "Ödeme dekontu inceleniyor",
+        "approved": "Ödeme dekontu onaylandı",
+        "rejected": "Ödeme dekontu reddedildi — lütfen yeniden yükleyin"
       }
     },
     "loginPrompt": {
@@ -598,21 +620,15 @@
       "verifyCta": "Doğrulamayı Tamamla"
     },
     "payment": {
-      "depositInstructionTitle": "Rezervasyonun kesinleşmesi için ücretin %25'ini saat {deadline}'e kadar aşağıdaki IBAN'a gönderin",
+      "settlementInstructionTitle": "Yolculuk tamamlandıktan sonra ücretin tamamını aşağıdaki IBAN'a gönder",
       "ibanLabel": "IBAN",
       "ibanHolderLabel": "Hesap Sahibi",
       "noCommissionDisclaimer": "Platformumuz komisyon almaz, ödemeler doğrudan şahıslar arasındadır.",
       "driverMemberSince": "Üyelik: {date}",
       "driverCompletedRides": "{count} tamamlanmış yolculuk",
-      "settleCta": "Kalan Ödeme Tamamlandı",
-      "settleSuccess": "Kalan ödeme tamamlandı olarak işaretlendi.",
-      "uploadReceipt": "Dekont Yükle",
-      "receiptUploadSuccess": "Dekont yüklendi, inceleme bekleniyor.",
-      "receiptStatus": {
-        "pending": "Dekont inceleniyor",
-        "approved": "Dekont onaylandı",
-        "rejected": "Dekont reddedildi — lütfen yeniden yükleyin"
-      }
+      "settleCta": "Ödeme Tamamlandı",
+      "settleSuccess": "Ödeme tamamlandı olarak işaretlendi.",
+      "receiptUploadSuccess": "Dekont yüklendi, inceleme bekleniyor."
     },
     "refund": {
       "uploadProof": "İade Dekontu Yükle",
@@ -752,7 +768,7 @@
     "driver": {
       "codeInputLabel": "Yolcu Kodu",
       "codePlaceholder": "4 haneli kod",
-      "verify": "Onayla",
+      "verify": "Doğrula",
       "verified": "Yolcu Alındı"
     },
     "validation": {
@@ -848,10 +864,8 @@
     "payments": {
       "title": "Ödemeler",
       "description": "Bekleyen ödeme dekontlarını ve iade taleplerini incele.",
-      "depositReceiptsTitle": "İncelenmeyi Bekleyen Dekontlar",
-      "noPendingReceipts": "Bekleyen dekont yok",
-      "settlementReceiptsTitle": "İncelenmeyi Bekleyen Kalan Ödeme Dekontları",
-      "noPendingSettlements": "Bekleyen kalan ödeme dekontu yok",
+      "settlementReceiptsTitle": "İncelenmeyi Bekleyen Ödeme Dekontları",
+      "noPendingSettlements": "Bekleyen ödeme dekontu yok",
       "refundsTitle": "İncelenmeyi Bekleyen İadeler",
       "noPendingRefunds": "Bekleyen iade yok",
       "viewReceipt": "Dekontu Görüntüle",

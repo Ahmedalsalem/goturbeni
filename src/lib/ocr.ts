@@ -7,11 +7,12 @@ import Tesseract from "tesseract.js"
 // a runtime-constructed path, not a static import Next.js can trace itself).
 const LANG_PATH = path.join(process.cwd(), "assets/tesseract-lang")
 
-// Extracts raw candidate fields from a deposit receipt image so the caller
-// (submitDepositReceipt) can hand them, unmodified, to the
-// submit_deposit_receipt_ocr RPC — the actual "does this match" decision is
-// made there, against the real driver IBAN and ride amount, never here. This
-// module only reads text off the image; it has no opinion on what's correct.
+// Extracts raw candidate fields from a settlement receipt image so the
+// caller (submitSettlementReceipt) can hand them, unmodified, to the
+// submit_settlement_receipt_ocr RPC — the actual "does this match" decision
+// is made there, against the real driver IBAN and ride amount, never here.
+// This module only reads text off the image; it has no opinion on what's
+// correct.
 export interface ReceiptOcrResult {
   iban: string | null
   amounts: number[]

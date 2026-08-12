@@ -52,7 +52,7 @@ export async function getApprovedPassengers(rideId: string): Promise<ApprovedPas
   const supabase = await createClient()
   const { data } = await supabase
     .from("bookings")
-    .select("passenger_id, passenger:profiles(full_name, avatar_url)")
+    .select("passenger_id, passenger:profiles!bookings_passenger_id_fkey(full_name, avatar_url)")
     .eq("ride_id", rideId)
     .eq("status", "approved")
 

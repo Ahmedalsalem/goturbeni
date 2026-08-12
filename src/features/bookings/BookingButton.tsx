@@ -9,12 +9,10 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
 import { Field, FieldLabel } from "@/components/ui/field"
 import { BookingStatusBadge } from "@/features/bookings/BookingStatusBadge"
 import { CancelBookingButton } from "@/features/bookings/CancelBookingButton"
-import { ReceiptUploadForm } from "@/features/bookings/ReceiptUploadForm"
-import { createBooking, submitDepositReceipt } from "@/features/bookings/actions"
+import { createBooking } from "@/features/bookings/actions"
 import { MIN_BOOKING_SEAT_COUNT } from "@/features/bookings/schemas"
 import { StarRating } from "@/features/reviews/StarRating"
 import type { Booking } from "@/types/booking"
@@ -48,7 +46,7 @@ export function BookingButton({
   const [isPending, startTransition] = useTransition()
 
   if (existingBooking) {
-    const awaitingDeposit = existingBooking.status === "pending" && existingBooking.payment_status === "awaiting_deposit"
+    const isApprovedAwaitingPayment = existingBooking.status === "approved" && existingBooking.payment_status !== "settled"
 
     return (
       <div className="flex flex-col gap-3">
@@ -58,13 +56,9 @@ export function BookingButton({
             <CancelBookingButton bookingId={existingBooking.id} rideId={rideId} />
           )}
         </div>
-        {awaitingDeposit && driverPaymentInfo && (
+        {isApprovedAwaitingPayment && driverPaymentInfo && (
           <Alert>
-            <AlertTitle>
-              {tPayment("depositInstructionTitle", {
-                deadline: format.dateTime(new Date(existingBooking.deposit_deadline_at), { hour: "2-digit", minute: "2-digit" }),
-              })}
-            </AlertTitle>
+            <AlertTitle>{tPayment("settlementInstructionTitle")}</AlertTitle>
             <AlertDescription className="flex flex-col gap-1">
               <span>
                 {tPayment("ibanLabel")}: <span className="font-mono font-medium">{driverPaymentInfo.iban}</span>
@@ -93,30 +87,6 @@ export function BookingButton({
               )}
             </AlertDescription>
           </Alert>
-        )}
-        {awaitingDeposit && driverPaymentInfo && (
-          <div className="flex items-center gap-2">
-            {existingBooking.deposit_receipt_status === null || existingBooking.deposit_receipt_status === "rejected" ? (
-              <div className="flex flex-col gap-1">
-                {existingBooking.deposit_receipt_status === "rejected" && (
-                  <div>
-                    <Badge variant="outline">{tPayment("receiptStatus.rejected")}</Badge>
-                    {existingBooking.deposit_receipt_reject_reason && (
-                      <p className="text-muted-foreground mt-1 text-xs">{existingBooking.deposit_receipt_reject_reason}</p>
-                    )}
-                  </div>
-                )}
-                <ReceiptUploadForm
-                  action={(formData) => submitDepositReceipt(existingBooking.id, rideId, formData)}
-                  label={tPayment("uploadReceipt")}
-                />
-              </div>
-            ) : (
-              <Badge variant={existingBooking.deposit_receipt_status === "approved" ? "secondary" : "outline"}>
-                {tPayment(`receiptStatus.${existingBooking.deposit_receipt_status}`)}
-              </Badge>
-            )}
-          </div>
         )}
       </div>
     )

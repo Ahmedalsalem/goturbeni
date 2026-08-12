@@ -8,13 +8,11 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { BulkApproveReceiptsButton } from "@/features/admin/BulkApproveReceiptsButton"
 import { ConfirmRefundButton } from "@/features/admin/ConfirmRefundButton"
-import { DepositReceiptReviewActions } from "@/features/admin/DepositReceiptReviewActions"
 import { RejectRefundButton } from "@/features/admin/RejectRefundButton"
 import { SettlementReceiptReviewActions } from "@/features/admin/SettlementReceiptReviewActions"
 import { computeReceiptRiskTier, type ReceiptRiskTier } from "@/features/admin/risk"
 import {
   getDriverPaymentInfoForAdmin,
-  getPendingDepositReceipts,
   getPendingRefunds,
   getPendingSettlementReceipts,
   getSuspiciousAccounts,
@@ -48,8 +46,7 @@ export default async function AdminPaymentsPage() {
   const t = await getTranslations("Admin.payments")
   const format = await getFormatter()
   const locale = await getUserLocale()
-  const [pendingReceipts, pendingSettlements, pendingRefunds, suspiciousAccounts, disputedUserIds] = await Promise.all([
-    getPendingDepositReceipts(),
+  const [pendingSettlements, pendingRefunds, suspiciousAccounts, disputedUserIds] = await Promise.all([
     getPendingSettlementReceipts(),
     getPendingRefunds(),
     getSuspiciousAccounts(),
@@ -71,21 +68,16 @@ export default async function AdminPaymentsPage() {
     })
   }
 
-  const depositRiskTiers = pendingReceipts.map((booking) => riskTierFor(booking, booking.deposit_receipt_reject_count))
   const settlementRiskTiers = pendingSettlements.map((booking) => riskTierFor(booking, booking.settlement_receipt_reject_count))
-  const lowRiskDepositIds = pendingReceipts.filter((_, index) => depositRiskTiers[index] === "low").map((booking) => booking.id)
   const lowRiskSettlementIds = pendingSettlements.filter((_, index) => settlementRiskTiers[index] === "low").map((booking) => booking.id)
 
-  const receiptUrls = await Promise.all(
-    pendingReceipts.map((booking) => (booking.deposit_receipt_url ? getSignedReceiptUrl(booking.deposit_receipt_url) : null))
-  )
-  // Shown next to each pending deposit receipt so the admin can eyeball the
-  // IBAN holder name against the uploaded receipt — there's no bank API
-  // verifying the two actually match (see README → Bilinen Sınırlamalar).
-  const driverPaymentInfos = await Promise.all(pendingReceipts.map((booking) => getDriverPaymentInfoForAdmin(booking.id)))
   const settlementReceiptUrls = await Promise.all(
     pendingSettlements.map((booking) => (booking.settlement_receipt_url ? getSignedReceiptUrl(booking.settlement_receipt_url) : null))
   )
+  // Shown next to each pending settlement receipt so the admin can eyeball
+  // the IBAN holder name against the uploaded receipt — there's no bank API
+  // verifying the two actually match (see README → Bilinen Sınırlamalar).
+  const driverPaymentInfos = await Promise.all(pendingSettlements.map((booking) => getDriverPaymentInfoForAdmin(booking.id)))
   const refundProofUrls = await Promise.all(
     pendingRefunds.map((booking) => (booking.refund_proof_url ? getSignedReceiptUrl(booking.refund_proof_url) : null))
   )
@@ -99,48 +91,8 @@ export default async function AdminPaymentsPage() {
 
       <div>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-medium">{t("depositReceiptsTitle")}</h2>
-          {lowRiskDepositIds.length > 0 && <BulkApproveReceiptsButton bookingIds={lowRiskDepositIds} kind="deposit" />}
-        </div>
-        {pendingReceipts.length === 0 ? (
-          <EmptyState icon={Receipt} title={t("noPendingReceipts")} description="" />
-        ) : (
-          <div className="flex flex-col gap-3">
-            {pendingReceipts.map((booking, index) => (
-              <Card key={booking.id}>
-                <CardContent className="flex flex-wrap items-center justify-between gap-4">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium">{booking.passenger?.full_name ?? t("unknownUser")}</p>
-                      <RiskBadge tier={depositRiskTiers[index]} label={depositRiskTiers[index] === "low" ? t("riskLow") : t("riskHigh")} />
-                    </div>
-                    <RouteLabel booking={booking} locale={locale} />
-                    <p className="text-muted-foreground text-xs">{t("driverLabel")}: {booking.ride.driver?.full_name ?? t("unknownUser")}</p>
-                    {driverPaymentInfos[index] && (
-                      <p className="text-muted-foreground text-xs">
-                        {t("driverIbanLabel")}: <span className="font-mono">{driverPaymentInfos[index]!.iban}</span> ({driverPaymentInfos[index]!.iban_holder_name})
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {receiptUrls[index] && (
-                      <Link href={receiptUrls[index]!} target="_blank" rel="noopener noreferrer" className="text-primary flex items-center gap-1 text-sm underline">
-                        <FileText className="size-4" aria-hidden="true" /> {t("viewReceipt")}
-                      </Link>
-                    )}
-                    <DepositReceiptReviewActions bookingId={booking.id} />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div>
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg font-medium">{t("settlementReceiptsTitle")}</h2>
-          {lowRiskSettlementIds.length > 0 && <BulkApproveReceiptsButton bookingIds={lowRiskSettlementIds} kind="settlement" />}
+          {lowRiskSettlementIds.length > 0 && <BulkApproveReceiptsButton bookingIds={lowRiskSettlementIds} />}
         </div>
         {pendingSettlements.length === 0 ? (
           <EmptyState icon={Receipt} title={t("noPendingSettlements")} description="" />
@@ -156,6 +108,11 @@ export default async function AdminPaymentsPage() {
                     </div>
                     <RouteLabel booking={booking} locale={locale} />
                     <p className="text-muted-foreground text-xs">{t("driverLabel")}: {booking.ride.driver?.full_name ?? t("unknownUser")}</p>
+                    {driverPaymentInfos[index] && (
+                      <p className="text-muted-foreground text-xs">
+                        {t("driverIbanLabel")}: <span className="font-mono">{driverPaymentInfos[index]!.iban}</span> ({driverPaymentInfos[index]!.iban_holder_name})
+                      </p>
+                    )}
                   </div>
                   <div className="flex items-center gap-3">
                     {settlementReceiptUrls[index] && (

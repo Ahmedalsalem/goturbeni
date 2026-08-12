@@ -9,9 +9,9 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 
-// Shared approve/reject-with-reason control for both deposit and settlement
-// receipt review (DepositReceiptReviewActions / SettlementReceiptReviewActions)
-// — identical UI, only the server action called differs.
+// Shared approve/reject-with-reason control, used by
+// SettlementReceiptReviewActions — a thin wrapper that supplies the actual
+// server action to call.
 export function ReceiptReviewActions({
   onReview,
 }: {

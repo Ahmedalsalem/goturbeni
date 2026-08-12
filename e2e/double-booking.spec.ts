@@ -61,8 +61,8 @@ test.describe.serial("double-booking protection", () => {
 
   test("approving the second booking for the last seat is rejected", async () => {
     await driverPage.goto(`/rides/${rideId}/bookings`)
-    const approveLabel = "Kaporayı Aldım, Onayla"
-    const confirmApproveLabel = "Kaporayı aldığınızı onaylıyor musunuz?"
+    const approveLabel = "Onayla"
+    const confirmApproveLabel = "Bu rezervasyon talebini onaylamak istediğinize emin misiniz?"
 
     await expect(driverPage.getByRole("button", { name: approveLabel, exact: true })).toHaveCount(2)
 

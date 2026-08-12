@@ -232,7 +232,7 @@
       "phone": "Phone",
       "phoneHint": "Enter without the leading 0 (e.g. 5XX XXX XX XX).",
       "iban": "IBAN",
-      "ibanHint": "Required to post listings as a driver — passengers send their deposit payment here.",
+      "ibanHint": "Required to post listings as a driver — passengers send the full fare here after the trip.",
       "ibanHolderName": "Account Holder Full Name",
       "carBrand": "Car Make",
       "carModel": "Car Model",
@@ -303,6 +303,10 @@
       "smokingAllowed": "Smoking Allowed",
       "vipOnly": "VIP (Single Passenger)",
       "femaleDriverOnly": "Female Driver",
+      "typeLabel": "Listing Type",
+      "typeAll": "All",
+      "typeDriver": "Driver Listings",
+      "typePassenger": "Passenger Listings",
       "sortLabel": "Sort",
       "sort": {
         "date_asc": "Date (Ascending)",
@@ -336,8 +340,8 @@
         "description": "Choose your departure, destination, and date; filter by map or GPS location to instantly see active listings that match. As a passenger, search for a seat; as a driver, list your open seats."
       },
       "book": {
-        "title": "Book your seat, pay your deposit",
-        "description": "Once the driver approves your booking request, your trip is confirmed. The passenger sends 25% of the total fare (the deposit) to the driver's IBAN and uploads the receipt; the remaining 75% is paid after the trip."
+        "title": "Book your seat",
+        "description": "Once the driver approves your booking request, your trip is confirmed. No payment is made at this stage — the full fare is paid after the trip is completed."
       },
       "pickup": {
         "title": "Get in touch with your driver",
@@ -345,7 +349,7 @@
       },
       "complete": {
         "title": "Finish the trip, leave a review",
-        "description": "After arrival, the remaining payment is settled, and both sides rate each other with 1–5 stars and a comment — these reviews appear on each user's profile."
+        "description": "After the trip is completed, the passenger sends the full fare to the driver's IBAN and uploads the receipt; both sides rate each other with 1–5 stars and a comment — these reviews appear on each user's profile."
       }
     },
     "trust": {
@@ -381,7 +385,7 @@
       },
       "payment": {
         "question": "How does payment work?",
-        "answer": "GötürBeni doesn't take a commission. Once your booking is approved, you send the deposit amount to the IBAN shown on the driver's profile and upload the receipt through the app; once it's reviewed and approved, your booking is confirmed. The same receipt/approval process is used for the remaining balance after the trip."
+        "answer": "GötürBeni doesn't take a commission. Approving a booking doesn't require any payment — once the ride is completed, you send the full fare to the IBAN shown on the driver's profile and upload the receipt through the app; once it's reviewed and approved, the payment is considered complete."
       },
       "depositRejected": {
         "question": "What happens if my uploaded receipt is rejected?",
@@ -421,7 +425,8 @@
     "title": "My Bookings",
     "emptyTitle": "You don't have any bookings yet",
     "emptyDescription": "Find a ride and send a booking request.",
-    "chat": "Chat"
+    "chat": "Chat",
+    "myOffersTitle": "My Offers"
   },
   "RideBookingsPage": {
     "title": "Booking Requests",
@@ -451,6 +456,9 @@
       "noResults": "No results found.",
       "clearSelection": "Clear selection",
       "optional": "(optional)",
+      "postedByRoleLabel": "Listing Type",
+      "iAmDriver": "I'm a driver",
+      "iAmPassenger": "I'm a passenger",
       "useMyLocation": "Use My Location",
       "detectingLocation": "Detecting location...",
       "locationDenied": "Location permission denied.",
@@ -508,7 +516,10 @@
       "unknownDriver": "Driver",
       "petsAllowed": "Pets allowed",
       "smokingAllowed": "Smoking allowed",
-      "vipSolo": "VIP (Single Passenger)"
+      "vipSolo": "VIP (Single Passenger)",
+      "unknownPoster": "Passenger",
+      "passengerListingBadge": "Passenger Listing",
+      "driverListingBadge": "Driver Listing"
     },
     "myRides": {
       "edit": "Edit",
@@ -543,11 +554,15 @@
     },
     "actions": {
       "reserve": "Book Now",
-      "approve": "I've Received the Deposit, Approve",
+      "makeOffer": "Make an Offer",
+      "manageOffer": "Manage Offer",
+      "approveOffer": "Accept Offer",
+      "confirmApproveOffer": "Are you sure you want to accept this offer?",
+      "approve": "Approve",
       "reject": "Decline",
       "cancel": "Cancel",
       "confirmCancel": "Are you sure?",
-      "confirmApprove": "Do you confirm you've received the deposit?",
+      "confirmApprove": "Are you sure you want to approve this booking request?",
       "confirmReject": "Decline this request?",
       "reportDriverNoShow": "Driver Didn't Show Up",
       "reportPassengerNoShow": "Passenger Didn't Show Up",
@@ -556,6 +571,8 @@
     },
     "success": {
       "created": "Your booking request has been sent.",
+      "offerCreated": "Your offer has been sent.",
+      "offerApproved": "Offer accepted.",
       "approved": "Booking approved.",
       "rejected": "Booking declined.",
       "cancelled": "Booking cancelled.",
@@ -567,6 +584,8 @@
       "notEnoughSeats": "Not enough seats available.",
       "alreadyBooked": "You already have a booking request for this listing.",
       "ownRide": "You can't book your own listing.",
+      "notPassengerListing": "You can't make an offer on this listing.",
+      "alreadyOffered": "You already have an offer on this listing.",
       "rideNotActive": "This listing is no longer active.",
       "createFailed": "Booking could not be created. Please try again.",
       "approveFailed": "Booking could not be approved. Please try again.",
@@ -574,7 +593,9 @@
       "cancelFailed": "Booking could not be cancelled. Please try again.",
       "tooManyRequests": "Too many attempts. Please try again later.",
       "settleFailed": "Payment could not be marked as settled. Please try again.",
-      "driverNoShow": "The remaining payment can't be processed because the driver was reported as a no-show. A dispute has been opened automatically.",
+      "driverNoShow": "The payment can't be processed because the driver was reported as a no-show. A dispute has been opened automatically.",
+      "offerDriverIbanRequired": "You can't accept this offer — the offering driver's IBAN is missing.",
+      "offerDriverCarPlateRequired": "You can't accept this offer — the offering driver's license plate is missing or invalid.",
       "actionFailed": "The action could not be completed. Please try again.",
       "receiptRequired": "Please select a receipt file.",
       "receiptTooLarge": "Receipt file must be at most 5 MB.",
@@ -584,11 +605,12 @@
     "card": {
       "seatCount": "{count} seats",
       "unknownPassenger": "Passenger",
-      "uploadSettlementReceipt": "Upload Remaining Payment Receipt",
+      "unknownDriver": "Driver",
+      "uploadSettlementReceipt": "Upload Payment Receipt",
       "settlementReceiptStatus": {
-        "pending": "Remaining payment receipt under review",
-        "approved": "Remaining payment receipt approved",
-        "rejected": "Remaining payment receipt rejected — please re-upload"
+        "pending": "Payment receipt under review",
+        "approved": "Payment receipt approved",
+        "rejected": "Payment receipt rejected — please re-upload"
       }
     },
     "loginPrompt": {
@@ -598,21 +620,15 @@
       "verifyCta": "Complete Verification"
     },
     "payment": {
-      "depositInstructionTitle": "To confirm your booking, send 25% of the fare to the IBAN below by {deadline}",
+      "settlementInstructionTitle": "After the ride is completed, send the full fare to the IBAN below",
       "ibanLabel": "IBAN",
       "ibanHolderLabel": "Account Holder",
       "noCommissionDisclaimer": "Our platform doesn't take a commission — payments are made directly between individuals.",
       "driverMemberSince": "Member since: {date}",
       "driverCompletedRides": "{count} completed trips",
-      "settleCta": "Mark Remaining Payment as Complete",
-      "settleSuccess": "Remaining payment marked as complete.",
-      "uploadReceipt": "Upload Receipt",
-      "receiptUploadSuccess": "Receipt uploaded, awaiting review.",
-      "receiptStatus": {
-        "pending": "Receipt under review",
-        "approved": "Receipt approved",
-        "rejected": "Receipt rejected — please re-upload"
-      }
+      "settleCta": "Mark Payment as Complete",
+      "settleSuccess": "Payment marked as complete.",
+      "receiptUploadSuccess": "Receipt uploaded, awaiting review."
     },
     "refund": {
       "uploadProof": "Upload Refund Receipt",
@@ -848,10 +864,8 @@
     "payments": {
       "title": "Payments",
       "description": "Review pending payment receipts and refund requests.",
-      "depositReceiptsTitle": "Receipts Awaiting Review",
-      "noPendingReceipts": "No pending receipts",
-      "settlementReceiptsTitle": "Remaining Payment Receipts Awaiting Review",
-      "noPendingSettlements": "No pending remaining payment receipts",
+      "settlementReceiptsTitle": "Payment Receipts Awaiting Review",
+      "noPendingSettlements": "No pending payment receipts",
       "refundsTitle": "Refunds Awaiting Review",
       "noPendingRefunds": "No pending refunds",
       "viewReceipt": "View Receipt",

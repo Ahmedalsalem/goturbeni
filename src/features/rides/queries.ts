@@ -8,7 +8,8 @@ import type { RideSearchFilters, RideSort } from "@/features/rides/filters"
 import type { Ride, RideWithDriver } from "@/types/ride"
 import { getNearbyProvinces } from "@/utils/turkish-provinces-geo"
 
-const RIDE_WITH_DRIVER_SELECT = "*, driver:profiles(full_name, avatar_url, car_brand, car_model, car_plate)"
+const RIDE_WITH_DRIVER_SELECT =
+  "*, driver:profiles!rides_driver_id_fkey(full_name, avatar_url, car_brand, car_model, car_plate), poster:profiles!rides_posted_by_fkey(full_name, avatar_url)"
 
 // How far (km) a province search widens once the exact departure/arrival
 // province has no results — wide enough to catch a genuinely nearby
@@ -80,6 +81,9 @@ function buildRidesQuery(
   if (femaleDriverRideIds) {
     query = query.in("id", femaleDriverRideIds)
   }
+  if (filters?.postedByRole) {
+    query = query.eq("posted_by_role", filters.postedByRole)
+  }
 
   const { column, ascending } = SORT_COLUMN[filters?.sort ?? "date_asc"]
   return query.order(column, { ascending })
@@ -116,6 +120,9 @@ function buildNearbyProvinceRidesQuery(
   }
   if (femaleDriverRideIds) {
     query = query.in("id", femaleDriverRideIds)
+  }
+  if (filters.postedByRole) {
+    query = query.eq("posted_by_role", filters.postedByRole)
   }
 
   const { column, ascending } = SORT_COLUMN[filters.sort ?? "date_asc"]
@@ -208,12 +215,12 @@ export async function getMyActiveRideSeries(driverId: string): Promise<RideSerie
   return (data as RideSeries[] | null) ?? []
 }
 
-export async function getMyRides(driverId: string): Promise<RideWithDriver[]> {
+export async function getMyRides(userId: string): Promise<RideWithDriver[]> {
   const supabase = await createClient()
   const { data } = await supabase
     .from("rides")
     .select(RIDE_WITH_DRIVER_SELECT)
-    .eq("driver_id", driverId)
+    .eq("posted_by", userId)
     .order("created_at", { ascending: false })
 
   return (data as RideWithDriver[] | null) ?? []

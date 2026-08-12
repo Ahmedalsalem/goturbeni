@@ -34,6 +34,13 @@ describe("parseRideSearchParams", () => {
     expect(parseRideSearchParams({ sort: "not_a_sort" }).sort).toBe("date_asc")
   })
 
+  it("parses a valid type filter and drops an invalid one", () => {
+    expect(parseRideSearchParams({ type: "passenger" }).postedByRole).toBe("passenger")
+    expect(parseRideSearchParams({ type: "driver" }).postedByRole).toBe("driver")
+    expect(parseRideSearchParams({ type: "bogus" }).postedByRole).toBeUndefined()
+    expect(parseRideSearchParams({}).postedByRole).toBeUndefined()
+  })
+
   it("takes the first value when a param is an array", () => {
     const result = parseRideSearchParams({ from: ["Ankara", "İstanbul"] })
     expect(result.from).toBe("Ankara")

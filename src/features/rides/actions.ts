@@ -62,27 +62,37 @@ export async function createRide(values: RideFormValues): Promise<RideActionStat
   }
 
   const supabase = await createClient()
+  const isPassengerListing = parsed.data.postedByRole === "passenger"
 
-  // Sürücü IBAN + hesap sahibi adı olmadan ilan açamaz (bkz. "Yarı-Yarı
-  // Ödeme Akışı" — yolcunun ilk yarı ödemesini gönderebilmesi için ilan
-  // sahibinin ödeme bilgisi baştan tam olmalı).
-  const { data: paymentInfo } = await supabase.from("profiles_private").select("iban, iban_holder_name").eq("id", user.id).maybeSingle()
-  if (!paymentInfo?.iban || !paymentInfo?.iban_holder_name) {
-    return { error: tErrors("ibanRequired") }
-  }
+  // Yolcu ilanında henüz bir sürücü/araç yok — IBAN + plaka kontrolü (sürücü
+  // ilanında burada, ilan açılışında yapılırdı) teklif veren sürücüye
+  // taşınıyor, approveBooking'de kontrol ediliyor (Faz 2A, bkz.
+  // bookings/actions.ts).
+  if (!isPassengerListing) {
+    // Sürücü IBAN + hesap sahibi adı olmadan ilan açamaz (bkz. "Yarı-Yarı
+    // Ödeme Akışı" — yolcunun ilk yarı ödemesini gönderebilmesi için ilan
+    // sahibinin ödeme bilgisi baştan tam olmalı).
+    const { data: paymentInfo } = await supabase.from("profiles_private").select("iban, iban_holder_name").eq("id", user.id).maybeSingle()
+    if (!paymentInfo?.iban || !paymentInfo?.iban_holder_name) {
+      return { error: tErrors("ibanRequired") }
+    }
 
-  // Sürücü geçerli formatta bir plaka olmadan ilan açamaz — yolcunun aracı
-  // teşhis edebilmesi (bkz. 0050_car_plate.sql) artık zorunlu, IBAN kontrolüyle
-  // aynı desende. profiles.car_plate serbest yazılmış olabilir (eski kayıtlar),
-  // bu yüzden format burada da doğrulanır, sadece boş olmadığı değil.
-  const { data: driverProfile } = await supabase.from("profiles").select("car_plate").eq("id", user.id).maybeSingle()
-  if (!driverProfile?.car_plate || !TR_PLATE_PATTERN.test(driverProfile.car_plate)) {
-    return { error: tErrors("carPlateRequired") }
+    // Sürücü geçerli formatta bir plaka olmadan ilan açamaz — yolcunun aracı
+    // teşhis edebilmesi (bkz. 0050_car_plate.sql) artık zorunlu.
+    const { data: driverProfile } = await supabase.from("profiles").select("car_plate").eq("id", user.id).maybeSingle()
+    if (!driverProfile?.car_plate || !TR_PLATE_PATTERN.test(driverProfile.car_plate)) {
+      return { error: tErrors("carPlateRequired") }
+    }
   }
 
   const { data: ride, error } = await supabase
     .from("rides")
-    .insert({ driver_id: user.id, ...buildRideRow(parsed.data) })
+    .insert({
+      driver_id: isPassengerListing ? null : user.id,
+      posted_by_role: parsed.data.postedByRole,
+      posted_by: user.id,
+      ...buildRideRow(parsed.data),
+    })
     .select("id")
     .single()
 
@@ -165,7 +175,7 @@ export async function updateRide(rideId: string, values: RideFormValues): Promis
     .from("rides")
     .update(buildRideRow(parsed.data))
     .eq("id", rideId)
-    .eq("driver_id", user.id)
+    .eq("posted_by", user.id)
     .eq("status", "active")
 
   if (error) {

@@ -17,8 +17,10 @@ export async function RideCard({ ride, actions }: { ride: RideWithDriver; action
   const locale = await getUserLocale()
 
   const departureAt = new Date(ride.departure_time)
-  const driverName = ride.driver?.full_name ?? t("unknownDriver")
-  const driverInitials = driverName.slice(0, 2).toUpperCase()
+  const isPassengerListing = ride.posted_by_role === "passenger"
+  const posterName = isPassengerListing ? (ride.poster?.full_name ?? t("unknownPoster")) : (ride.driver?.full_name ?? t("unknownDriver"))
+  const posterAvatarUrl = isPassengerListing ? ride.poster?.avatar_url : ride.driver?.avatar_url
+  const posterInitials = posterName.slice(0, 2).toUpperCase()
   const departureCity = getProvinceDisplayName(ride.departure_city, locale)
   const arrivalCity = getProvinceDisplayName(ride.arrival_city, locale)
 
@@ -35,6 +37,9 @@ export async function RideCard({ ride, actions }: { ride: RideWithDriver; action
           {ride.arrival_district ? `${arrivalCity} (${ride.arrival_district})` : arrivalCity}
         </Link>
         <div className="flex items-center gap-2">
+          <Badge variant={isPassengerListing ? "secondary" : "outline"} className="gap-1">
+            <Users className="size-3" aria-hidden="true" /> {isPassengerListing ? t("passengerListingBadge") : t("driverListingBadge")}
+          </Badge>
           {ride.vip_solo && (
             <Badge variant="secondary" className="gap-1">
               <Crown className="size-3" aria-hidden="true" /> {t("vipSolo")}
@@ -75,12 +80,12 @@ export async function RideCard({ ride, actions }: { ride: RideWithDriver; action
       <CardFooter className="flex flex-wrap items-center justify-between gap-3 border-t-0 bg-transparent pt-1">
         <div className="flex items-center gap-2.5">
           <Avatar className="ring-border size-9 ring-1">
-            <AvatarImage src={ride.driver?.avatar_url ?? undefined} alt={driverName} />
-            <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">{driverInitials}</AvatarFallback>
+            <AvatarImage src={posterAvatarUrl ?? undefined} alt={posterName} />
+            <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">{posterInitials}</AvatarFallback>
           </Avatar>
           <div>
-            <span className="text-sm font-medium">{driverName}</span>
-            {(ride.driver?.car_brand || ride.driver?.car_model || ride.driver?.car_plate) && (
+            <span className="text-sm font-medium">{posterName}</span>
+            {!isPassengerListing && (ride.driver?.car_brand || ride.driver?.car_model || ride.driver?.car_plate) && (
               <p className="text-muted-foreground text-xs">
                 {[
                   [ride.driver?.car_brand, ride.driver?.car_model].filter(Boolean).join(" "),

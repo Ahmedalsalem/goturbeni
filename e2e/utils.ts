@@ -136,6 +136,34 @@ export async function createRide(
   return match[1]
 }
 
+// createRide'ın yolcu-modu versiyonu — IBAN/plaka profile gerekmiyor
+// (createRide/actions.ts bu kontrolü passenger modda atlıyor), rol
+// toggle'ından "Yolcuyum"a tıklanıyor, pets/smoking/vip alanları form
+// tarafından zaten gizlendiği için hiç doldurulmuyor.
+export async function createPassengerListing(
+  page: Page,
+  options: { departureCity: string; arrivalCity: string; minutesAhead: number; seatCount: number; costShare: number }
+): Promise<string> {
+  await page.goto("/create-ride")
+  await page.getByRole("button", { name: "Yolcuyum", exact: true }).click()
+  await selectCombobox(page, "departureCity", options.departureCity)
+  await selectCombobox(page, "arrivalCity", options.arrivalCity)
+  const { date, time } = nearFutureIstanbulDateTime(options.minutesAhead)
+  await page.locator("#departureDate").fill(date)
+  await page.locator("#departureTime").fill(time)
+  await page.locator("#seatCount").fill(String(options.seatCount))
+  await page.locator("#costShare").fill(String(options.costShare))
+  await page.getByRole("button", { name: "İlanı Yayınla" }).click()
+  await page.waitForURL("**/rides/mine")
+
+  const href = await page.getByRole("link", { name: "Rezervasyonlar" }).first().getAttribute("href")
+  const match = href?.match(/\/rides\/([^/]+)\/bookings/)
+  if (!match) {
+    throw new Error(`Could not extract ride id from "Rezervasyonlar" link href: ${href}`)
+  }
+  return match[1]
+}
+
 // Clicks a booking action button that requires a second confirming click
 // (see src/features/bookings/BookingActions.tsx: "Onayla" -> "Onaylansın
 // mı?", "Reddet" -> "Reddedilsin mi?").
@@ -171,8 +199,8 @@ export async function backdateRideDeparture(rideId: string, secondsAgo: number):
   }
 }
 
-// The OCR auto-approval risk gate (submit_deposit_receipt_ocr,
-// 0053_deposit_ocr_auto_approval.sql) requires the account be ≥14 days
+// The OCR auto-approval risk gate (submit_settlement_receipt_ocr,
+// 0054_settlement_ocr_auto_approval.sql) requires the account be ≥14 days
 // old — a freshly signed-up e2e test account never qualifies, so tests
 // exercising the auto-approval path need to backdate it, same idea as
 // backdateRideDeparture above.
@@ -248,9 +276,9 @@ export async function makeAdminForTest(email: string): Promise<void> {
 }
 
 // A minimal valid PNG (1x1 transparent pixel) as a Playwright file payload —
-// submitDepositReceipt/submitRefundProof/submitSettlementReceipt only check
-// size/mime type (see MAX_RECEIPT_BYTES/ALLOWED_RECEIPT_TYPES in
-// src/features/bookings/actions.ts), so a real photo isn't needed.
+// submitRefundProof/submitSettlementReceipt only check size/mime type (see
+// MAX_RECEIPT_BYTES/ALLOWED_RECEIPT_TYPES in src/features/bookings/actions.ts),
+// so a real photo isn't needed.
 const ONE_PIXEL_PNG_BASE64 =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
 
@@ -260,7 +288,7 @@ export function receiptFilePayload(name: string): { name: string; mimeType: stri
 
 // Unlike receiptFilePayload's blank pixel, this renders actual IBAN/amount
 // text into a screenshot — for exercising the OCR auto-approval path
-// (submit_deposit_receipt_ocr, src/lib/ocr.ts), which needs something a real
+// (submit_settlement_receipt_ocr, src/lib/ocr.ts), which needs something a real
 // bank app screenshot's text to recognize. Uses a throwaway page in the same
 // browser context rather than a separate image library dependency.
 export async function realisticReceiptFilePayload(
@@ -275,7 +303,7 @@ export async function realisticReceiptFilePayload(
       <div>Gonderen: E2E Yolcu</div>
       <div>Alici IBAN: ${iban}</div>
       <div>Tutar: ${amount.toFixed(2).replace(".", ",")} TL</div>
-      <div>Aciklama: Yolculuk kaporasi</div>
+      <div>Aciklama: Yolculuk odemesi</div>
     </body></html>
   `)
   const buffer = await scratchPage.screenshot()

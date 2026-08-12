@@ -11,8 +11,9 @@ import { buttonVariants } from "@/components/ui/button"
 import { RideStatusBadge } from "@/features/rides/RideStatusBadge"
 import { getDriverCompletedRideCount, getRideWithDriver } from "@/features/rides/queries"
 import { getProfile, isPhoneVerified } from "@/features/profile/queries"
-import { getMyBookingForRide, getRideDriverPaymentInfo } from "@/features/bookings/queries"
+import { getMyBookingForRide, getMyOfferForRide, getRideDriverPaymentInfo } from "@/features/bookings/queries"
 import { BookingButton } from "@/features/bookings/BookingButton"
+import { OfferButton } from "@/features/bookings/OfferButton"
 import { ReviewSection } from "@/features/reviews/ReviewSection"
 import { getReviewStats } from "@/features/reviews/queries"
 import { StarRating } from "@/features/reviews/StarRating"
@@ -68,7 +69,7 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
     notFound()
   }
 
-  const [t, tCard, tNav, tReviews, tBookings, format, locale, driverProfile, driverReviewStats, user] = await Promise.all([
+  const [t, tCard, tNav, tReviews, tBookings, format, locale, user] = await Promise.all([
     getTranslations("RideDetailPage"),
     getTranslations("Rides.card"),
     getTranslations("Nav"),
@@ -76,22 +77,32 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
     getTranslations("Bookings.loginPrompt"),
     getFormatter(),
     getUserLocale(),
-    getProfile(ride.driver_id),
-    getReviewStats(ride.driver_id),
     getCurrentUser(),
   ])
-  const [existingBooking, userVerified] = user
-    ? await Promise.all([getMyBookingForRide(ride.id, user.id), isPhoneVerified(user.id)])
-    : [null, false]
-  const awaitingDeposit = existingBooking?.status === "pending" && existingBooking.payment_status === "awaiting_deposit"
-  const [driverPaymentInfo, driverCompletedRideCount] = awaitingDeposit
+
+  const isPassengerListing = ride.posted_by_role === "passenger"
+  // Yolcu ilanında "profil kartı" ilan sahibini (poster) gösterir, henüz
+  // atanmamış bir sürücüyü değil — driver_id onay anına kadar NULL (Faz 2A).
+  const posterProfile = isPassengerListing ? await getProfile(ride.posted_by) : null
+  const [driverProfile, driverReviewStats] = ride.driver_id
+    ? await Promise.all([getProfile(ride.driver_id), getReviewStats(ride.driver_id)])
+    : [null, { averageRating: null, reviewCount: 0 }]
+  const [existingBooking, existingOffer, userVerified] = user
+    ? await Promise.all([
+        isPassengerListing ? Promise.resolve(null) : getMyBookingForRide(ride.id, user.id),
+        isPassengerListing ? getMyOfferForRide(ride.id, user.id) : Promise.resolve(null),
+        isPhoneVerified(user.id),
+      ])
+    : [null, null, false]
+  const isApprovedAwaitingPayment = existingBooking?.status === "approved" && existingBooking.payment_status !== "settled"
+  const [driverPaymentInfo, driverCompletedRideCount] = isApprovedAwaitingPayment && ride.driver_id
     ? await Promise.all([getRideDriverPaymentInfo(ride.id), getDriverCompletedRideCount(ride.driver_id)])
     : [null, 0]
-  // Shown next to the IBAN so the passenger has a trust signal at the exact
-  // moment they're about to send real money — a fresh, reviewless account
-  // asking for a deposit is the actual "post a fake ride, collect, vanish"
-  // fraud pattern; an IBAN checksum wouldn't catch that (see conversation).
-  const driverTrustInfo = awaitingDeposit
+  // Shown next to the IBAN so the passenger has a trust signal alongside the
+  // account they'll eventually send real money to — a fresh, reviewless
+  // account is the actual "post a fake ride, collect, vanish" fraud pattern;
+  // an IBAN checksum wouldn't catch that (see conversation).
+  const driverTrustInfo = isApprovedAwaitingPayment
     ? {
         memberSinceIso: driverProfile?.created_at ?? ride.created_at,
         completedRideCount: driverCompletedRideCount,
@@ -101,18 +112,29 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
     : null
 
   const departureAt = new Date(ride.departure_time)
-  const driverName = ride.driver?.full_name ?? tCard("unknownDriver")
-  const driverInitials = driverName.slice(0, 2).toUpperCase()
+  const posterName = isPassengerListing
+    ? (ride.poster?.full_name ?? tCard("unknownPoster"))
+    : (ride.driver?.full_name ?? tCard("unknownDriver"))
+  const posterInitials = posterName.slice(0, 2).toUpperCase()
+  const isOwnListing = user ? user.id === ride.posted_by : false
   const isActiveForBooking = ride.status === "active"
-  const canBook = user && user.id !== ride.driver_id && isActiveForBooking && userVerified
+  // "Sahip" artık posted_by — sürücü ilanında posted_by=driver_id olduğundan
+  // davranış aynı; yolcu ilanında ilan sahibi (henüz driver_id olmayan)
+  // kendi ilanına rezervasyon/teklif CTA'sı görmemeli (eskiden sadece
+  // driver_id kontrol edildiği için bu bir bug'dı, bkz. Task açıklaması).
+  const canBook = user && !isOwnListing && !isPassengerListing && isActiveForBooking && userVerified
+  const canOffer = user && !isOwnListing && isPassengerListing && isActiveForBooking && userVerified
   // Guests can view every ride, but only a signed-in, non-owner, phone-
   // verified user can book it — show a CTA instead of hiding the footer
   // outright, so the visitor understands why there's no "reserve" button.
   const showLoginPrompt = !user && isActiveForBooking
-  const showVerifyPrompt = user && user.id !== ride.driver_id && isActiveForBooking && !userVerified
+  const showVerifyPrompt = user && !isOwnListing && isActiveForBooking && !userVerified
   // A full ride can't take a new booking at all (createBooking hard-rejects
   // non-"active" rides) — offer the waitlist instead of just a dead end.
-  const showWaitlist = user && user.id !== ride.driver_id && ride.status === "full" && !existingBooking
+  // Bir yolcu ilanı tek bir teklifle TAMAMEN kapandığından (kısmi kabul
+  // yok) "koltuk açılması" hiç olmaz — bekleme listesi sadece sürücü
+  // ilanlarında anlamlı.
+  const showWaitlist = user && !isOwnListing && !isPassengerListing && ride.status === "full" && !existingBooking
   const myWaitlistEntry = showWaitlist ? await getMyWaitlistEntry(ride.id, user.id) : null
   const departureCity = getProvinceDisplayName(ride.departure_city, locale)
   const arrivalCity = getProvinceDisplayName(ride.arrival_city, locale)
@@ -151,20 +173,20 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
         <CardContent className="flex flex-col gap-6">
           <div className="flex items-center gap-3">
             <Avatar className="size-10">
-              <AvatarImage src={ride.driver?.avatar_url ?? undefined} alt={driverName} />
-              <AvatarFallback>{driverInitials}</AvatarFallback>
+              <AvatarImage src={(isPassengerListing ? ride.poster?.avatar_url : ride.driver?.avatar_url) ?? undefined} alt={posterName} />
+              <AvatarFallback>{posterInitials}</AvatarFallback>
             </Avatar>
             <div>
               <div className="flex items-center gap-2">
-                <p className="font-medium">{driverName}</p>
-                {driverReviewStats.averageRating !== null && (
+                <p className="font-medium">{posterName}</p>
+                {!isPassengerListing && driverReviewStats.averageRating !== null && (
                   <div className="flex items-center gap-1">
                     <StarRating rating={driverReviewStats.averageRating} size="sm" />
                     <span className="text-muted-foreground text-xs">({driverReviewStats.reviewCount})</span>
                   </div>
                 )}
               </div>
-              {(ride.driver?.car_brand || ride.driver?.car_model || ride.driver?.car_plate) && (
+              {!isPassengerListing && (ride.driver?.car_brand || ride.driver?.car_model || ride.driver?.car_plate) && (
                 <p className="text-muted-foreground text-sm">
                   {[
                     [ride.driver?.car_brand, ride.driver?.car_model].filter(Boolean).join(" "),
@@ -174,7 +196,9 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
                     .join(" · ")}
                 </p>
               )}
-              {driverProfile?.bio && <p className="text-muted-foreground text-sm">{driverProfile.bio}</p>}
+              {(isPassengerListing ? posterProfile?.bio : driverProfile?.bio) && (
+                <p className="text-muted-foreground text-sm">{isPassengerListing ? posterProfile?.bio : driverProfile?.bio}</p>
+              )}
             </div>
           </div>
 
@@ -216,7 +240,7 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
             </div>
           )}
 
-          {driverReviewStats.reviewCount > 0 && (
+          {!isPassengerListing && driverReviewStats.reviewCount > 0 && ride.driver_id && (
             <div>
               <h2 className="mb-1 text-sm font-medium">{tReviews("recentReviews")}</h2>
               <ReviewSection userId={ride.driver_id} limit={3} hideStats />
@@ -232,6 +256,11 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
               driverPaymentInfo={driverPaymentInfo}
               driverTrustInfo={driverTrustInfo}
             />
+          </CardFooter>
+        )}
+        {canOffer && (
+          <CardFooter>
+            <OfferButton rideId={ride.id} existingOffer={existingOffer} />
           </CardFooter>
         )}
         {showLoginPrompt && (

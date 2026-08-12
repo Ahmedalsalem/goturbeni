@@ -13,14 +13,14 @@ import { adminBulkApproveReceipts } from "@/features/admin/actions"
 // approve clicks into one. Still a single explicit admin action (not
 // unattended auto-approval): every row still gets *_reviewed_at stamped by
 // admin_bulk_approve_receipts (0047_bulk_receipt_review.sql).
-export function BulkApproveReceiptsButton({ bookingIds, kind }: { bookingIds: string[]; kind: "deposit" | "settlement" }) {
+export function BulkApproveReceiptsButton({ bookingIds }: { bookingIds: string[] }) {
   const t = useTranslations("Admin.payments")
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
   function onClick() {
     startTransition(async () => {
-      const result = await adminBulkApproveReceipts(bookingIds, kind)
+      const result = await adminBulkApproveReceipts(bookingIds)
       if (result?.error) {
         toast.error(result.error)
       } else {

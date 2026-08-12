@@ -15,7 +15,11 @@ import { SettlePaymentButton } from "@/features/bookings/SettlePaymentButton"
 import { OpenDisputeButton } from "@/features/disputes/OpenDisputeButton"
 import { getMyDisputeForBooking } from "@/features/disputes/queries"
 import { getMyPickupCode } from "@/features/pickup/queries"
-import { getMyBookings, getRideCounterpartyPhone } from "@/features/bookings/queries"
+import {
+  getMyBookings,
+  getMyDriverOffers,
+  getRideCounterpartyPhone,
+} from "@/features/bookings/queries"
 import { getUnreadMessages } from "@/features/chat/queries"
 import { getRideLiveLocation } from "@/features/live-location/queries"
 import { LiveLocationSection } from "@/features/live-location/LiveLocationSection"
@@ -42,21 +46,27 @@ export default async function BookingsPage() {
   const format = await getFormatter()
   const locale = await getUserLocale()
   const [bookings, unreadMessages] = await Promise.all([getMyBookings(user.id), getUnreadMessages(user.id)])
+  const myOffers = await getMyDriverOffers(user.id)
 
+  // Onaylanmış her booking'de driver_id atanmış olur (approve_booking bunu
+  // garanti eder, yolcu ilanlarında bile) — ama tip artık nullable (Faz 2A),
+  // bu yüzden aşağıdaki her kullanım yerinde savunmacı bir null kontrolü var.
   const completedBookings = bookings.filter(
-    (booking) => booking.status === "approved" && new Date(booking.ride.departure_time) < new Date()
+    (booking) => booking.status === "approved" && booking.ride.driver_id !== null && new Date(booking.ride.departure_time) < new Date()
   )
   const myReviews = await Promise.all(
-    completedBookings.map((booking) => getMyReviewForRide(booking.ride.id, user.id, booking.ride.driver_id))
+    completedBookings.map((booking) => getMyReviewForRide(booking.ride.id, user.id, booking.ride.driver_id!))
   )
   const reviewedRideIds = new Set(completedBookings.filter((_, index) => myReviews[index]).map((booking) => booking.ride.id))
   const approvedBookings = bookings.filter((booking) => booking.status === "approved")
   const upcomingApprovedBookings = approvedBookings.filter((booking) => new Date(booking.ride.departure_time) >= new Date())
   const driverPhones = new Map(
     await Promise.all(
-      approvedBookings.map(
-        async (booking) => [booking.ride.id, await getRideCounterpartyPhone(booking.ride.id, booking.ride.driver_id)] as const
-      )
+      approvedBookings
+        .filter((booking) => booking.ride.driver_id !== null)
+        .map(
+          async (booking) => [booking.ride.id, await getRideCounterpartyPhone(booking.ride.id, booking.ride.driver_id!)] as const
+        )
     )
   )
   const liveLocations = new Map(
@@ -132,7 +142,7 @@ export default async function BookingsPage() {
                         )}
                       </Link>
                     )}
-                    {isCompleted && booking.payment_status === "deposit_confirmed" && !booking.passenger_settled_at && (
+                    {isCompleted && booking.payment_status === "awaiting_settlement" && !booking.passenger_settled_at && (
                       <SettlePaymentButton bookingId={booking.id} rideId={booking.ride.id} />
                     )}
                     {isCompleted && booking.payment_status !== "settled" && (
@@ -146,9 +156,9 @@ export default async function BookingsPage() {
                     {isCompleted &&
                       (reviewedRideIds.has(booking.ride.id) ? (
                         <Badge variant="secondary">{tReviewActions("alreadyReviewed")}</Badge>
-                      ) : (
+                      ) : booking.ride.driver_id ? (
                         <ReviewButton rideId={booking.ride.id} revieweeId={booking.ride.driver_id} />
-                      ))}
+                      ) : null)}
                     {isCompleted &&
                       (booking.driver_no_show ? (
                         <Badge variant="secondary">{tBookingActions("alreadyReportedNoShow")}</Badge>
@@ -165,6 +175,34 @@ export default async function BookingsPage() {
               </Card>
             )
           })}
+        </div>
+      )}
+
+      {myOffers.length > 0 && (
+        <div className="mt-10 flex flex-col gap-4">
+          <h2 className="text-xl font-semibold">{t("myOffersTitle")}</h2>
+          {myOffers.map((offer) => (
+            <Card key={offer.id}>
+              <CardHeader className="flex items-center justify-between gap-4">
+                <Link href={`/rides/${offer.ride.id}`} className="font-semibold hover:underline">
+                  {getProvinceDisplayName(offer.ride.departure_city, locale)} → {getProvinceDisplayName(offer.ride.arrival_city, locale)}
+                </Link>
+                <BookingStatusBadge status={offer.status} />
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
+                <div>{format.dateTime(new Date(offer.ride.departure_time), { day: "2-digit", month: "2-digit", year: "numeric" })}</div>
+                <div className="font-medium">{formatCostShare(offer.ride.cost_share, locale)}</div>
+              </CardContent>
+              <CardFooter className="flex flex-wrap items-center gap-2">
+                {offer.status === "pending" && <CancelBookingButton bookingId={offer.id} rideId={offer.ride.id} />}
+                {offer.status === "approved" && (
+                  <Link href={`/rides/${offer.ride.id}/bookings`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                    {tBookingActions("manageOffer")}
+                  </Link>
+                )}
+              </CardFooter>
+            </Card>
+          ))}
         </div>
       )}
     </div>

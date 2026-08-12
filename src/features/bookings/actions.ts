@@ -12,7 +12,7 @@ import { requireVerifiedProfile, verifySession } from "@/lib/supabase/dal"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { logError } from "@/lib/logger"
 import { getRide } from "@/features/rides/queries"
-import { getBookingPassengerId } from "@/features/bookings/queries"
+import { getBookingParties } from "@/features/bookings/queries"
 import { extractReceiptFields } from "@/lib/ocr"
 import { recordNotificationEvent, sendPushNotification, sendSeatOpenedPushNotifications } from "@/lib/notifications"
 import { sendEmailNotification, sendSeatOpenedEmailNotifications } from "@/lib/email"
@@ -56,6 +56,22 @@ export async function createBooking(rideId: string, values: BookingFormValues): 
   if (parsed.data.seatCount > ride.available_seats) {
     return { error: tErrors("notEnoughSeats") }
   }
+  if (!ride.driver_id) {
+    // Defensive: a passenger-posted ride (posted_by_role='passenger') has no
+    // driver_id until a driver's offer is approved — the "insert own ride"
+    // RLS policy (requires auth.uid() = driver_id at insert time for
+    // posted_by_role='driver') plus the revoke on client UPDATEs of driver_id
+    // (0058) guarantee a driver-posted ride always has one, so this should be
+    // unreachable via that path (the rides_posted_by_matches_driver_when_
+    // driver_posted CHECK constraint does NOT by itself enforce this — SQL's
+    // NULL-passes-CHECK semantics mean it doesn't reject driver_id IS NULL).
+    // There's no "request a seat" flow for a passenger-posted ride yet
+    // (that's a driver making an offer, a separate not-yet-built action), so
+    // this just fails closed rather than sending a notification to a
+    // non-existent recipient.
+    logError(new Error("createBooking: ride has no driver_id"), "bookings.createBooking")
+    return { error: tErrors("createFailed") }
+  }
 
   const supabase = await createClient()
   const { error } = await supabase.from("bookings").insert({
@@ -83,6 +99,61 @@ export async function createBooking(rideId: string, values: BookingFormValues): 
   return { success: true }
 }
 
+// createBooking'in "ters" versiyonu — bir sürücü, bir yolcu ilanına teklif
+// verir. seat_count kullanıcıdan alınmaz: bir yolcu ilanı tek bir sürücü
+// tarafından TAM karşılanır (kısmi teklif yok, bkz. tasarım dokümanı),
+// dolayısıyla her zaman ride.seat_count kadar. IBAN/plaka kontrolü burada
+// YAPILMAZ — approveBooking'e taşındı (ilan sahibi onaylayana kadar hangi
+// sürücünün teklifinin kabul edileceği belli değil).
+export async function createOffer(rideId: string): Promise<BookingActionState> {
+  const { tErrors } = await getBookingTranslators()
+  if (!isSupabaseConfigured()) {
+    return { error: tErrors("notConfigured") }
+  }
+
+  const user = await requireVerifiedProfile()
+  if (!(await checkRateLimit(`create-offer:${user.id}`, CREATE_BOOKING_RATE_LIMIT.limit, CREATE_BOOKING_RATE_LIMIT.windowMs))) {
+    return { error: tErrors("tooManyRequests") }
+  }
+
+  const ride = await getRide(rideId)
+  if (!ride || ride.status !== "active") {
+    return { error: tErrors("rideNotActive") }
+  }
+  if (ride.posted_by_role !== "passenger") {
+    return { error: tErrors("notPassengerListing") }
+  }
+  if (ride.posted_by === user.id) {
+    return { error: tErrors("ownRide") }
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase.from("bookings").insert({
+    ride_id: rideId,
+    passenger_id: ride.posted_by,
+    booker_role: "driver",
+    driver_id: user.id,
+    seat_count: ride.seat_count,
+  })
+
+  if (error) {
+    // 23505 = unique_violation — Task 2'nin bookings_one_active_offer_per_driver_ride'ı.
+    if (error.code !== "23505") {
+      logError(error, "bookings.createOffer")
+    }
+    return { error: error.code === "23505" ? tErrors("alreadyOffered") : tErrors("createFailed") }
+  }
+
+  await Promise.all([
+    sendPushNotification({ type: "booking_requested", recipientId: ride.posted_by, rideId }),
+    sendEmailNotification({ type: "booking_requested", recipientId: ride.posted_by, rideId }),
+    recordNotificationEvent({ type: "booking_requested", recipientId: ride.posted_by, rideId }),
+  ])
+
+  revalidatePath(`/rides/${rideId}`)
+  return { success: true }
+}
+
 export async function approveBooking(bookingId: string, rideId: string): Promise<BookingActionState> {
   const { tErrors } = await getBookingTranslators()
   if (!isSupabaseConfigured()) {
@@ -91,6 +162,48 @@ export async function approveBooking(bookingId: string, rideId: string): Promise
 
   await verifySession()
   const supabase = await createClient()
+
+  // Yolcu ilanına verilen bir teklif onaylanıyorsa, teklif veren sürücünün
+  // IBAN + plaka bilgisi burada kontrol edilir — sürücü ilanında bu kontrol
+  // createRide'da (ilan açılırken) yapılıyordu; yolcu ilanında henüz bir
+  // sürücü atanmadığından kontrol onay anına kayıyor (bkz. tasarım
+  // dokümanı "Ödeme akışı sıralaması"). Ride, bookingId'nin gerçek
+  // ride_id'sinden çekiliyor — ayrıca geçirilen rideId parametresine
+  // güvenilmiyor, çünkü onunla bookingId arasındaki eşleşmeyi hiçbir şey
+  // zorunlu kılmıyor (uyuşmayan bir rideId bu kontrolü atlatabilirdi).
+  // ride_id/driver_id/passenger_id tek bir getBookingParties okumasıyla
+  // birlikte çekiliyor — hem ride'ı çözmek + IBAN/plaka kontrolü için, hem
+  // de aşağıda bildirim alıcısını belirlemek için; driver_id RPC'den önce
+  // ve sonra ayrı ayrı sorgulanmıyor artık (approve_booking sadece
+  // status/payment_status yazıyor, driver_id'yi hiç değiştirmiyor — bkz.
+  // _apply_booking_approval, 0059_passenger_listings_approve_reject.sql).
+  //
+  // IBAN/plaka kontrolü get_offer_driver_readiness RPC'si üzerinden yapılıyor
+  // (0063_offer_driver_readiness_rpc.sql) — profiles_private yalnızca
+  // SAHİBİ tarafından okunabildiğinden (0006), ilan sahibinin (burada
+  // çağıran, yolcu) kendi client'ıyla doğrudan
+  // `.from("profiles_private").select(...).eq("id", offeringDriverId)`
+  // sorgulaması RLS tarafından her zaman sıfır satır döndürüyordu — sürücü
+  // IBAN'ını gerçekten doldursa bile approveBooking onu hep "eksik" sayıp
+  // reddediyordu, bu yüzden bir yolcu ilanına verilen hiçbir teklif hiçbir
+  // zaman onaylanamıyordu. Bu, ilk kez Playwright'ın CI'da gerçekten canlı
+  // çalıştırılmasıyla ortaya çıktı.
+  const parties = await getBookingParties(bookingId)
+  const ride = parties ? await getRide(parties.rideId) : null
+  if (ride?.posted_by_role === "passenger") {
+    const offeringDriverId = parties?.driverId ?? null
+    if (offeringDriverId) {
+      const { data } = await supabase.rpc("get_offer_driver_readiness", { p_booking_id: bookingId }).maybeSingle()
+      const readiness = data as { iban_ok: boolean; plate_ok: boolean } | null
+      if (!readiness?.iban_ok) {
+        return { error: tErrors("offerDriverIbanRequired") }
+      }
+      if (!readiness?.plate_ok) {
+        return { error: tErrors("offerDriverCarPlateRequired") }
+      }
+    }
+  }
+
   const { error } = await supabase.rpc("approve_booking", { p_booking_id: bookingId })
 
   if (error) {
@@ -98,13 +211,26 @@ export async function approveBooking(bookingId: string, rideId: string): Promise
     return { error: error.message.includes("not_enough_seats") ? tErrors("notEnoughSeats") : tErrors("approveFailed") }
   }
 
-  const passengerId = await getBookingPassengerId(bookingId)
-  if (passengerId) {
-    await Promise.all([
-      sendPushNotification({ type: "booking_approved", recipientId: passengerId, rideId }),
-      sendEmailNotification({ type: "booking_approved", recipientId: passengerId, rideId }),
-      recordNotificationEvent({ type: "booking_approved", recipientId: passengerId, rideId }),
-    ])
+  // Bir yolcu ilanına verilen teklif onaylanıyorsa bildirim, onay işlemini
+  // BİZZAT YAPAN ilan sahibine (passenger_id) değil, sonucu öğrenmesi
+  // gereken teklif veren sürücüye (driver_id) gitmeli — driver_id yukarıdaki
+  // parties okumasından zaten elde edildi, burada tekrar sorgulanmıyor.
+  const recipientId = ride?.posted_by_role === "passenger" ? (parties?.driverId ?? null) : (parties?.passengerId ?? null)
+  if (recipientId) {
+    // Bildirim gönderimi (push/email/notification-event) yanıtı bloke
+    // etmesin diye after() içine alındı — bu dosyanın submitSettlementReceipt'te
+    // zaten kullandığı desen.
+    after(async () => {
+      try {
+        await Promise.all([
+          sendPushNotification({ type: "booking_approved", recipientId, rideId }),
+          sendEmailNotification({ type: "booking_approved", recipientId, rideId }),
+          recordNotificationEvent({ type: "booking_approved", recipientId, rideId }),
+        ])
+      } catch (error) {
+        logError(error, "bookings.approveBooking.notify")
+      }
+    })
   }
 
   revalidatePath(`/rides/${rideId}/bookings`)
@@ -127,13 +253,26 @@ export async function rejectBooking(bookingId: string, rideId: string): Promise<
     return { error: tErrors("rejectFailed") }
   }
 
-  const passengerId = await getBookingPassengerId(bookingId)
-  if (passengerId) {
-    await Promise.all([
-      sendPushNotification({ type: "booking_rejected", recipientId: passengerId, rideId }),
-      sendEmailNotification({ type: "booking_rejected", recipientId: passengerId, rideId }),
-      recordNotificationEvent({ type: "booking_rejected", recipientId: passengerId, rideId }),
-    ])
+  // approveBooking ile aynı mantık — reddedilen bir yolcu-ilanı teklifinde
+  // bildirim, reddi yapan ilan sahibine değil, teklif veren sürücüye
+  // gitmeli. ride_id/driver_id/passenger_id tek bir getBookingParties
+  // okumasıyla birlikte çekiliyor (approveBooking'deki gibi).
+  const parties = await getBookingParties(bookingId)
+  const ride = parties ? await getRide(parties.rideId) : null
+  const recipientId = ride?.posted_by_role === "passenger" ? (parties?.driverId ?? null) : (parties?.passengerId ?? null)
+  if (recipientId) {
+    // approveBooking'deki gibi — yanıtı bloke etmesin diye after() içinde.
+    after(async () => {
+      try {
+        await Promise.all([
+          sendPushNotification({ type: "booking_rejected", recipientId, rideId }),
+          sendEmailNotification({ type: "booking_rejected", recipientId, rideId }),
+          recordNotificationEvent({ type: "booking_rejected", recipientId, rideId }),
+        ])
+      } catch (error) {
+        logError(error, "bookings.rejectBooking.notify")
+      }
+    })
   }
 
   revalidatePath(`/rides/${rideId}/bookings`)
@@ -193,13 +332,13 @@ export async function confirmRemainingPayment(bookingId: string, rideId: string)
   return { success: true }
 }
 
-// Shared upload helper for both the passenger's deposit receipt and the
-// driver's refund proof — same private bucket, same file constraints, only
-// the destination path prefix and the follow-up RPC differ.
+// Shared upload helper for both the driver's refund proof and the
+// passenger's settlement receipt — same private bucket, same file
+// constraints, only the destination path prefix and the follow-up RPC differ.
 async function uploadReceiptFile(
   supabase: Awaited<ReturnType<typeof createClient>>,
   bookingId: string,
-  kind: "deposit" | "refund" | "settlement",
+  kind: "refund" | "settlement",
   file: File
 ): Promise<{ path: string } | { error: string }> {
   const tErrors = (await getBookingTranslators()).tErrors
@@ -218,95 +357,6 @@ async function uploadReceiptFile(
     return { error: tErrors("receiptUploadFailed") }
   }
   return { path }
-}
-
-// Passenger uploads proof of the IBAN deposit transfer — reviewed by the
-// driver informally and, ultimately, by an admin (admin_review_deposit_receipt
-// in supabase/migrations/0020_payment_receipts.sql).
-export async function submitDepositReceipt(bookingId: string, rideId: string, formData: FormData): Promise<BookingActionState> {
-  const { tErrors } = await getBookingTranslators()
-  if (!isSupabaseConfigured()) {
-    return { error: tErrors("notConfigured") }
-  }
-
-  const file = formData.get("receipt")
-  if (!(file instanceof File) || file.size === 0) {
-    return { error: tErrors("receiptRequired") }
-  }
-
-  const user = await verifySession()
-  if (!(await checkRateLimit(`submit-receipt:${user.id}`, RECEIPT_UPLOAD_RATE_LIMIT.limit, RECEIPT_UPLOAD_RATE_LIMIT.windowMs))) {
-    return { error: tErrors("tooManyRequests") }
-  }
-  const supabase = await createClient()
-
-  const uploaded = await uploadReceiptFile(supabase, bookingId, "deposit", file)
-  if ("error" in uploaded) {
-    return uploaded
-  }
-
-  const { error } = await supabase.rpc("submit_deposit_receipt", { p_booking_id: bookingId, p_receipt_url: uploaded.path })
-  if (error) {
-    logError(error, "bookings.submitDepositReceipt")
-    return { error: tErrors("actionFailed") }
-  }
-
-  // OCR takes several seconds (image recognition) — running it inline here
-  // would make the passenger wait that long just to see "receipt uploaded".
-  // after() runs it once the response has already gone back to the client;
-  // it hands the raw IBAN/amount candidates to submit_deposit_receipt_ocr,
-  // which independently re-checks them against the real driver IBAN and ride
-  // amount (see 0053_deposit_ocr_auto_approval.sql) — never trust a "matched"
-  // verdict computed here, only the RPC's own comparison counts. A failure
-  // here (bad image, tesseract error) just leaves the booking in its normal
-  // awaiting-manual-approval state, same as before this existed.
-  //
-  // The file's bytes are read into a plain Buffer *before* scheduling
-  // after() rather than re-reading `file` lazily inside the callback — the
-  // File/formData is tied to this request's lifecycle, and a plain Buffer
-  // has no such dependency, so this avoids relying on that lifecycle
-  // extending into code that runs after the response has already gone out.
-  const receiptBuffer = Buffer.from(await file.arrayBuffer())
-  after(async () => {
-    try {
-      const { iban, amounts } = await extractReceiptFields(receiptBuffer)
-      const { data: autoApproved, error: ocrError } = await supabase.rpc("submit_deposit_receipt_ocr", {
-        p_booking_id: bookingId,
-        p_iban: iban,
-        p_amounts: amounts,
-      })
-      if (ocrError) {
-        logError(ocrError, "bookings.submitDepositReceipt.ocr")
-        return
-      }
-      if (!autoApproved) {
-        return
-      }
-
-      revalidatePath(`/rides/${rideId}`)
-      revalidatePath(`/rides/${rideId}/bookings`)
-      revalidatePath("/bookings")
-
-      const ride = await getRide(rideId)
-      if (ride) {
-        await Promise.all([
-          sendPushNotification({ type: "deposit_auto_approved", recipientId: ride.driver_id, rideId }),
-          sendEmailNotification({ type: "deposit_auto_approved", recipientId: ride.driver_id, rideId }),
-          recordNotificationEvent({ type: "deposit_auto_approved", recipientId: ride.driver_id, rideId }),
-          sendPushNotification({ type: "booking_approved", recipientId: user.id, rideId }),
-          sendEmailNotification({ type: "booking_approved", recipientId: user.id, rideId }),
-          recordNotificationEvent({ type: "booking_approved", recipientId: user.id, rideId }),
-        ])
-      }
-    } catch (ocrException) {
-      logError(ocrException, "bookings.submitDepositReceipt.ocr")
-    }
-  })
-
-  revalidatePath(`/rides/${rideId}`)
-  revalidatePath(`/rides/${rideId}/bookings`)
-  revalidatePath("/bookings")
-  return { success: true }
 }
 
 // Driver uploads proof that a refund was sent back to the passenger, after
@@ -346,10 +396,10 @@ export async function submitRefundProof(bookingId: string, rideId: string, formD
 }
 
 // Passenger uploads proof of the post-trip remaining-half IBAN transfer —
-// same evidence-layer pattern as submitDepositReceipt, reviewed by an admin
-// (admin_review_settlement_receipt in supabase/migrations/0025). This is
-// independent of confirmRemainingPayment's mutual "I received it" buttons —
-// both can be used together.
+// same evidence-layer pattern as submitRefundProof above (upload + admin
+// review), reviewed by an admin (admin_review_settlement_receipt in
+// supabase/migrations/0025). This is independent of confirmRemainingPayment's
+// mutual "I received it" buttons — both can be used together.
 export async function submitSettlementReceipt(bookingId: string, rideId: string, formData: FormData): Promise<BookingActionState> {
   const { tErrors } = await getBookingTranslators()
   if (!isSupabaseConfigured()) {
@@ -378,10 +428,11 @@ export async function submitSettlementReceipt(bookingId: string, rideId: string,
     return { error: error.message.includes("driver_no_show") ? tErrors("driverNoShow") : tErrors("actionFailed") }
   }
 
-  // Same OCR-verify-in-the-background approach as submitDepositReceipt above
-  // (see 0054_settlement_ocr_auto_approval.sql) — a match here confirms both
-  // parties' "I sent it"/"I received it" at once, since a receipt showing the
-  // right IBAN and amount already is the passenger's proof of sending it.
+  // OCR-verify-in-the-background approach, running after() once the response
+  // has already gone back to the client (see 0054_settlement_ocr_auto_approval.sql)
+  // — a match here confirms both parties' "I sent it"/"I received it" at
+  // once, since a receipt showing the right IBAN and amount already is the
+  // passenger's proof of sending it.
   const receiptBuffer = Buffer.from(await file.arrayBuffer())
   after(async () => {
     try {
