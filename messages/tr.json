@@ -33,8 +33,6 @@
       "bookingApprovedBody": "Rezervasyon talebiniz onaylandı.",
       "bookingRejectedTitle": "Rezervasyonunuz reddedildi",
       "bookingRejectedBody": "Rezervasyon talebiniz reddedildi.",
-      "depositAutoApprovedTitle": "Kapora otomatik onaylandı",
-      "depositAutoApprovedBody": "Yolcunun kapora dekontu otomatik doğrulandı, rezervasyon onaylandı.",
       "newMessageTitle": "Yeni mesaj",
       "newMessageBody": "Yeni bir mesajınız var.",
       "seatOpenedTitle": "Koltuk açıldı",
@@ -77,7 +75,7 @@
     }
   },
   "Footer": {
-    "tagline": "Şehirler arası yolculuklarda masrafını paylaş.",
+    "tagline": "Şehirlerarası yolculuklarda masrafını paylaş.",
     "rights": "Tüm hakları saklıdır.",
     "privacyLink": "Gizlilik Politikası",
     "termsLink": "Kullanım Şartları",
@@ -87,7 +85,7 @@
   },
   "HomePage": {
     "heroTitle": "GötürBeni ile yolculuğunu paylaş, masrafını böl",
-    "heroSubtitle": "Şehirler arası yolculuklarda güvenilir yol arkadaşları bul.",
+    "heroSubtitle": "Şehirlerarası yolculuklarda güvenilir yol arkadaşları bul.",
     "ctaFindRide": "Yolculuk Bul",
     "ctaOfferRide": "İlan Ver",
     "metaDescription": "Şehirlerarası yolculuklarda güvenilir sürücü ve yolcularla eşleş. Masraf paylaşımlı araç paylaşımı ile ekonomik ve pratik seyahat et. Hemen ilan ver veya yolculuk bul.",
@@ -332,7 +330,7 @@
   },
   "HowItWorksPage": {
     "title": "Nasıl Çalışır?",
-    "subtitle": "GötürBeni ile şehirler arası yolculuk paylaşımı dört adımda tamamlanır.",
+    "subtitle": "GötürBeni ile şehirlerarası yolculuk paylaşımı dört adımda tamamlanır.",
     "stepLabel": "Adım {number}",
     "steps": {
       "search": {
@@ -969,7 +967,7 @@
   },
   "WelcomeModal": {
     "title": "GötürBeni'ye hoş geldin",
-    "description": "Şehirler arası yolculuk ilanlarını görmek, rezervasyon yapmak veya kendi ilanını vermek için giriş yap ya da ücretsiz hesap oluştur.",
+    "description": "Şehirlerarası yolculuk ilanlarını görmek, rezervasyon yapmak veya kendi ilanını vermek için giriş yap ya da ücretsiz hesap oluştur.",
     "register": "Kayıt Ol",
     "login": "Giriş Yap",
     "dismiss": "Şimdi değil, siteye göz atmaya devam et"
@@ -982,7 +980,7 @@
         "service": {
           "heading": "Hizmetin Tanımı",
           "body": [
-            "GötürBeni, şehirler arası yolculuklarda araç sahibi sürücüler ile aynı güzergâhta seyahat etmek isteyen yolcuları bir araya getiren bir eşleştirme platformudur.",
+            "GötürBeni, şehirlerarası yolculuklarda araç sahibi sürücüler ile aynı güzergâhta seyahat etmek isteyen yolcuları bir araya getiren bir eşleştirme platformudur.",
             "Platform bir taksi işletmecisi, ticari yolcu taşımacılığı firması ya da seyahat acentesi değildir; sürücüler kendi araçlarıyla, masraf paylaşımı esasına dayalı olarak yolculuk düzenler.",
             "Bu platform ticari taşımacılık yapılmasını kesinlikle yasaklar. Sürücüler yalnızca seyahat masraflarını paylaşabilir; kâr amacı güden hesaplar tespit edildiğinde askıya alınır veya kapatılır.",
             "Platform şu anda yolculuklardan herhangi bir komisyon veya hizmet bedeli almamaktadır."

@@ -12,7 +12,6 @@ export type NotificationEvent =
   | { type: "booking_approved"; recipientId: string; rideId: string }
   | { type: "booking_rejected"; recipientId: string; rideId: string }
   | { type: "new_message"; recipientId: string; rideId: string }
-  | { type: "deposit_auto_approved"; recipientId: string; rideId: string }
 
 // Exported for src/lib/email.ts, which sends the same event to the same
 // recipient via a different channel and needs the same title/body keys and
@@ -22,18 +21,16 @@ export const NOTIFICATION_URL: Record<NotificationEvent["type"], (rideId: string
   booking_approved: () => `/bookings`,
   booking_rejected: () => `/bookings`,
   new_message: (rideId) => `/rides/${rideId}/chat`,
-  deposit_auto_approved: (rideId) => `/rides/${rideId}/bookings`,
 }
 
 export const NOTIFICATION_KEY: Record<
   NotificationEvent["type"],
-  "bookingRequested" | "bookingApproved" | "bookingRejected" | "newMessage" | "depositAutoApproved"
+  "bookingRequested" | "bookingApproved" | "bookingRejected" | "newMessage"
 > = {
   booking_requested: "bookingRequested",
   booking_approved: "bookingApproved",
   booking_rejected: "bookingRejected",
   new_message: "newMessage",
-  deposit_auto_approved: "depositAutoApproved",
 }
 
 // Which nav item's red dot (see Header.tsx / notification_events table) an
@@ -43,7 +40,6 @@ const NAV_TARGET_FOR_EVENT: Partial<Record<NotificationEvent["type"], "my_rides"
   booking_requested: "my_rides",
   booking_approved: "my_bookings",
   booking_rejected: "my_bookings",
-  deposit_auto_approved: "my_rides",
 }
 
 export async function recordNotificationEvent(event: NotificationEvent): Promise<void> {
