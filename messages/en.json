@@ -33,8 +33,6 @@
       "bookingApprovedBody": "Your booking request was approved.",
       "bookingRejectedTitle": "Your booking was declined",
       "bookingRejectedBody": "Your booking request was declined.",
-      "depositAutoApprovedTitle": "Deposit automatically verified",
-      "depositAutoApprovedBody": "The passenger's deposit receipt was automatically verified and the booking is now approved.",
       "newMessageTitle": "New message",
       "newMessageBody": "You have a new message.",
       "seatOpenedTitle": "A seat opened up",
