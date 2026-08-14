@@ -97,5 +97,6 @@ export function buildProfileSchema(t: ValidationTranslator) {
       // presence separately (see features/rides/actions.ts). When a value IS
       // given, though, it must be a real Turkish plate format.
       .refine((value) => !value || TR_PLATE_PATTERN.test(value), { message: t("carPlateInvalid") }),
+    hasAc: z.boolean().default(false),
   })
 }
