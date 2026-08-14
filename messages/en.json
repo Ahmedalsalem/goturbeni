@@ -479,6 +479,8 @@
       "paymentMethodBankTransfer": "Bank Transfer (IBAN)",
       "paymentMethodCash": "Cash",
       "paymentMethodHint": "If you choose cash, the passenger won't upload a receipt — after the trip, both sides confirm with the \"Mark Payment as Complete\" button instead.",
+      "instantBooking": "Instant Booking",
+      "instantBookingHint": "When on, a passenger's request is approved automatically as soon as there's room — no waiting for you to confirm.",
       "repeatWeekly": "Repeat this listing every week on this day and time",
       "repeatWeeklyHint": "Next week's listing is automatically posted about a week before its departure. You can stop it anytime from \"My Rides.\"",
       "createSubmit": "Publish Listing",
@@ -573,6 +575,7 @@
     },
     "success": {
       "created": "Your booking request has been sent.",
+      "createdInstant": "Your booking was approved instantly.",
       "offerCreated": "Your offer has been sent.",
       "offerApproved": "Offer accepted.",
       "approved": "Booking approved.",

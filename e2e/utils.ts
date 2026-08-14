@@ -90,6 +90,7 @@ export async function createRide(
     smokingAllowed?: boolean
     vipSolo?: boolean
     paymentMethod?: "bank_transfer" | "cash"
+    instantBooking?: boolean
   }
 ): Promise<string> {
   // createRide (src/features/rides/actions.ts) refuses to insert a ride
@@ -128,6 +129,9 @@ export async function createRide(
   }
   if (options.paymentMethod === "cash") {
     await page.getByRole("button", { name: "Nakit", exact: true }).click()
+  }
+  if (options.instantBooking) {
+    await page.locator('[aria-labelledby="instantBooking-label"]').click()
   }
   await page.getByRole("button", { name: "İlanı Yayınla" }).click()
   await page.waitForURL("**/rides/mine")

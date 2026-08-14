@@ -479,6 +479,8 @@
       "paymentMethodBankTransfer": "Banka Havalesi (IBAN)",
       "paymentMethodCash": "Nakit",
       "paymentMethodHint": "Nakit seçersen yolcu dekont yüklemez, yolculuk sonrası her iki taraf da \"Ödeme Tamamlandı\" butonuyla karşılıklı onaylar.",
+      "instantBooking": "Anında Onay",
+      "instantBookingHint": "Açıksa, koltuk müsaitse yolcunun rezervasyon talebi beklemeden otomatik onaylanır.",
       "repeatWeekly": "Bu ilanı her hafta bu gün ve saatte tekrarla",
       "repeatWeeklyHint": "Bir sonraki haftanın ilanı, kalkışına yaklaşık bir hafta kala otomatik olarak açılır. İstediğiniz zaman \"İlanlarım\"dan durdurabilirsiniz.",
       "createSubmit": "İlanı Yayınla",
@@ -573,6 +575,7 @@
     },
     "success": {
       "created": "Rezervasyon talebiniz gönderildi.",
+      "createdInstant": "Rezervasyonunuz anında onaylandı.",
       "offerCreated": "Teklifiniz gönderildi.",
       "offerApproved": "Teklif kabul edildi.",
       "approved": "Rezervasyon onaylandı.",
