@@ -74,19 +74,24 @@ export async function createBooking(rideId: string, values: BookingFormValues): 
   }
 
   const supabase = await createClient()
-  const { error } = await supabase.from("bookings").insert({
-    ride_id: rideId,
-    passenger_id: user.id,
-    seat_count: parsed.data.seatCount,
-  })
+  const { error } = await supabase.rpc("create_booking", { p_ride_id: rideId, p_seat_count: parsed.data.seatCount })
 
   if (error) {
     // 23505 = unique_violation — the partial unique index on (ride_id,
-    // passenger_id) where status in (pending, approved).
-    if (error.code !== "23505") {
-      logError(error, "bookings.createBooking")
+    // passenger_id) where status in (pending, approved). Other messages are
+    // create_booking's own raised exceptions (0065_instant_booking.sql) —
+    // ride_not_active/own_ride/not_enough_seats duplicate the client-side
+    // guard clauses above for the common case, but the RPC is the actual
+    // source of truth (atomic, `for update`-locked) since two concurrent
+    // requests can both pass the client-side checks.
+    if (error.code === "23505") {
+      return { error: tErrors("alreadyBooked") }
     }
-    return { error: error.code === "23505" ? tErrors("alreadyBooked") : tErrors("createFailed") }
+    if (error.message.includes("not_enough_seats")) {
+      return { error: tErrors("notEnoughSeats") }
+    }
+    logError(error, "bookings.createBooking")
+    return { error: tErrors("createFailed") }
   }
 
   await Promise.all([

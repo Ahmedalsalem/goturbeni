@@ -180,43 +180,44 @@ describe("bookings/actions", () => {
 
     it("maps a 23505 unique-violation to the already-booked error", async () => {
       getRideMock.mockResolvedValue(fakeRide())
-      const insertMock = vi.fn().mockResolvedValue({ error: { code: "23505", message: "duplicate key" } })
-      fromMock.mockReturnValue({ insert: insertMock })
+      rpcMock.mockResolvedValue({ error: { code: "23505", message: "duplicate key" } })
 
       const result = await createBooking("ride-1", { seatCount: 1 })
 
       expect(result.error).toBe("Bookings.errors.alreadyBooked")
-      expect(fromMock).toHaveBeenCalledWith("bookings")
-      expect(insertMock).toHaveBeenCalledWith({
-        ride_id: "ride-1",
-        passenger_id: FAKE_USER.id,
-        seat_count: 1,
-      })
+      expect(rpcMock).toHaveBeenCalledWith("create_booking", { p_ride_id: "ride-1", p_seat_count: 1 })
     })
 
-    it("maps any other insert error to createFailed", async () => {
+    it("maps the RPC's not_enough_seats to the same error as the client-side check", async () => {
+      getRideMock.mockResolvedValue(fakeRide({ available_seats: 5 }))
+      rpcMock.mockResolvedValue({ error: { code: "P0001", message: "not_enough_seats" } })
+
+      const result = await createBooking("ride-1", { seatCount: 1 })
+
+      expect(result.error).toBe("Bookings.errors.notEnoughSeats")
+    })
+
+    it("maps any other RPC error to createFailed", async () => {
       getRideMock.mockResolvedValue(fakeRide())
-      const insertMock = vi.fn().mockResolvedValue({ error: { code: "500", message: "db down" } })
-      fromMock.mockReturnValue({ insert: insertMock })
+      rpcMock.mockResolvedValue({ error: { code: "500", message: "db down" } })
 
       const result = await createBooking("ride-1", { seatCount: 1 })
 
       expect(result.error).toBe("Bookings.errors.createFailed")
     })
 
-    it("succeeds and revalidates the ride path when the insert succeeds", async () => {
+    it("succeeds and revalidates the ride path when the RPC succeeds", async () => {
       getRideMock.mockResolvedValue(fakeRide())
-      const insertMock = vi.fn().mockResolvedValue({ error: null })
-      fromMock.mockReturnValue({ insert: insertMock })
-      // recordNotificationEvent (src/lib/notifications.ts) calls supabase.rpc
-      // unconditionally (unlike push/email, it has no third-party "configured"
-      // gate to no-op through) — needs a resolved rpc call like the
-      // approve/reject/cancel tests below already set up.
+      // recordNotificationEvent (src/lib/notifications.ts) also calls
+      // supabase.rpc unconditionally (unlike push/email, it has no
+      // third-party "configured" gate to no-op through) — this single
+      // resolved value covers both the create_booking call and that one.
       rpcMock.mockResolvedValue({ error: null })
 
       const result = await createBooking("ride-1", { seatCount: 1 })
 
       expect(result).toEqual({ success: true })
+      expect(rpcMock).toHaveBeenCalledWith("create_booking", { p_ride_id: "ride-1", p_seat_count: 1 })
       expect(revalidatePathMock).toHaveBeenCalledWith("/rides/ride-1")
     })
 
