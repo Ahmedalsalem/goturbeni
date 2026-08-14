@@ -43,6 +43,7 @@ function buildQueryString(filters: Partial<RideSearchFilters>): string {
   if (filters.smokingAllowed) params.set("smokingAllowed", "1")
   if (filters.vipOnly) params.set("vipOnly", "1")
   if (filters.femaleDriverOnly) params.set("femaleDriverOnly", "1")
+  if (filters.hasAc) params.set("hasAc", "1")
   if (filters.postedByRole) params.set("type", filters.postedByRole)
   const qs = params.toString()
   return qs ? `/rides?${qs}` : "/rides"
@@ -82,6 +83,7 @@ export function RideFilters({
   const [smokingAllowed, setSmokingAllowed] = useState(initial.smokingAllowed ?? false)
   const [vipOnly, setVipOnly] = useState(initial.vipOnly ?? false)
   const [femaleDriverOnly, setFemaleDriverOnly] = useState(initial.femaleDriverOnly ?? false)
+  const [hasAc, setHasAc] = useState(initial.hasAc ?? false)
   const [postedByRole, setPostedByRole] = useState<"driver" | "passenger" | undefined>(initial.postedByRole)
 
   const fromDistricts = from ? (TURKISH_PROVINCE_DISTRICTS[from] ?? []) : []
@@ -100,6 +102,7 @@ export function RideFilters({
         smokingAllowed,
         vipOnly,
         femaleDriverOnly,
+        hasAc,
         postedByRole,
       })
     )
@@ -118,6 +121,7 @@ export function RideFilters({
         smokingAllowed,
         vipOnly,
         femaleDriverOnly,
+        hasAc,
         postedByRole,
       }),
       { scroll: false }
@@ -327,6 +331,12 @@ export function RideFilters({
             />
             <FieldLabel htmlFor="filter-female-driver-only" className="font-normal">
               {t("femaleDriverOnly")}
+            </FieldLabel>
+          </Field>
+          <Field orientation="horizontal">
+            <Checkbox id="filter-has-ac" checked={hasAc} onCheckedChange={(checked) => setHasAc(checked === true)} />
+            <FieldLabel htmlFor="filter-has-ac" className="font-normal">
+              {t("hasAc")}
             </FieldLabel>
           </Field>
         </div>

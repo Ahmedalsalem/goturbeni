@@ -43,6 +43,25 @@ async function resolveFemaleDriverRideIds(
   return (data as string[] | null) ?? []
 }
 
+// has_ac lives on profiles (public), not rides — unlike femaleDriverOnly
+// (profiles_private.gender, needs a security-definer RPC to stay private),
+// a plain join-by-id-list is enough here.
+async function resolveHasAcRideIds(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  filters: RideSearchFilters | undefined
+): Promise<string[] | null> {
+  if (!filters?.hasAc) {
+    return null
+  }
+  const { data } = await supabase.from("profiles").select("id").eq("has_ac", true)
+  const driverIds = (data as { id: string }[] | null)?.map((row) => row.id) ?? []
+  if (driverIds.length === 0) {
+    return []
+  }
+  const { data: rideRows } = await supabase.from("rides").select("id").in("driver_id", driverIds).eq("status", "active")
+  return (rideRows as { id: string }[] | null)?.map((row) => row.id) ?? []
+}
+
 // district: true applies the from/toDistrict filters; false drops them (city-
 // level only) — used by getRides() to widen a district-level search that came
 // back empty into a "nearby districts" fallback within the same city/cities.
@@ -50,7 +69,8 @@ function buildRidesQuery(
   supabase: Awaited<ReturnType<typeof createClient>>,
   filters: RideSearchFilters | undefined,
   district: boolean,
-  femaleDriverRideIds: string[] | null
+  femaleDriverRideIds: string[] | null,
+  hasAcRideIds: string[] | null
 ) {
   let query = supabase.from("rides").select(RIDE_WITH_DRIVER_SELECT).eq("status", "active")
 
@@ -81,6 +101,9 @@ function buildRidesQuery(
   if (femaleDriverRideIds) {
     query = query.in("id", femaleDriverRideIds)
   }
+  if (hasAcRideIds) {
+    query = query.in("id", hasAcRideIds)
+  }
   if (filters?.postedByRole) {
     query = query.eq("posted_by_role", filters.postedByRole)
   }
@@ -96,7 +119,8 @@ function buildRidesQuery(
 function buildNearbyProvinceRidesQuery(
   supabase: Awaited<ReturnType<typeof createClient>>,
   filters: RideSearchFilters,
-  femaleDriverRideIds: string[] | null
+  femaleDriverRideIds: string[] | null,
+  hasAcRideIds: string[] | null
 ) {
   let query = supabase.from("rides").select(RIDE_WITH_DRIVER_SELECT).eq("status", "active")
 
@@ -120,6 +144,9 @@ function buildNearbyProvinceRidesQuery(
   }
   if (femaleDriverRideIds) {
     query = query.in("id", femaleDriverRideIds)
+  }
+  if (hasAcRideIds) {
+    query = query.in("id", hasAcRideIds)
   }
   if (filters.postedByRole) {
     query = query.eq("posted_by_role", filters.postedByRole)
@@ -150,8 +177,9 @@ export async function getRides(filters?: RideSearchFilters): Promise<RideSearchR
   }
   const supabase = await createClient()
   const femaleDriverRideIds = await resolveFemaleDriverRideIds(supabase, filters)
+  const hasAcRideIds = await resolveHasAcRideIds(supabase, filters)
 
-  const { data } = await buildRidesQuery(supabase, filters, true, femaleDriverRideIds)
+  const { data } = await buildRidesQuery(supabase, filters, true, femaleDriverRideIds, hasAcRideIds)
   const rides = (data as RideWithDriver[] | null) ?? []
   if (rides.length > 0) {
     return { rides, usedNearbyDistricts: false, usedNearbyProvinces: false }
@@ -160,7 +188,7 @@ export async function getRides(filters?: RideSearchFilters): Promise<RideSearchR
   if (filters?.fromDistrict || filters?.toDistrict) {
     // No exact-district matches — widen to the same city/cities and surface
     // that as "nearby district" results instead of an empty page.
-    const { data: cityData } = await buildRidesQuery(supabase, filters, false, femaleDriverRideIds)
+    const { data: cityData } = await buildRidesQuery(supabase, filters, false, femaleDriverRideIds, hasAcRideIds)
     const cityRides = (cityData as RideWithDriver[] | null) ?? []
     if (cityRides.length > 0) {
       return { rides: cityRides, usedNearbyDistricts: true, usedNearbyProvinces: false }
@@ -173,7 +201,7 @@ export async function getRides(filters?: RideSearchFilters): Promise<RideSearchR
 
   // Still nothing — widen once more to provinces geographically close to the
   // searched one(s), not just the same administrative province.
-  const { data: geoData } = await buildNearbyProvinceRidesQuery(supabase, filters, femaleDriverRideIds)
+  const { data: geoData } = await buildNearbyProvinceRidesQuery(supabase, filters, femaleDriverRideIds, hasAcRideIds)
   return { rides: (geoData as RideWithDriver[] | null) ?? [], usedNearbyDistricts: false, usedNearbyProvinces: true }
 }
 
