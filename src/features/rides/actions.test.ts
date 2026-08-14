@@ -71,6 +71,7 @@ function validRideValues(overrides: Partial<RideFormValues> = {}): RideFormValue
     petsAllowed: false,
     smokingAllowed: false,
     vipSolo: false,
+    paymentMethod: "bank_transfer",
     repeatWeekly: false,
     ...overrides,
   }

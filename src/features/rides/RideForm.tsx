@@ -74,6 +74,7 @@ export function RideForm({ ride }: { ride?: Ride }) {
       petsAllowed: ride?.pets_allowed ?? false,
       smokingAllowed: ride?.smoking_allowed ?? false,
       vipSolo: ride?.vip_solo ?? false,
+      paymentMethod: ride?.payment_method ?? "bank_transfer",
       repeatWeekly: false,
     },
   })
@@ -437,6 +438,27 @@ export function RideForm({ ride }: { ride?: Ride }) {
               </FieldLabel>
             </Field>
             {watch("vipSolo") && <FieldDescription>{t("vipSoloHint")}</FieldDescription>}
+
+            <Field>
+              <FieldLabel>{t("paymentMethodLabel")}</FieldLabel>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant={watch("paymentMethod") === "bank_transfer" ? "default" : "outline"}
+                  onClick={() => setValue("paymentMethod", "bank_transfer")}
+                >
+                  {t("paymentMethodBankTransfer")}
+                </Button>
+                <Button
+                  type="button"
+                  variant={watch("paymentMethod") === "cash" ? "default" : "outline"}
+                  onClick={() => setValue("paymentMethod", "cash")}
+                >
+                  {t("paymentMethodCash")}
+                </Button>
+              </div>
+              <FieldDescription>{t("paymentMethodHint")}</FieldDescription>
+            </Field>
           </>
         )}
 
