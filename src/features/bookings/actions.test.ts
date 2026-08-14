@@ -116,6 +116,7 @@ function fakeRide(overrides: Partial<Ride> = {}): Ride {
     pets_allowed: false,
     smoking_allowed: false,
     vip_solo: false,
+    payment_method: "bank_transfer",
     status: "active",
     series_id: null,
     created_at: new Date().toISOString(),

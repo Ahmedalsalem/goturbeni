@@ -1,5 +1,6 @@
 export type RideStatus = "active" | "full" | "completed" | "cancelled"
 export type RidePostedByRole = "driver" | "passenger"
+export type RidePaymentMethod = "bank_transfer" | "cash"
 
 export interface Ride {
   id: string
@@ -18,6 +19,7 @@ export interface Ride {
   pets_allowed: boolean
   smoking_allowed: boolean
   vip_solo: boolean
+  payment_method: RidePaymentMethod
   status: RideStatus
   series_id: string | null
   created_at: string
