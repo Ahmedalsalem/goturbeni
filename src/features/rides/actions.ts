@@ -42,6 +42,7 @@ function buildRideRow(parsed: RideFormValues) {
     pets_allowed: parsed.petsAllowed,
     smoking_allowed: parsed.smokingAllowed,
     vip_solo: parsed.vipSolo,
+    payment_method: parsed.paymentMethod,
   }
 }
 
