@@ -16,6 +16,7 @@ import { BookingButton } from "@/features/bookings/BookingButton"
 import { OfferButton } from "@/features/bookings/OfferButton"
 import { ReviewSection } from "@/features/reviews/ReviewSection"
 import { getReviewStats } from "@/features/reviews/queries"
+import { ExperienceLevelBadge } from "@/features/reviews/ExperienceLevelBadge"
 import { StarRating } from "@/features/reviews/StarRating"
 import { getMyWaitlistEntry } from "@/features/waitlist/queries"
 import { WaitlistButton } from "@/features/waitlist/WaitlistButton"
@@ -95,9 +96,14 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
       ])
     : [null, null, false]
   const isApprovedAwaitingPayment = existingBooking?.status === "approved" && existingBooking.payment_status !== "settled"
-  const [driverPaymentInfo, driverCompletedRideCount] = isApprovedAwaitingPayment && ride.driver_id
-    ? await Promise.all([getRideDriverPaymentInfo(ride.id), getDriverCompletedRideCount(ride.driver_id)])
-    : [null, 0]
+  // driverCompletedRideCount is fetched unconditionally (whenever there's a
+  // driver at all) so the experience-level badge can show next to the
+  // rating on every ride detail page, not just the post-approval payment
+  // alert — driverPaymentInfo stays gated to isApprovedAwaitingPayment as before.
+  const [driverPaymentInfo, driverCompletedRideCount] = await Promise.all([
+    isApprovedAwaitingPayment && ride.driver_id ? getRideDriverPaymentInfo(ride.id) : Promise.resolve(null),
+    !isPassengerListing && ride.driver_id ? getDriverCompletedRideCount(ride.driver_id) : Promise.resolve(0),
+  ])
   // Shown next to the IBAN so the passenger has a trust signal alongside the
   // account they'll eventually send real money to — a fresh, reviewless
   // account is the actual "post a fake ride, collect, vanish" fraud pattern;
@@ -179,6 +185,9 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
             <div>
               <div className="flex items-center gap-2">
                 <p className="font-medium">{posterName}</p>
+                {!isPassengerListing && (
+                  <ExperienceLevelBadge completedRideCount={driverCompletedRideCount} />
+                )}
                 {!isPassengerListing && driverReviewStats.averageRating !== null && (
                   <div className="flex items-center gap-1">
                     <StarRating rating={driverReviewStats.averageRating} size="sm" />

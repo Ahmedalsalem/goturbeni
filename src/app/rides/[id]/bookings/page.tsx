@@ -27,6 +27,7 @@ import { getRideBookings, getRideCounterpartyPhone, getRideDriverPaymentInfo } f
 import { ShareLocationToggle } from "@/features/live-location/ShareLocationToggle"
 import { getRideWaitlistCount } from "@/features/waitlist/queries"
 import { getUnreadMessages } from "@/features/chat/queries"
+import { ExperienceLevelBadge } from "@/features/reviews/ExperienceLevelBadge"
 import { ReviewButton } from "@/features/reviews/ReviewButton"
 import { getMyReviewForRide, getReviewStats } from "@/features/reviews/queries"
 import { StarRating } from "@/features/reviews/StarRating"
@@ -129,6 +130,18 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
   const pickupVerified = new Map(
     await Promise.all(approvedBookings.map(async (booking) => [booking.id, await getPickupVerificationStatus(booking.id)] as const))
   )
+  // Experience-level badge next to a driver counterparty's name — only rows
+  // where the counterparty IS a driver (passenger-listing offers) get one;
+  // a normal driver-posted-ride booking's counterparty is the requesting
+  // passenger, no badge. Scoped over all bookings (not just approved) so
+  // the ilan sahibi sees it while still deciding on a pending offer.
+  const counterpartyExperienceCounts = new Map(
+    await Promise.all(
+      bookings
+        .filter((booking) => booking.driver_id && booking.driver_id !== user.id)
+        .map(async (booking) => [booking.id, await getDriverCompletedRideCount(booking.driver_id as string)] as const)
+    )
+  )
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
@@ -180,7 +193,12 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                       <AvatarFallback>{counterpartyInitials}</AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium">{counterparty.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium">{counterparty.name}</p>
+                        {counterpartyExperienceCounts.has(booking.id) && (
+                          <ExperienceLevelBadge completedRideCount={counterpartyExperienceCounts.get(booking.id) as number} />
+                        )}
+                      </div>
                       <p className="text-muted-foreground text-sm">{tCard("seatCount", { count: booking.seat_count })}</p>
                       {isApproved && counterpartyPhone && (
                         <a href={`tel:${counterpartyPhone}`} className="text-primary flex items-center gap-1 text-sm hover:underline">
