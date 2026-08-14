@@ -34,6 +34,7 @@ export interface RideWithDriver extends Ride {
     car_brand: string | null
     car_model: string | null
     car_plate: string | null
+    has_ac: boolean
   } | null
   poster: {
     full_name: string | null

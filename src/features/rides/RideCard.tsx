@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, CalendarDays, Cigarette, Clock, Crown, MapPin, PawPrint, Users } from "lucide-react"
+import { ArrowRight, CalendarDays, Cigarette, Clock, Crown, MapPin, PawPrint, Snowflake, Users } from "lucide-react"
 import { getFormatter, getTranslations } from "next-intl/server"
 
 import { Badge } from "@/components/ui/badge"
@@ -72,7 +72,7 @@ export async function RideCard({
         </div>
         <div className="text-primary font-semibold">{formatCostShare(ride.cost_share, locale)}</div>
       </CardContent>
-      {(ride.pets_allowed || ride.smoking_allowed) && (
+      {(ride.pets_allowed || ride.smoking_allowed || ride.driver?.has_ac) && (
         <CardContent className="flex flex-wrap gap-1.5 pt-0">
           {ride.pets_allowed && (
             <Badge variant="outline" className="gap-1">
@@ -82,6 +82,11 @@ export async function RideCard({
           {ride.smoking_allowed && (
             <Badge variant="outline" className="gap-1">
               <Cigarette className="size-3" aria-hidden="true" /> {t("smokingAllowed")}
+            </Badge>
+          )}
+          {ride.driver?.has_ac && (
+            <Badge variant="outline" className="gap-1">
+              <Snowflake className="size-3" aria-hidden="true" /> {t("hasAc")}
             </Badge>
           )}
         </CardContent>
