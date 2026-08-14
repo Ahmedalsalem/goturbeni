@@ -75,6 +75,7 @@ export function RideForm({ ride }: { ride?: Ride }) {
       smokingAllowed: ride?.smoking_allowed ?? false,
       vipSolo: ride?.vip_solo ?? false,
       paymentMethod: ride?.payment_method ?? "bank_transfer",
+      instantBooking: ride?.instant_booking ?? false,
       repeatWeekly: false,
     },
   })
@@ -459,6 +460,20 @@ export function RideForm({ ride }: { ride?: Ride }) {
               </div>
               <FieldDescription>{t("paymentMethodHint")}</FieldDescription>
             </Field>
+
+            <Field orientation="horizontal">
+              <Controller
+                control={control}
+                name="instantBooking"
+                render={({ field }) => (
+                  <Checkbox id="instantBooking" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
+                )}
+              />
+              <FieldLabel htmlFor="instantBooking" className="font-normal">
+                {t("instantBooking")}
+              </FieldLabel>
+            </Field>
+            <FieldDescription>{t("instantBookingHint")}</FieldDescription>
           </>
         )}
 
