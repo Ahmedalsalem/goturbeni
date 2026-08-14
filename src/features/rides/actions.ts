@@ -43,6 +43,7 @@ function buildRideRow(parsed: RideFormValues) {
     smoking_allowed: parsed.smokingAllowed,
     vip_solo: parsed.vipSolo,
     payment_method: parsed.paymentMethod,
+    instant_booking: parsed.instantBooking,
   }
 }
 
