@@ -20,8 +20,10 @@ import { ExperienceLevelBadge } from "@/features/reviews/ExperienceLevelBadge"
 import { StarRating } from "@/features/reviews/StarRating"
 import { getMyWaitlistEntry } from "@/features/waitlist/queries"
 import { WaitlistButton } from "@/features/waitlist/WaitlistButton"
+import { estimateCo2SavingsKg } from "@/utils/co2-savings"
 import { formatCostShare } from "@/utils/currency"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
+import type { TurkishProvince } from "@/utils/turkish-provinces"
 import { getUserLocale } from "@/i18n/locale"
 import { languageAlternates } from "@/i18n/hreflang"
 import { getCurrentUser } from "@/lib/supabase/dal"
@@ -118,6 +120,7 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
     : null
 
   const departureAt = new Date(ride.departure_time)
+  const co2SavingsKg = estimateCo2SavingsKg(ride.departure_city as TurkishProvince, ride.arrival_city as TurkishProvince, ride.seat_count)
   const posterName = isPassengerListing
     ? (ride.poster?.full_name ?? tCard("unknownPoster"))
     : (ride.driver?.full_name ?? tCard("unknownDriver"))
@@ -241,6 +244,8 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
             </div>
             <div className="font-medium">{formatCostShare(ride.cost_share, locale)}</div>
           </div>
+
+          {co2SavingsKg > 0 && <p className="text-muted-foreground text-sm">{t("co2Savings", { kg: co2SavingsKg })}</p>}
 
           {ride.description && (
             <div>

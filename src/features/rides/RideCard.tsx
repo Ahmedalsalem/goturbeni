@@ -7,10 +7,12 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { RideStatusBadge } from "@/features/rides/RideStatusBadge"
 import { ExperienceLevelBadge } from "@/features/reviews/ExperienceLevelBadge"
+import { estimateCo2SavingsKg } from "@/utils/co2-savings"
 import { formatCostShare } from "@/utils/currency"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 import { getUserLocale } from "@/i18n/locale"
 import type { RideWithDriver } from "@/types/ride"
+import type { TurkishProvince } from "@/utils/turkish-provinces"
 
 export async function RideCard({
   ride,
@@ -32,6 +34,7 @@ export async function RideCard({
   const posterInitials = posterName.slice(0, 2).toUpperCase()
   const departureCity = getProvinceDisplayName(ride.departure_city, locale)
   const arrivalCity = getProvinceDisplayName(ride.arrival_city, locale)
+  const co2SavingsKg = estimateCo2SavingsKg(ride.departure_city as TurkishProvince, ride.arrival_city as TurkishProvince, ride.seat_count)
 
   return (
     <Card className="ring-foreground/5 border-0 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg hover:shadow-foreground/5">
@@ -90,6 +93,9 @@ export async function RideCard({
             </Badge>
           )}
         </CardContent>
+      )}
+      {co2SavingsKg > 0 && (
+        <CardContent className="text-muted-foreground pt-0 text-xs">{t("co2SavingsShort", { kg: co2SavingsKg })}</CardContent>
       )}
       <CardFooter className="flex flex-wrap items-center justify-between gap-3 border-t-0 bg-transparent pt-1">
         <div className="flex items-center gap-2.5">
