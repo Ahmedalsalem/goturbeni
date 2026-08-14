@@ -6,12 +6,21 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { RideStatusBadge } from "@/features/rides/RideStatusBadge"
+import { ExperienceLevelBadge } from "@/features/reviews/ExperienceLevelBadge"
 import { formatCostShare } from "@/utils/currency"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 import { getUserLocale } from "@/i18n/locale"
 import type { RideWithDriver } from "@/types/ride"
 
-export async function RideCard({ ride, actions }: { ride: RideWithDriver; actions?: React.ReactNode }) {
+export async function RideCard({
+  ride,
+  actions,
+  driverCompletedRideCount,
+}: {
+  ride: RideWithDriver
+  actions?: React.ReactNode
+  driverCompletedRideCount?: number
+}) {
   const t = await getTranslations("Rides.card")
   const format = await getFormatter()
   const locale = await getUserLocale()
@@ -85,6 +94,9 @@ export async function RideCard({ ride, actions }: { ride: RideWithDriver; action
           </Avatar>
           <div>
             <span className="text-sm font-medium">{posterName}</span>
+            {!isPassengerListing && driverCompletedRideCount !== undefined && (
+              <ExperienceLevelBadge completedRideCount={driverCompletedRideCount} />
+            )}
             {!isPassengerListing && (ride.driver?.car_brand || ride.driver?.car_model || ride.driver?.car_plate) && (
               <p className="text-muted-foreground text-xs">
                 {[
