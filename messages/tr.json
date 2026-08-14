@@ -684,6 +684,12 @@
       "actionFailed": "İşlem gerçekleştirilemedi. Lütfen tekrar deneyin."
     }
   },
+  "ExperienceLevel": {
+    "new": "Yeni Üye",
+    "active": "Aktif Üye",
+    "experienced": "Deneyimli",
+    "ambassador": "Elçi"
+  },
   "Reviews": {
     "sectionTitle": "Yorumlar",
     "totalReviews": "{count} yorum",

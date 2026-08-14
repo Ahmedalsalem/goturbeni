@@ -684,6 +684,12 @@
       "actionFailed": "تعذر تنفيذ العملية. حاول مرة أخرى."
     }
   },
+  "ExperienceLevel": {
+    "new": "عضو جديد",
+    "active": "عضو نشط",
+    "experienced": "ذو خبرة",
+    "ambassador": "سفير"
+  },
   "Reviews": {
     "sectionTitle": "التقييمات",
     "totalReviews": "{count} تقييم",

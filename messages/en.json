@@ -684,6 +684,12 @@
       "actionFailed": "The action could not be completed. Please try again."
     }
   },
+  "ExperienceLevel": {
+    "new": "New Member",
+    "active": "Active Member",
+    "experienced": "Experienced",
+    "ambassador": "Ambassador"
+  },
   "Reviews": {
     "sectionTitle": "Reviews",
     "totalReviews": "{count} reviews",
