@@ -89,6 +89,7 @@ export async function createRide(
     petsAllowed?: boolean
     smokingAllowed?: boolean
     vipSolo?: boolean
+    paymentMethod?: "bank_transfer" | "cash"
   }
 ): Promise<string> {
   // createRide (src/features/rides/actions.ts) refuses to insert a ride
@@ -124,6 +125,9 @@ export async function createRide(
   }
   if (options.vipSolo) {
     await page.locator('[aria-labelledby="vipSolo-label"]').click()
+  }
+  if (options.paymentMethod === "cash") {
+    await page.getByRole("button", { name: "Nakit", exact: true }).click()
   }
   await page.getByRole("button", { name: "İlanı Yayınla" }).click()
   await page.waitForURL("**/rides/mine")
