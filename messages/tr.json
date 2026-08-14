@@ -523,6 +523,7 @@
       "petsAllowed": "Evcil hayvan kabul edilir",
       "smokingAllowed": "Sigara içilebilir",
       "hasAc": "Klimalı",
+      "co2SavingsShort": "~{kg} kg CO₂ tasarrufu",
       "vipSolo": "VIP (Tek Yolcu)",
       "unknownPoster": "Yolcu",
       "passengerListingBadge": "Yolcu İlanı",
@@ -543,6 +544,7 @@
   "RideDetailPage": {
     "seats": "{available} / {total} boş koltuk",
     "descriptionLabel": "Açıklama",
+    "co2Savings": "Bu yolculuk paylaşılarak yaklaşık {kg} kg CO₂ tasarrufu sağlanıyor (tahmini, kuş uçuşu mesafeye göre).",
     "metaDescription": "{date} tarihli yolculuk - {cost}",
     "waitlistMessage": "Bu ilan şu anda dolu. Koltuk açılınca haber vermemizi ister misiniz?"
   },

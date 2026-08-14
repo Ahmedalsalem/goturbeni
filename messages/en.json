@@ -523,6 +523,7 @@
       "petsAllowed": "Pets allowed",
       "smokingAllowed": "Smoking allowed",
       "hasAc": "Air Conditioned",
+      "co2SavingsShort": "~{kg} kg CO₂ saved",
       "vipSolo": "VIP (Single Passenger)",
       "unknownPoster": "Passenger",
       "passengerListingBadge": "Passenger Listing",
@@ -543,6 +544,7 @@
   "RideDetailPage": {
     "seats": "{available} / {total} seats available",
     "descriptionLabel": "Description",
+    "co2Savings": "Sharing this ride saves an estimated {kg} kg of CO₂ (approximate, based on straight-line distance).",
     "metaDescription": "Ride on {date} - {cost}",
     "waitlistMessage": "This listing is currently full. Would you like us to notify you when a seat opens up?"
   },

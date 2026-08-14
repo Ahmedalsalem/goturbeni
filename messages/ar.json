@@ -523,6 +523,7 @@
       "petsAllowed": "يُسمح بالحيوانات الأليفة",
       "smokingAllowed": "يُسمح بالتدخين",
       "hasAc": "مكيّف",
+      "co2SavingsShort": "~{kg} كجم CO₂ موفَّر",
       "vipSolo": "VIP (راكب واحد)",
       "unknownPoster": "راكب",
       "passengerListingBadge": "إعلان راكب",
@@ -543,6 +544,7 @@
   "RideDetailPage": {
     "seats": "{available} / {total} مقعد متاح",
     "descriptionLabel": "الوصف",
+    "co2Savings": "مشاركة هذه الرحلة تُوَفِّر ما يقارب {kg} كجم من ثاني أكسيد الكربون (تقديري، بحسب المسافة المستقيمة).",
     "metaDescription": "رحلة بتاريخ {date} - {cost}",
     "waitlistMessage": "هذه الرحلة ممتلئة حاليًا. هل تريد أن نعلمك عند توفر مقعد؟"
   },
