@@ -145,7 +145,7 @@ export default async function BookingsPage() {
                     {isCompleted && booking.payment_status === "awaiting_settlement" && !booking.passenger_settled_at && (
                       <SettlePaymentButton bookingId={booking.id} rideId={booking.ride.id} />
                     )}
-                    {isCompleted && booking.payment_status !== "settled" && (
+                    {isCompleted && booking.payment_status !== "settled" && booking.ride.payment_method === "bank_transfer" && (
                       <SettlementReceiptUpload
                         bookingId={booking.id}
                         rideId={booking.ride.id}
