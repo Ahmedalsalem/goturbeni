@@ -20,6 +20,7 @@ export interface Ride {
   smoking_allowed: boolean
   vip_solo: boolean
   payment_method: RidePaymentMethod
+  instant_booking: boolean
   status: RideStatus
   series_id: string | null
   created_at: string
