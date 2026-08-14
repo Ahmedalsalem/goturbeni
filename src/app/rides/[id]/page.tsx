@@ -255,6 +255,7 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
               existingBooking={existingBooking}
               driverPaymentInfo={driverPaymentInfo}
               driverTrustInfo={driverTrustInfo}
+              instantBooking={ride.instant_booking}
             />
           </CardFooter>
         )}

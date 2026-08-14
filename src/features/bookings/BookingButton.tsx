@@ -30,12 +30,14 @@ export function BookingButton({
   existingBooking,
   driverPaymentInfo,
   driverTrustInfo,
+  instantBooking,
 }: {
   rideId: string
   availableSeats: number
   existingBooking: Booking | null
   driverPaymentInfo: { iban: string; iban_holder_name: string } | null
   driverTrustInfo: DriverTrustInfo | null
+  instantBooking: boolean
 }) {
   const t = useTranslations("Bookings")
   const tPayment = useTranslations("Bookings.payment")
@@ -98,7 +100,7 @@ export function BookingButton({
       if (result?.error) {
         toast.error(result.error)
       } else {
-        toast.success(tSuccess("created"))
+        toast.success(instantBooking ? tSuccess("createdInstant") : tSuccess("created"))
         router.refresh()
       }
     })
