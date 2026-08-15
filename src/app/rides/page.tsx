@@ -6,7 +6,7 @@ import { CarFront, Plus } from "lucide-react"
 import { EmptyState } from "@/components/EmptyState"
 import { RideCard } from "@/features/rides/RideCard"
 import { RideFilters } from "@/features/rides/RideFilters"
-import { getRides } from "@/features/rides/queries"
+import { getDriverCompletedRideCount, getRides } from "@/features/rides/queries"
 import { parseRideSearchParams } from "@/features/rides/filters"
 import { hasSearchAlert } from "@/features/search-alerts/queries"
 import { SearchAlertToggle } from "@/features/search-alerts/SearchAlertToggle"
@@ -38,6 +38,13 @@ export default async function RidesPage({
   const filters = parseRideSearchParams(await searchParams)
   const hasActiveFilters = Boolean(filters.from || filters.to || filters.date)
   const [{ rides, usedNearbyDistricts, usedNearbyProvinces }, user] = await Promise.all([getRides(filters), getCurrentUser()])
+  // Batched once per unique driver id (not per card — N+1 avoidance,
+  // mirrors the Promise.all-over-unique-ids pattern already used in
+  // rides/[id]/bookings/page.tsx).
+  const uniqueDriverIds = [...new Set(rides.map((ride) => ride.driver_id).filter((id): id is string => id !== null))]
+  const completedRideCounts = new Map(
+    await Promise.all(uniqueDriverIds.map(async (driverId) => [driverId, await getDriverCompletedRideCount(driverId)] as const))
+  )
   const showSearchAlertToggle = Boolean(user && filters.from && filters.to)
   const alreadySubscribed =
     showSearchAlertToggle && user && filters.from && filters.to ? await hasSearchAlert(user.id, filters.from, filters.to) : false
@@ -77,7 +84,7 @@ export default async function RidesPage({
       ) : (
         <div className="flex flex-col gap-4">
           {rides.map((ride) => (
-            <RideCard key={ride.id} ride={ride} />
+            <RideCard key={ride.id} ride={ride} driverCompletedRideCount={completedRideCounts.get(ride.driver_id ?? "") ?? 0} />
           ))}
         </div>
       )}

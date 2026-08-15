@@ -14,9 +14,16 @@ import { backdateAccountAge, backdateRideDeparture, createRide, realisticReceipt
 // (pre-trip) OCR auto-approval — approval is now a plain manual driver
 // decision, since there's nothing to pay before the ride.
 test.describe.serial("settlement receipt OCR auto-approval", () => {
-  const driverEmail = uniqueEmail("ocrDriver")
-  const passengerEmail = uniqueEmail("ocrPassenger")
+  // Same cold-compile-window flake class documented in payment-review.spec.ts
+  // and passenger-listing.spec.ts — this is the other spec that exercises a
+  // first-of-its-kind live path (auto-settlement via OCR) without ever
+  // having run in CI before this branch. One retry, same reasoning: emails
+  // are (re-)generated in beforeAll so a retry signs up fresh accounts
+  // instead of resubmitting an already-registered address.
+  test.describe.configure({ retries: 1 })
 
+  let driverEmail: string
+  let passengerEmail: string
   let driverContext: BrowserContext
   let passengerContext: BrowserContext
   let driverPage: Page
@@ -24,6 +31,8 @@ test.describe.serial("settlement receipt OCR auto-approval", () => {
   let rideId: string
 
   test.beforeAll(async ({ browser }: { browser: Browser }) => {
+    driverEmail = uniqueEmail("ocrDriver")
+    passengerEmail = uniqueEmail("ocrPassenger")
     driverContext = await browser.newContext()
     passengerContext = await browser.newContext()
     driverPage = await driverContext.newPage()

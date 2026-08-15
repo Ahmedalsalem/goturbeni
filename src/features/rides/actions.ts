@@ -42,6 +42,8 @@ function buildRideRow(parsed: RideFormValues) {
     pets_allowed: parsed.petsAllowed,
     smoking_allowed: parsed.smokingAllowed,
     vip_solo: parsed.vipSolo,
+    payment_method: parsed.paymentMethod,
+    instant_booking: parsed.instantBooking,
   }
 }
 
@@ -197,9 +199,9 @@ export async function cancelRide(rideId: string): Promise<RideActionState> {
   const supabase = await createClient()
 
   // cancel_ride_with_bookings also cascades to that ride's bookings — any
-  // booking whose deposit was already confirmed/settled flips into the
-  // refund workflow (refund_status='pending') instead of just disappearing;
-  // see supabase/migrations/0021_cancellation_refunds.sql.
+  // already-settled booking flips into the refund workflow
+  // (refund_status='pending') instead of just disappearing; see
+  // supabase/migrations/0062_single_payment_at_settlement.sql.
   const { error } = await supabase.rpc("cancel_ride_with_bookings", { p_ride_id: rideId })
 
   if (error) {

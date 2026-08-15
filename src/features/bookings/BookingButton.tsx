@@ -14,6 +14,7 @@ import { BookingStatusBadge } from "@/features/bookings/BookingStatusBadge"
 import { CancelBookingButton } from "@/features/bookings/CancelBookingButton"
 import { createBooking } from "@/features/bookings/actions"
 import { MIN_BOOKING_SEAT_COUNT } from "@/features/bookings/schemas"
+import { ExperienceLevelBadge } from "@/features/reviews/ExperienceLevelBadge"
 import { StarRating } from "@/features/reviews/StarRating"
 import type { Booking } from "@/types/booking"
 
@@ -30,12 +31,14 @@ export function BookingButton({
   existingBooking,
   driverPaymentInfo,
   driverTrustInfo,
+  instantBooking,
 }: {
   rideId: string
   availableSeats: number
   existingBooking: Booking | null
   driverPaymentInfo: { iban: string; iban_holder_name: string } | null
   driverTrustInfo: DriverTrustInfo | null
+  instantBooking: boolean
 }) {
   const t = useTranslations("Bookings")
   const tPayment = useTranslations("Bookings.payment")
@@ -69,6 +72,7 @@ export function BookingButton({
               <span className="text-muted-foreground">{tPayment("noCommissionDisclaimer")}</span>
               {driverTrustInfo && (
                 <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 border-t pt-2">
+                  <ExperienceLevelBadge completedRideCount={driverTrustInfo.completedRideCount} />
                   <span className="text-muted-foreground text-xs">
                     {tPayment("driverMemberSince", {
                       date: format.dateTime(new Date(driverTrustInfo.memberSinceIso), { day: "2-digit", month: "2-digit", year: "numeric" }),
@@ -98,7 +102,7 @@ export function BookingButton({
       if (result?.error) {
         toast.error(result.error)
       } else {
-        toast.success(tSuccess("created"))
+        toast.success(instantBooking ? tSuccess("createdInstant") : tSuccess("created"))
         router.refresh()
       }
     })

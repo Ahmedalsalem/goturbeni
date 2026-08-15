@@ -56,6 +56,8 @@ export function buildRideSchema(t: ValidationTranslator) {
       petsAllowed: z.boolean().default(false),
       smokingAllowed: z.boolean().default(false),
       vipSolo: z.boolean().default(false),
+      paymentMethod: z.enum(["bank_transfer", "cash"]).default("bank_transfer"),
+      instantBooking: z.boolean().default(false),
       // Only read on create (RideForm hides it in edit mode) — the first
       // ride's own departureDate/departureTime supply the series' weekday
       // and time-of-day, so there's no separate recurrence field to fill in.
@@ -92,7 +94,15 @@ export function buildRideSchema(t: ValidationTranslator) {
     // dolaylı yoldan set edemesin.
     .transform((data) =>
       data.postedByRole === "passenger"
-        ? { ...data, petsAllowed: false, smokingAllowed: false, vipSolo: false, repeatWeekly: false }
+        ? {
+            ...data,
+            petsAllowed: false,
+            smokingAllowed: false,
+            vipSolo: false,
+            repeatWeekly: false,
+            paymentMethod: "bank_transfer" as const,
+            instantBooking: false,
+          }
         : data
     )
 }

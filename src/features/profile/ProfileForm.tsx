@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Field, FieldGroup, FieldLabel, FieldDescription } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -175,6 +176,13 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
           </Field>
         </div>
         <FieldDescription>{t("carHint")}</FieldDescription>
+
+        <Field orientation="horizontal">
+          <Checkbox id="hasAc" name="hasAc" defaultChecked={initialProfile.has_ac} />
+          <FieldLabel htmlFor="hasAc" className="font-normal">
+            {t("hasAc")}
+          </FieldLabel>
+        </Field>
 
         <Field>
           <FieldLabel htmlFor="bio">{t("bio")}</FieldLabel>

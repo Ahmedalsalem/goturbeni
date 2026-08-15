@@ -236,6 +236,7 @@
       "carModel": "Car Model",
       "carPlate": "License Plate",
       "carHint": "Required to post listings as a driver. You can leave this blank if you don't have a vehicle (e.g. 34 ABC 123).",
+      "hasAc": "Air Conditioned",
       "bio": "About Me",
       "bioHint": "Up to 500 characters.",
       "language": "Language",
@@ -301,6 +302,7 @@
       "smokingAllowed": "Smoking Allowed",
       "vipOnly": "VIP (Single Passenger)",
       "femaleDriverOnly": "Female Driver",
+      "hasAc": "Air Conditioned",
       "typeLabel": "Listing Type",
       "typeAll": "All",
       "typeDriver": "Driver Listings",
@@ -475,6 +477,12 @@
       "smokingAllowed": "Smoking allowed",
       "vipSolo": "VIP (Single Passenger) — only one passenger should book this listing",
       "vipSoloHint": "Seat count is automatically fixed at 1 for VIP listings; the ride won't be shared with other passengers.",
+      "paymentMethodLabel": "Payment method",
+      "paymentMethodBankTransfer": "Bank Transfer (IBAN)",
+      "paymentMethodCash": "Cash",
+      "paymentMethodHint": "If you choose cash, the passenger won't upload a receipt — after the trip, both sides confirm with the \"Mark Payment as Complete\" button instead.",
+      "instantBooking": "Instant Booking",
+      "instantBookingHint": "When on, a passenger's request is approved automatically as soon as there's room — no waiting for you to confirm.",
       "repeatWeekly": "Repeat this listing every week on this day and time",
       "repeatWeeklyHint": "Next week's listing is automatically posted about a week before its departure. You can stop it anytime from \"My Rides.\"",
       "createSubmit": "Publish Listing",
@@ -514,6 +522,8 @@
       "unknownDriver": "Driver",
       "petsAllowed": "Pets allowed",
       "smokingAllowed": "Smoking allowed",
+      "hasAc": "Air Conditioned",
+      "co2SavingsShort": "~{kg} kg CO₂ saved",
       "vipSolo": "VIP (Single Passenger)",
       "unknownPoster": "Passenger",
       "passengerListingBadge": "Passenger Listing",
@@ -534,6 +544,7 @@
   "RideDetailPage": {
     "seats": "{available} / {total} seats available",
     "descriptionLabel": "Description",
+    "co2Savings": "Sharing this ride saves an estimated {kg} kg of CO₂ (approximate, based on straight-line distance).",
     "metaDescription": "Ride on {date} - {cost}",
     "waitlistMessage": "This listing is currently full. Would you like us to notify you when a seat opens up?"
   },
@@ -569,6 +580,7 @@
     },
     "success": {
       "created": "Your booking request has been sent.",
+      "createdInstant": "Your booking was approved instantly.",
       "offerCreated": "Your offer has been sent.",
       "offerApproved": "Offer accepted.",
       "approved": "Booking approved.",
@@ -676,6 +688,12 @@
       "editWindowExpired": "Edit window has expired (15 minutes).",
       "actionFailed": "The action could not be completed. Please try again."
     }
+  },
+  "ExperienceLevel": {
+    "new": "New Member",
+    "active": "Active Member",
+    "experienced": "Experienced",
+    "ambassador": "Ambassador"
   },
   "Reviews": {
     "sectionTitle": "Reviews",

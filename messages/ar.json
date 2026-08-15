@@ -236,6 +236,7 @@
       "carModel": "موديل السيارة",
       "carPlate": "رقم اللوحة",
       "carHint": "مطلوب لنشر رحلة كسائق. إذا لم يكن لديك سيارة، يمكنك ترك هذا الحقل فارغًا (مثال: 34 ABC 123).",
+      "hasAc": "مكيّف",
       "bio": "نبذة عني",
       "bioHint": "500 حرف كحد أقصى.",
       "language": "اللغة",
@@ -301,6 +302,7 @@
       "smokingAllowed": "يُسمح بالتدخين",
       "vipOnly": "VIP (راكب واحد)",
       "femaleDriverOnly": "سائقة",
+      "hasAc": "مكيّف",
       "typeLabel": "نوع الإعلان",
       "typeAll": "الكل",
       "typeDriver": "إعلانات السائقين",
@@ -475,6 +477,12 @@
       "smokingAllowed": "يُسمح بالتدخين",
       "vipSolo": "VIP (راكب واحد) — هذه الرحلة لراكب واحد فقط",
       "vipSoloHint": "في رحلات VIP يتم تثبيت عدد المقاعد تلقائيًا على 1؛ لا يتم مشاركة الرحلة مع ركاب آخرين.",
+      "paymentMethodLabel": "طريقة الدفع",
+      "paymentMethodBankTransfer": "تحويل بنكي (IBAN)",
+      "paymentMethodCash": "نقدًا",
+      "paymentMethodHint": "إذا اخترت الدفع نقدًا، لن يرفع الراكب إيصالًا — بعد الرحلة، يؤكد الطرفان الدفع بزر \"تم إكمال الدفعة\" بدلًا من ذلك.",
+      "instantBooking": "الحجز الفوري",
+      "instantBookingHint": "عند التفعيل، تتم الموافقة على طلب حجز الراكب تلقائيًا فور توفر مقعد، دون انتظار موافقتك.",
       "repeatWeekly": "كرر هذا الإعلان كل أسبوع في هذا اليوم والوقت",
       "repeatWeeklyHint": "يُنشأ إعلان الأسبوع التالي تلقائيًا قبل حوالي أسبوع من موعده. يمكنك إيقافه في أي وقت من \"إعلاناتي\".",
       "createSubmit": "نشر الرحلة",
@@ -514,6 +522,8 @@
       "unknownDriver": "السائق",
       "petsAllowed": "يُسمح بالحيوانات الأليفة",
       "smokingAllowed": "يُسمح بالتدخين",
+      "hasAc": "مكيّف",
+      "co2SavingsShort": "~{kg} كجم CO₂ موفَّر",
       "vipSolo": "VIP (راكب واحد)",
       "unknownPoster": "راكب",
       "passengerListingBadge": "إعلان راكب",
@@ -534,6 +544,7 @@
   "RideDetailPage": {
     "seats": "{available} / {total} مقعد متاح",
     "descriptionLabel": "الوصف",
+    "co2Savings": "مشاركة هذه الرحلة تُوَفِّر ما يقارب {kg} كجم من ثاني أكسيد الكربون (تقديري، بحسب المسافة المستقيمة).",
     "metaDescription": "رحلة بتاريخ {date} - {cost}",
     "waitlistMessage": "هذه الرحلة ممتلئة حاليًا. هل تريد أن نعلمك عند توفر مقعد؟"
   },
@@ -569,6 +580,7 @@
     },
     "success": {
       "created": "تم إرسال طلب الحجز.",
+      "createdInstant": "تمت الموافقة على حجزك فورًا.",
       "offerCreated": "تم إرسال عرضك.",
       "offerApproved": "تم قبول العرض.",
       "approved": "تمت الموافقة على الحجز.",
@@ -676,6 +688,12 @@
       "editWindowExpired": "انتهت مهلة التعديل (15 دقيقة).",
       "actionFailed": "تعذر تنفيذ العملية. حاول مرة أخرى."
     }
+  },
+  "ExperienceLevel": {
+    "new": "عضو جديد",
+    "active": "عضو نشط",
+    "experienced": "ذو خبرة",
+    "ambassador": "سفير"
   },
   "Reviews": {
     "sectionTitle": "التقييمات",

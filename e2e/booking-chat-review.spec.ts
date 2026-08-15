@@ -91,6 +91,9 @@ test.describe.serial("booking, chat, and review flow", () => {
 
     await driverPage.goto(`/rides/${rideId}`)
     await expect(driverPage.getByText("1 / 2 boş koltuk")).toBeVisible()
+    // Ankara→İstanbul, seatCount 2: estimateCo2SavingsKg("Ankara", "İstanbul", 2)
+    // computed via the real function (src/utils/co2-savings.ts) = 119.
+    await expect(driverPage.getByText("Bu yolculuk paylaşılarak yaklaşık 119 kg CO₂ tasarrufu sağlanıyor")).toBeVisible()
   })
 
   test("driver and passenger exchange realtime chat messages", async () => {

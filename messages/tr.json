@@ -236,6 +236,7 @@
       "carModel": "Araç Modeli",
       "carPlate": "Plaka",
       "carHint": "Sürücü olarak ilan verebilmek için gerekli. Plakanız yoksa boş bırakabilirsiniz (örn. 34 ABC 123).",
+      "hasAc": "Klimalı",
       "bio": "Hakkımda",
       "bioHint": "En fazla 500 karakter.",
       "language": "Dil",
@@ -301,6 +302,7 @@
       "smokingAllowed": "Sigara İçilebilir",
       "vipOnly": "VIP (Tek Yolcu)",
       "femaleDriverOnly": "Kadın Şoför",
+      "hasAc": "Klimalı",
       "typeLabel": "İlan Türü",
       "typeAll": "Tümü",
       "typeDriver": "Sürücü İlanları",
@@ -475,6 +477,12 @@
       "smokingAllowed": "Sigara içilebilir",
       "vipSolo": "VIP (Tek Yolcu) — bu ilanı yalnızca tek bir yolcu alsın",
       "vipSoloHint": "VIP ilanlarda koltuk sayısı otomatik olarak 1'e sabitlenir; yolculuk başka yolcularla paylaşılmaz.",
+      "paymentMethodLabel": "Ödeme yöntemi",
+      "paymentMethodBankTransfer": "Banka Havalesi (IBAN)",
+      "paymentMethodCash": "Nakit",
+      "paymentMethodHint": "Nakit seçersen yolcu dekont yüklemez, yolculuk sonrası her iki taraf da \"Ödeme Tamamlandı\" butonuyla karşılıklı onaylar.",
+      "instantBooking": "Anında Onay",
+      "instantBookingHint": "Açıksa, koltuk müsaitse yolcunun rezervasyon talebi beklemeden otomatik onaylanır.",
       "repeatWeekly": "Bu ilanı her hafta bu gün ve saatte tekrarla",
       "repeatWeeklyHint": "Bir sonraki haftanın ilanı, kalkışına yaklaşık bir hafta kala otomatik olarak açılır. İstediğiniz zaman \"İlanlarım\"dan durdurabilirsiniz.",
       "createSubmit": "İlanı Yayınla",
@@ -514,6 +522,8 @@
       "unknownDriver": "Sürücü",
       "petsAllowed": "Evcil hayvan kabul edilir",
       "smokingAllowed": "Sigara içilebilir",
+      "hasAc": "Klimalı",
+      "co2SavingsShort": "~{kg} kg CO₂ tasarrufu",
       "vipSolo": "VIP (Tek Yolcu)",
       "unknownPoster": "Yolcu",
       "passengerListingBadge": "Yolcu İlanı",
@@ -534,6 +544,7 @@
   "RideDetailPage": {
     "seats": "{available} / {total} boş koltuk",
     "descriptionLabel": "Açıklama",
+    "co2Savings": "Bu yolculuk paylaşılarak yaklaşık {kg} kg CO₂ tasarrufu sağlanıyor (tahmini, kuş uçuşu mesafeye göre).",
     "metaDescription": "{date} tarihli yolculuk - {cost}",
     "waitlistMessage": "Bu ilan şu anda dolu. Koltuk açılınca haber vermemizi ister misiniz?"
   },
@@ -569,6 +580,7 @@
     },
     "success": {
       "created": "Rezervasyon talebiniz gönderildi.",
+      "createdInstant": "Rezervasyonunuz anında onaylandı.",
       "offerCreated": "Teklifiniz gönderildi.",
       "offerApproved": "Teklif kabul edildi.",
       "approved": "Rezervasyon onaylandı.",
@@ -676,6 +688,12 @@
       "editWindowExpired": "Düzenleme süresi doldu (15 dakika).",
       "actionFailed": "İşlem gerçekleştirilemedi. Lütfen tekrar deneyin."
     }
+  },
+  "ExperienceLevel": {
+    "new": "Yeni Üye",
+    "active": "Aktif Üye",
+    "experienced": "Deneyimli",
+    "ambassador": "Elçi"
   },
   "Reviews": {
     "sectionTitle": "Yorumlar",

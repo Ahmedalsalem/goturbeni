@@ -17,6 +17,7 @@ export interface RideSearchFilters {
   smokingAllowed?: boolean
   vipOnly?: boolean
   femaleDriverOnly?: boolean
+  hasAc?: boolean
   postedByRole?: "driver" | "passenger"
 }
 
@@ -45,6 +46,7 @@ export function parseRideSearchParams(searchParams: Record<string, string | stri
   const smokingAllowed = firstValue(searchParams.smokingAllowed)
   const vipOnly = firstValue(searchParams.vipOnly)
   const femaleDriverOnly = firstValue(searchParams.femaleDriverOnly)
+  const hasAc = firstValue(searchParams.hasAc)
   const postedByRole = firstValue(searchParams.type)
 
   const resolvedFrom = from && isTurkishProvince(from) ? from : undefined
@@ -67,6 +69,7 @@ export function parseRideSearchParams(searchParams: Record<string, string | stri
     // for a non-female caller) — this is just advisory parsing, same as
     // every other filter here.
     femaleDriverOnly: femaleDriverOnly === "1" ? true : undefined,
+    hasAc: hasAc === "1" ? true : undefined,
     postedByRole: postedByRole === "driver" || postedByRole === "passenger" ? postedByRole : undefined,
   }
 }

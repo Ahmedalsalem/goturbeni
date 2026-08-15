@@ -7,7 +7,7 @@ import { ReceiptUploadForm } from "@/features/bookings/ReceiptUploadForm"
 import { submitSettlementReceipt } from "@/features/bookings/actions"
 import type { ReceiptStatus } from "@/types/booking"
 
-// Shown on a completed booking until the post-trip remaining-half receipt is
+// Shown on a completed booking until the post-trip settlement receipt is
 // approved — needs to be a client component (not inlined in bookings/page.tsx,
 // a Server Component) because the ReceiptUploadForm's `action` prop is a
 // closure over bookingId/rideId, not a plain server action reference; passing

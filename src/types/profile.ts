@@ -15,6 +15,7 @@ export interface Profile {
   car_brand: string | null
   car_model: string | null
   car_plate: string | null
+  has_ac: boolean
   bio: string | null
   language: AppLocale
   verification_status: ProfileVerificationStatus

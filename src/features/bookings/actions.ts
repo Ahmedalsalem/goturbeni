@@ -74,19 +74,24 @@ export async function createBooking(rideId: string, values: BookingFormValues): 
   }
 
   const supabase = await createClient()
-  const { error } = await supabase.from("bookings").insert({
-    ride_id: rideId,
-    passenger_id: user.id,
-    seat_count: parsed.data.seatCount,
-  })
+  const { error } = await supabase.rpc("create_booking", { p_ride_id: rideId, p_seat_count: parsed.data.seatCount })
 
   if (error) {
     // 23505 = unique_violation — the partial unique index on (ride_id,
-    // passenger_id) where status in (pending, approved).
-    if (error.code !== "23505") {
-      logError(error, "bookings.createBooking")
+    // passenger_id) where status in (pending, approved). Other messages are
+    // create_booking's own raised exceptions (0065_instant_booking.sql) —
+    // ride_not_active/own_ride/not_enough_seats duplicate the client-side
+    // guard clauses above for the common case, but the RPC is the actual
+    // source of truth (atomic, `for update`-locked) since two concurrent
+    // requests can both pass the client-side checks.
+    if (error.code === "23505") {
+      return { error: tErrors("alreadyBooked") }
     }
-    return { error: error.code === "23505" ? tErrors("alreadyBooked") : tErrors("createFailed") }
+    if (error.message.includes("not_enough_seats")) {
+      return { error: tErrors("notEnoughSeats") }
+    }
+    logError(error, "bookings.createBooking")
+    return { error: tErrors("createFailed") }
   }
 
   await Promise.all([
@@ -308,7 +313,7 @@ export async function cancelBooking(bookingId: string, rideId: string): Promise<
   return { success: true }
 }
 
-// Either party's "Kalan Ödeme Tamamlandı" confirmation, post-trip. The RPC
+// Either party's "Ödeme Tamamlandı" confirmation, post-trip. The RPC
 // figures out which side the caller is (driver vs passenger) and only flips
 // payment_status to 'settled' once both have confirmed — see
 // confirm_remaining_payment in supabase/migrations/0017_booking_payment_flow.sql.
@@ -395,7 +400,7 @@ export async function submitRefundProof(bookingId: string, rideId: string, formD
   return { success: true }
 }
 
-// Passenger uploads proof of the post-trip remaining-half IBAN transfer —
+// Passenger uploads proof of the post-trip full-fare IBAN transfer —
 // same evidence-layer pattern as submitRefundProof above (upload + admin
 // review), reviewed by an admin (admin_review_settlement_receipt in
 // supabase/migrations/0025). This is independent of confirmRemainingPayment's
