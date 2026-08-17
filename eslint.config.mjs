@@ -14,10 +14,17 @@ const eslintConfig = [
   {
     ignores: [
       "node_modules/**",
-      ".next/**",
+      "**/.next/**",
       "out/**",
       "build/**",
       "next-env.d.ts",
+      // Git worktrees for in-progress branches live here (see
+      // using-git-worktrees) — each is a full separate checkout with its own
+      // node_modules/.next, so linting them from the parent repo's `eslint .`
+      // both double-lints the same source under a different branch and picks
+      // up their stale build output (e.g. .next/**, which the pattern above
+      // only catches when the worktree itself is excluded first).
+      ".claude/worktrees/**",
     ],
   },
 ];
