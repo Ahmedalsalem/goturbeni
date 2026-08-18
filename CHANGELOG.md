@@ -4,6 +4,12 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) kullanır.
 
 ## [Unreleased]
 
+### Eklendi — Faz 18: her ilanda üyelere e-posta, destek e-postası Gmail'i açsın (bu oturum)
+
+- **Destek sayfası**: "Bize Ulaş" butonu artık `mailto:` yerine Gmail'in compose ekranını yeni sekmede açıyor — çoğu kullanıcı için `mailto:` ya boş bir masaüstü mail istemcisi açıyordu ya da hiçbir şey olmuyordu.
+- **Her yeni ilanda tüm üyelere e-posta**: kullanıcının açık isteği üzerine, mevcut arama-uyarısı bildiriminden (yalnızca o güzergaha alarm kuranlara, opt-in) farklı olarak, `get_all_member_emails_for_broadcast` RPC'si (`0067_new_ride_broadcast.sql`) **filtre uygulamadan `profiles`'taki her kullanıcıya** gidiyor — ilanı yayınlayan hariç. `src/lib/new-ride-broadcast-email.ts`, `createRide` içinde `next/server`'ın `after()`'ıyla arka planda tetikleniyor (ilan oluşturma yanıtını bloke etmesin diye). Bir `ride_broadcast_dispatches` tablosuyla aynı ilan için tekrar çağrıda ikinci bir gönderim engelleniyor. tr/en/ar üçünde de metin eklendi, anahtar eşleşmesi doğrulandı (793/793). **Bilinçli, kullanıcıya bildirilmiş risk**: abonelikten çıkma seçeneği yok, gönderim kademesiz — kullanıcı sayısı arttıkça teslim edilebilirlik/spam-şikayeti riski taşır (bkz. README → Bilinen Sınırlamalar).
+- CI'da doğrulandı (build/lint/typecheck/unit test + 53 e2e testi yeşil), `0067` production'a (`mfptzzrvekpvibxrifjt`) push edildi ve `migration list` ile teyit edildi.
+
 ### Belgelendi — dokümantasyon boşluğu kapatıldı, Faz 16 için eksik e2e testleri eklendi (bu oturum)
 
 - **Dokümantasyon boşluğu**: `PROJECT_STATUS.md` Faz 16'dan sonra hiç güncellenmemişti. `0049`-`0066` arasındaki 18 migration'ı kapsayan üç iş kalemi (araç plakası + format kontrolü `0050`/`0051`, EN dil desteği `0052`, kapora+kalan ödeme dekontu OCR otomatik onayı `0053`/`0054`, no-show sıkılaştırma + tek-ödeme modeline geçiş `0055`/`0056`/`0062`, yolcu ilanları/ters rezervasyon `0057`-`0061`/`0063`, blablacar-gap özellikleri — nakit ödeme/anında onay/deneyim rozeti/klima filtresi/CO₂ tasarrufu `0064`-`0066`) burada da hiç kayıtlı değildi; `PROJECT_STATUS.md`'ye yeni bir "Faz 17" bölümü olarak, gerçek migration içeriği okunarak yeniden inşa edildi.
