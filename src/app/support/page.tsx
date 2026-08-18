@@ -65,7 +65,12 @@ export default async function SupportPage() {
               <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">{t("contact.description")}</p>
             </div>
           </div>
-          <a href={`mailto:${SUPPORT_EMAIL}`} className={buttonVariants({ variant: "outline", className: "shrink-0" })}>
+          <a
+            href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(SUPPORT_EMAIL)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={buttonVariants({ variant: "outline", className: "shrink-0" })}
+          >
             {t("contact.emailCta")}
           </a>
         </CardContent>

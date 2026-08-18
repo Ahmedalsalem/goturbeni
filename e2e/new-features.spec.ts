@@ -37,7 +37,7 @@ test("mobile guest sees Giriş Yap and Kayıt Ol directly, with no menu icon to 
 test("support page shows the contact card and categorized FAQ", async ({ page }) => {
   await page.goto("/support")
   await expect(page.getByText("Bize Ulaş")).toBeVisible()
-  await expect(page.locator("a[href^='mailto:novarodigitalstudio@gmail.com']")).toBeVisible()
+  await expect(page.locator("a[href^='https://mail.google.com/mail/?view=cm']")).toHaveAttribute("href", /to=novarodigitalstudio%40gmail\.com/)
   await expect(page.getByText("Rezervasyon & Ödeme")).toBeVisible()
   await expect(page.getByText("Neden araç plakası istiyorsunuz?")).toBeVisible()
 })
