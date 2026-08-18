@@ -7,22 +7,22 @@ import {
   receiptFilePayload,
   signUpAndVerify,
   uniqueEmail,
+  uniqueIban,
+  uniqueSuffix,
 } from "./utils"
 
-// Coverage for the simplest of the three fraud-detection-v2 signals added in
-// 0046_suspicious_accounts_fraud_v2.sql (duplicate_iban — the other two,
-// disputed_repeatedly and repeated_receipt_rejection, need a dispute or
-// reject-count history to set up and are exercised indirectly by
-// disputes.spec.ts / payment-review.spec.ts instead), previously verified
-// only via the migration's own SQL, never through the UI. Two otherwise
-// unrelated accounts register the exact same IBAN — a fresh random one, not
-// this repo's shared "TR330006100519786457841326" test IBAN (nearly every
-// other e2e spec's driver profile already reuses that one, which would make
-// a duplicate_iban assertion here flaky/inflated by unrelated test runs).
-function uniqueIban(): string {
-  const digits = `${Date.now()}${Math.floor(Math.random() * 10000)}`.padStart(24, "0").slice(-24)
-  return `TR${digits}`
-}
+// Coverage for all three fraud-detection-v2 signals added in
+// 0046_suspicious_accounts_fraud_v2.sql (duplicate_iban, disputed_repeatedly,
+// repeated_receipt_rejection — unchanged in the current 0062 redefinition of
+// get_suspicious_accounts_internal), previously verified only via the
+// migration's own SQL, never through the UI. All three read from
+// /admin/users or /admin/payments, pages that list every matching row across
+// the whole database — every locator below is scoped to a `[data-slot=
+// "card"]` container filtered by a uniqueSuffix()-tagged name, not a bare
+// page-wide getByText, specifically because these pages are shared with
+// every other concurrently-running spec (and with retries of these same
+// blocks, which re-run beforeAll but don't delete a failed attempt's rows).
+const CARD_SELECTOR = '[data-slot="card"]'
 
 test.describe.serial("fraud detection — duplicate IBAN", () => {
   test.describe.configure({ retries: 1 })
@@ -36,7 +36,8 @@ test.describe.serial("fraud detection — duplicate IBAN", () => {
   let userAPage: Page
   let userBPage: Page
   let adminPage: Page
-  const sharedIban = uniqueIban()
+  let userALabel: string
+  let userBLabel: string
 
   test.beforeAll(async ({ browser }: { browser: Browser }) => {
     userAEmail = uniqueEmail("fraudA")
@@ -62,39 +63,45 @@ test.describe.serial("fraud detection — duplicate IBAN", () => {
     await signUpAndVerify(adminPage, adminEmail)
     await makeAdminForTest(adminEmail)
 
+    // A fresh random IBAN per attempt (not module-level, not this repo's
+    // shared "TR330006100519786457841326" test IBAN) — computed inside the
+    // test body so a retry gets a new one too, instead of reusing the failed
+    // first attempt's value and ending up with 4 accounts sharing 1 IBAN.
+    const sharedIban = uniqueIban()
+    userALabel = `E2E Fraud A ${uniqueSuffix()}`
+    userBLabel = `E2E Fraud B ${uniqueSuffix()}`
+
     await userAPage.goto("/profile")
-    await userAPage.locator("#fullName").fill("E2E Fraud A")
+    await userAPage.locator("#fullName").fill(userALabel)
     await userAPage.locator("#iban").fill(sharedIban)
-    await userAPage.locator("#ibanHolderName").fill("E2E Fraud A")
+    await userAPage.locator("#ibanHolderName").fill(userALabel)
     await userAPage.getByRole("button", { name: "Kaydet" }).click()
     await expect(userAPage.getByText("Profil güncellendi.")).toBeVisible()
 
     await userBPage.goto("/profile")
-    await userBPage.locator("#fullName").fill("E2E Fraud B")
+    await userBPage.locator("#fullName").fill(userBLabel)
     await userBPage.locator("#iban").fill(sharedIban)
-    await userBPage.locator("#ibanHolderName").fill("E2E Fraud B")
+    await userBPage.locator("#ibanHolderName").fill(userBLabel)
     await userBPage.getByRole("button", { name: "Kaydet" }).click()
     await expect(userBPage.getByText("Profil güncellendi.")).toBeVisible()
   })
 
   test("admin sees both accounts flagged as duplicate_iban on /admin/users", async () => {
     await adminPage.goto("/admin/users")
-    await expect(adminPage.getByText("E2E Fraud A")).toBeVisible()
-    await expect(adminPage.getByText("E2E Fraud B")).toBeVisible()
-    // Exactly one flagged row per account (admin_get_suspicious_accounts
-    // emits one duplicate_iban row per matching profile) — this IBAN is
-    // unique to this test run, so a count other than 2 means either a false
-    // negative (rule didn't fire) or the rule matched unrelated accounts.
-    await expect(adminPage.getByText("Aynı IBAN birden fazla hesapta")).toHaveCount(2)
-    await expect(adminPage.getByText("Aynı IBAN 2 hesapta kayıtlı")).toHaveCount(2)
+    const cardA = adminPage.locator(CARD_SELECTOR).filter({ hasText: userALabel })
+    const cardB = adminPage.locator(CARD_SELECTOR).filter({ hasText: userBLabel })
+    await expect(cardA.getByText("Aynı IBAN birden fazla hesapta")).toBeVisible()
+    await expect(cardA.getByText("Aynı IBAN 2 hesapta kayıtlı")).toBeVisible()
+    await expect(cardB.getByText("Aynı IBAN birden fazla hesapta")).toBeVisible()
+    await expect(cardB.getByText("Aynı IBAN 2 hesapta kayıtlı")).toBeVisible()
   })
 })
 
-// Coverage for disputed_repeatedly (0046, unchanged in the current 0062
-// redefinition): >=2 disputes against the same user, any status except
-// 'dismissed'. Two unrelated passengers each open a dispute against the same
-// driver on two separate rides — separate bookings (not the same one twice)
-// so disputes_one_active_per_booking_opener never gets in the way.
+// Coverage for disputed_repeatedly: >=2 disputes against the same user, any
+// status except 'dismissed'. Two unrelated passengers each open a dispute
+// against the same driver on two separate rides — separate bookings (not the
+// same one twice) so disputes_one_active_per_booking_opener never gets in
+// the way.
 test.describe.serial("fraud detection — disputed repeatedly", () => {
   test.describe.configure({ retries: 1 })
 
@@ -110,6 +117,7 @@ test.describe.serial("fraud detection — disputed repeatedly", () => {
   let passengerAPage: Page
   let passengerBPage: Page
   let adminPage: Page
+  let driverLabel: string
 
   test.beforeAll(async ({ browser }: { browser: Browser }) => {
     driverEmail = uniqueEmail("disputedDriver")
@@ -149,7 +157,7 @@ test.describe.serial("fraud detection — disputed repeatedly", () => {
     await passengerPage.getByRole("button", { name: "Sorun Bildir", exact: true }).first().click()
     await passengerPage
       .getByPlaceholder("Yaşadığınız sorunu açıklayın (en az 10 karakter)")
-      .fill("Sürücüyle ilgili bir sorun yaşadım, incelenmesini istiyorum.")
+      .fill(`Sürücüyle ilgili bir sorun yaşadım, incelenmesini istiyorum. (${uniqueSuffix()})`)
     await passengerPage.getByRole("button", { name: "Gönder", exact: true }).click()
     await expect(passengerPage.getByText("Bildiriminiz alındı, ekibimiz inceleyecek.")).toBeVisible()
   }
@@ -181,8 +189,9 @@ test.describe.serial("fraud detection — disputed repeatedly", () => {
       costShare: 50,
     })
 
+    driverLabel = `E2E Disputed Driver ${uniqueSuffix()}`
     await driverPage.goto("/profile")
-    await driverPage.locator("#fullName").fill("E2E Disputed Driver")
+    await driverPage.locator("#fullName").fill(driverLabel)
     await driverPage.getByRole("button", { name: "Kaydet" }).click()
     await expect(driverPage.getByText("Profil güncellendi.")).toBeVisible()
 
@@ -194,20 +203,20 @@ test.describe.serial("fraud detection — disputed repeatedly", () => {
 
   test("admin sees the driver flagged as disputed_repeatedly on /admin/users", async () => {
     await adminPage.goto("/admin/users")
-    await expect(adminPage.getByText("E2E Disputed Driver")).toBeVisible()
-    await expect(adminPage.getByText("Tekrarlayan anlaşmazlık konusu")).toBeVisible()
-    await expect(adminPage.getByText("2 anlaşmazlıkta şikayet edilen taraf")).toBeVisible()
+    const myCard = adminPage.locator(CARD_SELECTOR).filter({ hasText: driverLabel })
+    await expect(myCard.getByText("Tekrarlayan anlaşmazlık konusu")).toBeVisible()
+    await expect(myCard.getByText("2 anlaşmazlıkta şikayet edilen taraf")).toBeVisible()
   })
 })
 
-// Coverage for repeated_receipt_rejection's passenger-side branch (0046,
-// current form in 0062: sum(settlement_receipt_reject_count) >= 3, no more
-// deposit_receipt_reject_count since deposits were removed in the
-// single-payment-at-settlement model). Rejects the SAME booking's settlement
-// receipt three times in a row — settlement_receipt_reject_count is a
-// per-booking counter (0045_fraud_v2_columns_and_enum.sql), so three rejects
-// on one booking is equivalent to three across different ones for this rule's
-// sum() and far simpler to set up.
+// Coverage for repeated_receipt_rejection's passenger-side branch:
+// sum(settlement_receipt_reject_count) >= 3 (no more deposit_receipt_reject_
+// count since deposits were removed in the single-payment-at-settlement
+// model). Rejects the SAME booking's settlement receipt three times in a
+// row — settlement_receipt_reject_count is a per-booking counter
+// (0045_fraud_v2_columns_and_enum.sql), so three rejects on one booking is
+// equivalent to three across different ones for this rule's sum() and far
+// simpler to set up.
 test.describe.serial("fraud detection — repeated receipt rejection", () => {
   test.describe.configure({ retries: 1 })
 
@@ -221,6 +230,7 @@ test.describe.serial("fraud detection — repeated receipt rejection", () => {
   let passengerPage: Page
   let adminPage: Page
   let rideId: string
+  let passengerLabel: string
 
   test.beforeAll(async ({ browser }: { browser: Browser }) => {
     driverEmail = uniqueEmail("rejectDriver")
@@ -245,7 +255,8 @@ test.describe.serial("fraud detection — repeated receipt rejection", () => {
     await signUpAndVerify(passengerPage, passengerEmail)
     await signUpAndVerify(adminPage, adminEmail)
     await makeAdminForTest(adminEmail)
-    await passengerPage.locator("#fullName").fill("E2E Reject Passenger")
+    passengerLabel = `E2E Reject Passenger ${uniqueSuffix()}`
+    await passengerPage.locator("#fullName").fill(passengerLabel)
     await passengerPage.getByRole("button", { name: "Kaydet" }).click()
     await expect(passengerPage.getByText("Profil güncellendi.")).toBeVisible()
   })
@@ -259,6 +270,17 @@ test.describe.serial("fraud detection — repeated receipt rejection", () => {
       costShare: 65,
     })
     expect(rideId).toBeTruthy()
+
+    // createRide() always sets the driver's IBAN to the same fixed value
+    // every other spec's driver also uses — give this one a unique IBAN so
+    // the three pending/rejected receipts below (and their card on
+    // /admin/payments) never collide with a concurrently-running spec's
+    // identical-IBAN row (payment-review.spec.ts asserts on that exact IBAN
+    // text with a strict, unscoped getByText).
+    await driverPage.goto("/profile")
+    await driverPage.locator("#iban").fill(uniqueIban())
+    await driverPage.getByRole("button", { name: "Kaydet" }).click()
+    await expect(driverPage.getByText("Profil güncellendi.")).toBeVisible()
 
     await passengerPage.goto(`/rides/${rideId}`)
     await passengerPage.getByRole("button", { name: "Rezervasyon Yap", exact: true }).click()
@@ -279,17 +301,18 @@ test.describe.serial("fraud detection — repeated receipt rejection", () => {
       await expect(passengerPage.getByText("Dekont yüklendi, inceleme bekleniyor.")).toBeVisible()
 
       await adminPage.goto("/admin/payments")
-      await adminPage.getByRole("button", { name: "Reddet", exact: true }).first().click()
-      await adminPage.getByPlaceholder("Red gerekçesi").fill(`Deneme ${attempt}: dekont okunamıyor.`)
-      await adminPage.getByRole("button", { name: "Reddi Onayla", exact: true }).click()
+      const myCard = adminPage.locator(CARD_SELECTOR).filter({ hasText: passengerLabel })
+      await myCard.getByRole("button", { name: "Reddet", exact: true }).click()
+      await myCard.getByPlaceholder("Red gerekçesi").fill(`Deneme ${attempt}: dekont okunamıyor.`)
+      await myCard.getByRole("button", { name: "Reddi Onayla", exact: true }).click()
       await expect(adminPage.getByText("Dekont reddedildi.")).toBeVisible()
     }
   })
 
   test("admin sees the passenger flagged as repeated_receipt_rejection on /admin/users", async () => {
     await adminPage.goto("/admin/users")
-    await expect(adminPage.getByText("E2E Reject Passenger")).toBeVisible()
-    await expect(adminPage.getByText("Tekrarlayan dekont/iade reddi")).toBeVisible()
-    await expect(adminPage.getByText("3 reddedilen dekont")).toBeVisible()
+    const myCard = adminPage.locator(CARD_SELECTOR).filter({ hasText: passengerLabel })
+    await expect(myCard.getByText("Tekrarlayan dekont/iade reddi")).toBeVisible()
+    await expect(myCard.getByText("3 reddedilen dekont")).toBeVisible()
   })
 })

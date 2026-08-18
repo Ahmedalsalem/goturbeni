@@ -7,6 +7,34 @@ export function uniqueEmail(prefix: string): string {
   return `e2e-${prefix}-${Date.now()}-${Math.floor(Math.random() * 100_000)}@example.com`
 }
 
+// Appends to human-readable fixture text (full names, dispute descriptions)
+// that a spec then locates with an exact-text Playwright assertion on a
+// SHARED admin page (/admin/users, /admin/payments, /admin/disputes) — those
+// pages list every matching row across the whole database, not just this
+// test's own. Without a per-run token, two things collide on the literal
+// same string: another spec file running concurrently in a different
+// worker, and a retry of this same spec (test.describe.configure({retries:
+// 1}) re-runs beforeAll from scratch but doesn't delete what the failed
+// first attempt already inserted), and Playwright's strict-mode getByText
+// throws "resolved to N elements" instead of matching just this attempt's row.
+export function uniqueSuffix(): string {
+  return `${Date.now().toString(36)}${Math.floor(Math.random() * 46656).toString(36)}`
+}
+
+// TR + 24 digits is the only format-level requirement (TR_IBAN_PATTERN,
+// src/features/profile/schemas.ts) — no real checksum, so any digit string
+// works. createRide() always sets the driver's IBAN to the same fixed value
+// ("TR330006100519786457841326") every other spec's driver also uses — fine
+// for specs that never load /admin/payments, but a spec that does (and
+// asserts on that IBAN text, or on a risk badge next to it) will collide
+// with every other concurrently-pending receipt sharing that same IBAN.
+// Call this after createRide() and overwrite #iban on /profile when that
+// matters.
+export function uniqueIban(): string {
+  const digits = `${Date.now()}${Math.floor(Math.random() * 10000)}`.padStart(24, "0").slice(-24)
+  return `TR${digits}`
+}
+
 // NOTE: registration now requires mandatory phone OTP verification (see
 // src/app/verify-phone/page.tsx) — this helper fills the now-required
 // phone/gender fields so the form submits, but lands on /verify-phone, not

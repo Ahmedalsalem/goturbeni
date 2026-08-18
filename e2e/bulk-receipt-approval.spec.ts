@@ -8,6 +8,8 @@ import {
   receiptFilePayload,
   signUpAndVerify,
   uniqueEmail,
+  uniqueIban,
+  uniqueSuffix,
 } from "./utils"
 
 // Coverage for risk-tiered bulk receipt approval added in
@@ -34,6 +36,7 @@ test.describe.serial("bulk receipt approval", () => {
   let passengerPage: Page
   let adminPage: Page
   let rideId: string
+  let passengerLabel: string
 
   test.beforeAll(async ({ browser }: { browser: Browser }) => {
     driverEmail = uniqueEmail("bulkDriver")
@@ -61,6 +64,14 @@ test.describe.serial("bulk receipt approval", () => {
     // 14 days is TRUSTED_ACCOUNT_MIN_AGE_DAYS (src/features/admin/risk.ts) —
     // 15 clears it with margin.
     await backdateAccountAge(passengerEmail, 15)
+    // Unique display name so this booking's row can be located precisely on
+    // the shared /admin/payments page even when other specs' pending
+    // receipts are visible at the same time.
+    passengerLabel = `E2E Bulk Passenger ${uniqueSuffix()}`
+    await passengerPage.goto("/profile")
+    await passengerPage.locator("#fullName").fill(passengerLabel)
+    await passengerPage.getByRole("button", { name: "Kaydet" }).click()
+    await expect(passengerPage.getByText("Profil güncellendi.")).toBeVisible()
   })
 
   test("driver creates a bank-transfer ride, passenger books, driver approves", async () => {
@@ -72,6 +83,16 @@ test.describe.serial("bulk receipt approval", () => {
       costShare: 70,
     })
     expect(rideId).toBeTruthy()
+
+    // createRide() always sets the driver's IBAN to the same fixed value
+    // every other spec's driver also uses — give this one a unique IBAN so
+    // this receipt's card never collides with a concurrently-running spec's
+    // identical-IBAN row (payment-review.spec.ts asserts on that exact IBAN
+    // text with a strict, unscoped getByText).
+    await driverPage.goto("/profile")
+    await driverPage.locator("#iban").fill(uniqueIban())
+    await driverPage.getByRole("button", { name: "Kaydet" }).click()
+    await expect(driverPage.getByText("Profil güncellendi.")).toBeVisible()
 
     await passengerPage.goto(`/rides/${rideId}`)
     await passengerPage.getByRole("button", { name: "Rezervasyon Yap", exact: true }).click()
@@ -93,11 +114,20 @@ test.describe.serial("bulk receipt approval", () => {
 
   test("admin sees it tagged low-risk and bulk-approves it", async () => {
     await adminPage.goto("/admin/payments")
-    await expect(adminPage.getByText("Düşük Risk")).toBeVisible()
-    await expect(adminPage.getByRole("button", { name: "1 düşük riskli dekontu onayla", exact: true })).toBeVisible()
+    const myCard = adminPage.locator('[data-slot="card"]').filter({ hasText: passengerLabel })
+    await expect(myCard.getByText("Düşük Risk")).toBeVisible()
 
-    await adminPage.getByRole("button", { name: "1 düşük riskli dekontu onayla", exact: true }).click()
-    await expect(adminPage.getByText("1 dekont onaylandı.")).toBeVisible()
+    // The bulk-approve button covers every low-risk pending receipt site-
+    // wide (admin_bulk_approve_receipts has no per-test scope) — if another
+    // spec's low-risk receipt is pending at the same instant, the button's
+    // count is >1, not literally "1". Assert the pattern, not an exact
+    // count; the real proof this test cares about is the passenger's own
+    // booking below, which is unaffected by how many other rows also got
+    // swept up in the same click.
+    const bulkApproveButton = adminPage.getByRole("button", { name: /düşük riskli dekontu onayla/ })
+    await expect(bulkApproveButton).toBeVisible()
+    await bulkApproveButton.click()
+    await expect(adminPage.getByText(/dekont onaylandı\./)).toBeVisible()
 
     await passengerPage.goto("/bookings")
     await expect(passengerPage.getByText("Ödeme dekontu onaylandı")).toBeVisible()

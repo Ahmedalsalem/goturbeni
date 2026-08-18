@@ -1,6 +1,6 @@
 import { expect, test, type Browser, type BrowserContext, type Page } from "@playwright/test"
 
-import { createRide, makeAdminForTest, signUpAndVerify, uniqueEmail } from "./utils"
+import { createRide, makeAdminForTest, signUpAndVerify, uniqueEmail, uniqueSuffix } from "./utils"
 
 // Coverage for the formal dispute-resolution flow added in
 // 0044_disputes.sql (open_dispute / admin_set_dispute_status), previously
@@ -8,6 +8,13 @@ import { createRide, makeAdminForTest, signUpAndVerify, uniqueEmail } from "./ut
 // full lifecycle: passenger reports a problem on an approved booking, the
 // button becomes disabled/badged for that same booking, and an admin walks
 // it open -> in_review -> resolved with a note on /admin/disputes.
+//
+// /admin/disputes lists every open/resolved dispute across the whole
+// database, including ones concurrently-running specs create (e.g.
+// fraud-detection.spec.ts's "disputed repeatedly" block, which never
+// resolves its own) — every locator below is scoped to this dispute's own
+// `[data-slot="card"]`, filtered by a uniqueSuffix()-tagged description, not
+// a bare page-wide getByText/getByRole.
 test.describe.serial("disputes", () => {
   test.describe.configure({ retries: 1 })
 
@@ -21,6 +28,8 @@ test.describe.serial("disputes", () => {
   let passengerPage: Page
   let adminPage: Page
   let rideId: string
+  let description: string
+  let resolutionNote: string
 
   test.beforeAll(async ({ browser }: { browser: Browser }) => {
     driverEmail = uniqueEmail("disputeDriver")
@@ -73,9 +82,8 @@ test.describe.serial("disputes", () => {
     // Default reason (payment_not_received) is left as-is — only the
     // description is required input, keeping the Base UI Select untouched
     // avoids an unnecessary extra interaction surface for this test.
-    await passengerPage
-      .getByPlaceholder("Yaşadığınız sorunu açıklayın (en az 10 karakter)")
-      .fill("Sürücü parayı hâlâ göndermedi, iki gündür bekliyorum.")
+    description = `Sürücü parayı hâlâ göndermedi, iki gündür bekliyorum. (${uniqueSuffix()})`
+    await passengerPage.getByPlaceholder("Yaşadığınız sorunu açıklayın (en az 10 karakter)").fill(description)
     await passengerPage.getByRole("button", { name: "Gönder", exact: true }).click()
     await expect(passengerPage.getByText("Bildiriminiz alındı, ekibimiz inceleyecek.")).toBeVisible()
 
@@ -88,24 +96,28 @@ test.describe.serial("disputes", () => {
 
   test("admin sees the open dispute, starts review, then resolves it with a note", async () => {
     await adminPage.goto("/admin/disputes")
-    await expect(adminPage.getByText("Ödeme Alınmadı")).toBeVisible()
-    await expect(adminPage.getByText("Sürücü parayı hâlâ göndermedi, iki gündür bekliyorum.")).toBeVisible()
+    const myCard = adminPage.locator('[data-slot="card"]').filter({ hasText: description })
+    await expect(myCard.getByText("Ödeme Alınmadı")).toBeVisible()
 
-    await adminPage.getByRole("button", { name: "İncelemeye Al", exact: true }).click()
+    await myCard.getByRole("button", { name: "İncelemeye Al", exact: true }).click()
     await expect(adminPage.getByText("Anlaşmazlık durumu güncellendi.")).toBeVisible()
     // startReview only renders while status === 'open' — confirms the
     // status actually advanced server-side, not just a toast firing.
-    await expect(adminPage.getByRole("button", { name: "İncelemeye Al", exact: true })).toHaveCount(0)
+    await expect(myCard.getByRole("button", { name: "İncelemeye Al", exact: true })).toHaveCount(0)
 
-    await adminPage.getByPlaceholder("Sonuç notu (isteğe bağlı, taraflara gösterilir)").fill("Sürücüyle görüşüldü, dekont karşılığında ödeme yapılmış.")
-    await adminPage.getByRole("button", { name: "Çözüldü Olarak Kapat", exact: true }).click()
+    resolutionNote = `Sürücüyle görüşüldü, dekont karşılığında ödeme yapılmış. (${uniqueSuffix()})`
+    await myCard.getByPlaceholder("Sonuç notu (isteğe bağlı, taraflara gösterilir)").fill(resolutionNote)
+    await myCard.getByRole("button", { name: "Çözüldü Olarak Kapat", exact: true }).click()
     await expect(adminPage.getByText("Anlaşmazlık durumu güncellendi.")).toBeVisible()
 
     // Resolved disputes move to the second section and lose their action
     // buttons entirely — re-fetch the page (router.refresh already ran, but
-    // a hard reload also proves resolved-dispute queries pick it up).
+    // a hard reload also proves resolved-dispute queries pick it up). myCard
+    // is a lazy locator (re-queries on every use), so it still finds the
+    // same dispute's now-relocated card after the reload.
     await adminPage.reload()
-    await expect(adminPage.getByText("Sürücüyle görüşüldü, dekont karşılığında ödeme yapılmış.")).toBeVisible()
-    await expect(adminPage.getByRole("button", { name: "Çözüldü Olarak Kapat", exact: true })).toHaveCount(0)
+    const resolvedCard = adminPage.locator('[data-slot="card"]').filter({ hasText: description })
+    await expect(resolvedCard.getByText(resolutionNote)).toBeVisible()
+    await expect(resolvedCard.getByRole("button", { name: "Çözüldü Olarak Kapat", exact: true })).toHaveCount(0)
   })
 })
