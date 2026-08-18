@@ -2,13 +2,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 // vi.hoisted lets these mock fns exist before the vi.mock factories below run
 // (vi.mock calls are hoisted to the top of the file by vitest).
-const { rpcMock, fromMock, createClientMock, verifySessionMock, revalidatePathMock, redirectMock } = vi.hoisted(() => ({
+const { rpcMock, fromMock, createClientMock, verifySessionMock, revalidatePathMock, redirectMock, afterMock } = vi.hoisted(() => ({
   rpcMock: vi.fn(),
   fromMock: vi.fn(),
   createClientMock: vi.fn(),
   verifySessionMock: vi.fn(),
   revalidatePathMock: vi.fn(),
   redirectMock: vi.fn(),
+  afterMock: vi.fn(),
 }))
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -29,6 +30,14 @@ vi.mock("next/cache", () => ({
 // catch in a test environment, so it's mocked directly to a no-op instead.
 vi.mock("next/navigation", () => ({
   redirect: redirectMock,
+}))
+
+// createRide defers the new-ride broadcast email into after() (see the same
+// pattern already mocked in bookings/actions.test.ts) — after() throws when
+// called outside a real Next.js request scope, which this plain-vitest
+// environment never provides.
+vi.mock("next/server", () => ({
+  after: afterMock,
 }))
 
 vi.mock("next/headers", () => ({

@@ -62,7 +62,9 @@
     "footerNote": "Bu e-posta, GötürBeni hesabınızla ilgili bir işlem nedeniyle otomatik olarak gönderilmiştir.",
     "verificationCodeSubject": "GötürBeni hesap doğrulama kodunuz",
     "verificationCodeIntro": "GötürBeni hesabınızı doğrulamak için aşağıdaki kodu kullanın:",
-    "verificationCodeOutro": "Bu kod 10 dakika süreyle geçerlidir. Bu isteği siz yapmadıysanız bu e-postayı yok sayabilirsiniz."
+    "verificationCodeOutro": "Bu kod 10 dakika süreyle geçerlidir. Bu isteği siz yapmadıysanız bu e-postayı yok sayabilirsiniz.",
+    "newRideBroadcastSubject": "GötürBeni'nde yeni bir ilan yayınlandı",
+    "newRideBroadcastBody": "{from} → {to} arasında yeni bir yolculuk ilanı paylaşıldı."
   },
   "Pwa": {
     "install": "Uygulamayı Yükle",

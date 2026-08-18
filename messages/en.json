@@ -62,7 +62,9 @@
     "footerNote": "This email was sent automatically regarding an action on your GötürBeni account.",
     "verificationCodeSubject": "Your GötürBeni account verification code",
     "verificationCodeIntro": "Use the code below to verify your GötürBeni account:",
-    "verificationCodeOutro": "This code is valid for 10 minutes. If you didn't request this, you can safely ignore this email."
+    "verificationCodeOutro": "This code is valid for 10 minutes. If you didn't request this, you can safely ignore this email.",
+    "newRideBroadcastSubject": "A new ride was posted on GötürBeni",
+    "newRideBroadcastBody": "A new ride from {from} to {to} was just posted on GötürBeni."
   },
   "Pwa": {
     "install": "Install App",
