@@ -61,7 +61,7 @@ test.describe.serial("pickup verification code", () => {
     await signUpAndVerify(passengerPage, passengerEmail)
 
     rideId = await createRide(driverPage, {
-      departureCity: "Bodrum",
+      departureCity: "Aydın",
       arrivalCity: "Muğla",
       minutesAhead: 30,
       seatCount: 2,

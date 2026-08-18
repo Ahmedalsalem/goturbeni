@@ -108,7 +108,16 @@ test.describe.serial("disputes", () => {
     resolutionNote = `Sürücüyle görüşüldü, dekont karşılığında ödeme yapılmış. (${uniqueSuffix()})`
     await myCard.getByPlaceholder("Sonuç notu (isteğe bağlı, taraflara gösterilir)").fill(resolutionNote)
     await myCard.getByRole("button", { name: "Çözüldü Olarak Kapat", exact: true }).click()
-    await expect(adminPage.getByText("Anlaşmazlık durumu güncellendi.")).toBeVisible()
+    // Not a toast-text wait here on purpose: "Anlaşmazlık durumu güncellendi."
+    // is the exact same string the İncelemeye Al click above already
+    // triggered a few lines up, and Sonner toasts can still be visible from
+    // that first one — asserting on the text again can match the stale
+    // instance and let the test race ahead of the resolve action actually
+    // completing server-side. Wait on the DOM instead: "Çözüldü Olarak
+    // Kapat" only renders while status is still 'open'/'in_review', so its
+    // disappearance from this card is proof the resolve() call and the
+    // subsequent router.refresh() both finished.
+    await expect(myCard.getByRole("button", { name: "Çözüldü Olarak Kapat", exact: true })).toHaveCount(0)
 
     // Resolved disputes move to the second section and lose their action
     // buttons entirely — re-fetch the page (router.refresh already ran, but
