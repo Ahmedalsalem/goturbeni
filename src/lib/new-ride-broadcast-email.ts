@@ -26,7 +26,8 @@ interface BroadcastRecipientRow {
 export async function sendNewRideBroadcastEmail(
   rideId: string,
   departureCity: string,
-  arrivalCity: string
+  arrivalCity: string,
+  postedByRole: "driver" | "passenger"
 ): Promise<void> {
   if (!isResendConfigured()) {
     return
@@ -56,6 +57,13 @@ export async function sendNewRideBroadcastEmail(
       const tCommon = t
       const from = getProvinceDisplayName(departureCity, locale)
       const to = getProvinceDisplayName(arrivalCity, locale)
+      // A driver listing means seats are available (someone's already
+      // driving); a passenger listing means someone's looking for a ride and
+      // a driver would need to offer one — different enough actions that the
+      // broadcast body says which one this is, reusing the exact same
+      // "Sürücü İlanı"/"Yolcu İlanı" wording RideCard's own badge uses
+      // (Rides.card.driverListingBadge/passengerListingBadge).
+      const bodyKey = postedByRole === "passenger" ? "newRideBroadcastBodyPassenger" : "newRideBroadcastBodyDriver"
       try {
         await resend.emails.send({
           from: process.env.RESEND_FROM_EMAIL!,
@@ -63,7 +71,7 @@ export async function sendNewRideBroadcastEmail(
           subject: t("newRideBroadcastSubject"),
           html: renderEmailHtml(locale, {
             greeting: tCommon("greeting"),
-            bodyHtml: t("newRideBroadcastBody", { from, to }),
+            bodyHtml: t(bodyKey, { from, to }),
             ctaLabel: tCommon("viewLinkLabel"),
             ctaUrl: url,
             signoff: tCommon("signoff"),

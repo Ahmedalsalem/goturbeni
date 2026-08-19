@@ -64,7 +64,8 @@
     "verificationCodeIntro": "GötürBeni hesabınızı doğrulamak için aşağıdaki kodu kullanın:",
     "verificationCodeOutro": "Bu kod 10 dakika süreyle geçerlidir. Bu isteği siz yapmadıysanız bu e-postayı yok sayabilirsiniz.",
     "newRideBroadcastSubject": "GötürBeni'nde yeni bir ilan yayınlandı",
-    "newRideBroadcastBody": "{from} → {to} arasında yeni bir yolculuk ilanı paylaşıldı."
+    "newRideBroadcastBodyDriver": "{from} → {to} arasında yeni bir sürücü ilanı paylaşıldı.",
+    "newRideBroadcastBodyPassenger": "{from} → {to} arasında yeni bir yolcu ilanı paylaşıldı."
   },
   "Pwa": {
     "install": "Uygulamayı Yükle",

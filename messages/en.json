@@ -64,7 +64,8 @@
     "verificationCodeIntro": "Use the code below to verify your GötürBeni account:",
     "verificationCodeOutro": "This code is valid for 10 minutes. If you didn't request this, you can safely ignore this email.",
     "newRideBroadcastSubject": "A new ride was posted on GötürBeni",
-    "newRideBroadcastBody": "A new ride from {from} to {to} was just posted on GötürBeni."
+    "newRideBroadcastBodyDriver": "A new driver listing from {from} to {to} was just posted on GötürBeni.",
+    "newRideBroadcastBodyPassenger": "A new passenger listing from {from} to {to} was just posted on GötürBeni."
   },
   "Pwa": {
     "install": "Install App",

@@ -116,7 +116,7 @@ export async function createRide(values: RideFormValues): Promise<RideActionStat
   // itself never waits on however many recipients that turns out to be.
   after(async () => {
     try {
-      await sendNewRideBroadcastEmail(ride.id, parsed.data.departureCity, parsed.data.arrivalCity)
+      await sendNewRideBroadcastEmail(ride.id, parsed.data.departureCity, parsed.data.arrivalCity, parsed.data.postedByRole)
     } catch (error) {
       logError(error, "rides.createRide.broadcast")
     }

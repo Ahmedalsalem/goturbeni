@@ -64,7 +64,8 @@
     "verificationCodeIntro": "استخدم الرمز أدناه للتحقق من حسابك في GötürBeni:",
     "verificationCodeOutro": "هذا الرمز صالح لمدة 10 دقائق. إذا لم تطلب هذا، يمكنك تجاهل هذه الرسالة بأمان.",
     "newRideBroadcastSubject": "إعلان جديد على GötürBeni",
-    "newRideBroadcastBody": "تم نشر إعلان جديد من {from} إلى {to} على GötürBeni."
+    "newRideBroadcastBodyDriver": "تم نشر إعلان سائق جديد من {from} إلى {to} على GötürBeni.",
+    "newRideBroadcastBodyPassenger": "تم نشر إعلان راكب جديد من {from} إلى {to} على GötürBeni."
   },
   "Pwa": {
     "install": "تثبيت التطبيق",
