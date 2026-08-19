@@ -474,6 +474,8 @@
       "departureTime": "الوقت",
       "seatCount": "عدد المقاعد",
       "costShare": "المساهمة في التكلفة (₺)",
+      "costShareEstimate": "التكلفة التقديرية: ~{amount} ₺ (تقديري، حسب المسافة فقط)",
+      "costShareUseEstimate": "استخدم هذا المبلغ",
       "description": "الوصف",
       "descriptionHint": "500 حرف كحد أقصى.",
       "petsAllowed": "يُسمح بالحيوانات الأليفة",

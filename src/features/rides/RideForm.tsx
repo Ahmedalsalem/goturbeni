@@ -34,6 +34,7 @@ import {
   type RideFormInput,
   type RideFormValues,
 } from "@/features/rides/schemas"
+import { estimateCostSharePerSeat } from "@/utils/cost-estimate"
 import { TURKISH_PROVINCES } from "@/utils/turkish-provinces"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 import { TURKISH_PROVINCE_DISTRICTS } from "@/utils/turkish-districts"
@@ -89,6 +90,18 @@ export function RideForm({ ride }: { ride?: Ride }) {
   const isPassengerMode = postedByRole === "passenger"
   const departureDistricts = departureCity ? (TURKISH_PROVINCE_DISTRICTS[departureCity] ?? []) : []
   const arrivalDistricts = arrivalCity ? (TURKISH_PROVINCE_DISTRICTS[arrivalCity] ?? []) : []
+  // seatCount is RideFormInput's raw (pre-z.coerce) field — react-hook-form
+  // hands back whatever the number input currently holds, typed `unknown`
+  // until the resolver's z.coerce.number() runs on submit.
+  const seatCountValue = Number(watch("seatCount"))
+  // A first-time poster has no idea what to charge — this is a rough,
+  // clearly-labeled suggestion (cost-estimate.ts), never auto-filled without
+  // the explicit click below, so a driver who already knows their route's
+  // real cost isn't second-guessed by it.
+  const estimatedCostShare =
+    departureCity && arrivalCity && Number.isFinite(seatCountValue) && seatCountValue > 0
+      ? estimateCostSharePerSeat(departureCity, arrivalCity, seatCountValue)
+      : null
 
   async function onSubmit(values: RideFormValues) {
     setServerError(null)
@@ -371,6 +384,20 @@ export function RideForm({ ride }: { ride?: Ride }) {
               {...register("costShare")}
             />
             {errors.costShare && <FieldError id="costShare-error" errors={[{ message: errors.costShare.message }]} />}
+            {estimatedCostShare !== null && (
+              <FieldDescription>
+                {t("costShareEstimate", { amount: estimatedCostShare })}{" "}
+                <Button
+                  type="button"
+                  variant="link"
+                  size="sm"
+                  className="h-auto p-0 align-baseline"
+                  onClick={() => setValue("costShare", estimatedCostShare, { shouldValidate: true })}
+                >
+                  {t("costShareUseEstimate")}
+                </Button>
+              </FieldDescription>
+            )}
           </Field>
         </div>
 

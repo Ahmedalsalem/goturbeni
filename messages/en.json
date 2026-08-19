@@ -474,6 +474,8 @@
       "departureTime": "Time",
       "seatCount": "Number of Seats",
       "costShare": "Cost Share (₺)",
+      "costShareEstimate": "Estimated cost: ~{amount} ₺ (a rough suggestion for this route)",
+      "costShareUseEstimate": "Use this amount",
       "description": "Description",
       "descriptionHint": "Up to 500 characters.",
       "petsAllowed": "Pets allowed",

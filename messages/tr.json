@@ -474,6 +474,8 @@
       "departureTime": "Saat",
       "seatCount": "Koltuk Sayısı",
       "costShare": "Masraf Payı (₺)",
+      "costShareEstimate": "Tahmini maliyet: ~{amount} ₺ (bu mesafe için, yaklaşık bir öneri)",
+      "costShareUseEstimate": "Bu tutarı kullan",
       "description": "Açıklama",
       "descriptionHint": "En fazla 500 karakter.",
       "petsAllowed": "Evcil hayvan kabul edilir",
