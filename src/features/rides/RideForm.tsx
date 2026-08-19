@@ -98,8 +98,12 @@ export function RideForm({ ride }: { ride?: Ride }) {
   // clearly-labeled suggestion (cost-estimate.ts), never auto-filled without
   // the explicit click below, so a driver who already knows their route's
   // real cost isn't second-guessed by it.
+  // departureCity !== arrivalCity: the schema already rejects a same-city
+  // ride on submit (sameCities), but while the user is still mid-selection
+  // (e.g. both fields briefly pointing at the same province) the live hint
+  // would otherwise show a nonsensical "~0 ₺" for a moment.
   const estimatedCostShare =
-    departureCity && arrivalCity && Number.isFinite(seatCountValue) && seatCountValue > 0
+    departureCity && arrivalCity && departureCity !== arrivalCity && Number.isFinite(seatCountValue) && seatCountValue > 0
       ? estimateCostSharePerSeat(departureCity, arrivalCity, seatCountValue)
       : null
 
