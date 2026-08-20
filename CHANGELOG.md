@@ -4,6 +4,15 @@ Bu proje [Semantic Versioning](https://semver.org/lang/tr/) kullanır.
 
 ## [Unreleased]
 
+### Eklendi — Faz 19: maliyet tahmini, mobil görsel doğrulama, README güncellemesi (bu oturum)
+
+- **Maliyet tahmini**: ilk kez ilan veren sürücü için kalkış/varış/koltuk sayısına göre kaba bir "Tahmini maliyet: ~X ₺" önerisi + tek tık doldurma butonu (`src/utils/cost-estimate.ts`, kuş uçuşu mesafe × ₺3,5/km ÷ (koltuk+1), 5₺'ye yuvarlanır — asla otomatik doldurmaz). Kullanıcının doğruluğu sorgulaması üzerine iki bilinen sınırlama açıkça belirtildi: kuş uçuşu mesafe gerçek yol mesafesinden ~%25-30 düşük, ₺/km oranı geçiş ücretini saymıyor.
+- **Gerçek bir hata bulundu**: aynı şehir hem kalkış hem varış seçiliyken tahmin "~0 ₺" gösteriyordu — `departureCity !== arrivalCity` koşulu eklendi.
+- **Yayın e-postası artık sürücü/yolcu ilanına göre farklı metin kullanıyor**: `RideCard`'ın kendi "Sürücü İlanı"/"Yolcu İlanı" rozet terimleri yeniden kullanılarak `newRideBroadcastBody` iki ayrı gövde metnine bölündü.
+- **Gerçek uygulama üzerinde mobil görsel doğrulama**: kullanıcı "genel olarak test et" dediğinde statik bir CSS kopyası yeterli görülmedi — yerel `next dev` production Supabase'e bağlı çalıştırılıp Playwright ile iPhone 14/Pixel 7 emülasyonunda tüm ana sayfalar gezildi. Production'a hiçbir yazma etkisi olmadan: tek throwaway hesap, hiçbir ilan/rezervasyon gönderilmedi (yeni yayın-e-postası özelliğinin yanlışlıkla tetiklenmemesi için), iş bitince hesap silindi. Bir yanlış-alarm bulunup düzeltildi (`fullPage` ekran görüntüsünün sabit-pozisyonlu bir banner'ı yanlış yerde gösterip "Ara" butonunu kapatıyormuş izlenimi vermesi — gerçek koordinatlarla ölçünce sorun olmadığı kanıtlandı). Gerçek bir görsel bozukluk bulunmadı.
+- **`README.md` baştan sona güncellendi** — Faz 1'den (migration `0056`) beri hiç dokunulmamıştı. Eklenenler: yolcu ilanları, blablacar-gap özellikleri, yayın e-postası, maliyet tahmini, Gmail destek linki (Migration Sırası'na `0057`-`0067` için 11 yeni madde dahil); düzeltilenler: e2e dosya listesi, migration aralığı, i18n anahtar sayısı, eski Vercel URL'i. **En önemli bulgu**: "Ödeme takibi" ve "Dekont OCR" bölümleri hâlâ `0062`'de tamamen kaldırılmış %25 kapora/%75 kalan ödeme modelini anlatıyordu (kodda `submit_deposit_receipt*` fonksiyonlarının hiç kalmadığı doğrulanarak düzeltildi) — bu modeli referans alan RLS/Storage/Bilinen Sınırlamalar bölümleri de güncellendi.
+- Her commit CI'da ayrı ayrı doğrulandı; bir koşu GitHub Actions'ın kendi Ubuntu paket aynası sorunuyla 6 saat asılı kalıp iptal oldu (kodla ilgisizdi), `gh run rerun --failed` ile tekrar çalıştırılıp yeşil alındı.
+
 ### Eklendi — Faz 18: her ilanda üyelere e-posta, destek e-postası Gmail'i açsın (bu oturum)
 
 - **Destek sayfası**: "Bize Ulaş" butonu artık `mailto:` yerine Gmail'in compose ekranını yeni sekmede açıyor — çoğu kullanıcı için `mailto:` ya boş bir masaüstü mail istemcisi açıyordu ya da hiçbir şey olmuyordu.
