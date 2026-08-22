@@ -32,6 +32,11 @@ export function SignUpForm() {
 
       <FieldGroup>
         <Field>
+          <FieldLabel htmlFor="fullName">{t("fullName")}</FieldLabel>
+          <Input id="fullName" name="fullName" type="text" autoComplete="name" required />
+        </Field>
+
+        <Field>
           <FieldLabel htmlFor="email">{t("email")}</FieldLabel>
           <Input id="email" name="email" type="email" autoComplete="email" required />
         </Field>

@@ -44,6 +44,7 @@ export function uniqueIban(): string {
 // implemented — see README known limitations).
 export async function signUp(page: Page, email: string, password: string = TEST_PASSWORD): Promise<void> {
   await page.goto("/register")
+  await page.locator("#fullName").fill("Test Kullanıcı")
   await page.locator("#email").fill(email)
   await page.locator("#password").fill(password)
   await page.locator("#confirmPassword").fill(password)

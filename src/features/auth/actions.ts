@@ -89,6 +89,7 @@ export async function signUp(_prevState: AuthActionState, formData: FormData): P
     return { error: tErrors("tooManyRequests") }
   }
   const parsed = schemas.signUpSchema.safeParse({
+    fullName: formData.get("fullName"),
     email: formData.get("email"),
     password: formData.get("password"),
     confirmPassword: formData.get("confirmPassword"),
@@ -135,6 +136,7 @@ export async function signUp(_prevState: AuthActionState, formData: FormData): P
   const { error: detailsError } = await supabase.rpc("complete_registration_details", {
     p_gender: parsed.data.gender,
     p_phone: parsedPhone.number,
+    p_full_name: parsed.data.fullName,
   })
   if (detailsError) {
     logError(detailsError, "auth.signUp.completeRegistrationDetails")

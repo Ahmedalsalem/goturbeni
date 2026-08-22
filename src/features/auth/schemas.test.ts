@@ -27,6 +27,7 @@ describe("buildAuthSchemas", () => {
   describe("signUpSchema", () => {
     function validSignUp(overrides: Partial<Record<string, unknown>> = {}) {
       return {
+        fullName: "Test Kullanıcı",
         email: "user@example.com",
         password: "password1",
         confirmPassword: "password1",
@@ -72,6 +73,11 @@ describe("buildAuthSchemas", () => {
 
     it("rejects a missing phone number", () => {
       const result = signUpSchema.safeParse(validSignUp({ phone: "" }))
+      expect(result.success).toBe(false)
+    })
+
+    it("rejects a missing full name", () => {
+      const result = signUpSchema.safeParse(validSignUp({ fullName: "" }))
       expect(result.success).toBe(false)
     })
   })

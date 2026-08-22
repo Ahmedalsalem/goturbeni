@@ -127,6 +127,7 @@
     "register": {
       "title": "Hesap Oluştur",
       "description": "Ücretsiz bir hesap oluşturun.",
+      "fullName": "Ad Soyad",
       "email": "E-posta",
       "password": "Şifre",
       "passwordHint": "En az 8 karakter.",
@@ -155,6 +156,8 @@
       "description": "Hesabınızı onaylamak için size bir bağlantı gönderdik. Gelen kutunuzu (ve spam klasörünü) kontrol edin."
     },
     "validation": {
+      "fullNameRequired": "Ad soyad gerekli.",
+      "fullNameMax": "Ad soyad en fazla 100 karakter olmalı.",
       "invalidEmail": "Geçerli bir e-posta adresi girin.",
       "passwordMin": "Şifre en az 8 karakter olmalı.",
       "passwordRequired": "Şifre gerekli.",

@@ -127,6 +127,7 @@
     "register": {
       "title": "Create an Account",
       "description": "Create a free account.",
+      "fullName": "Full Name",
       "email": "Email",
       "password": "Password",
       "passwordHint": "At least 8 characters.",
@@ -155,6 +156,8 @@
       "description": "We've sent you a link to confirm your account. Check your inbox (and spam folder)."
     },
     "validation": {
+      "fullNameRequired": "Full name is required.",
+      "fullNameMax": "Full name must be at most 100 characters.",
       "invalidEmail": "Enter a valid email address.",
       "passwordMin": "Password must be at least 8 characters.",
       "passwordRequired": "Password is required.",

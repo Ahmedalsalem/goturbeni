@@ -7,12 +7,15 @@ export type AuthActionState = { error?: string; success?: boolean }
 export const initialAuthActionState: AuthActionState = {}
 
 export const MAX_PHONE_LENGTH = 20
+export const MAX_FULL_NAME_LENGTH = 100
 
 // Zod's global setErrorMap is process-wide and would race across concurrent
 // requests for different locales — schemas must be rebuilt per request with
 // the resolved translator instead.
 type ValidationTranslator = (
   key:
+    | "fullNameRequired"
+    | "fullNameMax"
     | "invalidEmail"
     | "passwordMin"
     | "passwordRequired"
@@ -35,6 +38,7 @@ export function buildAuthSchemas(t: ValidationTranslator) {
 
   const signUpSchema = z
     .object({
+      fullName: z.string().trim().min(1, t("fullNameRequired")).max(MAX_FULL_NAME_LENGTH, t("fullNameMax")),
       email: emailSchema,
       password: passwordSchema,
       confirmPassword: z.string(),
