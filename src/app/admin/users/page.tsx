@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { getFormatter, getTranslations } from "next-intl/server"
+import { getTranslations } from "next-intl/server"
 import { ShieldAlert, Users } from "lucide-react"
 
 import { EmptyState } from "@/components/EmptyState"
@@ -19,7 +19,6 @@ export default async function AdminUsersPage() {
   const currentUser = await verifySession()
   const t = await getTranslations("Admin.users")
   const tSuspicious = await getTranslations("Admin.suspicious")
-  const format = await getFormatter()
   const [users, suspiciousAccounts] = await Promise.all([getAdminUsers(), getSuspiciousAccounts()])
 
   return (
@@ -77,17 +76,11 @@ export default async function AdminUsersPage() {
                     </Avatar>
                     <div>
                       <p className="font-medium">{name}</p>
-                      <p className="text-muted-foreground text-xs">{format.dateTime(new Date(user.created_at), { day: "2-digit", month: "2-digit", year: "numeric" })}</p>
+                      <p className="text-muted-foreground text-xs">{user.email ?? "—"}</p>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-1.5">
-                    <Badge variant={user.verification_status === "verified" ? "success" : "secondary"}>
-                      {t(`verificationStatus.${user.verification_status}`)}
-                    </Badge>
-                    <Badge variant={user.phone_verified === null ? "outline" : user.phone_verified ? "success" : "secondary"}>
-                      {user.phone_verified === null ? t("phoneUnknown") : user.phone_verified ? t("phoneVerified") : t("phoneUnverified")}
-                    </Badge>
                     {user.is_admin && <Badge>{t("adminBadge")}</Badge>}
                     {user.is_suspended && <Badge variant="destructive">{t("suspendedBadge")}</Badge>}
                   </div>

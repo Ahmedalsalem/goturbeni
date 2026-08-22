@@ -1,7 +1,6 @@
 import "server-only"
 
 import { createClient } from "@/lib/supabase/server"
-import type { ProfileVerificationStatus } from "@/types/profile"
 import type { Booking, BookingStatus } from "@/types/booking"
 import type { RideWithDriver } from "@/types/ride"
 
@@ -107,25 +106,22 @@ export interface AdminUserRow {
   id: string
   full_name: string | null
   avatar_url: string | null
-  verification_status: ProfileVerificationStatus
   created_at: string
   is_admin: boolean
   is_suspended: boolean
-  // null = hidden from the admin view by profiles_private's RLS (owner-only
-  // select, no is_admin() bypass — see 0006_profiles_phone_privacy.sql and
-  // 0014_admin.sql, which deliberately doesn't touch that policy) — the
-  // embed comes back null for every row except the querying admin's own.
-  phone_verified: boolean | null
+  // From admin_get_user_emails (auth.users isn't reachable through
+  // PostgREST) — null only if that RPC call fails outright.
+  email: string | null
 }
 
-// admin_flags and profiles_private are both 1:1 with profiles (PK doubles as
-// FK), so PostgREST embeds them as a single object (or null), same pattern
-// as features/profile/queries.ts's profiles_private embed.
+// admin_flags is 1:1 with profiles (PK doubles as FK), so PostgREST embeds
+// it as a single object (or null), same pattern as
+// features/profile/queries.ts's profiles_private embed.
 export async function getAdminUsers(): Promise<AdminUserRow[]> {
   const supabase = await createClient()
   const { data } = await supabase
     .from("profiles")
-    .select("id, full_name, avatar_url, verification_status, created_at, admin_flags(is_admin, is_suspended), profiles_private(phone_verified)")
+    .select("id, full_name, avatar_url, created_at, admin_flags(is_admin, is_suspended)")
     .order("created_at", { ascending: false })
     .limit(ADMIN_LIST_LIMIT)
 
@@ -134,21 +130,21 @@ export async function getAdminUsers(): Promise<AdminUserRow[]> {
       id: string
       full_name: string | null
       avatar_url: string | null
-      verification_status: ProfileVerificationStatus
       created_at: string
       admin_flags: { is_admin: boolean; is_suspended: boolean } | null
-      profiles_private: { phone_verified: boolean } | null
     }[] | null) ?? []
+
+  const { data: emailRows } = await supabase.rpc("admin_get_user_emails", { p_user_ids: rows.map((row) => row.id) })
+  const emailsById = new Map(((emailRows as { id: string; email: string | null }[] | null) ?? []).map((row) => [row.id, row.email]))
 
   return rows.map((row) => ({
     id: row.id,
     full_name: row.full_name,
     avatar_url: row.avatar_url,
-    verification_status: row.verification_status,
     created_at: row.created_at,
     is_admin: row.admin_flags?.is_admin ?? false,
     is_suspended: row.admin_flags?.is_suspended ?? false,
-    phone_verified: row.profiles_private?.phone_verified ?? null,
+    email: emailsById.get(row.id) ?? null,
   }))
 }
 
