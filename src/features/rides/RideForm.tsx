@@ -384,7 +384,7 @@ export function RideForm({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Field>
-            <FieldLabel htmlFor="seatCount">{t("seatCount")}</FieldLabel>
+            <FieldLabel htmlFor="seatCount">{isPassengerMode ? t("seatCountPassenger") : t("seatCount")}</FieldLabel>
             <Input
               id="seatCount"
               type="number"
@@ -399,7 +399,7 @@ export function RideForm({
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="costShare">{t("costShare")}</FieldLabel>
+            <FieldLabel htmlFor="costShare">{isPassengerMode ? t("costSharePassenger") : t("costShare")}</FieldLabel>
             <Input
               id="costShare"
               type="number"

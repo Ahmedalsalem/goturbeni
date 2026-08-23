@@ -483,6 +483,8 @@
       "postedByRoleLabel": "Listing Type",
       "iAmDriver": "I'm a driver",
       "iAmPassenger": "I'm a passenger",
+      "seatCountPassenger": "How Many Of You?",
+      "costSharePassenger": "Amount You're Willing to Pay (₺)",
       "useMyLocation": "Use My Location",
       "detectingLocation": "Detecting location...",
       "locationDenied": "Location permission denied.",

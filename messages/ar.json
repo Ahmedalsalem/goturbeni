@@ -483,6 +483,8 @@
       "postedByRoleLabel": "نوع الإعلان",
       "iAmDriver": "أنا سائق",
       "iAmPassenger": "أنا راكب",
+      "seatCountPassenger": "كم عدد الأشخاص؟",
+      "costSharePassenger": "المبلغ الذي ترغب بدفعه (₺)",
       "useMyLocation": "استخدم موقعي",
       "detectingLocation": "جارٍ تحديد الموقع...",
       "locationDenied": "تم رفض إذن الموقع.",

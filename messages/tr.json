@@ -483,6 +483,8 @@
       "postedByRoleLabel": "İlan Türü",
       "iAmDriver": "Sürücüyüm",
       "iAmPassenger": "Yolcuyum",
+      "seatCountPassenger": "Kaç Kişisiniz?",
+      "costSharePassenger": "Ödemeyi Düşündüğünüz Tutar (₺)",
       "useMyLocation": "Konumumu Kullan",
       "detectingLocation": "Konum algılanıyor...",
       "locationDenied": "Konum izni reddedildi.",

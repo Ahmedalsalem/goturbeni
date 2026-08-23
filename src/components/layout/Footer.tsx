@@ -29,7 +29,7 @@ export async function Footer() {
 
   return (
     <footer className="border-border/70 border-t">
-      <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-4 py-10 text-center sm:flex-row sm:justify-between sm:gap-2 sm:text-start">
+      <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-4 py-10 text-center lg:flex-row lg:flex-wrap lg:justify-between lg:gap-x-6 lg:gap-y-3 lg:text-start">
         <div className="flex items-center gap-2 text-sm font-medium">
           <Image src="/brand/logo-mark.png" alt="" width={20} height={20} className="size-5" />
           GötürBeni
