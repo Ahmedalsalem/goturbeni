@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server"
 import { verifySession } from "@/lib/supabase/dal"
 import { getProfile } from "@/features/profile/queries"
 import { ProfileForm } from "@/features/profile/ProfileForm"
+import { DeleteAccountSection } from "@/features/profile/DeleteAccountSection"
 import { ReviewSection } from "@/features/reviews/ReviewSection"
 import { getCompletedRidesCount } from "@/features/reviews/queries"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,6 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ProfilePage() {
   const t = await getTranslations("ProfilePage")
   const tReviews = await getTranslations("Reviews")
+  const tProfileForm = await getTranslations("Profile.form")
   const user = await verifySession()
   const [profile, completedRidesCount] = await Promise.all([getProfile(user.id), getCompletedRidesCount(user.id)])
 
@@ -45,6 +47,17 @@ export default async function ProfilePage() {
             <ReviewSection userId={user.id} />
           </CardContent>
         </Card>
+
+        {profile && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl">{tProfileForm("deleteAccountTitle")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DeleteAccountSection />
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   )

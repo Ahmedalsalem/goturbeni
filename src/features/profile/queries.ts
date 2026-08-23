@@ -12,7 +12,7 @@ export const getProfile = cache(async (userId: string): Promise<Profile | null> 
   const supabase = await createClient()
   const { data } = await supabase
     .from("profiles")
-    .select("*, profiles_private(phone, phone_verified, gender, iban, iban_holder_name)")
+    .select("*, profiles_private(phone, phone_verified, gender, iban, iban_holder_name, email_notifications_enabled)")
     .eq("id", userId)
     .single()
   if (!data) return null
@@ -28,6 +28,7 @@ export const getProfile = cache(async (userId: string): Promise<Profile | null> 
       gender: Profile["gender"]
       iban: string | null
       iban_holder_name: string | null
+      email_notifications_enabled: boolean
     } | null
   }
   return {
@@ -37,6 +38,7 @@ export const getProfile = cache(async (userId: string): Promise<Profile | null> 
     gender: profiles_private?.gender ?? null,
     iban: profiles_private?.iban ?? null,
     iban_holder_name: profiles_private?.iban_holder_name ?? null,
+    email_notifications_enabled: profiles_private?.email_notifications_enabled ?? true,
   } as Profile
 })
 

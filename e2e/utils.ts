@@ -49,6 +49,10 @@ export async function signUp(page: Page, email: string, password: string = TEST_
   await page.locator("#password").fill(password)
   await page.locator("#confirmPassword").fill(password)
   await page.locator("#phone").fill("05551234567")
+  // Required (schemas.ts: 18+ age gate) — any fixed date comfortably over 18
+  // works since this helper's accounts are never used to test the age gate
+  // itself (see auth/schemas.test.ts for that).
+  await page.locator("#dateOfBirth").fill("2000-01-01")
   await page.locator("#gender").click()
   await page.getByRole("option", { name: "Kadın" }).click()
   // Required (schemas.ts: termsAccepted must be "on") — added for the

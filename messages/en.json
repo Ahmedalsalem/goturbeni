@@ -134,12 +134,15 @@
       "confirmPassword": "Confirm Password",
       "phone": "Phone",
       "phoneHint": "Enter without the leading 0 (e.g. 5XX XXX XX XX). To complete registration, you'll need to verify your account with the code sent to your email.",
+      "dateOfBirth": "Date of Birth",
+      "dateOfBirthHint": "You must be at least 18 years old to use this platform.",
       "gender": "Gender",
       "genderPlaceholder": "Select",
       "genderOptions": {
         "female": "Female",
         "male": "Male"
       },
+      "emailNotificationsOptIn": "Email me whenever a new ride is posted.",
       "submit": "Create Account",
       "haveAccount": "Already have an account?",
       "loginLink": "Log in",
@@ -166,6 +169,9 @@
       "phoneRequired": "Phone number is required.",
       "phoneMax": "Phone number must be at most 20 characters.",
       "phoneInvalid": "Enter a valid phone number (e.g. 05XX XXX XX XX).",
+      "dateOfBirthRequired": "Date of birth is required.",
+      "dateOfBirthInvalid": "Enter a valid date of birth.",
+      "ageMinimum": "You must be at least 18 years old to use this platform.",
       "termsRequired": "You must accept the Terms of Use to continue."
     },
     "errors": {
@@ -250,10 +256,15 @@
       "bio": "About Me",
       "bioHint": "Up to 500 characters.",
       "language": "Language",
+      "emailNotificationsEnabled": "Email me whenever a new ride is posted.",
       "changeAvatar": "Upload Photo",
       "save": "Save",
       "saved": "Profile updated.",
-      "unsavedChangesConfirm": "You have unsaved changes. Are you sure you want to leave without saving?"
+      "unsavedChangesConfirm": "You have unsaved changes. Are you sure you want to leave without saving?",
+      "deleteAccountTitle": "Delete My Account",
+      "deleteAccountDescription": "Deleting your account removes your profile information (name, phone, IBAN, vehicle details, photo) and you will no longer be able to sign in. Past ride, booking, and payment records remain stored in anonymized form due to legal retention requirements and other users' rights. This action cannot be undone.",
+      "deleteAccountCta": "Delete My Account",
+      "deleteAccountConfirm": "Are you sure? This action cannot be undone."
     },
     "phone": {
       "verified": "Verified",
@@ -287,7 +298,8 @@
       "avatarTooLarge": "Photo must be at most 5 MB.",
       "avatarInvalidType": "Photo must be PNG, JPEG, or WEBP.",
       "avatarUploadFailed": "Photo could not be uploaded.",
-      "updateFailed": "Profile could not be updated."
+      "updateFailed": "Profile could not be updated.",
+      "deleteAccountFailed": "Account could not be deleted. Please try again."
     }
   },
   "CarFeatures": {
@@ -995,6 +1007,10 @@
     "title": "Your Account Has Been Suspended",
     "description": "Your account was suspended by an administrator. During this time you cannot post new listings, make bookings, send messages, or leave reviews. Contact our support team for more information."
   },
+  "AccountDeletedPage": {
+    "title": "Account Deleted",
+    "description": "This account was deleted by its owner and can no longer be used. You can create a new account if you'd like to use the platform again."
+  },
   "LocaleSwitcher": {
     "label": "Language"
   },
@@ -1097,9 +1113,7 @@
         },
         "contact": {
           "heading": "Contact",
-          "body": [
-            "For questions about these Terms of Use, you can reach us at novarodigitalstudio@gmail.com."
-          ],
+          "body": ["For questions about these Terms of Use, you can reach us at novarodigitalstudio@gmail.com."],
           "items": []
         }
       }
@@ -1110,9 +1124,7 @@
       "sections": {
         "dataCollected": {
           "heading": "Data We Collect",
-          "body": [
-            "When you register on the Platform and use it, we process the following personal data:"
-          ],
+          "body": ["When you register on the Platform and use it, we process the following personal data:"],
           "items": [
             "Identity and contact information: full name, email address, phone number",
             "Profile information: profile photo, short bio",
@@ -1123,9 +1135,7 @@
         },
         "purposes": {
           "heading": "Purposes of Processing",
-          "body": [
-            "Your personal data is processed for the following purposes:"
-          ],
+          "body": ["Your personal data is processed for the following purposes:"],
           "items": [
             "Creating, approving, and managing booking requests",
             "Enabling communication between driver and passenger",
@@ -1159,16 +1169,15 @@
         "cookies": {
           "heading": "Cookies",
           "body": [
-            "The Platform uses a cookie named NEXT_LOCALE to remember your language preference, and Supabase authentication cookies to keep you signed in.",
-            "The Platform does not use any analytics or advertising cookies."
+            "The Platform uses a cookie named NEXT_LOCALE to remember your language preference, and Supabase authentication cookies to keep you signed in — these are strictly necessary cookies and don't require your consent.",
+            "The Platform also uses Google Analytics (GA4), but it only activates once you accept the cookie notice at the bottom of the page; if you decline, or make no choice, Google Analytics runs in cookieless mode and leaves no persistent identifier in your browser. You can reset your choice at any time by clearing your browser's cookies.",
+            "The Platform does not use any advertising cookies."
           ],
           "items": []
         },
         "contact": {
           "heading": "Contact",
-          "body": [
-            "For questions about our privacy practices, you can reach us at novarodigitalstudio@gmail.com."
-          ],
+          "body": ["For questions about our privacy practices, you can reach us at novarodigitalstudio@gmail.com."],
           "items": []
         }
       }
@@ -1187,9 +1196,7 @@
         },
         "categories": {
           "heading": "Categories of Personal Data Processed",
-          "body": [
-            "The following categories of your personal data are processed through the Platform:"
-          ],
+          "body": ["The following categories of your personal data are processed through the Platform:"],
           "items": [
             "Identity data: first name, last name",
             "Contact data: email address, phone number",

@@ -37,6 +37,7 @@ export interface Profile {
   bio: string | null
   language: AppLocale
   verification_status: ProfileVerificationStatus
+  email_notifications_enabled: boolean
   created_at: string
   updated_at: string
 }

@@ -107,5 +107,8 @@ export function buildProfileSchema(t: ValidationTranslator) {
       .array(z.string().trim().min(1).max(MAX_CUSTOM_CAR_FEATURE_LENGTH, t("customCarFeatureMax")))
       .max(MAX_CUSTOM_CAR_FEATURES, t("tooManyCustomCarFeatures"))
       .default([]),
+    // Unchecked native checkboxes are absent from FormData, not "off" — same
+    // preprocessing as Auth.schemas' emailNotificationsOptIn.
+    emailNotificationsEnabled: z.preprocess((value) => value === "on", z.boolean()),
   })
 }

@@ -87,7 +87,15 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
   useEffect(() => {
     if (!isDirty) return
     function handleClick(event: MouseEvent) {
-      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      )
+        return
       const link = (event.target as HTMLElement)?.closest("a")
       if (!link || link.target === "_blank" || link.hasAttribute("download")) return
       const href = link.getAttribute("href")
@@ -177,7 +185,9 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
         <Field>
           <FieldLabel htmlFor="phone">{t("phone")}</FieldLabel>
           <div className="relative">
-            <span className="text-muted-foreground pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-sm">+90</span>
+            <span className="text-muted-foreground pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-sm">
+              +90
+            </span>
             <Input
               id="phone"
               name="phone"
@@ -195,7 +205,13 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
 
         <Field>
           <FieldLabel htmlFor="iban">{t("iban")}</FieldLabel>
-          <Input id="iban" name="iban" defaultValue={initialProfile.iban ?? ""} maxLength={MAX_IBAN_LENGTH} placeholder="TR.." />
+          <Input
+            id="iban"
+            name="iban"
+            defaultValue={initialProfile.iban ?? ""}
+            maxLength={MAX_IBAN_LENGTH}
+            placeholder="TR.."
+          />
           <FieldDescription>{t("ibanHint")}</FieldDescription>
         </Field>
 
@@ -212,12 +228,22 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
         <div className="grid gap-4 sm:grid-cols-3">
           <Field>
             <FieldLabel htmlFor="carBrand">{t("carBrand")}</FieldLabel>
-            <Input id="carBrand" name="carBrand" defaultValue={initialProfile.car_brand ?? ""} maxLength={MAX_CAR_BRAND_LENGTH} />
+            <Input
+              id="carBrand"
+              name="carBrand"
+              defaultValue={initialProfile.car_brand ?? ""}
+              maxLength={MAX_CAR_BRAND_LENGTH}
+            />
           </Field>
 
           <Field>
             <FieldLabel htmlFor="carModel">{t("carModel")}</FieldLabel>
-            <Input id="carModel" name="carModel" defaultValue={initialProfile.car_model ?? ""} maxLength={MAX_CAR_MODEL_LENGTH} />
+            <Input
+              id="carModel"
+              name="carModel"
+              defaultValue={initialProfile.car_model ?? ""}
+              maxLength={MAX_CAR_MODEL_LENGTH}
+            />
           </Field>
 
           <Field>
@@ -238,7 +264,12 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
           <div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3">
             {CAR_FEATURE_KEYS.map((key) => (
               <Field key={key} orientation="horizontal">
-                <Checkbox id={`carFeature-${key}`} name="carFeatures" value={key} defaultChecked={initialProfile.car_features.includes(key)} />
+                <Checkbox
+                  id={`carFeature-${key}`}
+                  name="carFeatures"
+                  value={key}
+                  defaultChecked={initialProfile.car_features.includes(key)}
+                />
                 <FieldLabel htmlFor={`carFeature-${key}`} className="font-normal">
                   {tCarFeatures(key)}
                 </FieldLabel>
@@ -316,10 +347,25 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
             </SelectContent>
           </Select>
         </Field>
+
+        <Field orientation="horizontal">
+          <Checkbox
+            id="emailNotificationsEnabled"
+            name="emailNotificationsEnabled"
+            defaultChecked={initialProfile.email_notifications_enabled}
+          />
+          <FieldLabel htmlFor="emailNotificationsEnabled" className="font-normal">
+            {t("emailNotificationsEnabled")}
+          </FieldLabel>
+        </Field>
       </FieldGroup>
 
       <Button type="submit" size="lg" className="w-full sm:w-fit" disabled={isPending}>
-        {isPending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <Save className="size-4" aria-hidden="true" />}
+        {isPending ? (
+          <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+        ) : (
+          <Save className="size-4" aria-hidden="true" />
+        )}
         {t("save")}
       </Button>
     </form>

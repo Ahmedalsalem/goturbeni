@@ -44,7 +44,9 @@ export function SignUpForm() {
         <Field>
           <FieldLabel htmlFor="phone">{t("phone")}</FieldLabel>
           <div className="relative">
-            <span className="text-muted-foreground pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-sm">+90</span>
+            <span className="text-muted-foreground pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-sm">
+              +90
+            </span>
             <Input
               id="phone"
               name="phone"
@@ -59,11 +61,19 @@ export function SignUpForm() {
         </Field>
 
         <Field>
+          <FieldLabel htmlFor="dateOfBirth">{t("dateOfBirth")}</FieldLabel>
+          <Input id="dateOfBirth" name="dateOfBirth" type="date" required />
+          <FieldDescription>{t("dateOfBirthHint")}</FieldDescription>
+        </Field>
+
+        <Field>
           <FieldLabel htmlFor="gender">{t("gender")}</FieldLabel>
           <Select name="gender" required>
             <SelectTrigger id="gender" aria-label={t("gender")} className="w-full">
               <SelectValue placeholder={t("genderPlaceholder")}>
-                {(value: (typeof GENDER_OPTIONS)[number] | null) => (value ? t(`genderOptions.${value}`) : t("genderPlaceholder"))}
+                {(value: (typeof GENDER_OPTIONS)[number] | null) =>
+                  value ? t(`genderOptions.${value}`) : t("genderPlaceholder")
+                }
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -94,7 +104,11 @@ export function SignUpForm() {
               aria-label={showPassword ? t("hidePassword") : t("showPassword")}
               className="text-muted-foreground hover:text-foreground absolute end-2.5 top-1/2 -translate-y-1/2"
             >
-              {showPassword ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}
+              {showPassword ? (
+                <EyeOff className="size-4" aria-hidden="true" />
+              ) : (
+                <Eye className="size-4" aria-hidden="true" />
+              )}
             </button>
           </div>
           <FieldDescription>{t("passwordHint")}</FieldDescription>
@@ -118,7 +132,11 @@ export function SignUpForm() {
               aria-label={showConfirmPassword ? t("hidePassword") : t("showPassword")}
               className="text-muted-foreground hover:text-foreground absolute end-2.5 top-1/2 -translate-y-1/2"
             >
-              {showConfirmPassword ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}
+              {showConfirmPassword ? (
+                <EyeOff className="size-4" aria-hidden="true" />
+              ) : (
+                <Eye className="size-4" aria-hidden="true" />
+              )}
             </button>
           </div>
         </Field>
@@ -138,6 +156,13 @@ export function SignUpForm() {
             {t("termsLink")}
           </Link>{" "}
           {t("termsSuffix")}
+        </FieldLabel>
+      </Field>
+
+      <Field orientation="horizontal">
+        <Checkbox id="emailNotificationsOptIn" name="emailNotificationsOptIn" />
+        <FieldLabel htmlFor="emailNotificationsOptIn" className="font-normal">
+          {t("emailNotificationsOptIn")}
         </FieldLabel>
       </Field>
 

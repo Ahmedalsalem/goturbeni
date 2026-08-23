@@ -61,6 +61,17 @@ export async function signIn(_prevState: AuthActionState, formData: FormData): P
     return { error: tErrors("invalidCredentials") }
   }
 
+  // Self-deleted accounts (deleteOwnAccount, features/profile/actions.ts)
+  // sign the user out immediately, but auth.users itself is never
+  // banned/removed (no service_role — see 0014_admin.sql's same note for
+  // suspension), so the same credentials can still authenticate here on a
+  // different session. Catch it right after and end the session again.
+  const { data: profileRow } = await supabase.from("profiles").select("deleted_at").eq("id", data.user.id).maybeSingle()
+  if (profileRow?.deleted_at) {
+    await supabase.auth.signOut()
+    redirect("/account-deleted")
+  }
+
   // Mandatory one-time phone verification gate: an account that never
   // completed it (or predates this requirement) is sent to /verify-phone
   // instead of straight into the app. Once verified, this check is never
@@ -95,6 +106,8 @@ export async function signUp(_prevState: AuthActionState, formData: FormData): P
     confirmPassword: formData.get("confirmPassword"),
     gender: formData.get("gender"),
     phone: formData.get("phone"),
+    dateOfBirth: formData.get("dateOfBirth"),
+    emailNotificationsOptIn: formData.get("emailNotificationsOptIn"),
     termsAccepted: formData.get("termsAccepted"),
   })
   if (!parsed.success) {
@@ -137,6 +150,8 @@ export async function signUp(_prevState: AuthActionState, formData: FormData): P
     p_gender: parsed.data.gender,
     p_phone: parsedPhone.number,
     p_full_name: parsed.data.fullName,
+    p_date_of_birth: parsed.data.dateOfBirth,
+    p_email_notifications_enabled: parsed.data.emailNotificationsOptIn,
   })
   if (detailsError) {
     logError(detailsError, "auth.signUp.completeRegistrationDetails")

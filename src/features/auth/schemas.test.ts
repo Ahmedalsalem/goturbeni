@@ -33,6 +33,8 @@ describe("buildAuthSchemas", () => {
         confirmPassword: "password1",
         gender: "female",
         phone: "05551234567",
+        dateOfBirth: "1990-01-01",
+        emailNotificationsOptIn: undefined,
         termsAccepted: "on",
         ...overrides,
       }
@@ -79,6 +81,43 @@ describe("buildAuthSchemas", () => {
     it("rejects a missing full name", () => {
       const result = signUpSchema.safeParse(validSignUp({ fullName: "" }))
       expect(result.success).toBe(false)
+    })
+
+    it("rejects a missing date of birth", () => {
+      const result = signUpSchema.safeParse(validSignUp({ dateOfBirth: "" }))
+      expect(result.success).toBe(false)
+    })
+
+    it("rejects someone who turns 18 tomorrow", () => {
+      const almostEighteen = new Date()
+      almostEighteen.setFullYear(almostEighteen.getFullYear() - 18)
+      almostEighteen.setDate(almostEighteen.getDate() + 1)
+      const result = signUpSchema.safeParse(validSignUp({ dateOfBirth: almostEighteen.toISOString().slice(0, 10) }))
+      expect(result.success).toBe(false)
+    })
+
+    it("accepts someone who turned 18 yesterday", () => {
+      const justEighteen = new Date()
+      justEighteen.setFullYear(justEighteen.getFullYear() - 18)
+      justEighteen.setDate(justEighteen.getDate() - 1)
+      const result = signUpSchema.safeParse(validSignUp({ dateOfBirth: justEighteen.toISOString().slice(0, 10) }))
+      expect(result.success).toBe(true)
+    })
+
+    it("defaults emailNotificationsOptIn to false when the checkbox is unchecked (absent from FormData)", () => {
+      const result = signUpSchema.safeParse(validSignUp({ emailNotificationsOptIn: undefined }))
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.emailNotificationsOptIn).toBe(false)
+      }
+    })
+
+    it("sets emailNotificationsOptIn to true when the checkbox is checked", () => {
+      const result = signUpSchema.safeParse(validSignUp({ emailNotificationsOptIn: "on" }))
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.emailNotificationsOptIn).toBe(true)
+      }
     })
   })
 

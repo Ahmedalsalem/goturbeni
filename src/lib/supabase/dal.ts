@@ -35,6 +35,14 @@ export const verifySession = cache(async () => {
     redirect("/login")
   }
   const supabase = await createClient()
+  // signIn() already catches this for a fresh login (features/auth/actions.ts)
+  // — this backstop covers a session that was already active in another tab
+  // when deleteOwnAccount ran elsewhere.
+  const { data: profileRow } = await supabase.from("profiles").select("deleted_at").eq("id", user.id).maybeSingle()
+  if (profileRow?.deleted_at) {
+    await supabase.auth.signOut()
+    redirect("/account-deleted")
+  }
   const { data: suspended } = await supabase.rpc("is_suspended", { p_user_id: user.id })
   if (suspended) {
     redirect("/suspended")

@@ -1,6 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 import { getTranslations } from "next-intl/server"
 import { parsePhoneNumberFromString } from "libphonenumber-js"
 
@@ -37,6 +38,7 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
     carPlate: formData.get("carPlate"),
     carFeatures: formData.getAll("carFeatures"),
     customCarFeatures: formData.getAll("customCarFeatures"),
+    emailNotificationsEnabled: formData.get("emailNotificationsEnabled"),
   })
   if (!parsed.success) {
     return { error: firstIssueMessage(parsed.error, tErrors("invalidForm")) }
@@ -77,7 +79,9 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
   // the number without its "+90"/leading-zero prefix (see ProfileForm.tsx),
   // so submitting that raw display value unchanged would always look like a
   // change on the server and silently un-verify the phone.
-  const normalizedPhone = parsed.data.phone ? (parsePhoneNumberFromString(parsed.data.phone, "TR")?.number ?? parsed.data.phone) : null
+  const normalizedPhone = parsed.data.phone
+    ? (parsePhoneNumberFromString(parsed.data.phone, "TR")?.number ?? parsed.data.phone)
+    : null
 
   const { error: updateError } = await supabase.rpc("update_own_profile", {
     p_full_name: parsed.data.fullName,
@@ -92,6 +96,7 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
     p_car_plate: parsed.data.carPlate ?? null,
     p_car_features: parsed.data.carFeatures,
     p_custom_car_features: parsed.data.customCarFeatures,
+    p_email_notifications_enabled: parsed.data.emailNotificationsEnabled,
   })
 
   if (updateError) {
@@ -146,7 +151,10 @@ export async function sendEmailVerificationCode(): Promise<{ error?: string }> {
 // didn't run) is missing one or both. This writes them and immediately kicks
 // off the e-mail code send, same as sendEmailVerificationCode — the caller
 // (VerifyPhoneClient) moves straight to the code-entry step on success.
-export async function completeMandatoryProfileDetails(gender: "female" | "male", phone: string): Promise<{ error?: string }> {
+export async function completeMandatoryProfileDetails(
+  gender: "female" | "male",
+  phone: string
+): Promise<{ error?: string }> {
   await verifySession()
   const locale = await getUserLocale()
   const t = await getTranslations({ locale, namespace: "Profile.phone" })
@@ -186,4 +194,25 @@ export async function verifyEmailVerificationCode(code: string): Promise<{ error
 
   revalidatePath("/profile")
   return {}
+}
+
+// delete_own_account (0075) anonymizes profiles/profiles_private and stamps
+// profiles.deleted_at — it never touches auth.users (no service_role, same
+// limitation admin_set_suspended documents in 0014_admin.sql). Signing out
+// here ends the current session immediately; signIn()/verifySession() catch
+// any other still-active session for this account afterward.
+export async function deleteOwnAccount(): Promise<{ error?: string }> {
+  await verifySession()
+  const locale = await getUserLocale()
+  const t = await getTranslations({ locale, namespace: "Profile.errors" })
+
+  const supabase = await createClient()
+  const { error } = await supabase.rpc("delete_own_account")
+  if (error) {
+    logError(error, "profile.deleteOwnAccount")
+    return { error: t("deleteAccountFailed") }
+  }
+
+  await supabase.auth.signOut()
+  redirect("/account-deleted")
 }
