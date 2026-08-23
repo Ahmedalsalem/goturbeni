@@ -82,6 +82,8 @@ function validRideValues(overrides: Partial<RideFormValues> = {}): RideFormValue
     vipSolo: false,
     paymentMethod: "bank_transfer",
     instantBooking: false,
+    carFeatures: [],
+    customCarFeatures: [],
     repeatWeekly: false,
     ...overrides,
   }

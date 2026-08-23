@@ -1,8 +1,10 @@
 import { z } from "zod"
 
+import { MAX_CUSTOM_CAR_FEATURE_LENGTH, MAX_CUSTOM_CAR_FEATURES } from "@/features/profile/schemas"
 import { TURKISH_PROVINCES } from "@/utils/turkish-provinces"
 import { TURKISH_PROVINCE_DISTRICTS } from "@/utils/turkish-districts"
 import { parseIstanbulDateTime } from "@/utils/istanbul-time"
+import { CAR_FEATURE_KEYS } from "@/types/profile"
 
 export const MIN_SEAT_COUNT = 1
 export const MAX_SEAT_COUNT = 8
@@ -20,6 +22,8 @@ type ValidationTranslator = (
     | "descriptionMax"
     | "districtInvalid"
     | "vipSoloSingleSeat"
+    | "customCarFeatureMax"
+    | "tooManyCustomCarFeatures"
 ) => string
 
 // District is optional (a refinement on top of the required city), so an
@@ -58,6 +62,11 @@ export function buildRideSchema(t: ValidationTranslator) {
       vipSolo: z.boolean().default(false),
       paymentMethod: z.enum(["bank_transfer", "cash"]).default("bank_transfer"),
       instantBooking: z.boolean().default(false),
+      carFeatures: z.array(z.enum(CAR_FEATURE_KEYS)).default([]),
+      customCarFeatures: z
+        .array(z.string().trim().min(1).max(MAX_CUSTOM_CAR_FEATURE_LENGTH, t("customCarFeatureMax")))
+        .max(MAX_CUSTOM_CAR_FEATURES, t("tooManyCustomCarFeatures"))
+        .default([]),
       // Only read on create (RideForm hides it in edit mode) — the first
       // ride's own departureDate/departureTime supply the series' weekday
       // and time-of-day, so there's no separate recurrence field to fill in.
@@ -102,6 +111,8 @@ export function buildRideSchema(t: ValidationTranslator) {
             repeatWeekly: false,
             paymentMethod: "bank_transfer" as const,
             instantBooking: false,
+            carFeatures: [],
+            customCarFeatures: [],
           }
         : data
     )

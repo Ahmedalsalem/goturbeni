@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, CalendarDays, Cigarette, Clock, Crown, MapPin, PawPrint, Snowflake, Users } from "lucide-react"
+import { ArrowRight, CalendarDays, Cigarette, Clock, Crown, MapPin, PawPrint, Sparkles, Users } from "lucide-react"
 import { getFormatter, getTranslations } from "next-intl/server"
 
 import { Badge } from "@/components/ui/badge"
@@ -24,8 +24,11 @@ export async function RideCard({
   driverCompletedRideCount?: number
 }) {
   const t = await getTranslations("Rides.card")
+  const tCarFeatures = await getTranslations("CarFeatures")
   const format = await getFormatter()
   const locale = await getUserLocale()
+  const carFeatures = ride.car_features
+  const customCarFeatures = ride.custom_car_features
 
   const departureAt = new Date(ride.departure_time)
   const isPassengerListing = ride.posted_by_role === "passenger"
@@ -75,7 +78,7 @@ export async function RideCard({
         </div>
         <div className="text-primary font-semibold">{formatCostShare(ride.cost_share, locale)}</div>
       </CardContent>
-      {(ride.pets_allowed || ride.smoking_allowed || ride.driver?.has_ac) && (
+      {(ride.pets_allowed || ride.smoking_allowed || carFeatures.length > 0 || customCarFeatures.length > 0) && (
         <CardContent className="flex flex-wrap gap-1.5 pt-0">
           {ride.pets_allowed && (
             <Badge variant="outline" className="gap-1">
@@ -87,11 +90,16 @@ export async function RideCard({
               <Cigarette className="size-3" aria-hidden="true" /> {t("smokingAllowed")}
             </Badge>
           )}
-          {ride.driver?.has_ac && (
-            <Badge variant="outline" className="gap-1">
-              <Snowflake className="size-3" aria-hidden="true" /> {t("hasAc")}
+          {carFeatures.map((key) => (
+            <Badge key={key} variant="outline" className="gap-1">
+              <Sparkles className="size-3" aria-hidden="true" /> {tCarFeatures(key)}
             </Badge>
-          )}
+          ))}
+          {customCarFeatures.map((feature) => (
+            <Badge key={feature} variant="outline" className="gap-1">
+              <Sparkles className="size-3" aria-hidden="true" /> {feature}
+            </Badge>
+          ))}
         </CardContent>
       )}
       {co2SavingsKg > 0 && (

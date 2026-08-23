@@ -1,10 +1,11 @@
 "use client"
 
 import { useActionState, useEffect, useRef, useState } from "react"
-import { Loader2, Save, Upload } from "lucide-react"
+import { Loader2, Plus, Save, Upload, X } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Field, FieldGroup, FieldLabel, FieldDescription } from "@/components/ui/field"
@@ -21,13 +22,15 @@ import {
   MAX_CAR_BRAND_LENGTH,
   MAX_CAR_MODEL_LENGTH,
   MAX_CAR_PLATE_LENGTH,
+  MAX_CUSTOM_CAR_FEATURE_LENGTH,
+  MAX_CUSTOM_CAR_FEATURES,
   MAX_FULL_NAME_LENGTH,
   MAX_IBAN_HOLDER_NAME_LENGTH,
   MAX_IBAN_LENGTH,
   MAX_PHONE_LENGTH,
 } from "@/features/profile/schemas"
 import { SUPPORTED_LOCALES, type AppLocale } from "@/i18n/locale-config"
-import type { Profile } from "@/types/profile"
+import { CAR_FEATURE_KEYS, type Profile } from "@/types/profile"
 
 const LOCALE_LABELS: Record<AppLocale, string> = {
   tr: "Türkçe",
@@ -37,8 +40,11 @@ const LOCALE_LABELS: Record<AppLocale, string> = {
 
 export function ProfileForm({ profile, email }: { profile: Profile; email: string }) {
   const t = useTranslations("Profile.form")
+  const tCarFeatures = useTranslations("CarFeatures")
   const [state, formAction, isPending] = useActionState(updateProfile, initialProfileActionState)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profile.avatar_url)
+  const [customFeatures, setCustomFeatures] = useState<string[]>(profile.custom_car_features)
+  const [customFeatureInput, setCustomFeatureInput] = useState("")
   const fileInputRef = useRef<HTMLInputElement>(null)
   // Snapshot the profile once at mount for the uncontrolled fields'
   // defaultValue. After a successful save, revalidatePath("/profile") sends
@@ -59,6 +65,13 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
     const file = event.target.files?.[0]
     if (!file) return
     setAvatarPreview(URL.createObjectURL(file))
+  }
+
+  function addCustomFeature() {
+    const value = customFeatureInput.trim()
+    if (!value || customFeatures.length >= MAX_CUSTOM_CAR_FEATURES || customFeatures.includes(value)) return
+    setCustomFeatures((prev) => [...prev, value])
+    setCustomFeatureInput("")
   }
 
   const initials = (profile.full_name ?? email).slice(0, 2).toUpperCase()
@@ -177,11 +190,63 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
         </div>
         <FieldDescription>{t("carHint")}</FieldDescription>
 
-        <Field orientation="horizontal">
-          <Checkbox id="hasAc" name="hasAc" defaultChecked={initialProfile.has_ac} />
-          <FieldLabel htmlFor="hasAc" className="font-normal">
-            {t("hasAc")}
-          </FieldLabel>
+        <Field>
+          <FieldLabel>{t("carFeaturesLabel")}</FieldLabel>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3">
+            {CAR_FEATURE_KEYS.map((key) => (
+              <Field key={key} orientation="horizontal">
+                <Checkbox id={`carFeature-${key}`} name="carFeatures" value={key} defaultChecked={initialProfile.car_features.includes(key)} />
+                <FieldLabel htmlFor={`carFeature-${key}`} className="font-normal">
+                  {tCarFeatures(key)}
+                </FieldLabel>
+              </Field>
+            ))}
+          </div>
+
+          <FieldLabel className="mt-2">{t("customFeaturesLabel")}</FieldLabel>
+          {customFeatures.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {customFeatures.map((feature) => (
+                <Badge key={feature} variant="secondary" className="gap-1 pe-1">
+                  {feature}
+                  <input type="hidden" name="customCarFeatures" value={feature} />
+                  <button
+                    type="button"
+                    onClick={() => setCustomFeatures((prev) => prev.filter((item) => item !== feature))}
+                    aria-label={t("removeCustomFeature")}
+                    className="hover:text-destructive"
+                  >
+                    <X className="size-3" aria-hidden="true" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+          )}
+          <div className="flex gap-2">
+            <Input
+              value={customFeatureInput}
+              onChange={(event) => setCustomFeatureInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault()
+                  addCustomFeature()
+                }
+              }}
+              placeholder={t("addCustomFeaturePlaceholder")}
+              maxLength={MAX_CUSTOM_CAR_FEATURE_LENGTH}
+              disabled={customFeatures.length >= MAX_CUSTOM_CAR_FEATURES}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={addCustomFeature}
+              disabled={customFeatures.length >= MAX_CUSTOM_CAR_FEATURES}
+              aria-label={t("addCustomFeatureCta")}
+            >
+              <Plus className="size-4" aria-hidden="true" />
+            </Button>
+          </div>
         </Field>
 
         <Field>

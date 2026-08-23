@@ -46,6 +46,8 @@ function buildRideRow(parsed: RideFormValues) {
     vip_solo: parsed.vipSolo,
     payment_method: parsed.paymentMethod,
     instant_booking: parsed.instantBooking,
+    car_features: parsed.carFeatures,
+    custom_car_features: parsed.customCarFeatures,
   }
 }
 
@@ -150,6 +152,8 @@ async function createRideSeriesForRide(rideId: string, driverId: string, parsed:
       pets_allowed: parsed.petsAllowed,
       smoking_allowed: parsed.smokingAllowed,
       vip_solo: parsed.vipSolo,
+      car_features: parsed.carFeatures,
+      custom_car_features: parsed.customCarFeatures,
     })
     .select("id")
     .single()

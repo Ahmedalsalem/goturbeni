@@ -118,6 +118,8 @@ function fakeRide(overrides: Partial<Ride> = {}): Ride {
     vip_solo: false,
     payment_method: "bank_transfer",
     instant_booking: false,
+    car_features: [],
+    custom_car_features: [],
     status: "active",
     series_id: null,
     created_at: new Date().toISOString(),

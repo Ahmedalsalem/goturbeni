@@ -2,6 +2,7 @@ import { z } from "zod"
 
 import { SUPPORTED_LOCALES } from "@/i18n/locale-config"
 import { isValidTrPhoneNumber } from "@/lib/phone-validation"
+import { CAR_FEATURE_KEYS } from "@/types/profile"
 
 export type ProfileActionState = { error?: string; success?: boolean }
 
@@ -15,6 +16,8 @@ export const MAX_IBAN_HOLDER_NAME_LENGTH = 100
 export const MAX_CAR_BRAND_LENGTH = 50
 export const MAX_CAR_MODEL_LENGTH = 50
 export const MAX_CAR_PLATE_LENGTH = 15
+export const MAX_CUSTOM_CAR_FEATURES = 10
+export const MAX_CUSTOM_CAR_FEATURE_LENGTH = 30
 
 // TR + 24 digits (26 chars total), spaces/dashes stripped before matching —
 // the standard Turkish IBAN format (matches the DB check constraint in
@@ -42,6 +45,8 @@ type ValidationTranslator = (
     | "carModelMax"
     | "carPlateMax"
     | "carPlateInvalid"
+    | "customCarFeatureMax"
+    | "tooManyCustomCarFeatures"
 ) => string
 
 export function buildProfileSchema(t: ValidationTranslator) {
@@ -97,6 +102,10 @@ export function buildProfileSchema(t: ValidationTranslator) {
       // presence separately (see features/rides/actions.ts). When a value IS
       // given, though, it must be a real Turkish plate format.
       .refine((value) => !value || TR_PLATE_PATTERN.test(value), { message: t("carPlateInvalid") }),
-    hasAc: z.boolean().default(false),
+    carFeatures: z.array(z.enum(CAR_FEATURE_KEYS)).default([]),
+    customCarFeatures: z
+      .array(z.string().trim().min(1).max(MAX_CUSTOM_CAR_FEATURE_LENGTH, t("customCarFeatureMax")))
+      .max(MAX_CUSTOM_CAR_FEATURES, t("tooManyCustomCarFeatures"))
+      .default([]),
   })
 }

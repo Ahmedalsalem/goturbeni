@@ -242,7 +242,11 @@
       "carModel": "موديل السيارة",
       "carPlate": "رقم اللوحة",
       "carHint": "مطلوب لنشر رحلة كسائق. إذا لم يكن لديك سيارة، يمكنك ترك هذا الحقل فارغًا (مثال: 34 ABC 123).",
-      "hasAc": "مكيّف",
+      "carFeaturesLabel": "مزايا السيارة",
+      "customFeaturesLabel": "مزايا أخرى",
+      "addCustomFeaturePlaceholder": "أضف ميزة (مثال: واي فاي)",
+      "addCustomFeatureCta": "إضافة ميزة",
+      "removeCustomFeature": "إزالة",
       "bio": "نبذة عني",
       "bioHint": "500 حرف كحد أقصى.",
       "language": "اللغة",
@@ -273,7 +277,9 @@
       "carBrandMax": "يجب ألا تتجاوز ماركة السيارة 50 حرفًا.",
       "carModelMax": "يجب ألا يتجاوز موديل السيارة 50 حرفًا.",
       "carPlateMax": "يجب ألا تتجاوز اللوحة 15 حرفًا.",
-      "carPlateInvalid": "يرجى إدخال رقم لوحة صالح (مثال: 34 ABC 123)."
+      "carPlateInvalid": "يرجى إدخال رقم لوحة صالح (مثال: 34 ABC 123).",
+      "customCarFeatureMax": "يجب ألا تتجاوز الميزة 30 حرفًا.",
+      "tooManyCustomCarFeatures": "يمكنك إضافة 10 مزايا مخصصة كحد أقصى."
     },
     "errors": {
       "invalidForm": "نموذج غير صالح.",
@@ -282,6 +288,18 @@
       "avatarUploadFailed": "تعذر تحميل الصورة.",
       "updateFailed": "تعذر تحديث الملف الشخصي."
     }
+  },
+  "CarFeatures": {
+    "ac": "تكييف",
+    "bluetooth": "بلوتوث / اتصال موسيقى",
+    "usb_charger": "شاحن USB",
+    "large_trunk": "صندوق واسع",
+    "leather_seats": "مقاعد جلدية",
+    "sunroof": "فتحة سقف",
+    "automatic_transmission": "ناقل حركة أوتوماتيكي",
+    "child_seat": "مقعد أطفال",
+    "navigation": "نظام ملاحة",
+    "wheelchair_accessible": "مناسب لذوي الإعاقة"
   },
   "RidesPage": {
     "title": "الرحلات",
@@ -308,7 +326,6 @@
       "smokingAllowed": "يُسمح بالتدخين",
       "vipOnly": "VIP (راكب واحد)",
       "femaleDriverOnly": "سائقة",
-      "hasAc": "مكيّف",
       "typeLabel": "نوع الإعلان",
       "typeAll": "الكل",
       "typeDriver": "إعلانات السائقين",
@@ -491,6 +508,11 @@
       "paymentMethodHint": "إذا اخترت الدفع نقدًا، لن يرفع الراكب إيصالًا — بعد الرحلة، يؤكد الطرفان الدفع بزر \"تم إكمال الدفعة\" بدلًا من ذلك.",
       "instantBooking": "الحجز الفوري",
       "instantBookingHint": "عند التفعيل، تتم الموافقة على طلب حجز الراكب تلقائيًا فور توفر مقعد، دون انتظار موافقتك.",
+      "carFeaturesLabel": "مزايا السيارة",
+      "customFeaturesLabel": "مزايا أخرى",
+      "addCustomFeaturePlaceholder": "أضف ميزة (مثال: واي فاي)",
+      "addCustomFeatureCta": "إضافة ميزة",
+      "removeCustomFeature": "إزالة",
       "repeatWeekly": "كرر هذا الإعلان كل أسبوع في هذا اليوم والوقت",
       "repeatWeeklyHint": "يُنشأ إعلان الأسبوع التالي تلقائيًا قبل حوالي أسبوع من موعده. يمكنك إيقافه في أي وقت من \"إعلاناتي\".",
       "createSubmit": "نشر الرحلة",
@@ -506,7 +528,9 @@
       "seatCountRange": "يجب أن يكون عدد المقاعد بين 1 و 8.",
       "costShareMin": "لا يمكن أن تكون المساهمة في التكلفة سالبة.",
       "descriptionMax": "يجب ألا يتجاوز الوصف 500 حرف.",
-      "vipSoloSingleSeat": "في رحلات VIP (راكب واحد) يجب أن يكون عدد المقاعد 1."
+      "vipSoloSingleSeat": "في رحلات VIP (راكب واحد) يجب أن يكون عدد المقاعد 1.",
+      "customCarFeatureMax": "يجب ألا تتجاوز الميزة 30 حرفًا.",
+      "tooManyCustomCarFeatures": "يمكنك إضافة 10 مزايا مخصصة كحد أقصى."
     },
     "errors": {
       "invalidForm": "نموذج غير صالح.",
@@ -530,7 +554,6 @@
       "unknownDriver": "السائق",
       "petsAllowed": "يُسمح بالحيوانات الأليفة",
       "smokingAllowed": "يُسمح بالتدخين",
-      "hasAc": "مكيّف",
       "co2SavingsShort": "~{kg} كجم CO₂ موفَّر",
       "vipSolo": "VIP (راكب واحد)",
       "unknownPoster": "راكب",

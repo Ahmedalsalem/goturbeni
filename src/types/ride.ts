@@ -1,3 +1,5 @@
+import type { CarFeatureKey } from "@/types/profile"
+
 export type RideStatus = "active" | "full" | "completed" | "cancelled"
 export type RidePostedByRole = "driver" | "passenger"
 export type RidePaymentMethod = "bank_transfer" | "cash"
@@ -21,6 +23,8 @@ export interface Ride {
   vip_solo: boolean
   payment_method: RidePaymentMethod
   instant_booking: boolean
+  car_features: CarFeatureKey[]
+  custom_car_features: string[]
   status: RideStatus
   series_id: string | null
   created_at: string
@@ -34,7 +38,6 @@ export interface RideWithDriver extends Ride {
     car_brand: string | null
     car_model: string | null
     car_plate: string | null
-    has_ac: boolean
   } | null
   poster: {
     full_name: string | null

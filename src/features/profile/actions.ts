@@ -35,7 +35,8 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
     carBrand: formData.get("carBrand"),
     carModel: formData.get("carModel"),
     carPlate: formData.get("carPlate"),
-    hasAc: formData.get("hasAc") === "on",
+    carFeatures: formData.getAll("carFeatures"),
+    customCarFeatures: formData.getAll("customCarFeatures"),
   })
   if (!parsed.success) {
     return { error: firstIssueMessage(parsed.error, tErrors("invalidForm")) }
@@ -89,7 +90,8 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
     p_car_brand: parsed.data.carBrand ?? null,
     p_car_model: parsed.data.carModel ?? null,
     p_car_plate: parsed.data.carPlate ?? null,
-    p_has_ac: parsed.data.hasAc,
+    p_car_features: parsed.data.carFeatures,
+    p_custom_car_features: parsed.data.customCarFeatures,
   })
 
   if (updateError) {

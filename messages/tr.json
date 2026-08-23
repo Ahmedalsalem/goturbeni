@@ -242,7 +242,11 @@
       "carModel": "Araç Modeli",
       "carPlate": "Plaka",
       "carHint": "Sürücü olarak ilan verebilmek için gerekli. Plakanız yoksa boş bırakabilirsiniz (örn. 34 ABC 123).",
-      "hasAc": "Klimalı",
+      "carFeaturesLabel": "Araç Özellikleri",
+      "customFeaturesLabel": "Diğer Özellikler",
+      "addCustomFeaturePlaceholder": "Özellik ekle (ör. Wi-Fi)",
+      "addCustomFeatureCta": "Özellik ekle",
+      "removeCustomFeature": "Kaldır",
       "bio": "Hakkımda",
       "bioHint": "En fazla 500 karakter.",
       "language": "Dil",
@@ -273,7 +277,9 @@
       "carBrandMax": "Araç markası en fazla 50 karakter olmalı.",
       "carModelMax": "Araç modeli en fazla 50 karakter olmalı.",
       "carPlateMax": "Plaka en fazla 15 karakter olmalı.",
-      "carPlateInvalid": "Geçerli bir araç plakası girin (örn. 34 ABC 123)."
+      "carPlateInvalid": "Geçerli bir araç plakası girin (örn. 34 ABC 123).",
+      "customCarFeatureMax": "Özellik en fazla 30 karakter olmalı.",
+      "tooManyCustomCarFeatures": "En fazla 10 özel özellik ekleyebilirsiniz."
     },
     "errors": {
       "invalidForm": "Geçersiz form.",
@@ -282,6 +288,18 @@
       "avatarUploadFailed": "Fotoğraf yüklenemedi.",
       "updateFailed": "Profil güncellenemedi."
     }
+  },
+  "CarFeatures": {
+    "ac": "Klima",
+    "bluetooth": "Bluetooth / Müzik Bağlantısı",
+    "usb_charger": "USB Şarj",
+    "large_trunk": "Geniş Bagaj",
+    "leather_seats": "Deri Koltuklar",
+    "sunroof": "Panoramik Tavan",
+    "automatic_transmission": "Otomatik Vites",
+    "child_seat": "Çocuk Koltuğu",
+    "navigation": "Navigasyon Sistemi",
+    "wheelchair_accessible": "Engelli Erişimine Uygun"
   },
   "RidesPage": {
     "title": "İlanlar",
@@ -308,7 +326,6 @@
       "smokingAllowed": "Sigara İçilebilir",
       "vipOnly": "VIP (Tek Yolcu)",
       "femaleDriverOnly": "Kadın Şoför",
-      "hasAc": "Klimalı",
       "typeLabel": "İlan Türü",
       "typeAll": "Tümü",
       "typeDriver": "Sürücü İlanları",
@@ -491,6 +508,11 @@
       "paymentMethodHint": "Nakit seçersen yolcu dekont yüklemez, yolculuk sonrası her iki taraf da \"Ödeme Tamamlandı\" butonuyla karşılıklı onaylar.",
       "instantBooking": "Anında Onay",
       "instantBookingHint": "Açıksa, koltuk müsaitse yolcunun rezervasyon talebi beklemeden otomatik onaylanır.",
+      "carFeaturesLabel": "Araç Özellikleri",
+      "customFeaturesLabel": "Diğer Özellikler",
+      "addCustomFeaturePlaceholder": "Özellik ekle (ör. Wi-Fi)",
+      "addCustomFeatureCta": "Özellik ekle",
+      "removeCustomFeature": "Kaldır",
       "repeatWeekly": "Bu ilanı her hafta bu gün ve saatte tekrarla",
       "repeatWeeklyHint": "Bir sonraki haftanın ilanı, kalkışına yaklaşık bir hafta kala otomatik olarak açılır. İstediğiniz zaman \"İlanlarım\"dan durdurabilirsiniz.",
       "createSubmit": "İlanı Yayınla",
@@ -506,7 +528,9 @@
       "seatCountRange": "Koltuk sayısı 1 ile 8 arasında olmalı.",
       "costShareMin": "Masraf payı negatif olamaz.",
       "descriptionMax": "Açıklama en fazla 500 karakter olmalı.",
-      "vipSoloSingleSeat": "VIP (tek yolcu) ilanlarda koltuk sayısı 1 olmalı."
+      "vipSoloSingleSeat": "VIP (tek yolcu) ilanlarda koltuk sayısı 1 olmalı.",
+      "customCarFeatureMax": "Özellik en fazla 30 karakter olmalı.",
+      "tooManyCustomCarFeatures": "En fazla 10 özel özellik ekleyebilirsiniz."
     },
     "errors": {
       "invalidForm": "Geçersiz form.",
@@ -530,7 +554,6 @@
       "unknownDriver": "Sürücü",
       "petsAllowed": "Evcil hayvan kabul edilir",
       "smokingAllowed": "Sigara içilebilir",
-      "hasAc": "Klimalı",
       "co2SavingsShort": "~{kg} kg CO₂ tasarrufu",
       "vipSolo": "VIP (Tek Yolcu)",
       "unknownPoster": "Yolcu",

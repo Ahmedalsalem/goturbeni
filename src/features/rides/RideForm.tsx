@@ -4,8 +4,9 @@ import { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useLocale, useTranslations } from "next-intl"
-import { Loader2, Send } from "lucide-react"
+import { Loader2, Plus, Send, X } from "lucide-react"
 
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Field, FieldGroup, FieldLabel, FieldDescription, FieldError } from "@/components/ui/field"
@@ -34,18 +35,22 @@ import {
   type RideFormInput,
   type RideFormValues,
 } from "@/features/rides/schemas"
+import { MAX_CUSTOM_CAR_FEATURE_LENGTH, MAX_CUSTOM_CAR_FEATURES } from "@/features/profile/schemas"
 import { estimateCostSharePerSeat } from "@/utils/cost-estimate"
 import { TURKISH_PROVINCES } from "@/utils/turkish-provinces"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 import { TURKISH_PROVINCE_DISTRICTS } from "@/utils/turkish-districts"
 import { toIstanbulDateInputValue, toIstanbulTimeInputValue } from "@/utils/istanbul-time"
+import { CAR_FEATURE_KEYS } from "@/types/profile"
 import type { Ride } from "@/types/ride"
 
 export function RideForm({ ride }: { ride?: Ride }) {
   const t = useTranslations("Rides.form")
   const tValidation = useTranslations("Rides.validation")
+  const tCarFeatures = useTranslations("CarFeatures")
   const locale = useLocale()
   const [serverError, setServerError] = useState<string | null>(null)
+  const [customFeatureInput, setCustomFeatureInput] = useState("")
 
   const {
     control,
@@ -77,6 +82,8 @@ export function RideForm({ ride }: { ride?: Ride }) {
       vipSolo: ride?.vip_solo ?? false,
       paymentMethod: ride?.payment_method ?? "bank_transfer",
       instantBooking: ride?.instant_booking ?? false,
+      carFeatures: ride?.car_features ?? [],
+      customCarFeatures: ride?.custom_car_features ?? [],
       repeatWeekly: false,
     },
   })
@@ -505,6 +512,95 @@ export function RideForm({ ride }: { ride?: Ride }) {
               </FieldLabel>
             </Field>
             <FieldDescription>{t("instantBookingHint")}</FieldDescription>
+
+            <Field>
+              <FieldLabel>{t("carFeaturesLabel")}</FieldLabel>
+              <Controller
+                control={control}
+                name="carFeatures"
+                render={({ field }) => (
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3">
+                    {CAR_FEATURE_KEYS.map((key) => (
+                      <Field key={key} orientation="horizontal">
+                        <Checkbox
+                          id={`carFeature-${key}`}
+                          checked={field.value?.includes(key) ?? false}
+                          onCheckedChange={(checked) => {
+                            const current = field.value ?? []
+                            field.onChange(checked === true ? [...current, key] : current.filter((item) => item !== key))
+                          }}
+                        />
+                        <FieldLabel htmlFor={`carFeature-${key}`} className="font-normal">
+                          {tCarFeatures(key)}
+                        </FieldLabel>
+                      </Field>
+                    ))}
+                  </div>
+                )}
+              />
+
+              <FieldLabel className="mt-2">{t("customFeaturesLabel")}</FieldLabel>
+              <Controller
+                control={control}
+                name="customCarFeatures"
+                render={({ field }) => {
+                  const customFeatures = field.value ?? []
+                  return (
+                    <>
+                      {customFeatures.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {customFeatures.map((feature) => (
+                            <Badge key={feature} variant="secondary" className="gap-1 pe-1">
+                              {feature}
+                              <button
+                                type="button"
+                                onClick={() => field.onChange(customFeatures.filter((item) => item !== feature))}
+                                aria-label={t("removeCustomFeature")}
+                                className="hover:text-destructive"
+                              >
+                                <X className="size-3" aria-hidden="true" />
+                              </button>
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                      <div className="flex gap-2">
+                        <Input
+                          value={customFeatureInput}
+                          onChange={(event) => setCustomFeatureInput(event.target.value)}
+                          onKeyDown={(event) => {
+                            if (event.key !== "Enter") return
+                            event.preventDefault()
+                            const value = customFeatureInput.trim()
+                            if (!value || customFeatures.length >= MAX_CUSTOM_CAR_FEATURES || customFeatures.includes(value)) return
+                            field.onChange([...customFeatures, value])
+                            setCustomFeatureInput("")
+                          }}
+                          placeholder={t("addCustomFeaturePlaceholder")}
+                          maxLength={MAX_CUSTOM_CAR_FEATURE_LENGTH}
+                          disabled={customFeatures.length >= MAX_CUSTOM_CAR_FEATURES}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => {
+                            const value = customFeatureInput.trim()
+                            if (!value || customFeatures.length >= MAX_CUSTOM_CAR_FEATURES || customFeatures.includes(value)) return
+                            field.onChange([...customFeatures, value])
+                            setCustomFeatureInput("")
+                          }}
+                          disabled={customFeatures.length >= MAX_CUSTOM_CAR_FEATURES}
+                          aria-label={t("addCustomFeatureCta")}
+                        >
+                          <Plus className="size-4" aria-hidden="true" />
+                        </Button>
+                      </div>
+                    </>
+                  )
+                }}
+              />
+            </Field>
           </>
         )}
 

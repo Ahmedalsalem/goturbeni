@@ -242,7 +242,11 @@
       "carModel": "Car Model",
       "carPlate": "License Plate",
       "carHint": "Required to post listings as a driver. You can leave this blank if you don't have a vehicle (e.g. 34 ABC 123).",
-      "hasAc": "Air Conditioned",
+      "carFeaturesLabel": "Car Features",
+      "customFeaturesLabel": "Other Features",
+      "addCustomFeaturePlaceholder": "Add a feature (e.g. Wi-Fi)",
+      "addCustomFeatureCta": "Add feature",
+      "removeCustomFeature": "Remove",
       "bio": "About Me",
       "bioHint": "Up to 500 characters.",
       "language": "Language",
@@ -273,7 +277,9 @@
       "carBrandMax": "Car make must be at most 50 characters.",
       "carModelMax": "Car model must be at most 50 characters.",
       "carPlateMax": "License plate must be at most 15 characters.",
-      "carPlateInvalid": "Enter a valid license plate (e.g. 34 ABC 123)."
+      "carPlateInvalid": "Enter a valid license plate (e.g. 34 ABC 123).",
+      "customCarFeatureMax": "A feature must be at most 30 characters.",
+      "tooManyCustomCarFeatures": "You can add at most 10 custom features."
     },
     "errors": {
       "invalidForm": "Invalid form.",
@@ -282,6 +288,18 @@
       "avatarUploadFailed": "Photo could not be uploaded.",
       "updateFailed": "Profile could not be updated."
     }
+  },
+  "CarFeatures": {
+    "ac": "Air Conditioning",
+    "bluetooth": "Bluetooth / Music Connection",
+    "usb_charger": "USB Charger",
+    "large_trunk": "Large Trunk",
+    "leather_seats": "Leather Seats",
+    "sunroof": "Sunroof",
+    "automatic_transmission": "Automatic Transmission",
+    "child_seat": "Child Seat",
+    "navigation": "Navigation System",
+    "wheelchair_accessible": "Wheelchair Accessible"
   },
   "RidesPage": {
     "title": "Rides",
@@ -308,7 +326,6 @@
       "smokingAllowed": "Smoking Allowed",
       "vipOnly": "VIP (Single Passenger)",
       "femaleDriverOnly": "Female Driver",
-      "hasAc": "Air Conditioned",
       "typeLabel": "Listing Type",
       "typeAll": "All",
       "typeDriver": "Driver Listings",
@@ -491,6 +508,11 @@
       "paymentMethodHint": "If you choose cash, the passenger won't upload a receipt — after the trip, both sides confirm with the \"Mark Payment as Complete\" button instead.",
       "instantBooking": "Instant Booking",
       "instantBookingHint": "When on, a passenger's request is approved automatically as soon as there's room — no waiting for you to confirm.",
+      "carFeaturesLabel": "Car Features",
+      "customFeaturesLabel": "Other Features",
+      "addCustomFeaturePlaceholder": "Add a feature (e.g. Wi-Fi)",
+      "addCustomFeatureCta": "Add feature",
+      "removeCustomFeature": "Remove",
       "repeatWeekly": "Repeat this listing every week on this day and time",
       "repeatWeeklyHint": "Next week's listing is automatically posted about a week before its departure. You can stop it anytime from \"My Rides.\"",
       "createSubmit": "Publish Listing",
@@ -506,7 +528,9 @@
       "seatCountRange": "Number of seats must be between 1 and 8.",
       "costShareMin": "Cost share cannot be negative.",
       "descriptionMax": "Description must be at most 500 characters.",
-      "vipSoloSingleSeat": "VIP (single passenger) listings must have a seat count of 1."
+      "vipSoloSingleSeat": "VIP (single passenger) listings must have a seat count of 1.",
+      "customCarFeatureMax": "A feature must be at most 30 characters.",
+      "tooManyCustomCarFeatures": "You can add at most 10 custom features."
     },
     "errors": {
       "invalidForm": "Invalid form.",
@@ -530,7 +554,6 @@
       "unknownDriver": "Driver",
       "petsAllowed": "Pets allowed",
       "smokingAllowed": "Smoking allowed",
-      "hasAc": "Air Conditioned",
       "co2SavingsShort": "~{kg} kg CO₂ saved",
       "vipSolo": "VIP (Single Passenger)",
       "unknownPoster": "Passenger",
