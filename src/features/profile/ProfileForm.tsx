@@ -45,6 +45,7 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profile.avatar_url)
   const [customFeatures, setCustomFeatures] = useState<string[]>(profile.custom_car_features)
   const [customFeatureInput, setCustomFeatureInput] = useState("")
+  const [isDirty, setIsDirty] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   // Snapshot the profile once at mount for the uncontrolled fields'
   // defaultValue. After a successful save, revalidatePath("/profile") sends
@@ -58,8 +59,23 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
   useEffect(() => {
     if (state.success) {
       toast.success(t("saved"))
+      setIsDirty(false)
     }
   }, [state.success, t])
+
+  // Native browsers ignore any custom message here (Chrome/Firefox have
+  // shown only their own generic "leave site?" text since ~2011, for
+  // phishing-prevention reasons) — this still stops an accidental tab
+  // close/refresh/typed-URL navigation, just not with our own wording.
+  useEffect(() => {
+    if (!isDirty) return
+    function handleBeforeUnload(event: BeforeUnloadEvent) {
+      event.preventDefault()
+      event.returnValue = ""
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload)
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload)
+  }, [isDirty])
 
   function onAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
@@ -72,12 +88,13 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
     if (!value || customFeatures.length >= MAX_CUSTOM_CAR_FEATURES || customFeatures.includes(value)) return
     setCustomFeatures((prev) => [...prev, value])
     setCustomFeatureInput("")
+    setIsDirty(true)
   }
 
   const initials = (profile.full_name ?? email).slice(0, 2).toUpperCase()
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
+    <form action={formAction} onChange={() => setIsDirty(true)} className="flex flex-col gap-6">
       {state.error && (
         <Alert variant="destructive">
           <AlertDescription>{state.error}</AlertDescription>
@@ -212,7 +229,10 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
                   <input type="hidden" name="customCarFeatures" value={feature} />
                   <button
                     type="button"
-                    onClick={() => setCustomFeatures((prev) => prev.filter((item) => item !== feature))}
+                    onClick={() => {
+                      setCustomFeatures((prev) => prev.filter((item) => item !== feature))
+                      setIsDirty(true)
+                    }}
                     aria-label={t("removeCustomFeature")}
                     className="hover:text-destructive"
                   >
