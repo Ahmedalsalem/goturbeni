@@ -116,7 +116,7 @@ function fakeRide(overrides: Partial<Ride> = {}): Ride {
     pets_allowed: false,
     smoking_allowed: false,
     vip_solo: false,
-    payment_method: "bank_transfer",
+    payment_methods: ["bank_transfer"],
     instant_booking: false,
     car_features: [],
     custom_car_features: [],

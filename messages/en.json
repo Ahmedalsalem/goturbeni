@@ -509,7 +509,7 @@
       "paymentMethodLabel": "Payment method",
       "paymentMethodBankTransfer": "Bank Transfer (IBAN)",
       "paymentMethodCash": "Cash",
-      "paymentMethodHint": "If you choose cash, the passenger won't upload a receipt — after the trip, both sides confirm with the \"Mark Payment as Complete\" button instead.",
+      "paymentMethodHint": "You can select more than one. If you only accept cash, the passenger won't upload a receipt — after the trip, both sides confirm with the \"Mark Payment as Complete\" button instead.",
       "instantBooking": "Instant Booking",
       "instantBookingHint": "When on, a passenger's request is approved automatically as soon as there's room — no waiting for you to confirm.",
       "carFeaturesLabel": "Car Features",
@@ -534,7 +534,8 @@
       "descriptionMax": "Description must be at most 500 characters.",
       "vipSoloSingleSeat": "VIP (single passenger) listings must have a seat count of 1.",
       "customCarFeatureMax": "A feature must be at most 30 characters.",
-      "tooManyCustomCarFeatures": "You can add at most 10 custom features."
+      "tooManyCustomCarFeatures": "You can add at most 10 custom features.",
+      "paymentMethodRequired": "You must select at least one payment method."
     },
     "errors": {
       "invalidForm": "Invalid form.",

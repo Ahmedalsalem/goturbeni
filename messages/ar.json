@@ -509,7 +509,7 @@
       "paymentMethodLabel": "طريقة الدفع",
       "paymentMethodBankTransfer": "تحويل بنكي (IBAN)",
       "paymentMethodCash": "نقدًا",
-      "paymentMethodHint": "إذا اخترت الدفع نقدًا، لن يرفع الراكب إيصالًا — بعد الرحلة، يؤكد الطرفان الدفع بزر \"تم إكمال الدفعة\" بدلًا من ذلك.",
+      "paymentMethodHint": "يمكنك اختيار أكثر من طريقة. إذا اخترت النقد فقط، لن يرفع الراكب إيصالًا — بعد الرحلة، يؤكد الطرفان الدفع بزر \"تم إكمال الدفعة\" بدلًا من ذلك.",
       "instantBooking": "الحجز الفوري",
       "instantBookingHint": "عند التفعيل، تتم الموافقة على طلب حجز الراكب تلقائيًا فور توفر مقعد، دون انتظار موافقتك.",
       "carFeaturesLabel": "مزايا السيارة",
@@ -534,7 +534,8 @@
       "descriptionMax": "يجب ألا يتجاوز الوصف 500 حرف.",
       "vipSoloSingleSeat": "في رحلات VIP (راكب واحد) يجب أن يكون عدد المقاعد 1.",
       "customCarFeatureMax": "يجب ألا تتجاوز الميزة 30 حرفًا.",
-      "tooManyCustomCarFeatures": "يمكنك إضافة 10 مزايا مخصصة كحد أقصى."
+      "tooManyCustomCarFeatures": "يمكنك إضافة 10 مزايا مخصصة كحد أقصى.",
+      "paymentMethodRequired": "يجب اختيار طريقة دفع واحدة على الأقل."
     },
     "errors": {
       "invalidForm": "نموذج غير صالح.",

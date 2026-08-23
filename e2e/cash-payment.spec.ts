@@ -2,9 +2,9 @@ import { expect, test, type Browser, type BrowserContext, type Page } from "@pla
 
 import { backdateRideDeparture, clickWithConfirm, createRide, signUpAndVerify, uniqueEmail } from "./utils"
 
-// Cash-payment rides skip the receipt-upload/OCR path entirely (see
+// Cash-only rides skip the receipt-upload/OCR path entirely (see
 // src/app/bookings/page.tsx and src/app/rides/[id]/bookings/page.tsx's
-// payment_method === "bank_transfer" gate, 0064_ride_payment_method.sql) —
+// payment_methods.includes("bank_transfer") gate, 0073_ride_payment_methods_multi.sql) —
 // only the preexisting receipt-free mutual "Ödeme Tamamlandı" confirm
 // button (confirm_remaining_payment RPC) is available. This test proves
 // both: the upload control never appears, and the mutual-confirm path

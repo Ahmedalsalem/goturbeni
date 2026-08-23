@@ -509,7 +509,7 @@
       "paymentMethodLabel": "Ödeme yöntemi",
       "paymentMethodBankTransfer": "Banka Havalesi (IBAN)",
       "paymentMethodCash": "Nakit",
-      "paymentMethodHint": "Nakit seçersen yolcu dekont yüklemez, yolculuk sonrası her iki taraf da \"Ödeme Tamamlandı\" butonuyla karşılıklı onaylar.",
+      "paymentMethodHint": "Birden fazla seçebilirsin. Sadece nakit kabul edersen yolcu dekont yüklemez, yolculuk sonrası her iki taraf da \"Ödeme Tamamlandı\" butonuyla karşılıklı onaylar.",
       "instantBooking": "Anında Onay",
       "instantBookingHint": "Açıksa, koltuk müsaitse yolcunun rezervasyon talebi beklemeden otomatik onaylanır.",
       "carFeaturesLabel": "Araç Özellikleri",
@@ -534,7 +534,8 @@
       "descriptionMax": "Açıklama en fazla 500 karakter olmalı.",
       "vipSoloSingleSeat": "VIP (tek yolcu) ilanlarda koltuk sayısı 1 olmalı.",
       "customCarFeatureMax": "Özellik en fazla 30 karakter olmalı.",
-      "tooManyCustomCarFeatures": "En fazla 10 özel özellik ekleyebilirsiniz."
+      "tooManyCustomCarFeatures": "En fazla 10 özel özellik ekleyebilirsiniz.",
+      "paymentMethodRequired": "En az bir ödeme yöntemi seçmelisiniz."
     },
     "errors": {
       "invalidForm": "Geçersiz form.",

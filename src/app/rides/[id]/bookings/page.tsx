@@ -273,7 +273,7 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                     {isRideOver && booking.payment_status === "awaiting_settlement" && !viewerSettled && (
                       <SettlePaymentButton bookingId={booking.id} rideId={id} />
                     )}
-                    {isPayer && isRideOver && booking.payment_status !== "settled" && ride.payment_method === "bank_transfer" && (
+                    {isPayer && isRideOver && booking.payment_status !== "settled" && ride.payment_methods.includes("bank_transfer") && (
                       <SettlementReceiptUpload
                         bookingId={booking.id}
                         rideId={id}

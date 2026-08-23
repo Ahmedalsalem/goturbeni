@@ -24,6 +24,7 @@ type ValidationTranslator = (
     | "vipSoloSingleSeat"
     | "customCarFeatureMax"
     | "tooManyCustomCarFeatures"
+    | "paymentMethodRequired"
 ) => string
 
 // District is optional (a refinement on top of the required city), so an
@@ -60,7 +61,7 @@ export function buildRideSchema(t: ValidationTranslator) {
       petsAllowed: z.boolean().default(false),
       smokingAllowed: z.boolean().default(false),
       vipSolo: z.boolean().default(false),
-      paymentMethod: z.enum(["bank_transfer", "cash"]).default("bank_transfer"),
+      paymentMethods: z.array(z.enum(["bank_transfer", "cash"])).min(1, t("paymentMethodRequired")).default(["bank_transfer"]),
       instantBooking: z.boolean().default(false),
       carFeatures: z.array(z.enum(CAR_FEATURE_KEYS)).default([]),
       customCarFeatures: z
@@ -112,7 +113,7 @@ export function buildRideSchema(t: ValidationTranslator) {
             smokingAllowed: false,
             vipSolo: false,
             repeatWeekly: false,
-            paymentMethod: "bank_transfer" as const,
+            paymentMethods: ["bank_transfer"] as const,
             instantBooking: false,
             carFeatures: [],
             customCarFeatures: [],

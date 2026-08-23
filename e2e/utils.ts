@@ -157,7 +157,12 @@ export async function createRide(
     await page.locator('[aria-labelledby="vipSolo-label"]').click()
   }
   if (options.paymentMethod === "cash") {
-    await page.getByRole("button", { name: "Nakit", exact: true }).click()
+    // Bank transfer is checked by default (RideForm's paymentMethods
+    // default) — uncheck it so the ride ends up cash-only, matching this
+    // option's pre-multi-select meaning (see cash-payment.spec.ts, which
+    // asserts the receipt-upload UI is entirely absent for such a ride).
+    await page.locator('[aria-labelledby="paymentMethodBankTransfer-label"]').click()
+    await page.locator('[aria-labelledby="paymentMethodCash-label"]').click()
   }
   if (options.instantBooking) {
     await page.locator('[aria-labelledby="instantBooking-label"]').click()

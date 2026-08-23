@@ -92,7 +92,7 @@ export function RideForm({
       petsAllowed: ride?.pets_allowed ?? false,
       smokingAllowed: ride?.smoking_allowed ?? false,
       vipSolo: ride?.vip_solo ?? false,
-      paymentMethod: ride?.payment_method ?? "bank_transfer",
+      paymentMethods: ride?.payment_methods ?? ["bank_transfer"],
       instantBooking: ride?.instant_booking ?? false,
       carFeatures: ride?.car_features ?? defaultCarFeatures ?? [],
       customCarFeatures: ride?.custom_car_features ?? defaultCustomCarFeatures ?? [],
@@ -534,22 +534,41 @@ export function RideForm({
 
             <Field>
               <FieldLabel>{t("paymentMethodLabel")}</FieldLabel>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant={watch("paymentMethod") === "bank_transfer" ? "default" : "outline"}
-                  onClick={() => setValue("paymentMethod", "bank_transfer")}
-                >
-                  {t("paymentMethodBankTransfer")}
-                </Button>
-                <Button
-                  type="button"
-                  variant={watch("paymentMethod") === "cash" ? "default" : "outline"}
-                  onClick={() => setValue("paymentMethod", "cash")}
-                >
-                  {t("paymentMethodCash")}
-                </Button>
-              </div>
+              <Controller
+                control={control}
+                name="paymentMethods"
+                render={({ field }) => (
+                  <div className="flex gap-4">
+                    <Field orientation="horizontal">
+                      <Checkbox
+                        id="paymentMethodBankTransfer"
+                        checked={field.value?.includes("bank_transfer") ?? false}
+                        onCheckedChange={(checked) => {
+                          const current = field.value ?? []
+                          field.onChange(checked === true ? [...current, "bank_transfer"] : current.filter((v) => v !== "bank_transfer"))
+                        }}
+                      />
+                      <FieldLabel htmlFor="paymentMethodBankTransfer" className="font-normal">
+                        {t("paymentMethodBankTransfer")}
+                      </FieldLabel>
+                    </Field>
+                    <Field orientation="horizontal">
+                      <Checkbox
+                        id="paymentMethodCash"
+                        checked={field.value?.includes("cash") ?? false}
+                        onCheckedChange={(checked) => {
+                          const current = field.value ?? []
+                          field.onChange(checked === true ? [...current, "cash"] : current.filter((v) => v !== "cash"))
+                        }}
+                      />
+                      <FieldLabel htmlFor="paymentMethodCash" className="font-normal">
+                        {t("paymentMethodCash")}
+                      </FieldLabel>
+                    </Field>
+                  </div>
+                )}
+              />
+              {errors.paymentMethods && <FieldError errors={[{ message: errors.paymentMethods.message }]} />}
               <FieldDescription>{t("paymentMethodHint")}</FieldDescription>
             </Field>
 

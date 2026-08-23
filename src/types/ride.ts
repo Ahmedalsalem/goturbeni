@@ -21,7 +21,7 @@ export interface Ride {
   pets_allowed: boolean
   smoking_allowed: boolean
   vip_solo: boolean
-  payment_method: RidePaymentMethod
+  payment_methods: RidePaymentMethod[]
   instant_booking: boolean
   car_features: CarFeatureKey[]
   custom_car_features: string[]
