@@ -110,7 +110,8 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
     const viewerIsOfferingDriver = booking.driver_id === user.id
     const id = viewerIsOfferingDriver ? booking.passenger_id : (booking.driver_id ?? booking.passenger_id)
     const profile = viewerIsOfferingDriver ? booking.passenger : (booking.driver ?? booking.passenger)
-    const fallbackLabel = viewerIsOfferingDriver || !booking.driver_id ? tCard("unknownPassenger") : tCard("unknownDriver")
+    const fallbackLabel =
+      viewerIsOfferingDriver || !booking.driver_id ? tCard("unknownPassenger") : tCard("unknownDriver")
     return { id, name: profile?.full_name ?? fallbackLabel, avatarUrl: profile?.avatar_url ?? null }
   }
   const myReviews = isRideOver
@@ -121,14 +122,20 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
   )
   const counterpartyPhones = new Map(
     await Promise.all(
-      approvedBookings.map(async (booking) => [booking.id, await getRideCounterpartyPhone(id, counterpartyOf(booking).id)] as const)
+      approvedBookings.map(
+        async (booking) => [booking.id, await getRideCounterpartyPhone(id, counterpartyOf(booking).id)] as const
+      )
     )
   )
   const myDisputes = new Map(
-    await Promise.all(approvedBookings.map(async (booking) => [booking.id, await getMyDisputeForBooking(booking.id, user.id)] as const))
+    await Promise.all(
+      approvedBookings.map(async (booking) => [booking.id, await getMyDisputeForBooking(booking.id, user.id)] as const)
+    )
   )
   const pickupVerified = new Map(
-    await Promise.all(approvedBookings.map(async (booking) => [booking.id, await getPickupVerificationStatus(booking.id)] as const))
+    await Promise.all(
+      approvedBookings.map(async (booking) => [booking.id, await getPickupVerificationStatus(booking.id)] as const)
+    )
   )
   // Experience-level badge next to a driver counterparty's name — only rows
   // where the counterparty IS a driver (passenger-listing offers) get one;
@@ -153,7 +160,9 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
         {approvedBookings.length > 0 && !isRideOver && <ShareLocationToggle rideId={id} />}
       </div>
 
-      {isOwner && waitlistCount > 0 && <p className="text-muted-foreground mb-6 text-sm">{t("waitlistCount", { count: waitlistCount })}</p>}
+      {isOwner && waitlistCount > 0 && (
+        <p className="text-muted-foreground mb-6 text-sm">{t("waitlistCount", { count: waitlistCount })}</p>
+      )}
 
       {bookings.length === 0 ? (
         <EmptyState icon={Users} title={t("emptyTitle")} description={t("emptyDescription")} />
@@ -176,7 +185,9 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
             // sürücü ise yolcuyu raporlar.
             const viewerReportsDriver = isOwner && isOffer
             const alreadyReportedNoShow = viewerReportsDriver ? booking.driver_no_show : booking.passenger_no_show
-            const noShowLabel = viewerReportsDriver ? tBookingActions("reportDriverNoShow") : tBookingActions("reportPassengerNoShow")
+            const noShowLabel = viewerReportsDriver
+              ? tBookingActions("reportDriverNoShow")
+              : tBookingActions("reportPassengerNoShow")
             // Karşılıklı "Ödeme Tamamlandı" onayı — confirmRemainingPayment
             // RPC'si auth.uid()'in hangi taraf olduğunu kendi belirliyor, burada
             // sadece HANGİ flag'in (driver_settled_at/passenger_settled_at)
@@ -196,12 +207,19 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                       <div className="flex items-center gap-2">
                         <p className="font-medium">{counterparty.name}</p>
                         {counterpartyExperienceCounts.has(booking.id) && (
-                          <ExperienceLevelBadge completedRideCount={counterpartyExperienceCounts.get(booking.id) as number} />
+                          <ExperienceLevelBadge
+                            completedRideCount={counterpartyExperienceCounts.get(booking.id) as number}
+                          />
                         )}
                       </div>
-                      <p className="text-muted-foreground text-sm">{tCard("seatCount", { count: booking.seat_count })}</p>
+                      <p className="text-muted-foreground text-sm">
+                        {tCard("seatCount", { count: booking.seat_count })}
+                      </p>
                       {isApproved && counterpartyPhone && (
-                        <a href={`tel:${counterpartyPhone}`} className="text-primary flex items-center gap-1 text-sm hover:underline">
+                        <a
+                          href={`tel:${counterpartyPhone}`}
+                          className="text-primary flex items-center gap-1 text-sm hover:underline"
+                        >
                           <Phone className="size-3.5" aria-hidden="true" /> {counterpartyPhone}
                         </a>
                       )}
@@ -223,40 +241,50 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                     />
                   </CardFooter>
                 )}
-                {isApproved && isPayer && booking.driver_id === ride.driver_id && booking.payment_status !== "settled" && driverPaymentInfo && (
-                  <CardFooter>
-                    <Alert>
-                      <AlertTitle>{tPayment("settlementInstructionTitle")}</AlertTitle>
-                      <AlertDescription className="flex flex-col gap-1">
-                        <span>
-                          {tPayment("ibanLabel")}: <span className="font-mono font-medium">{driverPaymentInfo.iban}</span>
-                        </span>
-                        <span>
-                          {tPayment("ibanHolderLabel")}: {driverPaymentInfo.iban_holder_name}
-                        </span>
-                        <span className="text-muted-foreground">{tPayment("noCommissionDisclaimer")}</span>
-                        {driverTrustInfo && (
-                          <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 border-t pt-2">
-                            <span className="text-muted-foreground text-xs">
-                              {tPayment("driverMemberSince", {
-                                date: format.dateTime(new Date(driverTrustInfo.memberSinceIso), { day: "2-digit", month: "2-digit", year: "numeric" }),
-                              })}
-                            </span>
-                            <span className="text-muted-foreground text-xs">
-                              {tPayment("driverCompletedRides", { count: driverTrustInfo.completedRideCount })}
-                            </span>
-                            {driverTrustInfo.averageRating !== null && (
-                              <span className="flex items-center gap-1">
-                                <StarRating rating={driverTrustInfo.averageRating} size="sm" />
-                                <span className="text-muted-foreground text-xs">({driverTrustInfo.reviewCount})</span>
-                              </span>
-                            )}
+                {isApproved &&
+                  isPayer &&
+                  booking.driver_id === ride.driver_id &&
+                  booking.payment_status !== "settled" &&
+                  ride.payment_methods.includes("bank_transfer") &&
+                  driverPaymentInfo && (
+                    <CardFooter>
+                      <Alert>
+                        <AlertTitle>{tPayment("settlementInstructionTitle")}</AlertTitle>
+                        <AlertDescription className="flex flex-col gap-1">
+                          <span>
+                            {tPayment("ibanLabel")}:{" "}
+                            <span className="font-mono font-medium">{driverPaymentInfo.iban}</span>
                           </span>
-                        )}
-                      </AlertDescription>
-                    </Alert>
-                  </CardFooter>
-                )}
+                          <span>
+                            {tPayment("ibanHolderLabel")}: {driverPaymentInfo.iban_holder_name}
+                          </span>
+                          <span className="text-muted-foreground">{tPayment("noCommissionDisclaimer")}</span>
+                          {driverTrustInfo && (
+                            <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 border-t pt-2">
+                              <span className="text-muted-foreground text-xs">
+                                {tPayment("driverMemberSince", {
+                                  date: format.dateTime(new Date(driverTrustInfo.memberSinceIso), {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    year: "numeric",
+                                  }),
+                                })}
+                              </span>
+                              <span className="text-muted-foreground text-xs">
+                                {tPayment("driverCompletedRides", { count: driverTrustInfo.completedRideCount })}
+                              </span>
+                              {driverTrustInfo.averageRating !== null && (
+                                <span className="flex items-center gap-1">
+                                  <StarRating rating={driverTrustInfo.averageRating} size="sm" />
+                                  <span className="text-muted-foreground text-xs">({driverTrustInfo.reviewCount})</span>
+                                </span>
+                              )}
+                            </span>
+                          )}
+                        </AlertDescription>
+                      </Alert>
+                    </CardFooter>
+                  )}
                 {isApproved && (
                   <CardFooter className="flex flex-wrap items-center gap-2">
                     <Link
@@ -266,21 +294,31 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                       <MessageCircle className="size-4" aria-hidden="true" />
                       {t("chat")}
                       {unreadMessages.threadKeys.has(`${id}:${counterparty.id}`) && (
-                        <span className="bg-destructive ring-background absolute -end-1 -top-1 size-2.5 rounded-full ring-2" aria-hidden="true" />
+                        <span
+                          className="bg-destructive ring-background absolute -end-1 -top-1 size-2.5 rounded-full ring-2"
+                          aria-hidden="true"
+                        />
                       )}
                     </Link>
-                    <VerifyPickupCodeForm bookingId={booking.id} rideId={id} alreadyVerified={pickupVerified.get(booking.id) ?? false} />
+                    <VerifyPickupCodeForm
+                      bookingId={booking.id}
+                      rideId={id}
+                      alreadyVerified={pickupVerified.get(booking.id) ?? false}
+                    />
                     {isRideOver && booking.payment_status === "awaiting_settlement" && !viewerSettled && (
                       <SettlePaymentButton bookingId={booking.id} rideId={id} />
                     )}
-                    {isPayer && isRideOver && booking.payment_status !== "settled" && ride.payment_methods.includes("bank_transfer") && (
-                      <SettlementReceiptUpload
-                        bookingId={booking.id}
-                        rideId={id}
-                        status={booking.settlement_receipt_status}
-                        rejectReason={booking.settlement_receipt_reject_reason}
-                      />
-                    )}
+                    {isPayer &&
+                      isRideOver &&
+                      booking.payment_status !== "settled" &&
+                      ride.payment_methods.includes("bank_transfer") && (
+                        <SettlementReceiptUpload
+                          bookingId={booking.id}
+                          rideId={id}
+                          status={booking.settlement_receipt_status}
+                          rejectReason={booking.settlement_receipt_reject_reason}
+                        />
+                      )}
                     {isRideOver &&
                       (alreadyReviewed ? (
                         <Badge variant="secondary">{tReviewActions("alreadyReviewed")}</Badge>

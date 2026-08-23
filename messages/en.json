@@ -548,7 +548,8 @@
       "pauseFailed": "Recurring listing could not be stopped. Please try again.",
       "tooManyRequests": "Too many attempts. Please try again later.",
       "ibanRequired": "To post a listing, first add your IBAN and account holder name to your profile.",
-      "carPlateRequired": "To post a listing, first add a valid license plate to your profile."
+      "carPlateRequired": "To post a listing, first add a valid license plate to your profile.",
+      "seatCountBelowBooked": "You can't reduce the seat count below {count} — that many passengers are already approved on this listing."
     },
     "status": {
       "active": "Active",

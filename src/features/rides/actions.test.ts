@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 // vi.hoisted lets these mock fns exist before the vi.mock factories below run
 // (vi.mock calls are hoisted to the top of the file by vitest).
-const { rpcMock, fromMock, createClientMock, verifySessionMock, revalidatePathMock, redirectMock, afterMock } = vi.hoisted(() => ({
+const { rpcMock, fromMock, createClientMock, verifySessionMock, revalidatePathMock, redirectMock, afterMock, getRideMock } = vi.hoisted(() => ({
   rpcMock: vi.fn(),
   fromMock: vi.fn(),
   createClientMock: vi.fn(),
@@ -10,10 +10,15 @@ const { rpcMock, fromMock, createClientMock, verifySessionMock, revalidatePathMo
   revalidatePathMock: vi.fn(),
   redirectMock: vi.fn(),
   afterMock: vi.fn(),
+  getRideMock: vi.fn(),
 }))
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient: createClientMock,
+}))
+
+vi.mock("@/features/rides/queries", () => ({
+  getRide: getRideMock,
 }))
 
 vi.mock("@/lib/supabase/dal", () => ({
@@ -100,6 +105,7 @@ describe("rides/actions", () => {
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "anon-key")
     verifySessionMock.mockResolvedValue(FAKE_USER)
     createClientMock.mockResolvedValue({ rpc: rpcMock, from: fromMock })
+    getRideMock.mockResolvedValue({ posted_by: FAKE_USER.id, status: "active", seat_count: 2, available_seats: 2 })
   })
 
   afterEach(() => {
@@ -162,6 +168,33 @@ describe("rides/actions", () => {
       await updateRide("ride-1", VALID_RIDE_VALUES)
 
       expect(eqMock).toHaveBeenCalledWith("posted_by", FAKE_USER.id)
+    })
+
+    it("recomputes available_seats around already-approved bookings instead of overwriting it with seatCount", async () => {
+      // 4 total seats, 3 already taken by an approved booking (available_seats=1)
+      // — widening the listing back up to 4 should leave those 3 seats taken
+      // and free up the difference, not just reset available_seats to 4.
+      getRideMock.mockResolvedValue({ posted_by: FAKE_USER.id, status: "active", seat_count: 2, available_seats: 2 - 1 })
+      const eqMock = vi.fn().mockReturnThis()
+      const updateMock = vi.fn().mockReturnValue({ eq: eqMock })
+      fromMock.mockReturnValue({ update: updateMock })
+
+      await updateRide("ride-1", validRideValues({ seatCount: 4 }))
+
+      expect(updateMock).toHaveBeenCalledWith(expect.objectContaining({ seat_count: 4, available_seats: 3 }))
+    })
+
+    it("refuses to shrink seatCount below the number of already-approved passengers", async () => {
+      // 4 total seats, 3 already approved (available_seats=1) — dropping to 2
+      // would understate the 3 real passengers as only 2 fitting.
+      getRideMock.mockResolvedValue({ posted_by: FAKE_USER.id, status: "active", seat_count: 4, available_seats: 1 })
+      const updateMock = vi.fn()
+      fromMock.mockReturnValue({ update: updateMock })
+
+      const result = await updateRide("ride-1", validRideValues({ seatCount: 2 }))
+
+      expect(result?.error).toBeTruthy()
+      expect(updateMock).not.toHaveBeenCalled()
     })
   })
 })

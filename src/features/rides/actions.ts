@@ -16,6 +16,7 @@ import { sendSearchAlertNotifications } from "@/lib/search-alert-notifications"
 import { sendNewRideBroadcastEmail } from "@/lib/new-ride-broadcast-email"
 import { parseIstanbulDateTime } from "@/utils/istanbul-time"
 import { buildRideSchema, type RideActionState, type RideFormValues } from "@/features/rides/schemas"
+import { getRide } from "@/features/rides/queries"
 import { TR_PLATE_PATTERN } from "@/features/profile/schemas"
 
 const CREATE_RIDE_RATE_LIMIT = { limit: 10, windowMs: 60 * 60 * 1000 }
@@ -28,8 +29,9 @@ async function getRideTranslators() {
 }
 
 // Shared insert/update payload shape for createRide/updateRide. available_seats
-// mirrors seat_count on both create and edit — there's no partial-booking
-// mechanism yet (see README "Faz 2 Notları"), so the two always stay in sync.
+// mirrors seat_count here — correct for create (no bookings exist yet), but
+// updateRide overrides this field afterward to account for already-approved
+// bookings (see the seatsAlreadyTaken comment there).
 function buildRideRow(parsed: RideFormValues) {
   return {
     departure_city: parsed.departureCity,
@@ -66,7 +68,9 @@ export async function createRide(values: RideFormValues): Promise<RideActionStat
   }
 
   const user = await requireVerifiedProfile()
-  if (!(await checkRateLimit(`create-ride:${user.id}`, CREATE_RIDE_RATE_LIMIT.limit, CREATE_RIDE_RATE_LIMIT.windowMs))) {
+  if (
+    !(await checkRateLimit(`create-ride:${user.id}`, CREATE_RIDE_RATE_LIMIT.limit, CREATE_RIDE_RATE_LIMIT.windowMs))
+  ) {
     return { error: tErrors("tooManyRequests") }
   }
 
@@ -81,7 +85,11 @@ export async function createRide(values: RideFormValues): Promise<RideActionStat
     // Sürücü IBAN + hesap sahibi adı olmadan ilan açamaz (bkz. "Yarı-Yarı
     // Ödeme Akışı" — yolcunun ilk yarı ödemesini gönderebilmesi için ilan
     // sahibinin ödeme bilgisi baştan tam olmalı).
-    const { data: paymentInfo } = await supabase.from("profiles_private").select("iban, iban_holder_name").eq("id", user.id).maybeSingle()
+    const { data: paymentInfo } = await supabase
+      .from("profiles_private")
+      .select("iban, iban_holder_name")
+      .eq("id", user.id)
+      .maybeSingle()
     if (!paymentInfo?.iban || !paymentInfo?.iban_holder_name) {
       return { error: tErrors("ibanRequired") }
     }
@@ -121,7 +129,12 @@ export async function createRide(values: RideFormValues): Promise<RideActionStat
   // itself never waits on however many recipients that turns out to be.
   after(async () => {
     try {
-      await sendNewRideBroadcastEmail(ride.id, parsed.data.departureCity, parsed.data.arrivalCity, parsed.data.postedByRole)
+      await sendNewRideBroadcastEmail(
+        ride.id,
+        parsed.data.departureCity,
+        parsed.data.arrivalCity,
+        parsed.data.postedByRole
+      )
     } catch (error) {
       logError(error, "rides.createRide.broadcast")
     }
@@ -196,9 +209,25 @@ export async function updateRide(rideId: string, values: RideFormValues): Promis
   const user = await verifySession()
   const supabase = await createClient()
 
+  // buildRideRow's available_seats (= new seatCount) is only correct when
+  // nothing is booked yet. approve_booking (0003_bookings.sql) decrements
+  // available_seats atomically as bookings get approved, so seatsAlreadyTaken
+  // (seat_count - available_seats) reflects however many seats already have
+  // an approved passenger — shrinking seatCount below that would silently
+  // understate how many seats are actually spoken for. Widening it (or
+  // leaving it unchanged) just carries the same seatsAlreadyTaken forward.
+  const currentRide = await getRide(rideId)
+  if (!currentRide || currentRide.posted_by !== user.id || currentRide.status !== "active") {
+    return { error: tErrors("updateFailed") }
+  }
+  const seatsAlreadyTaken = currentRide.seat_count - currentRide.available_seats
+  if (parsed.data.seatCount < seatsAlreadyTaken) {
+    return { error: tErrors("seatCountBelowBooked", { count: seatsAlreadyTaken }) }
+  }
+
   const { error } = await supabase
     .from("rides")
-    .update(buildRideRow(parsed.data))
+    .update({ ...buildRideRow(parsed.data), available_seats: parsed.data.seatCount - seatsAlreadyTaken })
     .eq("id", rideId)
     .eq("posted_by", user.id)
     .eq("status", "active")
@@ -249,7 +278,11 @@ export async function pauseRideSeries(seriesId: string): Promise<RideActionState
 
   const user = await verifySession()
   const supabase = await createClient()
-  const { error } = await supabase.from("ride_series").update({ is_active: false }).eq("id", seriesId).eq("driver_id", user.id)
+  const { error } = await supabase
+    .from("ride_series")
+    .update({ is_active: false })
+    .eq("id", seriesId)
+    .eq("driver_id", user.id)
 
   if (error) {
     logError(error, "rides.pauseRideSeries")

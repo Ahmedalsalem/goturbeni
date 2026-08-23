@@ -548,7 +548,8 @@
       "pauseFailed": "Tekrarlanan ilan durdurulamadı. Lütfen tekrar deneyin.",
       "tooManyRequests": "Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin.",
       "ibanRequired": "İlan verebilmek için önce profilinize IBAN ve hesap sahibi ad soyad bilgisi ekleyin.",
-      "carPlateRequired": "İlan verebilmek için önce profilinize geçerli bir araç plakası ekleyin."
+      "carPlateRequired": "İlan verebilmek için önce profilinize geçerli bir araç plakası ekleyin.",
+      "seatCountBelowBooked": "Koltuk sayısını {count} kişinin altına düşüremezsiniz — bu ilana zaten o kadar yolcu onaylanmış."
     },
     "status": {
       "active": "Aktif",
