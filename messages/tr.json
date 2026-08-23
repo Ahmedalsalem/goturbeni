@@ -252,7 +252,8 @@
       "language": "Dil",
       "changeAvatar": "Fotoğraf Yükle",
       "save": "Kaydet",
-      "saved": "Profil güncellendi."
+      "saved": "Profil güncellendi.",
+      "unsavedChangesConfirm": "Kaydedilmemiş değişiklikleriniz var. Kaydetmeden ayrılmak istediğinize emin misiniz?"
     },
     "phone": {
       "verified": "Doğrulandı",

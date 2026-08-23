@@ -252,7 +252,8 @@
       "language": "Language",
       "changeAvatar": "Upload Photo",
       "save": "Save",
-      "saved": "Profile updated."
+      "saved": "Profile updated.",
+      "unsavedChangesConfirm": "You have unsaved changes. Are you sure you want to leave without saving?"
     },
     "phone": {
       "verified": "Verified",

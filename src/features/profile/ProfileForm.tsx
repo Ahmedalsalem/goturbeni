@@ -77,6 +77,32 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
     return () => window.removeEventListener("beforeunload", handleBeforeUnload)
   }, [isDirty])
 
+  // App Router has no router-level navigation guard (unlike the old Pages
+  // Router's routeChangeStart), so an in-app <Link> click (header nav,
+  // footer, etc.) bypasses beforeunload entirely — it's a client-side
+  // transition, not a real page unload. Intercepting the click itself in
+  // the capture phase, ahead of Next's own Link handler, is the only way
+  // to catch it: stopPropagation keeps Next from ever starting the
+  // transition when the driver cancels.
+  useEffect(() => {
+    if (!isDirty) return
+    function handleClick(event: MouseEvent) {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+      const link = (event.target as HTMLElement)?.closest("a")
+      if (!link || link.target === "_blank" || link.hasAttribute("download")) return
+      const href = link.getAttribute("href")
+      if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return
+      const url = new URL(href, window.location.href)
+      if (url.origin !== window.location.origin || url.pathname === window.location.pathname) return
+      if (!window.confirm(t("unsavedChangesConfirm"))) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+    }
+    document.addEventListener("click", handleClick, true)
+    return () => document.removeEventListener("click", handleClick, true)
+  }, [isDirty, t])
+
   function onAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
     if (!file) return
