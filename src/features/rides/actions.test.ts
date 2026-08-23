@@ -84,6 +84,9 @@ function validRideValues(overrides: Partial<RideFormValues> = {}): RideFormValue
     instantBooking: false,
     carFeatures: [],
     customCarFeatures: [],
+    quietRide: false,
+    noLargeLuggage: false,
+    noStops: false,
     repeatWeekly: false,
     ...overrides,
   }

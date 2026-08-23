@@ -25,6 +25,9 @@ export interface Ride {
   instant_booking: boolean
   car_features: CarFeatureKey[]
   custom_car_features: string[]
+  quiet_ride: boolean
+  no_large_luggage: boolean
+  no_stops: boolean
   status: RideStatus
   series_id: string | null
   created_at: string

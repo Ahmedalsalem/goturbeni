@@ -44,7 +44,19 @@ import { toIstanbulDateInputValue, toIstanbulTimeInputValue } from "@/utils/ista
 import { CAR_FEATURE_KEYS } from "@/types/profile"
 import type { Ride } from "@/types/ride"
 
-export function RideForm({ ride }: { ride?: Ride }) {
+export function RideForm({
+  ride,
+  defaultCarFeatures,
+  defaultCustomCarFeatures,
+}: {
+  ride?: Ride
+  // Only meaningful on create — the driver's profile car features, used to
+  // pre-fill the form so they're not re-picking the same 10 checkboxes on
+  // every ride (features/profile). Ignored in edit mode, where the ride's
+  // own stored values (below) already take precedence.
+  defaultCarFeatures?: Ride["car_features"]
+  defaultCustomCarFeatures?: string[]
+}) {
   const t = useTranslations("Rides.form")
   const tValidation = useTranslations("Rides.validation")
   const tCarFeatures = useTranslations("CarFeatures")
@@ -82,8 +94,11 @@ export function RideForm({ ride }: { ride?: Ride }) {
       vipSolo: ride?.vip_solo ?? false,
       paymentMethod: ride?.payment_method ?? "bank_transfer",
       instantBooking: ride?.instant_booking ?? false,
-      carFeatures: ride?.car_features ?? [],
-      customCarFeatures: ride?.custom_car_features ?? [],
+      carFeatures: ride?.car_features ?? defaultCarFeatures ?? [],
+      customCarFeatures: ride?.custom_car_features ?? defaultCustomCarFeatures ?? [],
+      quietRide: ride?.quiet_ride ?? false,
+      noLargeLuggage: ride?.no_large_luggage ?? false,
+      noStops: ride?.no_stops ?? false,
       repeatWeekly: false,
     },
   })
@@ -451,6 +466,45 @@ export function RideForm({ ride }: { ride?: Ride }) {
               />
               <FieldLabel htmlFor="smokingAllowed" className="font-normal">
                 {t("smokingAllowed")}
+              </FieldLabel>
+            </Field>
+
+            <Field orientation="horizontal">
+              <Controller
+                control={control}
+                name="quietRide"
+                render={({ field }) => (
+                  <Checkbox id="quietRide" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
+                )}
+              />
+              <FieldLabel htmlFor="quietRide" className="font-normal">
+                {t("quietRide")}
+              </FieldLabel>
+            </Field>
+
+            <Field orientation="horizontal">
+              <Controller
+                control={control}
+                name="noLargeLuggage"
+                render={({ field }) => (
+                  <Checkbox id="noLargeLuggage" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
+                )}
+              />
+              <FieldLabel htmlFor="noLargeLuggage" className="font-normal">
+                {t("noLargeLuggage")}
+              </FieldLabel>
+            </Field>
+
+            <Field orientation="horizontal">
+              <Controller
+                control={control}
+                name="noStops"
+                render={({ field }) => (
+                  <Checkbox id="noStops" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
+                )}
+              />
+              <FieldLabel htmlFor="noStops" className="font-normal">
+                {t("noStops")}
               </FieldLabel>
             </Field>
 

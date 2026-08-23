@@ -67,6 +67,9 @@ export function buildRideSchema(t: ValidationTranslator) {
         .array(z.string().trim().min(1).max(MAX_CUSTOM_CAR_FEATURE_LENGTH, t("customCarFeatureMax")))
         .max(MAX_CUSTOM_CAR_FEATURES, t("tooManyCustomCarFeatures"))
         .default([]),
+      quietRide: z.boolean().default(false),
+      noLargeLuggage: z.boolean().default(false),
+      noStops: z.boolean().default(false),
       // Only read on create (RideForm hides it in edit mode) — the first
       // ride's own departureDate/departureTime supply the series' weekday
       // and time-of-day, so there's no separate recurrence field to fill in.
@@ -113,6 +116,9 @@ export function buildRideSchema(t: ValidationTranslator) {
             instantBooking: false,
             carFeatures: [],
             customCarFeatures: [],
+            quietRide: false,
+            noLargeLuggage: false,
+            noStops: false,
           }
         : data
     )

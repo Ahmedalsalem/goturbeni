@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, CalendarDays, Cigarette, Clock, Crown, MapPin, PawPrint, Sparkles, Users } from "lucide-react"
+import { ArrowRight, CalendarDays, Cigarette, Clock, Crown, Luggage, MapPin, PawPrint, Route, Sparkles, Users, VolumeX } from "lucide-react"
 import { getFormatter, getTranslations } from "next-intl/server"
 
 import { Badge } from "@/components/ui/badge"
@@ -78,7 +78,13 @@ export async function RideCard({
         </div>
         <div className="text-primary font-semibold">{formatCostShare(ride.cost_share, locale)}</div>
       </CardContent>
-      {(ride.pets_allowed || ride.smoking_allowed || carFeatures.length > 0 || customCarFeatures.length > 0) && (
+      {(ride.pets_allowed ||
+        ride.smoking_allowed ||
+        ride.quiet_ride ||
+        ride.no_large_luggage ||
+        ride.no_stops ||
+        carFeatures.length > 0 ||
+        customCarFeatures.length > 0) && (
         <CardContent className="flex flex-wrap gap-1.5 pt-0">
           {ride.pets_allowed && (
             <Badge variant="outline" className="gap-1">
@@ -88,6 +94,21 @@ export async function RideCard({
           {ride.smoking_allowed && (
             <Badge variant="outline" className="gap-1">
               <Cigarette className="size-3" aria-hidden="true" /> {t("smokingAllowed")}
+            </Badge>
+          )}
+          {ride.quiet_ride && (
+            <Badge variant="outline" className="gap-1">
+              <VolumeX className="size-3" aria-hidden="true" /> {t("quietRide")}
+            </Badge>
+          )}
+          {ride.no_large_luggage && (
+            <Badge variant="outline" className="gap-1">
+              <Luggage className="size-3" aria-hidden="true" /> {t("noLargeLuggage")}
+            </Badge>
+          )}
+          {ride.no_stops && (
+            <Badge variant="outline" className="gap-1">
+              <Route className="size-3" aria-hidden="true" /> {t("noStops")}
             </Badge>
           )}
           {carFeatures.map((key) => (
