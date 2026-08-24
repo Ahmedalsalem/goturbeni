@@ -29,30 +29,34 @@ export async function Footer() {
 
   return (
     <footer className="border-border/70 border-t">
-      <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-4 py-10 text-center lg:flex-row lg:flex-wrap lg:justify-between lg:gap-x-6 lg:gap-y-3 lg:text-start">
-        <div className="flex items-center gap-2 text-sm font-medium">
-          <Image src="/brand/logo-mark.png" alt="" width={20} height={20} className="size-5" />
-          GötürBeni
+      <div className="mx-auto max-w-6xl px-4 py-10">
+        <div className="flex flex-col items-center gap-6 text-center lg:flex-row lg:items-start lg:justify-between lg:text-start">
+          <div className="flex flex-col items-center gap-2 lg:items-start">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Image src="/brand/logo-mark.png" alt="" width={20} height={20} className="size-5" />
+              GötürBeni
+            </div>
+            <p className="text-muted-foreground text-sm">{t("tagline")}</p>
+          </div>
+          <nav className="flex flex-wrap items-center justify-center gap-4 text-sm lg:justify-end">
+            <Link href="/how-it-works" className="text-muted-foreground hover:text-foreground">
+              {tNav("howItWorks")}
+            </Link>
+            <Link href="/support" className="text-muted-foreground hover:text-foreground">
+              {tNav("support")}
+            </Link>
+            <Link href="/privacy" className="text-muted-foreground hover:text-foreground">
+              {t("privacyLink")}
+            </Link>
+            <Link href="/terms" className="text-muted-foreground hover:text-foreground">
+              {t("termsLink")}
+            </Link>
+            <Link href="/kvkk" className="text-muted-foreground hover:text-foreground">
+              {t("kvkkLink")}
+            </Link>
+          </nav>
         </div>
-        <p className="text-muted-foreground text-sm">{t("tagline")}</p>
-        <nav className="flex flex-wrap items-center justify-center gap-4 text-sm">
-          <Link href="/how-it-works" className="text-muted-foreground hover:text-foreground">
-            {tNav("howItWorks")}
-          </Link>
-          <Link href="/support" className="text-muted-foreground hover:text-foreground">
-            {tNav("support")}
-          </Link>
-          <Link href="/privacy" className="text-muted-foreground hover:text-foreground">
-            {t("privacyLink")}
-          </Link>
-          <Link href="/terms" className="text-muted-foreground hover:text-foreground">
-            {t("termsLink")}
-          </Link>
-          <Link href="/kvkk" className="text-muted-foreground hover:text-foreground">
-            {t("kvkkLink")}
-          </Link>
-        </nav>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-muted-foreground mt-6 text-center text-sm lg:text-start">
           © {year} GötürBeni — {t("rights")}
         </p>
       </div>
