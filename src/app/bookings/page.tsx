@@ -12,14 +12,11 @@ import { CancelBookingButton } from "@/features/bookings/CancelBookingButton"
 import { ReportNoShowButton } from "@/features/bookings/ReportNoShowButton"
 import { SettlementReceiptUpload } from "@/features/bookings/SettlementReceiptUpload"
 import { SettlePaymentButton } from "@/features/bookings/SettlePaymentButton"
+import { DisputeAgainstMeNotice } from "@/features/disputes/DisputeAgainstMeNotice"
 import { OpenDisputeButton } from "@/features/disputes/OpenDisputeButton"
-import { getMyDisputeForBooking } from "@/features/disputes/queries"
+import { getDisputeAgainstMeForBooking, getMyDisputeForBooking } from "@/features/disputes/queries"
 import { getMyPickupCode } from "@/features/pickup/queries"
-import {
-  getMyBookings,
-  getMyDriverOffers,
-  getRideCounterpartyPhone,
-} from "@/features/bookings/queries"
+import { getMyBookings, getMyDriverOffers, getRideCounterpartyPhone } from "@/features/bookings/queries"
 import { getUnreadMessages } from "@/features/chat/queries"
 import { getRideLiveLocation } from "@/features/live-location/queries"
 import { LiveLocationSection } from "@/features/live-location/LiveLocationSection"
@@ -52,30 +49,49 @@ export default async function BookingsPage() {
   // garanti eder, yolcu ilanlarında bile) — ama tip artık nullable (Faz 2A),
   // bu yüzden aşağıdaki her kullanım yerinde savunmacı bir null kontrolü var.
   const completedBookings = bookings.filter(
-    (booking) => booking.status === "approved" && booking.ride.driver_id !== null && new Date(booking.ride.departure_time) < new Date()
+    (booking) =>
+      booking.status === "approved" &&
+      booking.ride.driver_id !== null &&
+      new Date(booking.ride.departure_time) < new Date()
   )
   const myReviews = await Promise.all(
     completedBookings.map((booking) => getMyReviewForRide(booking.ride.id, user.id, booking.ride.driver_id!))
   )
-  const reviewedRideIds = new Set(completedBookings.filter((_, index) => myReviews[index]).map((booking) => booking.ride.id))
+  const reviewedRideIds = new Set(
+    completedBookings.filter((_, index) => myReviews[index]).map((booking) => booking.ride.id)
+  )
   const approvedBookings = bookings.filter((booking) => booking.status === "approved")
-  const upcomingApprovedBookings = approvedBookings.filter((booking) => new Date(booking.ride.departure_time) >= new Date())
+  const upcomingApprovedBookings = approvedBookings.filter(
+    (booking) => new Date(booking.ride.departure_time) >= new Date()
+  )
   const driverPhones = new Map(
     await Promise.all(
       approvedBookings
         .filter((booking) => booking.ride.driver_id !== null)
         .map(
-          async (booking) => [booking.ride.id, await getRideCounterpartyPhone(booking.ride.id, booking.ride.driver_id!)] as const
+          async (booking) =>
+            [booking.ride.id, await getRideCounterpartyPhone(booking.ride.id, booking.ride.driver_id!)] as const
         )
     )
   )
   const liveLocations = new Map(
     await Promise.all(
-      upcomingApprovedBookings.map(async (booking) => [booking.ride.id, await getRideLiveLocation(booking.ride.id)] as const)
+      upcomingApprovedBookings.map(
+        async (booking) => [booking.ride.id, await getRideLiveLocation(booking.ride.id)] as const
+      )
     )
   )
   const myDisputes = new Map(
-    await Promise.all(approvedBookings.map(async (booking) => [booking.id, await getMyDisputeForBooking(booking.id, user.id)] as const))
+    await Promise.all(
+      approvedBookings.map(async (booking) => [booking.id, await getMyDisputeForBooking(booking.id, user.id)] as const)
+    )
+  )
+  const disputesAgainstMe = new Map(
+    await Promise.all(
+      approvedBookings.map(
+        async (booking) => [booking.id, await getDisputeAgainstMeForBooking(booking.id, user.id)] as const
+      )
+    )
   )
   const pickupCodes = new Map(
     await Promise.all(approvedBookings.map(async (booking) => [booking.id, await getMyPickupCode(booking.id)] as const))
@@ -98,12 +114,19 @@ export default async function BookingsPage() {
               <Card key={booking.id}>
                 <CardHeader className="flex items-center justify-between gap-4">
                   <Link href={`/rides/${booking.ride.id}`} className="font-semibold hover:underline">
-                    {getProvinceDisplayName(booking.ride.departure_city, locale)} → {getProvinceDisplayName(booking.ride.arrival_city, locale)}
+                    {getProvinceDisplayName(booking.ride.departure_city, locale)} →{" "}
+                    {getProvinceDisplayName(booking.ride.arrival_city, locale)}
                   </Link>
                   <BookingStatusBadge status={booking.status} />
                 </CardHeader>
                 <CardContent className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
-                  <div>{format.dateTime(new Date(booking.ride.departure_time), { day: "2-digit", month: "2-digit", year: "numeric" })}</div>
+                  <div>
+                    {format.dateTime(new Date(booking.ride.departure_time), {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })}
+                  </div>
                   <div>{tCard("seatCount", { count: booking.seat_count })}</div>
                   <div className="font-medium">{formatCostShare(booking.ride.cost_share, locale)}</div>
                   {driverPhone && (
@@ -112,9 +135,17 @@ export default async function BookingsPage() {
                     </a>
                   )}
                 </CardContent>
+                {booking.status === "approved" && disputesAgainstMe.get(booking.id) && (
+                  <CardFooter>
+                    <DisputeAgainstMeNotice dispute={disputesAgainstMe.get(booking.id)!} />
+                  </CardFooter>
+                )}
                 {booking.status === "approved" && !isCompleted && (
                   <CardFooter>
-                    <LiveLocationSection rideId={booking.ride.id} initialLocation={liveLocations.get(booking.ride.id) ?? null} />
+                    <LiveLocationSection
+                      rideId={booking.ride.id}
+                      initialLocation={liveLocations.get(booking.ride.id) ?? null}
+                    />
                   </CardFooter>
                 )}
                 {booking.status === "approved" &&
@@ -134,25 +165,35 @@ export default async function BookingsPage() {
                   <CardFooter className="flex flex-wrap items-center gap-2">
                     <CancelBookingButton bookingId={booking.id} rideId={booking.ride.id} />
                     {booking.status === "approved" && (
-                      <Link href={`/rides/${booking.ride.id}/chat`} className={buttonVariants({ variant: "outline", size: "sm", className: "relative" })}>
+                      <Link
+                        href={`/rides/${booking.ride.id}/chat`}
+                        className={buttonVariants({ variant: "outline", size: "sm", className: "relative" })}
+                      >
                         <MessageCircle className="size-4" aria-hidden="true" />
                         {t("chat")}
                         {unreadMessages.rideIds.has(booking.ride.id) && (
-                          <span className="bg-destructive ring-background absolute -end-1 -top-1 size-2.5 rounded-full ring-2" aria-hidden="true" />
+                          <span
+                            className="bg-destructive ring-background absolute -end-1 -top-1 size-2.5 rounded-full ring-2"
+                            aria-hidden="true"
+                          />
                         )}
                       </Link>
                     )}
-                    {isCompleted && booking.payment_status === "awaiting_settlement" && !booking.passenger_settled_at && (
-                      <SettlePaymentButton bookingId={booking.id} rideId={booking.ride.id} />
-                    )}
-                    {isCompleted && booking.payment_status !== "settled" && booking.ride.payment_methods.includes("bank_transfer") && (
-                      <SettlementReceiptUpload
-                        bookingId={booking.id}
-                        rideId={booking.ride.id}
-                        status={booking.settlement_receipt_status}
-                        rejectReason={booking.settlement_receipt_reject_reason}
-                      />
-                    )}
+                    {isCompleted &&
+                      booking.payment_status === "awaiting_settlement" &&
+                      !booking.passenger_settled_at && (
+                        <SettlePaymentButton bookingId={booking.id} rideId={booking.ride.id} />
+                      )}
+                    {isCompleted &&
+                      booking.payment_status !== "settled" &&
+                      booking.ride.payment_methods.includes("bank_transfer") && (
+                        <SettlementReceiptUpload
+                          bookingId={booking.id}
+                          rideId={booking.ride.id}
+                          status={booking.settlement_receipt_status}
+                          rejectReason={booking.settlement_receipt_reject_reason}
+                        />
+                      )}
                     {isCompleted &&
                       (reviewedRideIds.has(booking.ride.id) ? (
                         <Badge variant="secondary">{tReviewActions("alreadyReviewed")}</Badge>
@@ -169,7 +210,9 @@ export default async function BookingsPage() {
                           label={tBookingActions("reportDriverNoShow")}
                         />
                       ))}
-                    {booking.status === "approved" && <OpenDisputeButton bookingId={booking.id} alreadyOpen={!!myDisputes.get(booking.id)} />}
+                    {booking.status === "approved" && (
+                      <OpenDisputeButton bookingId={booking.id} alreadyOpen={!!myDisputes.get(booking.id)} />
+                    )}
                   </CardFooter>
                 )}
               </Card>
@@ -185,18 +228,28 @@ export default async function BookingsPage() {
             <Card key={offer.id}>
               <CardHeader className="flex items-center justify-between gap-4">
                 <Link href={`/rides/${offer.ride.id}`} className="font-semibold hover:underline">
-                  {getProvinceDisplayName(offer.ride.departure_city, locale)} → {getProvinceDisplayName(offer.ride.arrival_city, locale)}
+                  {getProvinceDisplayName(offer.ride.departure_city, locale)} →{" "}
+                  {getProvinceDisplayName(offer.ride.arrival_city, locale)}
                 </Link>
                 <BookingStatusBadge status={offer.status} />
               </CardHeader>
               <CardContent className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
-                <div>{format.dateTime(new Date(offer.ride.departure_time), { day: "2-digit", month: "2-digit", year: "numeric" })}</div>
+                <div>
+                  {format.dateTime(new Date(offer.ride.departure_time), {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })}
+                </div>
                 <div className="font-medium">{formatCostShare(offer.ride.cost_share, locale)}</div>
               </CardContent>
               <CardFooter className="flex flex-wrap items-center gap-2">
                 {offer.status === "pending" && <CancelBookingButton bookingId={offer.id} rideId={offer.ride.id} />}
                 {offer.status === "approved" && (
-                  <Link href={`/rides/${offer.ride.id}/bookings`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                  <Link
+                    href={`/rides/${offer.ride.id}/bookings`}
+                    className={buttonVariants({ variant: "outline", size: "sm" })}
+                  >
                     {tBookingActions("manageOffer")}
                   </Link>
                 )}

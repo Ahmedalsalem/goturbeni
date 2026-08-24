@@ -12,7 +12,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { openDispute } from "@/features/disputes/actions"
 import type { ManualDisputeReason } from "@/types/dispute"
 
-const DISPUTE_REASONS: ManualDisputeReason[] = ["payment_not_received", "payment_amount_mismatch", "service_not_as_described", "safety_concern", "other"]
+const DISPUTE_REASONS: ManualDisputeReason[] = [
+  "payment_not_received",
+  "payment_amount_mismatch",
+  "service_not_as_described",
+  "safety_concern",
+  "other",
+]
 
 // Lets either party on a booking (passenger or driver) formally report a
 // problem — open_dispute (0044_disputes.sql) works out who the complaint is

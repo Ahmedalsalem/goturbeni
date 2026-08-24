@@ -35,7 +35,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <nav className="flex items-center gap-1">
           {links.map((link) => (
-            <Link key={link.href} href={link.href} className={buttonVariants({ variant: "ghost", className: "gap-1.5" })}>
+            <Link
+              key={link.href}
+              href={link.href}
+              className={buttonVariants({ variant: "ghost", className: "gap-1.5" })}
+            >
               <link.icon className="size-4" aria-hidden="true" />
               {link.label}
             </Link>

@@ -28,7 +28,10 @@ vi.mock("next/headers", () => ({
 }))
 
 vi.mock("next-intl/server", () => ({
-  getTranslations: async ({ namespace }: { namespace: string }) => (key: string) => `${namespace}.${key}`,
+  getTranslations:
+    async ({ namespace }: { namespace: string }) =>
+    (key: string) =>
+      `${namespace}.${key}`,
 }))
 
 import { adminSetDisputeStatus, openDispute } from "@/features/disputes/actions"
@@ -58,7 +61,10 @@ describe("disputes/actions", () => {
 
     it("calls open_dispute with the booking id, reason, and description", async () => {
       rpcMock.mockResolvedValue({ data: "dispute-1", error: null })
-      const result = await openDispute("booking-1", { reason: "payment_not_received", description: "Ödemeyi gönderdim ama onaylanmadı." })
+      const result = await openDispute("booking-1", {
+        reason: "payment_not_received",
+        description: "Ödemeyi gönderdim ama onaylanmadı.",
+      })
       expect(result.success).toBe(true)
       expect(rpcMock).toHaveBeenCalledWith("open_dispute", {
         p_booking_id: "booking-1",
@@ -69,13 +75,19 @@ describe("disputes/actions", () => {
 
     it("surfaces a friendly error when a dispute is already open", async () => {
       rpcMock.mockResolvedValue({ data: null, error: { message: "dispute_already_open" } })
-      const result = await openDispute("booking-1", { reason: "other", description: "Ödemeyi gönderdim ama onaylanmadı." })
+      const result = await openDispute("booking-1", {
+        reason: "other",
+        description: "Ödemeyi gönderdim ama onaylanmadı.",
+      })
       expect(result.error).toBe("Disputes.errors.alreadyOpen")
     })
 
     it("surfaces a friendly error when the caller isn't a party to the booking", async () => {
       rpcMock.mockResolvedValue({ data: null, error: { message: "not_authorized" } })
-      const result = await openDispute("booking-1", { reason: "other", description: "Ödemeyi gönderdim ama onaylanmadı." })
+      const result = await openDispute("booking-1", {
+        reason: "other",
+        description: "Ödemeyi gönderdim ama onaylanmadı.",
+      })
       expect(result.error).toBe("Disputes.errors.notAuthorized")
     })
   })

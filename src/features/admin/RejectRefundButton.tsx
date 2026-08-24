@@ -48,7 +48,11 @@ export function RejectRefundButton({ bookingId }: { bookingId: string }) {
             {t("cancel")}
           </Button>
           <Button size="sm" variant="outline" onClick={onReject} disabled={isPending}>
-            {isPending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <X className="size-4" aria-hidden="true" />}
+            {isPending ? (
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <X className="size-4" aria-hidden="true" />
+            )}
             {t("confirmReject")}
           </Button>
         </div>

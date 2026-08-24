@@ -88,11 +88,24 @@ describe("buildAuthSchemas", () => {
       expect(result.success).toBe(false)
     })
 
+    // Builds a "YYYY-MM-DD" string from a Date's LOCAL y/m/d components —
+    // toISOString() converts to UTC first, which shifts the calendar day on
+    // any machine not running in UTC and made this test flake depending on
+    // the runner's timezone and time of day (see isAtLeastAge's comment in
+    // schemas.ts for the same underlying issue in the production code this
+    // fixed).
+    function localIsoDate(date: Date): string {
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, "0")
+      const day = String(date.getDate()).padStart(2, "0")
+      return `${year}-${month}-${day}`
+    }
+
     it("rejects someone who turns 18 tomorrow", () => {
       const almostEighteen = new Date()
       almostEighteen.setFullYear(almostEighteen.getFullYear() - 18)
       almostEighteen.setDate(almostEighteen.getDate() + 1)
-      const result = signUpSchema.safeParse(validSignUp({ dateOfBirth: almostEighteen.toISOString().slice(0, 10) }))
+      const result = signUpSchema.safeParse(validSignUp({ dateOfBirth: localIsoDate(almostEighteen) }))
       expect(result.success).toBe(false)
     })
 
@@ -100,7 +113,7 @@ describe("buildAuthSchemas", () => {
       const justEighteen = new Date()
       justEighteen.setFullYear(justEighteen.getFullYear() - 18)
       justEighteen.setDate(justEighteen.getDate() - 1)
-      const result = signUpSchema.safeParse(validSignUp({ dateOfBirth: justEighteen.toISOString().slice(0, 10) }))
+      const result = signUpSchema.safeParse(validSignUp({ dateOfBirth: localIsoDate(justEighteen) }))
       expect(result.success).toBe(true)
     })
 

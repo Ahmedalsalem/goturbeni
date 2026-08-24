@@ -79,7 +79,11 @@ export async function cancelRideAsAdmin(rideId: string): Promise<AdminActionStat
 
 // Same authorization shape — admin_review_settlement_receipt is the sole
 // enforcement point (0025_settlement_receipts_and_reject_reasons.sql).
-export async function reviewSettlementReceipt(bookingId: string, approved: boolean, reason?: string): Promise<AdminActionState> {
+export async function reviewSettlementReceipt(
+  bookingId: string,
+  approved: boolean,
+  reason?: string
+): Promise<AdminActionState> {
   const tErrors = await getAdminErrorTranslator()
   if (!isSupabaseConfigured()) {
     return { error: tErrors("notConfigured") }
@@ -87,7 +91,11 @@ export async function reviewSettlementReceipt(bookingId: string, approved: boole
 
   await verifySession()
   const supabase = await createClient()
-  const { error } = await supabase.rpc("admin_review_settlement_receipt", { p_booking_id: bookingId, p_approved: approved, p_reason: reason ?? null })
+  const { error } = await supabase.rpc("admin_review_settlement_receipt", {
+    p_booking_id: bookingId,
+    p_approved: approved,
+    p_reason: reason ?? null,
+  })
 
   if (error) {
     if (error.message.includes("not_admin")) {
@@ -165,7 +173,10 @@ export async function rejectRefundProof(bookingId: string, reason?: string): Pro
 
   await verifySession()
   const supabase = await createClient()
-  const { error } = await supabase.rpc("admin_reject_refund_proof", { p_booking_id: bookingId, p_reason: reason ?? null })
+  const { error } = await supabase.rpc("admin_reject_refund_proof", {
+    p_booking_id: bookingId,
+    p_reason: reason ?? null,
+  })
 
   if (error) {
     if (error.message.includes("not_admin")) {

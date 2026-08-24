@@ -4,13 +4,40 @@ import { createClient } from "@/lib/supabase/server"
 import type { Booking, BookingStatus } from "@/types/booking"
 import type { RideWithDriver } from "@/types/ride"
 
-const ADMIN_LIST_LIMIT = 100
+// Was a flat 100-row cap with no way to reach anything past it — on a
+// pending-work queue (refunds/settlements) that means the oldest, most
+// overdue rows are exactly the ones that silently disappear once volume
+// grows (found in a post-launch audit). Paginated instead: PAGE_SIZE per
+// page, callers get hasMore back to render a pager.
+const ADMIN_PAGE_SIZE = 50
 const RIDE_WITH_DRIVER_SELECT = "*, driver:profiles!rides_driver_id_fkey(full_name, avatar_url)"
 const BOOKING_STATUSES: BookingStatus[] = ["pending", "approved", "rejected", "cancelled"]
 const TREND_DAYS = 7
 
+export interface AdminPage<T> {
+  rows: T[]
+  hasMore: boolean
+}
+
+// Fetches one row past the page so hasMore is known without a separate
+// (expensive on a growing table) exact-count query — split() below trims
+// that extra row back off before returning to the caller.
+function overfetchRangeFor(page: number): [number, number] {
+  const start = (page - 1) * ADMIN_PAGE_SIZE
+  return [start, start + ADMIN_PAGE_SIZE]
+}
+
+function splitPage<T>(overfetched: T[]): AdminPage<T> {
+  return { rows: overfetched.slice(0, ADMIN_PAGE_SIZE), hasMore: overfetched.length > ADMIN_PAGE_SIZE }
+}
+
 export interface AdminBookingRow extends Booking {
-  passenger: { id: string; full_name: string | null; created_at: string; admin_flags: { is_suspended: boolean } | null } | null
+  passenger: {
+    id: string
+    full_name: string | null
+    created_at: string
+    admin_flags: { is_suspended: boolean } | null
+  } | null
   ride: { departure_city: string; arrival_city: string; driver: { full_name: string | null } | null }
 }
 
@@ -23,38 +50,40 @@ const ADMIN_BOOKING_SELECT =
 // Refunds where the driver already uploaded proof and it's waiting on an
 // admin to confirm — see submit_refund_proof/admin_confirm_refund
 // (0021_cancellation_refunds.sql).
-export async function getPendingRefunds(): Promise<AdminBookingRow[]> {
+export async function getPendingRefunds(page: number = 1): Promise<AdminPage<AdminBookingRow>> {
   const supabase = await createClient()
   const { data } = await supabase
     .from("bookings")
     .select(ADMIN_BOOKING_SELECT)
     .eq("refund_status", "proof_submitted")
     .order("refund_requested_at", { ascending: true })
-    .limit(ADMIN_LIST_LIMIT)
+    .range(...overfetchRangeFor(page))
 
-  return (data as unknown as AdminBookingRow[] | null) ?? []
+  return splitPage((data as unknown as AdminBookingRow[] | null) ?? [])
 }
 
 // Settlement (post-trip full-fare) receipts a passenger uploaded but
 // nobody has reviewed yet — see submit_settlement_receipt/
 // admin_review_settlement_receipt (0025_settlement_receipts_and_reject_reasons.sql).
-export async function getPendingSettlementReceipts(): Promise<AdminBookingRow[]> {
+export async function getPendingSettlementReceipts(page: number = 1): Promise<AdminPage<AdminBookingRow>> {
   const supabase = await createClient()
   const { data } = await supabase
     .from("bookings")
     .select(ADMIN_BOOKING_SELECT)
     .eq("settlement_receipt_status", "pending")
     .order("settlement_receipt_reviewed_at", { ascending: true, nullsFirst: true })
-    .limit(ADMIN_LIST_LIMIT)
+    .range(...overfetchRangeFor(page))
 
-  return (data as unknown as AdminBookingRow[] | null) ?? []
+  return splitPage((data as unknown as AdminBookingRow[] | null) ?? [])
 }
 
 // Lets an admin visually cross-check the driver's registered IBAN/holder
 // name against an uploaded receipt while reviewing it — profiles_private has
 // no admin bypass (see AdminUserRow above), so this goes through a scoped
 // security-definer RPC instead (admin_get_driver_payment_info, 0025).
-export async function getDriverPaymentInfoForAdmin(bookingId: string): Promise<{ iban: string; iban_holder_name: string } | null> {
+export async function getDriverPaymentInfoForAdmin(
+  bookingId: string
+): Promise<{ iban: string; iban_holder_name: string } | null> {
   const supabase = await createClient()
   const { data } = await supabase.rpc("admin_get_driver_payment_info", { p_booking_id: bookingId }).maybeSingle()
   const row = data as { iban: string | null; iban_holder_name: string | null } | null
@@ -117,46 +146,54 @@ export interface AdminUserRow {
 // admin_flags is 1:1 with profiles (PK doubles as FK), so PostgREST embeds
 // it as a single object (or null), same pattern as
 // features/profile/queries.ts's profiles_private embed.
-export async function getAdminUsers(): Promise<AdminUserRow[]> {
+export async function getAdminUsers(page: number = 1): Promise<AdminPage<AdminUserRow>> {
   const supabase = await createClient()
   const { data } = await supabase
     .from("profiles")
     .select("id, full_name, avatar_url, created_at, admin_flags(is_admin, is_suspended)")
     .order("created_at", { ascending: false })
-    .limit(ADMIN_LIST_LIMIT)
+    .range(...overfetchRangeFor(page))
 
-  const rows =
-    (data as unknown as {
-      id: string
-      full_name: string | null
-      avatar_url: string | null
-      created_at: string
-      admin_flags: { is_admin: boolean; is_suspended: boolean } | null
-    }[] | null) ?? []
+  const overfetched =
+    (data as unknown as
+      | {
+          id: string
+          full_name: string | null
+          avatar_url: string | null
+          created_at: string
+          admin_flags: { is_admin: boolean; is_suspended: boolean } | null
+        }[]
+      | null) ?? []
+  const { rows, hasMore } = splitPage(overfetched)
 
   const { data: emailRows } = await supabase.rpc("admin_get_user_emails", { p_user_ids: rows.map((row) => row.id) })
-  const emailsById = new Map(((emailRows as { id: string; email: string | null }[] | null) ?? []).map((row) => [row.id, row.email]))
+  const emailsById = new Map(
+    ((emailRows as { id: string; email: string | null }[] | null) ?? []).map((row) => [row.id, row.email])
+  )
 
-  return rows.map((row) => ({
-    id: row.id,
-    full_name: row.full_name,
-    avatar_url: row.avatar_url,
-    created_at: row.created_at,
-    is_admin: row.admin_flags?.is_admin ?? false,
-    is_suspended: row.admin_flags?.is_suspended ?? false,
-    email: emailsById.get(row.id) ?? null,
-  }))
+  return {
+    hasMore,
+    rows: rows.map((row) => ({
+      id: row.id,
+      full_name: row.full_name,
+      avatar_url: row.avatar_url,
+      created_at: row.created_at,
+      is_admin: row.admin_flags?.is_admin ?? false,
+      is_suspended: row.admin_flags?.is_suspended ?? false,
+      email: emailsById.get(row.id) ?? null,
+    })),
+  }
 }
 
-export async function getAdminRides(): Promise<RideWithDriver[]> {
+export async function getAdminRides(page: number = 1): Promise<AdminPage<RideWithDriver>> {
   const supabase = await createClient()
   const { data } = await supabase
     .from("rides")
     .select(RIDE_WITH_DRIVER_SELECT)
     .order("created_at", { ascending: false })
-    .limit(ADMIN_LIST_LIMIT)
+    .range(...overfetchRangeFor(page))
 
-  return (data as RideWithDriver[] | null) ?? []
+  return splitPage((data as RideWithDriver[] | null) ?? [])
 }
 
 export interface AdminStats {
@@ -215,7 +252,11 @@ export async function getAdminStats(): Promise<AdminStats> {
     supabase.from("profiles").select("id", { count: "exact", head: true }).gte("created_at", thirtyDaysAgo),
     supabase.from("rides").select("id", { count: "exact", head: true }).gte("created_at", sevenDaysAgo),
     supabase.from("rides").select("id", { count: "exact", head: true }).gte("created_at", thirtyDaysAgo),
-    Promise.all(BOOKING_STATUSES.map((status) => supabase.from("bookings").select("id", { count: "exact", head: true }).eq("status", status))),
+    Promise.all(
+      BOOKING_STATUSES.map((status) =>
+        supabase.from("bookings").select("id", { count: "exact", head: true }).eq("status", status)
+      )
+    ),
     supabase.from("rides").select("created_at").gte("created_at", sevenDaysAgo),
   ])
 

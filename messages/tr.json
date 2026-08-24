@@ -807,6 +807,10 @@
       "submit": "Gönder",
       "alreadyOpenBadge": "Bildirildi, inceleniyor"
     },
+    "againstMe": {
+      "title": "Hakkınızda bir şikayet açıldı",
+      "description": "Bu rezervasyon için \"{reason}\" gerekçesiyle bir şikayet bildirildi ve ekibimiz inceliyor. Konuyla ilgili eklemek istediğiniz bir açıklama varsa novarodigitalstudio@gmail.com adresinden bize ulaşabilirsiniz."
+    },
     "status": {
       "open": "Açık",
       "in_review": "İnceleniyor",
@@ -973,12 +977,23 @@
         "no_show": "Gelmedi (No-Show)",
         "other": "Diğer"
       },
+      "paymentStatusLabel": "Ödeme Durumu",
+      "paymentStatus": {
+        "awaiting_settlement": "Ödeme Bekleniyor",
+        "settled": "Ödendi"
+      },
+      "driverIbanLabel": "Sürücü IBAN",
       "resolutionNoteLabel": "Sonuç Notu",
       "resolutionNotePlaceholder": "Sonuç notu (isteğe bağlı, taraflara gösterilir)",
       "startReview": "İncelemeye Al",
       "dismiss": "Reddet",
       "resolve": "Çözüldü Olarak Kapat",
       "statusUpdated": "Anlaşmazlık durumu güncellendi."
+    },
+    "pager": {
+      "previous": "Önceki",
+      "next": "Sonraki",
+      "pageLabel": "Sayfa {page}"
     },
     "errors": {
       "notConfigured": "Veritabanı bağlantısı şu anda yapılandırılmamış. Lütfen daha sonra tekrar deneyin.",
@@ -1067,6 +1082,7 @@
           "heading": "Kullanıcı Yükümlülükleri",
           "body": [
             "Platforma kayıt olurken verdiğiniz ad, e-posta, telefon numarası ve diğer profil bilgilerinin doğru, güncel ve size ait olduğunu kabul edersiniz.",
+            "Platformu kullanabilmek için en az 18 yaşında olmanız gerekir.",
             "Aşağıdaki davranışlar yasaktır:"
           ],
           "items": [
@@ -1202,11 +1218,19 @@
           "heading": "İşlenen Kişisel Veri Kategorileri",
           "body": ["Platform üzerinden aşağıdaki kategorilerde kişisel verileriniz işlenmektedir:"],
           "items": [
-            "Kimlik verisi: ad, soyad",
+            "Kimlik verisi: ad, soyad, doğum tarihi, cinsiyet",
             "İletişim verisi: e-posta adresi, telefon numarası",
+            "Finansal veri: sürücü olarak ilan verirken sağladığınız IBAN ve hesap sahibi adı",
             "Konum/seyahat verisi: kalkış ve varış şehri, yolculuk tarihi, koltuk sayısı, masraf paylaşım tutarı",
             "İşlem güvenliği verisi: hesap oluşturma ve oturum açma kayıtları, IP adresi ve benzeri teknik erişim bilgileri"
           ]
+        },
+        "retention": {
+          "heading": "Saklama Süresi",
+          "body": [
+            "Kişisel verileriniz, hesabınız aktif olduğu sürece ve yukarıda belirtilen amaçların gerektirdiği süre boyunca saklanır. Hesabınızı sildiğinizde verileriniz, yasal saklama yükümlülükleri ve diğer kullanıcıların hakları saklı kalmak kaydıyla makul bir süre içinde silinir veya anonim hale getirilir."
+          ],
+          "items": []
         },
         "purposes": {
           "heading": "Kişisel Verilerin İşlenme Amaçları",

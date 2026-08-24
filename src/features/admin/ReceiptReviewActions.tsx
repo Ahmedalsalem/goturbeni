@@ -52,7 +52,11 @@ export function ReceiptReviewActions({
             {t("cancel")}
           </Button>
           <Button size="sm" variant="outline" onClick={() => review(false)} disabled={isPending}>
-            {isPending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <X className="size-4" aria-hidden="true" />}
+            {isPending ? (
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <X className="size-4" aria-hidden="true" />
+            )}
             {t("confirmReject")}
           </Button>
         </div>
@@ -67,7 +71,11 @@ export function ReceiptReviewActions({
         {t("reject")}
       </Button>
       <Button size="sm" onClick={() => review(true)} disabled={isPending}>
-        {isPending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <Check className="size-4" aria-hidden="true" />}
+        {isPending ? (
+          <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+        ) : (
+          <Check className="size-4" aria-hidden="true" />
+        )}
         {t("approve")}
       </Button>
     </div>

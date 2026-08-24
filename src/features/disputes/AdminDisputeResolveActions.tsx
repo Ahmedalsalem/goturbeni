@@ -44,7 +44,11 @@ export function AdminDisputeResolveActions({ disputeId, status }: { disputeId: s
       <div className="flex flex-wrap justify-end gap-2">
         {status === "open" && (
           <Button size="sm" variant="outline" onClick={() => setStatus("in_review")} disabled={isPending}>
-            {isPending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}
+            {isPending ? (
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <Eye className="size-4" aria-hidden="true" />
+            )}
             {t("startReview")}
           </Button>
         )}

@@ -17,8 +17,9 @@ import { RefundProofUpload } from "@/features/bookings/RefundProofUpload"
 import { ReportNoShowButton } from "@/features/bookings/ReportNoShowButton"
 import { SettlePaymentButton } from "@/features/bookings/SettlePaymentButton"
 import { SettlementReceiptUpload } from "@/features/bookings/SettlementReceiptUpload"
+import { DisputeAgainstMeNotice } from "@/features/disputes/DisputeAgainstMeNotice"
 import { OpenDisputeButton } from "@/features/disputes/OpenDisputeButton"
-import { getMyDisputeForBooking } from "@/features/disputes/queries"
+import { getDisputeAgainstMeForBooking, getMyDisputeForBooking } from "@/features/disputes/queries"
 import { VerifyPickupCodeForm } from "@/features/pickup/VerifyPickupCodeForm"
 import { getPickupVerificationStatus } from "@/features/pickup/queries"
 import { getProfile } from "@/features/profile/queries"
@@ -132,6 +133,13 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
       approvedBookings.map(async (booking) => [booking.id, await getMyDisputeForBooking(booking.id, user.id)] as const)
     )
   )
+  const disputesAgainstMe = new Map(
+    await Promise.all(
+      approvedBookings.map(
+        async (booking) => [booking.id, await getDisputeAgainstMeForBooking(booking.id, user.id)] as const
+      )
+    )
+  )
   const pickupVerified = new Map(
     await Promise.all(
       approvedBookings.map(async (booking) => [booking.id, await getPickupVerificationStatus(booking.id)] as const)
@@ -239,6 +247,11 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                       refundStatus={booking.refund_status}
                       rejectReason={booking.refund_reject_reason}
                     />
+                  </CardFooter>
+                )}
+                {isApproved && disputesAgainstMe.get(booking.id) && (
+                  <CardFooter>
+                    <DisputeAgainstMeNotice dispute={disputesAgainstMe.get(booking.id)!} />
                   </CardFooter>
                 )}
                 {isApproved &&

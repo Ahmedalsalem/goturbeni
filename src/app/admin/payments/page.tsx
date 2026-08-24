@@ -6,6 +6,7 @@ import { getFormatter, getTranslations } from "next-intl/server"
 import { EmptyState } from "@/components/EmptyState"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { AdminPager } from "@/features/admin/AdminPager"
 import { BulkApproveReceiptsButton } from "@/features/admin/BulkApproveReceiptsButton"
 import { ConfirmRefundButton } from "@/features/admin/ConfirmRefundButton"
 import { RejectRefundButton } from "@/features/admin/RejectRefundButton"
@@ -42,13 +43,25 @@ function RiskBadge({ tier, label }: { tier: ReceiptRiskTier; label: string }) {
   return <Badge variant={tier === "low" ? "secondary" : "warning"}>{label}</Badge>
 }
 
-export default async function AdminPaymentsPage() {
+export default async function AdminPaymentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
   const t = await getTranslations("Admin.payments")
   const format = await getFormatter()
   const locale = await getUserLocale()
-  const [pendingSettlements, pendingRefunds, suspiciousAccounts, disputedUserIds] = await Promise.all([
-    getPendingSettlementReceipts(),
-    getPendingRefunds(),
+  const resolvedSearchParams = await searchParams
+  const settlementsPage = Math.max(1, Number(resolvedSearchParams.settlementsPage) || 1)
+  const refundsPage = Math.max(1, Number(resolvedSearchParams.refundsPage) || 1)
+  const [
+    { rows: pendingSettlements, hasMore: settlementsHasMore },
+    { rows: pendingRefunds, hasMore: refundsHasMore },
+    suspiciousAccounts,
+    disputedUserIds,
+  ] = await Promise.all([
+    getPendingSettlementReceipts(settlementsPage),
+    getPendingRefunds(refundsPage),
     getSuspiciousAccounts(),
     getUserIdsWithOpenDisputes(),
   ])
@@ -68,16 +81,24 @@ export default async function AdminPaymentsPage() {
     })
   }
 
-  const settlementRiskTiers = pendingSettlements.map((booking) => riskTierFor(booking, booking.settlement_receipt_reject_count))
-  const lowRiskSettlementIds = pendingSettlements.filter((_, index) => settlementRiskTiers[index] === "low").map((booking) => booking.id)
+  const settlementRiskTiers = pendingSettlements.map((booking) =>
+    riskTierFor(booking, booking.settlement_receipt_reject_count)
+  )
+  const lowRiskSettlementIds = pendingSettlements
+    .filter((_, index) => settlementRiskTiers[index] === "low")
+    .map((booking) => booking.id)
 
   const settlementReceiptUrls = await Promise.all(
-    pendingSettlements.map((booking) => (booking.settlement_receipt_url ? getSignedReceiptUrl(booking.settlement_receipt_url) : null))
+    pendingSettlements.map((booking) =>
+      booking.settlement_receipt_url ? getSignedReceiptUrl(booking.settlement_receipt_url) : null
+    )
   )
   // Shown next to each pending settlement receipt so the admin can eyeball
   // the IBAN holder name against the uploaded receipt — there's no bank API
   // verifying the two actually match (see README → Bilinen Sınırlamalar).
-  const driverPaymentInfos = await Promise.all(pendingSettlements.map((booking) => getDriverPaymentInfoForAdmin(booking.id)))
+  const driverPaymentInfos = await Promise.all(
+    pendingSettlements.map((booking) => getDriverPaymentInfoForAdmin(booking.id))
+  )
   const refundProofUrls = await Promise.all(
     pendingRefunds.map((booking) => (booking.refund_proof_url ? getSignedReceiptUrl(booking.refund_proof_url) : null))
   )
@@ -104,13 +125,19 @@ export default async function AdminPaymentsPage() {
                   <div>
                     <div className="flex items-center gap-2">
                       <p className="font-medium">{booking.passenger?.full_name ?? t("unknownUser")}</p>
-                      <RiskBadge tier={settlementRiskTiers[index]} label={settlementRiskTiers[index] === "low" ? t("riskLow") : t("riskHigh")} />
+                      <RiskBadge
+                        tier={settlementRiskTiers[index]}
+                        label={settlementRiskTiers[index] === "low" ? t("riskLow") : t("riskHigh")}
+                      />
                     </div>
                     <RouteLabel booking={booking} locale={locale} />
-                    <p className="text-muted-foreground text-xs">{t("driverLabel")}: {booking.ride.driver?.full_name ?? t("unknownUser")}</p>
+                    <p className="text-muted-foreground text-xs">
+                      {t("driverLabel")}: {booking.ride.driver?.full_name ?? t("unknownUser")}
+                    </p>
                     {driverPaymentInfos[index] && (
                       <p className="text-muted-foreground text-xs">
-                        {t("driverIbanLabel")}: <span className="font-mono">{driverPaymentInfos[index]!.iban}</span> ({driverPaymentInfos[index]!.iban_holder_name})
+                        {t("driverIbanLabel")}: <span className="font-mono">{driverPaymentInfos[index]!.iban}</span> (
+                        {driverPaymentInfos[index]!.iban_holder_name})
                       </p>
                     )}
                   </div>
@@ -132,6 +159,12 @@ export default async function AdminPaymentsPage() {
             ))}
           </div>
         )}
+        <AdminPager
+          page={settlementsPage}
+          hasMore={settlementsHasMore}
+          paramName="settlementsPage"
+          currentSearchParams={resolvedSearchParams}
+        />
       </div>
 
       <div>
@@ -144,16 +177,28 @@ export default async function AdminPaymentsPage() {
               <Card key={booking.id}>
                 <CardContent className="flex flex-wrap items-center justify-between gap-4">
                   <div>
-                    <p className="font-medium">{t("driverLabel")}: {booking.ride.driver?.full_name ?? t("unknownUser")}</p>
+                    <p className="font-medium">
+                      {t("driverLabel")}: {booking.ride.driver?.full_name ?? t("unknownUser")}
+                    </p>
                     <RouteLabel booking={booking} locale={locale} />
                     <p className="text-muted-foreground text-xs">
                       {t("passengerLabel")}: {booking.passenger?.full_name ?? t("unknownUser")} ·{" "}
-                      {booking.refund_requested_at && format.dateTime(new Date(booking.refund_requested_at), { day: "2-digit", month: "2-digit", year: "numeric" })}
+                      {booking.refund_requested_at &&
+                        format.dateTime(new Date(booking.refund_requested_at), {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        })}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
                     {refundProofUrls[index] && (
-                      <Link href={refundProofUrls[index]!} target="_blank" rel="noopener noreferrer" className="text-primary flex items-center gap-1 text-sm underline">
+                      <Link
+                        href={refundProofUrls[index]!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary flex items-center gap-1 text-sm underline"
+                      >
                         <FileText className="size-4" aria-hidden="true" /> {t("viewReceipt")}
                       </Link>
                     )}
@@ -165,6 +210,12 @@ export default async function AdminPaymentsPage() {
             ))}
           </div>
         )}
+        <AdminPager
+          page={refundsPage}
+          hasMore={refundsHasMore}
+          paramName="refundsPage"
+          currentSearchParams={resolvedSearchParams}
+        />
       </div>
     </div>
   )

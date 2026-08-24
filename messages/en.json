@@ -807,6 +807,10 @@
       "submit": "Submit",
       "alreadyOpenBadge": "Reported, under review"
     },
+    "againstMe": {
+      "title": "A dispute has been filed against you",
+      "description": "A dispute was filed for this booking for the reason \"{reason}\" and our team is reviewing it. If you'd like to add anything, you can reach us at novarodigitalstudio@gmail.com."
+    },
     "status": {
       "open": "Open",
       "in_review": "Under Review",
@@ -973,12 +977,23 @@
         "no_show": "No-Show",
         "other": "Other"
       },
+      "paymentStatusLabel": "Payment Status",
+      "paymentStatus": {
+        "awaiting_settlement": "Awaiting Payment",
+        "settled": "Paid"
+      },
+      "driverIbanLabel": "Driver IBAN",
       "resolutionNoteLabel": "Resolution Note",
       "resolutionNotePlaceholder": "Resolution note (optional, shown to both parties)",
       "startReview": "Start Review",
       "dismiss": "Dismiss",
       "resolve": "Mark as Resolved",
       "statusUpdated": "Dispute status updated."
+    },
+    "pager": {
+      "previous": "Previous",
+      "next": "Next",
+      "pageLabel": "Page {page}"
     },
     "errors": {
       "notConfigured": "Database connection is not currently configured. Please try again later.",
@@ -1067,6 +1082,7 @@
           "heading": "User Obligations",
           "body": [
             "By registering on the Platform, you confirm that the name, email, phone number, and other profile information you provide are accurate, current, and belong to you.",
+            "You must be at least 18 years old to use the Platform.",
             "The following behaviors are prohibited:"
           ],
           "items": [
@@ -1198,8 +1214,9 @@
           "heading": "Categories of Personal Data Processed",
           "body": ["The following categories of your personal data are processed through the Platform:"],
           "items": [
-            "Identity data: first name, last name",
+            "Identity data: first name, last name, date of birth, gender",
             "Contact data: email address, phone number",
+            "Financial data: the IBAN and account holder name you provide when posting a listing as a driver",
             "Location/travel data: departure and arrival city, trip date, seat count, cost share amount",
             "Transaction security data: account creation and login records, IP address, and similar technical access information"
           ]
@@ -1215,6 +1232,13 @@
           "heading": "Legal Basis for Processing Personal Data",
           "body": [
             "Your personal data is processed on the legal grounds set out in Article 5/2 of the KVKK: that “processing is necessary for the establishment or performance of a contract, provided it is directly related to the parties to the contract,” and that “processing is necessary for the legitimate interests of the data controller, provided this does not harm the fundamental rights and freedoms of the data subject.”"
+          ],
+          "items": []
+        },
+        "retention": {
+          "heading": "Retention Period",
+          "body": [
+            "Your personal data is retained for as long as your account remains active and for as long as required by the purposes described above. When you delete your account, your data is deleted or anonymized within a reasonable period, subject to legal retention obligations and other users' rights."
           ],
           "items": []
         },

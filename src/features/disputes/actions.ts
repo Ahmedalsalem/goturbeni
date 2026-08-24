@@ -37,7 +37,9 @@ export async function openDispute(bookingId: string, values: DisputeFormValues):
   }
 
   const user = await verifySession()
-  if (!(await checkRateLimit(`open-dispute:${user.id}`, OPEN_DISPUTE_RATE_LIMIT.limit, OPEN_DISPUTE_RATE_LIMIT.windowMs))) {
+  if (
+    !(await checkRateLimit(`open-dispute:${user.id}`, OPEN_DISPUTE_RATE_LIMIT.limit, OPEN_DISPUTE_RATE_LIMIT.windowMs))
+  ) {
     return { error: tErrors("tooManyRequests") }
   }
 
@@ -67,7 +69,11 @@ export async function openDispute(bookingId: string, values: DisputeFormValues):
 // admin_set_dispute_status is the sole enforcement point (0044_disputes.sql) —
 // same authorization shape as the other admin RPC wrappers in
 // features/admin/actions.ts.
-export async function adminSetDisputeStatus(disputeId: string, status: DisputeStatus, resolutionNote?: string): Promise<DisputeActionState> {
+export async function adminSetDisputeStatus(
+  disputeId: string,
+  status: DisputeStatus,
+  resolutionNote?: string
+): Promise<DisputeActionState> {
   const locale = await getUserLocale()
   const tErrors = await getTranslations({ locale, namespace: "Disputes.errors" })
   if (!isSupabaseConfigured()) {

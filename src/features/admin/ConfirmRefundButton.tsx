@@ -28,7 +28,11 @@ export function ConfirmRefundButton({ bookingId }: { bookingId: string }) {
 
   return (
     <Button size="sm" onClick={onClick} disabled={isPending}>
-      {isPending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <Check className="size-4" aria-hidden="true" />}
+      {isPending ? (
+        <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+      ) : (
+        <Check className="size-4" aria-hidden="true" />
+      )}
       {t("confirmRefund")}
     </Button>
   )

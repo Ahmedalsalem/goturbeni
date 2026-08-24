@@ -32,7 +32,11 @@ export function BulkApproveReceiptsButton({ bookingIds }: { bookingIds: string[]
 
   return (
     <Button size="sm" onClick={onClick} disabled={isPending}>
-      {isPending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <CheckCheck className="size-4" aria-hidden="true" />}
+      {isPending ? (
+        <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+      ) : (
+        <CheckCheck className="size-4" aria-hidden="true" />
+      )}
       {t("bulkApprove", { count: bookingIds.length })}
     </Button>
   )

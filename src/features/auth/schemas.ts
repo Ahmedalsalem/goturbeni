@@ -33,12 +33,18 @@ type ValidationTranslator = (
 
 // "18 yaşından büyük/eşit" — doğum günü henüz gelmediyse yıl farkı tek başına
 // yanıltıcı (ör. 17 yaş 364 gün, yıl farkı 18 görünür) — ay/gün karşılaştırması
-// bunu düzeltiyor.
-function isAtLeastAge(dateOfBirth: Date, minimumYears: number): boolean {
+// bunu düzeltiyor. Takes the raw "YYYY-MM-DD" string and parses year/month/day
+// directly instead of going through `new Date(dateOfBirthIso)` — that parses
+// as UTC midnight, and comparing it against `new Date()`'s LOCAL getters
+// silently shifts the calendar day whenever the runtime's timezone isn't UTC
+// (caught by a flaky test on a UTC+3 dev machine; Vercel's own runtime is UTC
+// so this never showed up in production, but relying on that was fragile).
+function isAtLeastAge(dateOfBirthIso: string, minimumYears: number): boolean {
+  const [birthYear, birthMonth, birthDay] = dateOfBirthIso.split("-").map(Number)
   const today = new Date()
-  let age = today.getFullYear() - dateOfBirth.getFullYear()
-  const monthDiff = today.getMonth() - dateOfBirth.getMonth()
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dateOfBirth.getDate())) {
+  let age = today.getFullYear() - birthYear
+  const monthDiff = today.getMonth() + 1 - birthMonth
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDay)) {
     age -= 1
   }
   return age >= minimumYears
@@ -70,7 +76,7 @@ export function buildAuthSchemas(t: ValidationTranslator) {
         .string()
         .min(1, t("dateOfBirthRequired"))
         .refine((value) => !Number.isNaN(new Date(value).getTime()), { message: t("dateOfBirthInvalid") })
-        .refine((value) => isAtLeastAge(new Date(value), MINIMUM_AGE_YEARS), { message: t("ageMinimum") }),
+        .refine((value) => isAtLeastAge(value, MINIMUM_AGE_YEARS), { message: t("ageMinimum") }),
       // Unchecked native checkboxes are simply absent from FormData
       // (formData.get returns null), not "off" — preprocess normalizes
       // null/undefined/"on" into a plain boolean before validation.

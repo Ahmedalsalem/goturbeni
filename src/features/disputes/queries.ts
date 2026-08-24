@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import type { Dispute, DisputeWithParties } from "@/types/dispute"
 
 const DISPUTE_WITH_PARTIES_SELECT =
-  "*, opened_by_profile:profiles!disputes_opened_by_fkey(full_name), against_user_profile:profiles!disputes_against_user_id_fkey(full_name), booking:bookings(ride:rides(departure_city, arrival_city, departure_time))"
+  "*, opened_by_profile:profiles!disputes_opened_by_fkey(full_name), against_user_profile:profiles!disputes_against_user_id_fkey(full_name), booking:bookings(payment_status, ride:rides(departure_city, arrival_city, departure_time))"
 
 // One row per (booking, opener) — used to grey out "report a problem" once
 // the current user already has an active dispute open on this booking (see
@@ -16,6 +16,22 @@ export async function getMyDisputeForBooking(bookingId: string, userId: string):
     .select("*")
     .eq("booking_id", bookingId)
     .eq("opened_by", userId)
+    .in("status", ["open", "in_review"])
+    .maybeSingle()
+
+  return (data as Dispute | null) ?? null
+}
+
+// The other side of getMyDisputeForBooking — until this existed, nothing in
+// the app ever queried against_user_id, so the person a dispute was filed
+// against had no way to know one existed (found in a post-launch audit).
+export async function getDisputeAgainstMeForBooking(bookingId: string, userId: string): Promise<Dispute | null> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("disputes")
+    .select("*")
+    .eq("booking_id", bookingId)
+    .eq("against_user_id", userId)
     .in("status", ["open", "in_review"])
     .maybeSingle()
 
@@ -41,7 +57,10 @@ export async function getOpenDisputesForAdmin(): Promise<DisputeWithParties[]> {
 // regardless of which side of the dispute they're on.
 export async function getUserIdsWithOpenDisputes(): Promise<Set<string>> {
   const supabase = await createClient()
-  const { data } = await supabase.from("disputes").select("opened_by, against_user_id").in("status", ["open", "in_review"])
+  const { data } = await supabase
+    .from("disputes")
+    .select("opened_by, against_user_id")
+    .in("status", ["open", "in_review"])
 
   const ids = new Set<string>()
   for (const row of (data as { opened_by: string; against_user_id: string }[] | null) ?? []) {

@@ -5,6 +5,7 @@ import { getFormatter, getTranslations } from "next-intl/server"
 import { EmptyState } from "@/components/EmptyState"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
+import { AdminPager } from "@/features/admin/AdminPager"
 import { CancelRideButton } from "@/features/admin/CancelRideButton"
 import { getAdminRides } from "@/features/admin/queries"
 import { RideStatusBadge } from "@/features/rides/RideStatusBadge"
@@ -16,11 +17,17 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title") }
 }
 
-export default async function AdminRidesPage() {
+export default async function AdminRidesPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
   const t = await getTranslations("Admin.rides")
   const format = await getFormatter()
   const locale = await getUserLocale()
-  const rides = await getAdminRides()
+  const resolvedSearchParams = await searchParams
+  const page = Math.max(1, Number(resolvedSearchParams.page) || 1)
+  const { rows: rides, hasMore } = await getAdminRides(page)
 
   return (
     <div>
@@ -54,7 +61,13 @@ export default async function AdminRidesPage() {
                         {getProvinceDisplayName(ride.arrival_city, locale)}
                       </p>
                       <p className="text-muted-foreground text-xs">
-                        {format.dateTime(new Date(ride.departure_time), { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                        {format.dateTime(new Date(ride.departure_time), {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </p>
                     </div>
                   </div>
@@ -69,6 +82,7 @@ export default async function AdminRidesPage() {
           })}
         </div>
       )}
+      <AdminPager page={page} hasMore={hasMore} currentSearchParams={resolvedSearchParams} />
     </div>
   )
 }

@@ -26,6 +26,7 @@ export default async function KvkkPage() {
     "categories",
     "purposes",
     "legalBasis",
+    "retention",
     "collectionMethod",
     "transfer",
     "rights",

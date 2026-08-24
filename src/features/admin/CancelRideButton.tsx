@@ -34,7 +34,11 @@ export function CancelRideButton({ rideId }: { rideId: string }) {
 
   return (
     <Button variant={confirming ? "destructive" : "outline"} size="sm" onClick={onClick} disabled={isPending}>
-      {isPending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <X className="size-4" aria-hidden="true" />}
+      {isPending ? (
+        <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+      ) : (
+        <X className="size-4" aria-hidden="true" />
+      )}
       {confirming ? t("confirmCancel") : t("cancel")}
     </Button>
   )

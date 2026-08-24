@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/EmptyState"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { AdminPager } from "@/features/admin/AdminPager"
 import { SuspendToggleButton } from "@/features/admin/SuspendToggleButton"
 import { getAdminUsers, getSuspiciousAccounts } from "@/features/admin/queries"
 import { verifySession } from "@/lib/supabase/dal"
@@ -15,11 +16,20 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title") }
 }
 
-export default async function AdminUsersPage() {
+export default async function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
   const currentUser = await verifySession()
   const t = await getTranslations("Admin.users")
   const tSuspicious = await getTranslations("Admin.suspicious")
-  const [users, suspiciousAccounts] = await Promise.all([getAdminUsers(), getSuspiciousAccounts()])
+  const resolvedSearchParams = await searchParams
+  const page = Math.max(1, Number(resolvedSearchParams.page) || 1)
+  const [{ rows: users, hasMore }, suspiciousAccounts] = await Promise.all([
+    getAdminUsers(page),
+    getSuspiciousAccounts(),
+  ])
 
   return (
     <div>
@@ -44,7 +54,9 @@ export default async function AdminUsersPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     {account.is_suspended && <Badge variant="destructive">{t("suspendedBadge")}</Badge>}
-                    {account.user_id !== currentUser.id && <SuspendToggleButton userId={account.user_id} isSuspended={account.is_suspended} />}
+                    {account.user_id !== currentUser.id && (
+                      <SuspendToggleButton userId={account.user_id} isSuspended={account.is_suspended} />
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -96,6 +108,7 @@ export default async function AdminUsersPage() {
           })}
         </div>
       )}
+      <AdminPager page={page} hasMore={hasMore} currentSearchParams={resolvedSearchParams} />
     </div>
   )
 }
