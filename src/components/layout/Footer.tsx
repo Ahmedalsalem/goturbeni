@@ -30,8 +30,8 @@ export async function Footer() {
   return (
     <footer className="border-border/70 border-t">
       <div className="mx-auto max-w-6xl px-4 py-10">
-        <div className="flex flex-col items-center gap-6 text-center lg:flex-row lg:items-start lg:justify-between lg:text-start">
-          <div className="flex flex-col items-center gap-2 lg:items-start">
+        <div className="flex flex-col items-center gap-6 text-center lg:flex-row lg:items-center lg:justify-between lg:text-start">
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 lg:justify-start">
             <div className="flex items-center gap-2 text-sm font-medium">
               <Image src="/brand/logo-mark.png" alt="" width={20} height={20} className="size-5" />
               GötürBeni
@@ -56,7 +56,7 @@ export async function Footer() {
             </Link>
           </nav>
         </div>
-        <p className="text-muted-foreground mt-6 text-center text-sm lg:text-start">
+        <p className="text-muted-foreground mt-6 text-center text-sm">
           © {year} GötürBeni — {t("rights")}
         </p>
       </div>
