@@ -76,6 +76,12 @@ export default async function SupportPage() {
         </CardContent>
       </Card>
 
+      {/* Elektronik Ticarette Hizmet Sağlayıcı ve Aracı Hizmet Sağlayıcılar
+          Hakkında Yönetmelik md. 5 — hizmet sağlayıcının kimliğini açıkça
+          göstermek şirket kurmayı gerektirmiyor, gerçek kişi olarak burada
+          belirtmek yeterli. */}
+      <p className="text-muted-foreground mb-10 text-center text-xs">{t("operator")}</p>
+
       <div className="flex flex-col gap-10">
         {FAQ_CATEGORIES.map((category) => (
           <div key={category.key}>
