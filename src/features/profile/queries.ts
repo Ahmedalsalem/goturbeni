@@ -12,7 +12,7 @@ export const getProfile = cache(async (userId: string): Promise<Profile | null> 
   const supabase = await createClient()
   const { data } = await supabase
     .from("profiles")
-    .select("*, profiles_private(phone, phone_verified, gender, iban, iban_holder_name, email_notifications_enabled)")
+    .select("*, profiles_private(phone, email_verified, gender, iban, iban_holder_name, email_notifications_enabled)")
     .eq("id", userId)
     .single()
   if (!data) return null
@@ -24,7 +24,7 @@ export const getProfile = cache(async (userId: string): Promise<Profile | null> 
   const { profiles_private, ...profile } = data as typeof data & {
     profiles_private: {
       phone: string | null
-      phone_verified: boolean
+      email_verified: boolean
       gender: Profile["gender"]
       iban: string | null
       iban_holder_name: string | null
@@ -34,7 +34,7 @@ export const getProfile = cache(async (userId: string): Promise<Profile | null> 
   return {
     ...profile,
     phone: profiles_private?.phone ?? null,
-    phone_verified: profiles_private?.phone_verified ?? false,
+    email_verified: profiles_private?.email_verified ?? false,
     gender: profiles_private?.gender ?? null,
     iban: profiles_private?.iban ?? null,
     iban_holder_name: profiles_private?.iban_holder_name ?? null,
@@ -46,8 +46,8 @@ export const getProfile = cache(async (userId: string): Promise<Profile | null> 
 // stay guest-browsable (e.g. ride detail) — unlike requireVerifiedProfile()
 // in lib/supabase/dal.ts, this never redirects, it just reports the state so
 // the page can render a "complete verification" prompt instead of hiding.
-export async function isPhoneVerified(userId: string): Promise<boolean> {
+export async function isEmailVerified(userId: string): Promise<boolean> {
   const supabase = await createClient()
-  const { data } = await supabase.from("profiles_private").select("phone_verified").eq("id", userId).maybeSingle()
-  return data?.phone_verified ?? false
+  const { data } = await supabase.from("profiles_private").select("email_verified").eq("id", userId).maybeSingle()
+  return data?.email_verified ?? false
 }

@@ -121,7 +121,10 @@ describe("rides/actions", () => {
       fromMock.mockImplementation((table: string) => {
         if (table === "rides") return { insert: insertMock }
         if (table === "profiles_private") return { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: { iban: "TR1", iban_holder_name: "Ad" } }) }) }) }
-        if (table === "profiles") return { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: { car_plate: "34 ABC 123" } }) }) }) }
+        if (table === "profiles")
+          return {
+            select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: { car_plate: "34 ABC 123", car_color: "Beyaz" } }) }) }),
+          }
         return {}
       })
 

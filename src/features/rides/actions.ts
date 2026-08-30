@@ -96,9 +96,18 @@ export async function createRide(values: RideFormValues): Promise<RideActionStat
 
     // Sürücü geçerli formatta bir plaka olmadan ilan açamaz — yolcunun aracı
     // teşhis edebilmesi (bkz. 0050_car_plate.sql) artık zorunlu.
-    const { data: driverProfile } = await supabase.from("profiles").select("car_plate").eq("id", user.id).maybeSingle()
+    const { data: driverProfile } = await supabase
+      .from("profiles")
+      .select("car_plate, car_color")
+      .eq("id", user.id)
+      .maybeSingle()
     if (!driverProfile?.car_plate || !TR_PLATE_PATTERN.test(driverProfile.car_plate)) {
       return { error: tErrors("carPlateRequired") }
+    }
+
+    // Araç rengi de aynı gerekçeyle zorunlu (bkz. 0076_car_color.sql).
+    if (!driverProfile.car_color) {
+      return { error: tErrors("carColorRequired") }
     }
   }
 

@@ -585,97 +585,97 @@ export function RideForm({
               </FieldLabel>
             </Field>
             <FieldDescription>{t("instantBookingHint")}</FieldDescription>
-
-            <Field>
-              <FieldLabel>{t("carFeaturesLabel")}</FieldLabel>
-              <Controller
-                control={control}
-                name="carFeatures"
-                render={({ field }) => (
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3">
-                    {CAR_FEATURE_KEYS.map((key) => (
-                      <Field key={key} orientation="horizontal">
-                        <Checkbox
-                          id={`carFeature-${key}`}
-                          checked={field.value?.includes(key) ?? false}
-                          onCheckedChange={(checked) => {
-                            const current = field.value ?? []
-                            field.onChange(checked === true ? [...current, key] : current.filter((item) => item !== key))
-                          }}
-                        />
-                        <FieldLabel htmlFor={`carFeature-${key}`} className="font-normal">
-                          {tCarFeatures(key)}
-                        </FieldLabel>
-                      </Field>
-                    ))}
-                  </div>
-                )}
-              />
-
-              <FieldLabel className="mt-2">{t("customFeaturesLabel")}</FieldLabel>
-              <Controller
-                control={control}
-                name="customCarFeatures"
-                render={({ field }) => {
-                  const customFeatures = field.value ?? []
-                  return (
-                    <>
-                      {customFeatures.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5">
-                          {customFeatures.map((feature) => (
-                            <Badge key={feature} variant="secondary" className="gap-1 pe-1">
-                              {feature}
-                              <button
-                                type="button"
-                                onClick={() => field.onChange(customFeatures.filter((item) => item !== feature))}
-                                aria-label={t("removeCustomFeature")}
-                                className="hover:text-destructive"
-                              >
-                                <X className="size-3" aria-hidden="true" />
-                              </button>
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                      <div className="flex gap-2">
-                        <Input
-                          value={customFeatureInput}
-                          onChange={(event) => setCustomFeatureInput(event.target.value)}
-                          onKeyDown={(event) => {
-                            if (event.key !== "Enter") return
-                            event.preventDefault()
-                            const value = customFeatureInput.trim()
-                            if (!value || customFeatures.length >= MAX_CUSTOM_CAR_FEATURES || customFeatures.includes(value)) return
-                            field.onChange([...customFeatures, value])
-                            setCustomFeatureInput("")
-                          }}
-                          placeholder={t("addCustomFeaturePlaceholder")}
-                          maxLength={MAX_CUSTOM_CAR_FEATURE_LENGTH}
-                          disabled={customFeatures.length >= MAX_CUSTOM_CAR_FEATURES}
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          onClick={() => {
-                            const value = customFeatureInput.trim()
-                            if (!value || customFeatures.length >= MAX_CUSTOM_CAR_FEATURES || customFeatures.includes(value)) return
-                            field.onChange([...customFeatures, value])
-                            setCustomFeatureInput("")
-                          }}
-                          disabled={customFeatures.length >= MAX_CUSTOM_CAR_FEATURES}
-                          aria-label={t("addCustomFeatureCta")}
-                        >
-                          <Plus className="size-4" aria-hidden="true" />
-                        </Button>
-                      </div>
-                    </>
-                  )
-                }}
-              />
-            </Field>
           </>
         )}
+
+        <Field>
+          <FieldLabel>{t(isPassengerMode ? "passengerNeedsLabel" : "carFeaturesLabel")}</FieldLabel>
+          <Controller
+            control={control}
+            name="carFeatures"
+            render={({ field }) => (
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3">
+                {CAR_FEATURE_KEYS.map((key) => (
+                  <Field key={key} orientation="horizontal">
+                    <Checkbox
+                      id={`carFeature-${key}`}
+                      checked={field.value?.includes(key) ?? false}
+                      onCheckedChange={(checked) => {
+                        const current = field.value ?? []
+                        field.onChange(checked === true ? [...current, key] : current.filter((item) => item !== key))
+                      }}
+                    />
+                    <FieldLabel htmlFor={`carFeature-${key}`} className="font-normal">
+                      {tCarFeatures(key)}
+                    </FieldLabel>
+                  </Field>
+                ))}
+              </div>
+            )}
+          />
+
+          <FieldLabel className="mt-2">{t("customFeaturesLabel")}</FieldLabel>
+          <Controller
+            control={control}
+            name="customCarFeatures"
+            render={({ field }) => {
+              const customFeatures = field.value ?? []
+              return (
+                <>
+                  {customFeatures.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {customFeatures.map((feature) => (
+                        <Badge key={feature} variant="secondary" className="gap-1 pe-1">
+                          {feature}
+                          <button
+                            type="button"
+                            onClick={() => field.onChange(customFeatures.filter((item) => item !== feature))}
+                            aria-label={t("removeCustomFeature")}
+                            className="hover:text-destructive"
+                          >
+                            <X className="size-3" aria-hidden="true" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex gap-2">
+                    <Input
+                      value={customFeatureInput}
+                      onChange={(event) => setCustomFeatureInput(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key !== "Enter") return
+                        event.preventDefault()
+                        const value = customFeatureInput.trim()
+                        if (!value || customFeatures.length >= MAX_CUSTOM_CAR_FEATURES || customFeatures.includes(value)) return
+                        field.onChange([...customFeatures, value])
+                        setCustomFeatureInput("")
+                      }}
+                      placeholder={t("addCustomFeaturePlaceholder")}
+                      maxLength={MAX_CUSTOM_CAR_FEATURE_LENGTH}
+                      disabled={customFeatures.length >= MAX_CUSTOM_CAR_FEATURES}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => {
+                        const value = customFeatureInput.trim()
+                        if (!value || customFeatures.length >= MAX_CUSTOM_CAR_FEATURES || customFeatures.includes(value)) return
+                        field.onChange([...customFeatures, value])
+                        setCustomFeatureInput("")
+                      }}
+                      disabled={customFeatures.length >= MAX_CUSTOM_CAR_FEATURES}
+                      aria-label={t("addCustomFeatureCta")}
+                    >
+                      <Plus className="size-4" aria-hidden="true" />
+                    </Button>
+                  </div>
+                </>
+              )
+            }}
+          />
+        </Field>
 
         {!ride && !isPassengerMode && (
           <Field orientation="horizontal">

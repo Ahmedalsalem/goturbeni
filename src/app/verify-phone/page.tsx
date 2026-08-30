@@ -19,7 +19,7 @@ export default async function VerifyPhonePage() {
 
   // Already fully verified (e.g. a stale bookmark, or a link followed after
   // completing the flow in another tab) — nothing left to do here.
-  if (profile?.phone_verified && profile.gender) {
+  if (profile?.email_verified && profile.gender) {
     redirect("/rides")
   }
 

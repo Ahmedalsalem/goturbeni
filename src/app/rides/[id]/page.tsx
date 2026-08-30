@@ -10,7 +10,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
 import { RideStatusBadge } from "@/features/rides/RideStatusBadge"
 import { getDriverCompletedRideCount, getRideWithDriver } from "@/features/rides/queries"
-import { getProfile, isPhoneVerified } from "@/features/profile/queries"
+import { getProfile, isEmailVerified } from "@/features/profile/queries"
 import { getMyBookingForRide, getMyOfferForRide, getRideDriverPaymentInfo } from "@/features/bookings/queries"
 import { BookingButton } from "@/features/bookings/BookingButton"
 import { OfferButton } from "@/features/bookings/OfferButton"
@@ -94,7 +94,7 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
     ? await Promise.all([
         isPassengerListing ? Promise.resolve(null) : getMyBookingForRide(ride.id, user.id),
         isPassengerListing ? getMyOfferForRide(ride.id, user.id) : Promise.resolve(null),
-        isPhoneVerified(user.id),
+        isEmailVerified(user.id),
       ])
     : [null, null, false]
   const isApprovedAwaitingPayment = existingBooking?.status === "approved" && existingBooking.payment_status !== "settled"
@@ -198,16 +198,17 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
                   </div>
                 )}
               </div>
-              {!isPassengerListing && (ride.driver?.car_brand || ride.driver?.car_model || ride.driver?.car_plate) && (
-                <p className="text-muted-foreground text-sm">
-                  {[
-                    [ride.driver?.car_brand, ride.driver?.car_model].filter(Boolean).join(" "),
-                    ride.driver?.car_plate,
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </p>
-              )}
+              {!isPassengerListing &&
+                (ride.driver?.car_brand || ride.driver?.car_model || ride.driver?.car_color || ride.driver?.car_plate) && (
+                  <p className="text-muted-foreground text-sm">
+                    {[
+                      [ride.driver?.car_brand, ride.driver?.car_model, ride.driver?.car_color].filter(Boolean).join(" "),
+                      ride.driver?.car_plate,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                )}
               {(isPassengerListing ? posterProfile?.bio : driverProfile?.bio) && (
                 <p className="text-muted-foreground text-sm">{isPassengerListing ? posterProfile?.bio : driverProfile?.bio}</p>
               )}

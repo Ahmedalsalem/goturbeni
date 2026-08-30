@@ -25,13 +25,14 @@ export interface Profile {
   full_name: string | null
   avatar_url: string | null
   phone: string | null
-  phone_verified: boolean
+  email_verified: boolean
   gender: ProfileGender | null
   iban: string | null
   iban_holder_name: string | null
   car_brand: string | null
   car_model: string | null
   car_plate: string | null
+  car_color: string | null
   car_features: CarFeatureKey[]
   custom_car_features: string[]
   bio: string | null

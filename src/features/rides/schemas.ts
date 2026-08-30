@@ -104,7 +104,9 @@ export function buildRideSchema(t: ValidationTranslator) {
     // Yolcu ilanında araç/politika alanları anlamsız (ilan sahibi henüz
     // sürücü değil) — form bunları zaten gizliyor (Task 5), ama şema
     // seviyesinde de zorlanıyor ki tamperlenmiş bir istek bu alanları
-    // dolaylı yoldan set edemesin.
+    // dolaylı yoldan set edemesin. carFeatures/customCarFeatures istisna:
+    // yolcu için "araçta olsun istediğim özellikler" (klima, şarj, geniş
+    // bagaj vb.) anlamına döndüğünden her iki rolde de anlamlı — sıfırlanmaz.
     .transform((data) =>
       data.postedByRole === "passenger"
         ? {
@@ -115,8 +117,6 @@ export function buildRideSchema(t: ValidationTranslator) {
             repeatWeekly: false,
             paymentMethods: ["bank_transfer"] as const,
             instantBooking: false,
-            carFeatures: [],
-            customCarFeatures: [],
             quietRide: false,
             noLargeLuggage: false,
             noStops: false,

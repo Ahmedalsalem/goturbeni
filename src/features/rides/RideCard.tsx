@@ -137,16 +137,17 @@ export async function RideCard({
             {!isPassengerListing && driverCompletedRideCount !== undefined && (
               <ExperienceLevelBadge completedRideCount={driverCompletedRideCount} />
             )}
-            {!isPassengerListing && (ride.driver?.car_brand || ride.driver?.car_model || ride.driver?.car_plate) && (
-              <p className="text-muted-foreground text-xs">
-                {[
-                  [ride.driver?.car_brand, ride.driver?.car_model].filter(Boolean).join(" "),
-                  ride.driver?.car_plate,
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
-            )}
+            {!isPassengerListing &&
+              (ride.driver?.car_brand || ride.driver?.car_model || ride.driver?.car_color || ride.driver?.car_plate) && (
+                <p className="text-muted-foreground text-xs">
+                  {[
+                    [ride.driver?.car_brand, ride.driver?.car_model, ride.driver?.car_color].filter(Boolean).join(" "),
+                    ride.driver?.car_plate,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+              )}
           </div>
         </div>
         {actions}

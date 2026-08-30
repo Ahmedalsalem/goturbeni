@@ -60,10 +60,10 @@ export async function requireVerifiedProfile() {
   const supabase = await createClient()
   const { data: privateRow } = await supabase
     .from("profiles_private")
-    .select("phone_verified")
+    .select("email_verified")
     .eq("id", user.id)
     .maybeSingle()
-  if (!privateRow?.phone_verified) {
+  if (!privateRow?.email_verified) {
     redirect("/verify-phone")
   }
   return user

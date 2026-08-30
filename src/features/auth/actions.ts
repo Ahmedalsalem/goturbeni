@@ -78,10 +78,10 @@ export async function signIn(_prevState: AuthActionState, formData: FormData): P
   // shown again — no repeated OTP on subsequent logins.
   const { data: privateRow } = await supabase
     .from("profiles_private")
-    .select("phone_verified")
+    .select("email_verified")
     .eq("id", data.user.id)
     .maybeSingle()
-  if (!privateRow?.phone_verified) {
+  if (!privateRow?.email_verified) {
     redirect("/verify-phone")
   }
 

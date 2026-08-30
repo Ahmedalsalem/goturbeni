@@ -16,6 +16,7 @@ export const MAX_IBAN_HOLDER_NAME_LENGTH = 100
 export const MAX_CAR_BRAND_LENGTH = 50
 export const MAX_CAR_MODEL_LENGTH = 50
 export const MAX_CAR_PLATE_LENGTH = 15
+export const MAX_CAR_COLOR_LENGTH = 30
 export const MAX_CUSTOM_CAR_FEATURES = 10
 export const MAX_CUSTOM_CAR_FEATURE_LENGTH = 30
 
@@ -45,6 +46,7 @@ type ValidationTranslator = (
     | "carModelMax"
     | "carPlateMax"
     | "carPlateInvalid"
+    | "carColorMax"
     | "customCarFeatureMax"
     | "tooManyCustomCarFeatures"
 ) => string
@@ -102,6 +104,12 @@ export function buildProfileSchema(t: ValidationTranslator) {
       // presence separately (see features/rides/actions.ts). When a value IS
       // given, though, it must be a real Turkish plate format.
       .refine((value) => !value || TR_PLATE_PATTERN.test(value), { message: t("carPlateInvalid") }),
+    carColor: z
+      .string()
+      .trim()
+      .max(MAX_CAR_COLOR_LENGTH, t("carColorMax"))
+      .optional()
+      .transform((value) => (value ? value : undefined)),
     carFeatures: z.array(z.enum(CAR_FEATURE_KEYS)).default([]),
     customCarFeatures: z
       .array(z.string().trim().min(1).max(MAX_CUSTOM_CAR_FEATURE_LENGTH, t("customCarFeatureMax")))

@@ -80,6 +80,7 @@
   "Footer": {
     "tagline": "Şehirlerarası yolculuklarda masrafını paylaş.",
     "rights": "Tüm hakları saklıdır.",
+    "aboutLink": "Hakkımızda",
     "privacyLink": "Gizlilik Politikası",
     "termsLink": "Kullanım Şartları",
     "kvkkLink": "KVKK Aydınlatma Metni",
@@ -247,7 +248,8 @@
       "carBrand": "Araç Markası",
       "carModel": "Araç Modeli",
       "carPlate": "Plaka",
-      "carHint": "Sürücü olarak ilan verebilmek için gerekli. Plakanız yoksa boş bırakabilirsiniz (örn. 34 ABC 123).",
+      "carColor": "Araç Rengi",
+      "carHint": "Sürücü olarak ilan verebilmek için gerekli. Plakanız/renginiz yoksa boş bırakabilirsiniz (örn. 34 ABC 123).",
       "carFeaturesLabel": "Araç Özellikleri",
       "customFeaturesLabel": "Diğer Özellikler",
       "addCustomFeaturePlaceholder": "Özellik ekle (ör. Wi-Fi)",
@@ -290,6 +292,7 @@
       "carModelMax": "Araç modeli en fazla 50 karakter olmalı.",
       "carPlateMax": "Plaka en fazla 15 karakter olmalı.",
       "carPlateInvalid": "Geçerli bir araç plakası girin (örn. 34 ABC 123).",
+      "carColorMax": "Araç rengi en fazla 30 karakter olmalı.",
       "customCarFeatureMax": "Özellik en fazla 30 karakter olmalı.",
       "tooManyCustomCarFeatures": "En fazla 10 özel özellik ekleyebilirsiniz."
     },
@@ -396,6 +399,34 @@
       "title": "Yardıma mı ihtiyacın var?",
       "description": "Sık sorulan sorular için Destek sayfamıza göz atabilir, ya da doğrudan bize e-posta gönderebilirsin."
     }
+  },
+  "AboutPage": {
+    "title": "Hakkımızda",
+    "subtitle": "Şehirlerarası yolculuklarda boş koltukları değerlendiren, komisyonsuz bir paylaşım platformu.",
+    "story": {
+      "title": "Neden GötürBeni?",
+      "description": "Bir arabada üç boş koltuk gördük ve bunu düşündük: zaten aynı yola gidiyorsan, neden masrafı paylaşmayasın? GötürBeni bu basit fikirden doğdu — şehirlerarası yolculuk yapan sürücülerin boş koltuklarını, aynı güzergaha gidecek yolcularla buluşturmak."
+    },
+    "mission": {
+      "title": "Misyonumuz",
+      "description": "Yol masraflarını daha adil paylaşmak, yollardaki boş araç sayısını azaltmak ve şehirlerarası seyahati hem sürücü hem yolcu için daha ekonomik hale getirmek."
+    },
+    "values": {
+      "noCommission": {
+        "title": "Komisyonsuz",
+        "description": "Ödemeler doğrudan sürücü ile yolcu arasında, IBAN üzerinden gerçekleşir. Platform hiçbir kesinti almaz."
+      },
+      "trust": {
+        "title": "Güven",
+        "description": "Profil doğrulama, karşılıklı değerlendirme, alım doğrulama kodu ve anlaşmazlık çözümü ile güvenli bir topluluk oluşturmayı hedefliyoruz."
+      },
+      "sustainability": {
+        "title": "Sürdürülebilirlik",
+        "description": "Her paylaşılan yolculuk, yollardaki araç sayısını azaltıp CO₂ salımını düşürür — ilan detay sayfalarında tahmini tasarrufu görebilirsin."
+      }
+    },
+    "operator": "GötürBeni, Ahmed Alsalem tarafından bireysel bir faaliyet olarak işletilmektedir.",
+    "contactCta": "Sorularınız için Destek sayfamıza göz atın."
   },
   "SupportPage": {
     "title": "Destek",
@@ -528,6 +559,7 @@
       "instantBooking": "Anında Onay",
       "instantBookingHint": "Açıksa, koltuk müsaitse yolcunun rezervasyon talebi beklemeden otomatik onaylanır.",
       "carFeaturesLabel": "Araç Özellikleri",
+      "passengerNeedsLabel": "İhtiyaçlarım",
       "customFeaturesLabel": "Diğer Özellikler",
       "addCustomFeaturePlaceholder": "Özellik ekle (ör. Wi-Fi)",
       "addCustomFeatureCta": "Özellik ekle",
@@ -562,6 +594,7 @@
       "tooManyRequests": "Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin.",
       "ibanRequired": "İlan verebilmek için önce profilinize IBAN ve hesap sahibi ad soyad bilgisi ekleyin.",
       "carPlateRequired": "İlan verebilmek için önce profilinize geçerli bir araç plakası ekleyin.",
+      "carColorRequired": "İlan verebilmek için önce profilinize araç renginizi ekleyin.",
       "seatCountBelowBooked": "Koltuk sayısını {count} kişinin altına düşüremezsiniz — bu ilana zaten o kadar yolcu onaylanmış."
     },
     "status": {

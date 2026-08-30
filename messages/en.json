@@ -78,6 +78,7 @@
     }
   },
   "Footer": {
+    "aboutLink": "About Us",
     "tagline": "Split the cost of your intercity trips.",
     "rights": "All rights reserved.",
     "privacyLink": "Privacy Policy",
@@ -247,7 +248,8 @@
       "carBrand": "Car Make",
       "carModel": "Car Model",
       "carPlate": "License Plate",
-      "carHint": "Required to post listings as a driver. You can leave this blank if you don't have a vehicle (e.g. 34 ABC 123).",
+      "carColor": "Car Color",
+      "carHint": "Required to post listings as a driver. You can leave the plate/color blank if you don't have them yet (e.g. 34 ABC 123).",
       "carFeaturesLabel": "Car Features",
       "customFeaturesLabel": "Other Features",
       "addCustomFeaturePlaceholder": "Add a feature (e.g. Wi-Fi)",
@@ -290,6 +292,7 @@
       "carModelMax": "Car model must be at most 50 characters.",
       "carPlateMax": "License plate must be at most 15 characters.",
       "carPlateInvalid": "Enter a valid license plate (e.g. 34 ABC 123).",
+      "carColorMax": "Car color must be at most 30 characters.",
       "customCarFeatureMax": "A feature must be at most 30 characters.",
       "tooManyCustomCarFeatures": "You can add at most 10 custom features."
     },
@@ -396,6 +399,34 @@
       "title": "Need help?",
       "description": "Check out our Support page for frequently asked questions, or email us directly."
     }
+  },
+  "AboutPage": {
+    "title": "About Us",
+    "subtitle": "A commission-free platform that turns empty seats on intercity trips into shared journeys.",
+    "story": {
+      "title": "Why GötürBeni?",
+      "description": "We saw three empty seats in a car and thought: if you're already making the trip, why not share the cost? GötürBeni grew out of that simple idea — connecting drivers on intercity trips with passengers heading the same way."
+    },
+    "mission": {
+      "title": "Our Mission",
+      "description": "Make travel costs fairer to share, put fewer empty cars on the road, and make intercity travel more affordable for drivers and passengers alike."
+    },
+    "values": {
+      "noCommission": {
+        "title": "No Commission",
+        "description": "Payments go directly from passenger to driver via IBAN transfer. The platform never takes a cut."
+      },
+      "trust": {
+        "title": "Trust",
+        "description": "Profile verification, mutual reviews, a pickup verification code, and dispute resolution help build a safe community."
+      },
+      "sustainability": {
+        "title": "Sustainability",
+        "description": "Every shared ride means fewer cars on the road and lower CO₂ emissions — you can see the estimated savings on each ride's page."
+      }
+    },
+    "operator": "GötürBeni is operated by Ahmed Alsalem as an individual activity.",
+    "contactCta": "Have questions? Check out our Support page."
   },
   "SupportPage": {
     "title": "Support",
@@ -528,6 +559,7 @@
       "instantBooking": "Instant Booking",
       "instantBookingHint": "When on, a passenger's request is approved automatically as soon as there's room — no waiting for you to confirm.",
       "carFeaturesLabel": "Car Features",
+      "passengerNeedsLabel": "My Needs",
       "customFeaturesLabel": "Other Features",
       "addCustomFeaturePlaceholder": "Add a feature (e.g. Wi-Fi)",
       "addCustomFeatureCta": "Add feature",
@@ -562,6 +594,7 @@
       "tooManyRequests": "Too many attempts. Please try again later.",
       "ibanRequired": "To post a listing, first add your IBAN and account holder name to your profile.",
       "carPlateRequired": "To post a listing, first add a valid license plate to your profile.",
+      "carColorRequired": "To post a listing, first add your car color to your profile.",
       "seatCountBelowBooked": "You can't reduce the seat count below {count} — that many passengers are already approved on this listing."
     },
     "status": {

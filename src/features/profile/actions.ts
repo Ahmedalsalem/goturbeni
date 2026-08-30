@@ -36,6 +36,7 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
     carBrand: formData.get("carBrand"),
     carModel: formData.get("carModel"),
     carPlate: formData.get("carPlate"),
+    carColor: formData.get("carColor"),
     carFeatures: formData.getAll("carFeatures"),
     customCarFeatures: formData.getAll("customCarFeatures"),
     emailNotificationsEnabled: formData.get("emailNotificationsEnabled"),
@@ -74,7 +75,7 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
   }
 
   // Normalize to E.164 before comparing/storing — update_own_profile
-  // (0010_phone_verification.sql) resets phone_verified to false whenever
+  // (0077_rename_phone_verified_to_email_verified.sql) resets email_verified to false whenever
   // the submitted phone differs from what's stored. The form now displays
   // the number without its "+90"/leading-zero prefix (see ProfileForm.tsx),
   // so submitting that raw display value unchanged would always look like a
@@ -94,6 +95,7 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
     p_car_brand: parsed.data.carBrand ?? null,
     p_car_model: parsed.data.carModel ?? null,
     p_car_plate: parsed.data.carPlate ?? null,
+    p_car_color: parsed.data.carColor ?? null,
     p_car_features: parsed.data.carFeatures,
     p_custom_car_features: parsed.data.customCarFeatures,
     p_email_notifications_enabled: parsed.data.emailNotificationsEnabled,
@@ -117,7 +119,7 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
 // info) — it just no longer carries the verification burden. The code
 // itself lives in profiles_private (email_otp_code/email_otp_expires_at,
 // 0035_email_based_verification.sql); verify_email_otp is the only thing
-// allowed to flip phone_verified, checked against email_otp_code there.
+// allowed to flip email_verified, checked against email_otp_code there.
 export async function sendEmailVerificationCode(): Promise<{ error?: string }> {
   const user = await verifySession()
   const locale = await getUserLocale()

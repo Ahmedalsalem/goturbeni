@@ -20,6 +20,7 @@ import {
   initialProfileActionState,
   MAX_BIO_LENGTH,
   MAX_CAR_BRAND_LENGTH,
+  MAX_CAR_COLOR_LENGTH,
   MAX_CAR_MODEL_LENGTH,
   MAX_CAR_PLATE_LENGTH,
   MAX_CUSTOM_CAR_FEATURE_LENGTH,
@@ -200,7 +201,7 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
             />
           </div>
           <FieldDescription>{t("phoneHint")}</FieldDescription>
-          <PhoneVerification phone={profile.phone} verified={profile.phone_verified} />
+          <PhoneVerification phone={profile.phone} verified={profile.email_verified} />
         </Field>
 
         <Field>
@@ -225,7 +226,7 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
           />
         </Field>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-4">
           <Field>
             <FieldLabel htmlFor="carBrand">{t("carBrand")}</FieldLabel>
             <Input
@@ -243,6 +244,16 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
               name="carModel"
               defaultValue={initialProfile.car_model ?? ""}
               maxLength={MAX_CAR_MODEL_LENGTH}
+            />
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="carColor">{t("carColor")}</FieldLabel>
+            <Input
+              id="carColor"
+              name="carColor"
+              defaultValue={initialProfile.car_color ?? ""}
+              maxLength={MAX_CAR_COLOR_LENGTH}
             />
           </Field>
 
