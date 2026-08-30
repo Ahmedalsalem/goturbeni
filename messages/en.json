@@ -113,6 +113,10 @@
     }
   },
   "Auth": {
+    "google": {
+      "continueWithGoogle": "Continue with Google",
+      "orDivider": "or"
+    },
     "login": {
       "title": "Log In",
       "description": "Log in to your account.",

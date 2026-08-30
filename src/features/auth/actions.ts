@@ -161,6 +161,35 @@ export async function signUp(_prevState: AuthActionState, formData: FormData): P
   redirect("/verify-phone")
 }
 
+// Redirects the browser straight to Google's consent screen; Supabase brings
+// the user back to /auth/callback with a PKCE `code` (same route the e-mail
+// confirmation/recovery links already use), which exchanges it for a session
+// and lands on /rides. handle_new_user (0078_google_oauth_signup.sql) marks
+// a first-time Google signup's email_verified=true and copies full_name/
+// avatar_url from Google's profile — nothing else to do here on success.
+export async function signInWithGoogle(): Promise<void> {
+  // <form action={signInWithGoogle}> requires a void-returning action (same
+  // constraint signOut() below already satisfies) — an OAuth misconfiguration
+  // is a setup-time error only, so unlike the other actions here it's not
+  // surfaced inline, just sent back to /login same as callback/route.ts does.
+  if (!isSupabaseConfigured()) {
+    redirect("/login?error=google")
+  }
+
+  const supabase = await createClient()
+  const siteUrl = await resolveSiteUrl()
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: `${siteUrl}/auth/callback?next=/rides` },
+  })
+  if (error || !data.url) {
+    logError(error ?? new Error("no OAuth URL returned"), "auth.signInWithGoogle")
+    redirect("/login?error=google")
+  }
+
+  redirect(data.url)
+}
+
 export async function signOut(): Promise<void> {
   const supabase = await createClient()
   await supabase.auth.signOut()

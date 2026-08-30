@@ -113,6 +113,10 @@
     }
   },
   "Auth": {
+    "google": {
+      "continueWithGoogle": "Google ile devam et",
+      "orDivider": "veya"
+    },
     "login": {
       "title": "Giriş Yap",
       "description": "Hesabınıza giriş yapın.",

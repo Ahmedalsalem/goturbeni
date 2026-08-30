@@ -113,6 +113,10 @@
     }
   },
   "Auth": {
+    "google": {
+      "continueWithGoogle": "المتابعة باستخدام Google",
+      "orDivider": "أو"
+    },
     "login": {
       "title": "تسجيل الدخول",
       "description": "سجّل الدخول إلى حسابك.",
