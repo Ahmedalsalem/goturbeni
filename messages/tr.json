@@ -698,6 +698,7 @@
       "driverNoShow": "Sürücü gelmedi olarak işaretlendiği için ödeme işlenemez. Bir anlaşmazlık otomatik olarak açıldı.",
       "offerDriverIbanRequired": "Bu teklifi kabul edemezsiniz — teklif veren sürücünün IBAN bilgisi eksik.",
       "offerDriverCarPlateRequired": "Bu teklifi kabul edemezsiniz — teklif veren sürücünün plaka bilgisi eksik veya geçersiz.",
+      "offerDriverCarColorRequired": "Bu teklifi kabul edemezsiniz — teklif veren sürücünün araç rengi eksik.",
       "actionFailed": "İşlem gerçekleştirilemedi. Lütfen tekrar deneyin.",
       "receiptRequired": "Lütfen bir dekont dosyası seçin.",
       "receiptTooLarge": "Dekont dosyası en fazla 5 MB olabilir.",

@@ -199,12 +199,15 @@ export async function approveBooking(bookingId: string, rideId: string): Promise
     const offeringDriverId = parties?.driverId ?? null
     if (offeringDriverId) {
       const { data } = await supabase.rpc("get_offer_driver_readiness", { p_booking_id: bookingId }).maybeSingle()
-      const readiness = data as { iban_ok: boolean; plate_ok: boolean } | null
+      const readiness = data as { iban_ok: boolean; plate_ok: boolean; color_ok: boolean } | null
       if (!readiness?.iban_ok) {
         return { error: tErrors("offerDriverIbanRequired") }
       }
       if (!readiness?.plate_ok) {
         return { error: tErrors("offerDriverCarPlateRequired") }
+      }
+      if (!readiness?.color_ok) {
+        return { error: tErrors("offerDriverCarColorRequired") }
       }
     }
   }

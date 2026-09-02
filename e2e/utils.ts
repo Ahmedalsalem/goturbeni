@@ -137,6 +137,7 @@ export async function createRide(
   await page.locator("#iban").fill("TR330006100519786457841326")
   await page.locator("#ibanHolderName").fill("E2E Sürücü")
   await page.locator("#carPlate").fill("34 ABC 123")
+  await page.locator("#carColor").fill("Beyaz")
   await page.getByRole("button", { name: "Kaydet" }).click()
   await page.getByText("Profil güncellendi.").waitFor()
 
@@ -268,16 +269,26 @@ export async function backdateAccountAge(email: string, daysAgo: number): Promis
 // query param otherwise) and a short retry kept as cheap insurance against
 // any real propagation lag, though the case mismatch was the actual bug.
 async function findAuthUserByEmail(admin: ReturnType<typeof createAdminClient>, email: string) {
+  let lastError: unknown
   for (let attempt = 1; attempt <= 5; attempt++) {
     const { data, error } = await admin.auth.admin.listUsers({ perPage: 1000 })
     if (error) {
-      throw error
+      // A transient fetch failure against the just-started local Auth
+      // container (e.g. under heavy CPU load from Turbopack + Docker +
+      // Chromium all starting at once) shouldn't be fatal on its own —
+      // retry like the "not found yet" case below, not just throw.
+      lastError = error
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      continue
     }
     const user = data.users.find((candidate) => candidate.email?.toLowerCase() === email.toLowerCase())
     if (user) {
       return user
     }
     await new Promise((resolve) => setTimeout(resolve, 500))
+  }
+  if (lastError) {
+    throw lastError
   }
   throw new Error(`No auth user found for ${email} — was signUp() called first?`)
 }
@@ -288,12 +299,12 @@ async function findAuthUserByEmail(admin: ReturnType<typeof createAdminClient>, 
 // Supabase instance (supabase/config.toml has no [auth.sms.test_otp] map),
 // so the OTP itself can never be completed through the UI in this
 // environment. Bypasses it the same way backdateRideDeparture bypasses the
-// departure-time wait: flip profiles_private.phone_verified directly with
+// departure-time wait: flip profiles_private.email_verified directly with
 // the service-role client, exactly what a real completed OTP would have set.
 export async function verifyPhoneForTest(email: string): Promise<void> {
   const admin = createAdminClient()
   const user = await findAuthUserByEmail(admin, email)
-  const { error: updateError } = await admin.from("profiles_private").update({ phone_verified: true }).eq("id", user.id)
+  const { error: updateError } = await admin.from("profiles_private").update({ email_verified: true }).eq("id", user.id)
   if (updateError) {
     throw updateError
   }

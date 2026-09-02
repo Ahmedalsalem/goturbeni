@@ -102,6 +102,7 @@ test.describe.serial("passenger listing reverse booking", () => {
     // çakışıp yanlışlıkla başarısız olurdu.
     await driverPage.locator("#ibanHolderName").fill("E2E Teklif Hesap Sahibi")
     await driverPage.locator("#carPlate").fill("34 ABC 789")
+    await driverPage.locator("#carColor").fill("Siyah")
     await driverPage.getByRole("button", { name: "Kaydet" }).click()
     await driverPage.getByText("Profil güncellendi.").waitFor()
 

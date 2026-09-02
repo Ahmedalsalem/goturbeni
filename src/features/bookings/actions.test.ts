@@ -89,10 +89,10 @@ function fromReturningPassengerId(passengerId: string | null, rideId = "ride-1")
 // so this branches on the first arg the same way fromMock branches on the
 // table name; approve_booking itself is awaited directly (no .maybeSingle()
 // chain), so it falls through to the plain resolved-value default.
-function rpcMockWithReadiness(ibanOk: boolean, plateOk: boolean) {
+function rpcMockWithReadiness(ibanOk: boolean, plateOk: boolean, colorOk: boolean = true) {
   return (fn: string) => {
     if (fn === "get_offer_driver_readiness") {
-      return { maybeSingle: async () => ({ data: { iban_ok: ibanOk, plate_ok: plateOk }, error: null }) }
+      return { maybeSingle: async () => ({ data: { iban_ok: ibanOk, plate_ok: plateOk, color_ok: colorOk }, error: null }) }
     }
     return Promise.resolve({ error: null })
   }
@@ -411,6 +411,23 @@ describe("bookings/actions", () => {
       const result = await approveBooking("booking-1", "ride-1")
 
       expect(result.error).toBe("Bookings.errors.offerDriverCarPlateRequired")
+      expect(rpcMock).not.toHaveBeenCalledWith("approve_booking", expect.anything())
+    })
+
+    it("rejects approving an offer when the offering driver's IBAN and plate are set but the car color isn't", async () => {
+      getRideMock.mockResolvedValue(fakeRide({ posted_by_role: "passenger", driver_id: null }))
+      fromMock.mockImplementation((table: string) => {
+        if (table === "bookings")
+          return {
+            select: () => ({ eq: () => ({ single: async () => ({ data: { driver_id: "offering-driver-1", ride_id: "ride-1" } }) }) }),
+          }
+        return {}
+      })
+      rpcMock.mockImplementation(rpcMockWithReadiness(true, true, false))
+
+      const result = await approveBooking("booking-1", "ride-1")
+
+      expect(result.error).toBe("Bookings.errors.offerDriverCarColorRequired")
       expect(rpcMock).not.toHaveBeenCalledWith("approve_booking", expect.anything())
     })
 
