@@ -104,7 +104,7 @@
       },
       "safety": {
         "title": "Trust the person you're traveling with",
-        "description": "Every user verifies their phone number, and you can view their profile and past trips. Before booking, we show you the driver's member-since date, number of completed trips, and rating."
+        "description": "Every account is verified with a code sent to its email address at registration, and you can view their profile and past trips. Before booking, we show you the driver's member-since date, number of completed trips, and rating."
       },
       "payment": {
         "title": "Transparent, secure payment",

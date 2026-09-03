@@ -104,7 +104,7 @@
       },
       "safety": {
         "title": "Birlikte seyahat ettiğin kişiye güven",
-        "description": "Her kullanıcı telefon numarasını doğrular, profilini ve geçmiş yolculuklarını görebilirsin. Rezervasyon öncesi sürücünün üyelik tarihini, tamamladığı yolculuk sayısını ve puanını gösteriyoruz."
+        "description": "Her hesap kayıt sırasında e-posta adresine gönderilen bir kodla doğrulanır, profilini ve geçmiş yolculuklarını görebilirsin. Rezervasyon öncesi sürücünün üyelik tarihini, tamamladığı yolculuk sayısını ve puanını gösteriyoruz."
       },
       "payment": {
         "title": "Şeffaf ve güvenli ödeme",
