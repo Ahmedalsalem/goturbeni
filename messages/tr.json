@@ -953,9 +953,6 @@
       "thatsYou": "Bu sizsiniz",
       "adminBadge": "Admin",
       "suspendedBadge": "Askıya Alındı",
-      "phoneVerified": "Telefon Doğrulandı",
-      "phoneUnverified": "Telefon Doğrulanmadı",
-      "phoneUnknown": "Telefon Durumu Gizli",
       "verificationStatus": {
         "unverified": "Doğrulanmadı",
         "pending": "Beklemede",

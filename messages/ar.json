@@ -953,9 +953,6 @@
       "thatsYou": "هذا أنت",
       "adminBadge": "مسؤول",
       "suspendedBadge": "معلّق",
-      "phoneVerified": "الهاتف موثّق",
-      "phoneUnverified": "الهاتف غير موثّق",
-      "phoneUnknown": "حالة الهاتف مخفية",
       "verificationStatus": {
         "unverified": "غير موثّق",
         "pending": "قيد الانتظار",

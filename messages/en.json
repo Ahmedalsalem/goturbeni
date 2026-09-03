@@ -953,9 +953,6 @@
       "thatsYou": "That's you",
       "adminBadge": "Admin",
       "suspendedBadge": "Suspended",
-      "phoneVerified": "Phone Verified",
-      "phoneUnverified": "Phone Not Verified",
-      "phoneUnknown": "Phone Status Hidden",
       "verificationStatus": {
         "unverified": "Not Verified",
         "pending": "Pending",
