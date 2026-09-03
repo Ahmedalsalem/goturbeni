@@ -108,7 +108,13 @@ export function ReviewCard({
         <p className="text-muted-foreground text-sm italic">{tActions("deletedPlaceholder")}</p>
       ) : mode === "editing" ? (
         <div className="flex flex-col gap-2">
-          <Textarea value={comment} onChange={(event) => setComment(event.target.value)} maxLength={MAX_COMMENT_LENGTH} rows={2} />
+          <Textarea
+            value={comment}
+            onChange={(event) => setComment(event.target.value)}
+            maxLength={MAX_COMMENT_LENGTH}
+            rows={2}
+            aria-label={t("commentLabel")}
+          />
           <div className="flex justify-end gap-1.5">
             <Button
               size="sm"
