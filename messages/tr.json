@@ -533,6 +533,7 @@
       "iAmPassenger": "Yolcuyum",
       "seatCountPassenger": "Kaç Kişisiniz?",
       "costSharePassenger": "Ödemeyi Düşündüğünüz Tutar (₺)",
+      "freeRide": "Ücretsiz yolculuk",
       "useMyLocation": "Konumumu Kullan",
       "detectingLocation": "Konum algılanıyor...",
       "locationDenied": "Konum izni reddedildi.",
@@ -582,6 +583,7 @@
       "departureInPast": "Kalkış zamanı gelecekte olmalı.",
       "seatCountRange": "Koltuk sayısı 1 ile 8 arasında olmalı.",
       "costShareMin": "Masraf payı negatif olamaz.",
+      "costSharePassengerMin": "Yolcu ilanında ödemeyi düşündüğünüz tutar 0'dan büyük olmalı.",
       "descriptionMax": "Açıklama en fazla 500 karakter olmalı.",
       "vipSoloSingleSeat": "VIP (tek yolcu) ilanlarda koltuk sayısı 1 olmalı.",
       "customCarFeatureMax": "Özellik en fazla 30 karakter olmalı.",
@@ -609,6 +611,7 @@
     },
     "card": {
       "availableSeats": "{count} boş koltuk",
+      "freeRide": "Ücretsiz",
       "unknownDriver": "Sürücü",
       "petsAllowed": "Evcil hayvan kabul edilir",
       "smokingAllowed": "Sigara içilebilir",

@@ -243,7 +243,7 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
               <Users className="text-muted-foreground size-4" aria-hidden="true" />
               {t("seats", { available: ride.available_seats, total: ride.seat_count })}
             </div>
-            <div className="font-medium">{formatCostShare(ride.cost_share, locale)}</div>
+            <div className="font-medium">{ride.cost_share === 0 ? tCard("freeRide") : formatCostShare(ride.cost_share, locale)}</div>
           </div>
 
           {co2SavingsKg > 0 && <p className="text-muted-foreground text-sm">{t("co2Savings", { kg: co2SavingsKg })}</p>}

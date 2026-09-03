@@ -533,6 +533,7 @@
       "iAmPassenger": "I'm a passenger",
       "seatCountPassenger": "How Many Of You?",
       "costSharePassenger": "Amount You're Willing to Pay (₺)",
+      "freeRide": "Free ride",
       "useMyLocation": "Use My Location",
       "detectingLocation": "Detecting location...",
       "locationDenied": "Location permission denied.",
@@ -582,6 +583,7 @@
       "departureInPast": "Departure time must be in the future.",
       "seatCountRange": "Number of seats must be between 1 and 8.",
       "costShareMin": "Cost share cannot be negative.",
+      "costSharePassengerMin": "The amount you're willing to pay must be greater than 0 on a passenger listing.",
       "descriptionMax": "Description must be at most 500 characters.",
       "vipSoloSingleSeat": "VIP (single passenger) listings must have a seat count of 1.",
       "customCarFeatureMax": "A feature must be at most 30 characters.",
@@ -609,6 +611,7 @@
     },
     "card": {
       "availableSeats": "{count} seats available",
+      "freeRide": "Free",
       "unknownDriver": "Driver",
       "petsAllowed": "Pets allowed",
       "smokingAllowed": "Smoking allowed",

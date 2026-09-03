@@ -533,6 +533,7 @@
       "iAmPassenger": "أنا راكب",
       "seatCountPassenger": "كم عدد الأشخاص؟",
       "costSharePassenger": "المبلغ الذي ترغب بدفعه (₺)",
+      "freeRide": "رحلة مجانية",
       "useMyLocation": "استخدم موقعي",
       "detectingLocation": "جارٍ تحديد الموقع...",
       "locationDenied": "تم رفض إذن الموقع.",
@@ -582,6 +583,7 @@
       "departureInPast": "يجب أن يكون وقت الانطلاق في المستقبل.",
       "seatCountRange": "يجب أن يكون عدد المقاعد بين 1 و 8.",
       "costShareMin": "لا يمكن أن تكون المساهمة في التكلفة سالبة.",
+      "costSharePassengerMin": "في إعلان الراكب، يجب أن يكون المبلغ الذي ترغب بدفعه أكبر من 0.",
       "descriptionMax": "يجب ألا يتجاوز الوصف 500 حرف.",
       "vipSoloSingleSeat": "في رحلات VIP (راكب واحد) يجب أن يكون عدد المقاعد 1.",
       "customCarFeatureMax": "يجب ألا تتجاوز الميزة 30 حرفًا.",
@@ -609,6 +611,7 @@
     },
     "card": {
       "availableSeats": "{count} مقعد متاح",
+      "freeRide": "مجانية",
       "unknownDriver": "السائق",
       "petsAllowed": "يُسمح بالحيوانات الأليفة",
       "smokingAllowed": "يُسمح بالتدخين",

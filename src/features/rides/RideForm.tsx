@@ -63,6 +63,7 @@ export function RideForm({
   const locale = useLocale()
   const [serverError, setServerError] = useState<string | null>(null)
   const [customFeatureInput, setCustomFeatureInput] = useState("")
+  const [freeRide, setFreeRide] = useState((ride?.cost_share ?? 0) === 0 && ride?.posted_by_role !== "passenger")
 
   const {
     control,
@@ -405,12 +406,31 @@ export function RideForm({
               type="number"
               min={0}
               step="0.01"
+              disabled={!isPassengerMode && freeRide}
               aria-invalid={!!errors.costShare}
               aria-describedby={errors.costShare ? "costShare-error" : undefined}
               {...register("costShare")}
             />
             {errors.costShare && <FieldError id="costShare-error" errors={[{ message: errors.costShare.message }]} />}
-            {estimatedCostShare !== null && (
+            {!isPassengerMode && (
+              <Field orientation="horizontal">
+                <Checkbox
+                  id="freeRide"
+                  checked={freeRide}
+                  onCheckedChange={(checked) => {
+                    const isFree = checked === true
+                    setFreeRide(isFree)
+                    if (isFree) {
+                      setValue("costShare", 0, { shouldValidate: true })
+                    }
+                  }}
+                />
+                <FieldLabel htmlFor="freeRide" className="font-normal">
+                  {t("freeRide")}
+                </FieldLabel>
+              </Field>
+            )}
+            {estimatedCostShare !== null && !freeRide && (
               <FieldDescription>
                 {t("costShareEstimate", { amount: estimatedCostShare })}{" "}
                 <Button

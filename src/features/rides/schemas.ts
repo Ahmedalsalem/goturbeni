@@ -19,6 +19,7 @@ type ValidationTranslator = (
     | "departureInPast"
     | "seatCountRange"
     | "costShareMin"
+    | "costSharePassengerMin"
     | "descriptionMax"
     | "districtInvalid"
     | "vipSoloSingleSeat"
@@ -79,6 +80,13 @@ export function buildRideSchema(t: ValidationTranslator) {
     .refine((data) => data.departureCity !== data.arrivalCity, {
       message: t("sameCities"),
       path: ["arrivalCity"],
+    })
+    // Ücretsiz yolculuk seçeneği yalnızca sürücü ilanı için var (RideForm'da
+    // "Ücretsiz yolculuk" kutusu yolcu modunda hiç gösterilmiyor) — yolcu
+    // ilanında masraf payı 0 olamaz, kimseden bedava yolculuk istenemez.
+    .refine((data) => data.postedByRole !== "passenger" || data.costShare > 0, {
+      message: t("costSharePassengerMin"),
+      path: ["costShare"],
     })
     .refine(
       (data) => {
