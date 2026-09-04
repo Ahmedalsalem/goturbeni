@@ -108,7 +108,7 @@
       },
       "payment": {
         "title": "Transparent, secure payment",
-        "description": "Payment goes directly to the driver's IBAN, and receipts are uploaded and reviewed through the system. We automatically detect and review suspicious accounts and listings."
+        "description": "Drivers can accept bank transfer (IBAN) and/or cash. For bank transfer, receipts are uploaded and reviewed through the system. We automatically detect and review suspicious accounts and listings."
       }
     }
   },

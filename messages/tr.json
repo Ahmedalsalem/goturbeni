@@ -108,7 +108,7 @@
       },
       "payment": {
         "title": "Şeffaf ve güvenli ödeme",
-        "description": "Ödeme doğrudan sürücünün IBAN'ına yapılır, dekontlar sistem üzerinden yüklenir ve incelenir. Şüpheli hesap ve ilanları otomatik olarak tespit edip inceliyoruz."
+        "description": "Sürücü banka havalesi (IBAN) ve/veya nakit kabul edebilir. Havale seçildiyse dekontlar sistem üzerinden yüklenir ve incelenir. Şüpheli hesap ve ilanları otomatik olarak tespit edip inceliyoruz."
       }
     }
   },
