@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next"
 
 import { getRides } from "@/features/rides/queries"
+import { POPULAR_ROUTES, CITY_PAGES } from "@/features/seo/route-pages"
 
 // Trailing slash is stripped so `${SITE_URL}/path` below never produces `//`
 // regardless of how NEXT_PUBLIC_SITE_URL is set in the deployment environment.
@@ -16,6 +17,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/privacy`, changeFrequency: "yearly", priority: 0.3 },
     { url: `${SITE_URL}/terms`, changeFrequency: "yearly", priority: 0.3 },
     { url: `${SITE_URL}/kvkk`, changeFrequency: "yearly", priority: 0.3 },
+    ...CITY_PAGES.map((page) => ({ url: `${SITE_URL}/${page.slug}`, changeFrequency: "daily" as const, priority: 0.7 })),
+    ...POPULAR_ROUTES.map((page) => ({ url: `${SITE_URL}/${page.slug}`, changeFrequency: "daily" as const, priority: 0.8 })),
   ]
 
   // Only active listings are worth indexing — full/completed/cancelled rides

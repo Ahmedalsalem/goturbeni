@@ -97,6 +97,10 @@
       "message": "Sana yakın yolculukları göstermek için konumunu kullanabilir miyiz?",
       "accept": "İzin Ver"
     },
+    "popularRoutes": {
+      "title": "Popüler Rotalar",
+      "subtitle": "En çok aranan güzergahlarda araç paylaşımı yap."
+    },
     "trustSection": {
       "pricing": {
         "title": "Uygun fiyata istediğin yere git",
@@ -110,6 +114,27 @@
         "title": "Şeffaf ve güvenli ödeme",
         "description": "Sürücü banka havalesi (IBAN) ve/veya nakit kabul edebilir. Havale seçildiyse dekontlar sistem üzerinden yüklenir ve incelenir. Şüpheli hesap ve ilanları otomatik olarak tespit edip inceliyoruz."
       }
+    }
+  },
+  "SeoPages": {
+    "route": {
+      "title": "{from} {to} Araç Paylaşımı",
+      "h1": "{from} {to} Araç Paylaşımı",
+      "description": "{from} ile {to} arasında araç paylaşımı yap. Aynı güzergâhta seyahat eden sürücü ve yolcuları GötürBeni'nde bul, yol masrafını paylaş.",
+      "intro": "{from} ile {to} arası yaklaşık {distance} km. Masraf paylaşımlı bir yolculukla kişi başı tahmini masraf ~{cost} ₺ civarında olabilir — gerçek tutar sürücünün ilanına göre değişir.",
+      "activeListingsTitle": "Şu anda {count} aktif ilan var",
+      "noListingsTitle": "Şu anda bu güzergahta aktif ilan yok",
+      "noListingsDescription": "İlk ilanı sen açabilir ya da bu güzergahta yeni bir ilan yayınlandığında haberdar olmak için arama uyarısı kurabilirsin.",
+      "ctaSearch": "Tüm {from} {to} ilanlarını gör",
+      "ctaCreate": "Bu güzergahta ilan ver",
+      "relatedTitle": "İlgili Rotalar"
+    },
+    "city": {
+      "title": "{city} Araç Paylaşımı",
+      "h1": "{city} Araç Paylaşımı",
+      "description": "{city} çıkışlı şehirlerarası araç paylaşımı yap. GötürBeni'nde {city} güzergahlarını bul, uygun fiyata yolculuğunu paylaş.",
+      "routesTitle": "{city} Çıkışlı Popüler Rotalar",
+      "ctaSearch": "{city} çıkışlı tüm ilanları gör"
     }
   },
   "Auth": {

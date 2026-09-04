@@ -97,6 +97,10 @@
       "message": "Can we use your location to show you rides nearby?",
       "accept": "Allow"
     },
+    "popularRoutes": {
+      "title": "Popular Routes",
+      "subtitle": "Share a ride on the most searched routes."
+    },
     "trustSection": {
       "pricing": {
         "title": "Get where you're going at a fair price",
@@ -110,6 +114,27 @@
         "title": "Transparent, secure payment",
         "description": "Drivers can accept bank transfer (IBAN) and/or cash. For bank transfer, receipts are uploaded and reviewed through the system. We automatically detect and review suspicious accounts and listings."
       }
+    }
+  },
+  "SeoPages": {
+    "route": {
+      "title": "{from} to {to} Ride Sharing",
+      "h1": "{from} to {to} Ride Sharing",
+      "description": "Share a ride between {from} and {to}. Find drivers and passengers heading the same way on GötürBeni and split the trip cost.",
+      "intro": "{from} and {to} are about {distance} km apart. On a shared ride, the estimated cost per person is around ₺{cost} — the real amount depends on the driver's listing.",
+      "activeListingsTitle": "{count} active listings right now",
+      "noListingsTitle": "No active listings on this route yet",
+      "noListingsDescription": "You can be the first to post one, or set up a search alert to get notified when a new listing appears.",
+      "ctaSearch": "See all {from}-{to} listings",
+      "ctaCreate": "Post a listing on this route",
+      "relatedTitle": "Related Routes"
+    },
+    "city": {
+      "title": "{city} Ride Sharing",
+      "h1": "{city} Ride Sharing",
+      "description": "Share intercity rides from {city}. Find {city} routes on GötürBeni and travel for less.",
+      "routesTitle": "Popular Routes from {city}",
+      "ctaSearch": "See all listings from {city}"
     }
   },
   "Auth": {

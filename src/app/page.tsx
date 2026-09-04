@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
 
 import { HomeHero } from "@/features/rides/HomeHero"
+import { HomePopularRoutes } from "@/components/HomePopularRoutes"
 import { HomeTrustSection } from "@/components/HomeTrustSection"
 import { languageAlternates } from "@/i18n/hreflang"
 
@@ -34,6 +35,7 @@ export default function HomePage() {
         className="bg-primary/15 pointer-events-none absolute start-1/2 top-[-12rem] -z-10 size-[42rem] -translate-x-1/2 rounded-full blur-3xl"
       />
       <HomeHero />
+      <HomePopularRoutes />
       <HomeTrustSection />
     </div>
   )
