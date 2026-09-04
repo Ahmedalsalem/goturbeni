@@ -125,7 +125,6 @@
       "activeListingsTitle": "Şu anda {count} aktif ilan var",
       "noListingsTitle": "Şu anda bu güzergahta aktif ilan yok",
       "noListingsDescription": "İlk ilanı sen açabilir ya da bu güzergahta yeni bir ilan yayınlandığında haberdar olmak için arama uyarısı kurabilirsin.",
-      "ctaSearch": "Tüm {from} {to} ilanlarını gör",
       "ctaCreate": "Bu güzergahta ilan ver",
       "relatedTitle": "İlgili Rotalar"
     },

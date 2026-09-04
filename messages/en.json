@@ -125,7 +125,6 @@
       "activeListingsTitle": "{count} active listings right now",
       "noListingsTitle": "No active listings on this route yet",
       "noListingsDescription": "You can be the first to post one, or set up a search alert to get notified when a new listing appears.",
-      "ctaSearch": "See all {from}-{to} listings",
       "ctaCreate": "Post a listing on this route",
       "relatedTitle": "Related Routes"
     },

@@ -124,14 +124,8 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ slu
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
-            href={`/rides?from=${encodeURIComponent(route.from)}&to=${encodeURIComponent(route.to)}`}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors"
-          >
-            {t("ctaSearch", { from, to })}
-          </Link>
-          <Link
             href="/create-ride"
-            className="border-border hover:bg-accent inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-medium transition-colors"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors"
           >
             {t("ctaCreate")}
           </Link>

@@ -125,7 +125,6 @@
       "activeListingsTitle": "{count} إعلان نشط الآن",
       "noListingsTitle": "لا توجد إعلانات نشطة على هذا الطريق بعد",
       "noListingsDescription": "يمكنك أن تكون أول من ينشر إعلانًا، أو إعداد تنبيه بحث لإعلامك عند ظهور إعلان جديد.",
-      "ctaSearch": "عرض جميع إعلانات {from} - {to}",
       "ctaCreate": "انشر إعلانًا على هذا الطريق",
       "relatedTitle": "طرق ذات صلة"
     },
