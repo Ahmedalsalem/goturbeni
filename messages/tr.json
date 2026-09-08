@@ -65,7 +65,9 @@
     "verificationCodeOutro": "Bu kod 10 dakika süreyle geçerlidir. Bu isteği siz yapmadıysanız bu e-postayı yok sayabilirsiniz.",
     "newRideBroadcastSubject": "GötürBeni'nde yeni bir ilan yayınlandı",
     "newRideBroadcastBodyDriver": "{from} → {to} arasında yeni bir sürücü ilanı paylaşıldı.",
-    "newRideBroadcastBodyPassenger": "{from} → {to} arasında yeni bir yolcu ilanı paylaşıldı."
+    "newRideBroadcastBodyPassenger": "{from} → {to} arasında yeni bir yolcu ilanı paylaşıldı.",
+    "departureReminderSubject": "Yolculuğunuz yaklaşıyor",
+    "departureReminderBody": "{from} → {to} güzergahındaki yolculuğunuz 24 saat içinde başlıyor. İyi yolculuklar dileriz!"
   },
   "Pwa": {
     "install": "Uygulamayı Yükle",

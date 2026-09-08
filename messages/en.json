@@ -65,7 +65,9 @@
     "verificationCodeOutro": "This code is valid for 10 minutes. If you didn't request this, you can safely ignore this email.",
     "newRideBroadcastSubject": "A new ride was posted on GötürBeni",
     "newRideBroadcastBodyDriver": "A new driver listing from {from} to {to} was just posted on GötürBeni.",
-    "newRideBroadcastBodyPassenger": "A new passenger listing from {from} to {to} was just posted on GötürBeni."
+    "newRideBroadcastBodyPassenger": "A new passenger listing from {from} to {to} was just posted on GötürBeni.",
+    "departureReminderSubject": "Your ride is coming up",
+    "departureReminderBody": "Your ride from {from} to {to} departs within 24 hours. Have a great trip!"
   },
   "Pwa": {
     "install": "Install App",

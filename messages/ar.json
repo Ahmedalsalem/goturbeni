@@ -65,7 +65,9 @@
     "verificationCodeOutro": "هذا الرمز صالح لمدة 10 دقائق. إذا لم تطلب هذا، يمكنك تجاهل هذه الرسالة بأمان.",
     "newRideBroadcastSubject": "إعلان جديد على GötürBeni",
     "newRideBroadcastBodyDriver": "تم نشر إعلان سائق جديد من {from} إلى {to} على GötürBeni.",
-    "newRideBroadcastBodyPassenger": "تم نشر إعلان راكب جديد من {from} إلى {to} على GötürBeni."
+    "newRideBroadcastBodyPassenger": "تم نشر إعلان راكب جديد من {from} إلى {to} على GötürBeni.",
+    "departureReminderSubject": "رحلتك تقترب",
+    "departureReminderBody": "رحلتك من {from} إلى {to} تبدأ خلال 24 ساعة. نتمنى لك رحلة سعيدة!"
   },
   "Pwa": {
     "install": "تثبيت التطبيق",
