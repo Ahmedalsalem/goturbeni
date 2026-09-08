@@ -85,6 +85,16 @@ export function buildAuthSchemas(t: ValidationTranslator) {
       // yapılmasını kesinlikle yasaklar..." ibaresi Legal.terms içinde yer
       // alır (messages/tr.json), bu checkbox onu kayıt akışında zorunlu kılar.
       termsAccepted: z.literal("on", { message: t("termsRequired") }),
+      // Referral bağlantısındaki ?ref= kodu — bir profilin id'sinin ilk 8
+      // karakteri (features/referrals/). Tamamen opsiyonel, hiçbir zaman
+      // kaydı engellemez; geçersiz/bulunamayan kod handle_new_user
+      // (0080_referrals.sql) tarafında sessizce yok sayılır.
+      ref: z
+        .string()
+        .trim()
+        .max(8)
+        .optional()
+        .transform((value) => (value ? value : undefined)),
     })
     .refine((data) => data.password === data.confirmPassword, {
       message: t("passwordsMismatch"),

@@ -7,7 +7,11 @@ import { ProfileForm } from "@/features/profile/ProfileForm"
 import { DeleteAccountSection } from "@/features/profile/DeleteAccountSection"
 import { ReviewSection } from "@/features/reviews/ReviewSection"
 import { getCompletedRidesCount } from "@/features/reviews/queries"
+import { ReferralSection } from "@/features/referrals/ReferralSection"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+
+// Diğer sayfalarla (layout.tsx, sitemap.ts, rides/[id]/page.tsx) aynı desen.
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/+$/, "")
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("ProfilePage")
@@ -35,6 +39,15 @@ export default async function ProfilePage() {
             ) : (
               <p className="text-muted-foreground text-sm">{t("loadError")}</p>
             )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">{t("referralTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ReferralSection userId={user.id} siteUrl={SITE_URL} />
           </CardContent>
         </Card>
 

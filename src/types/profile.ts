@@ -39,6 +39,7 @@ export interface Profile {
   language: AppLocale
   verification_status: ProfileVerificationStatus
   email_notifications_enabled: boolean
+  referred_by: string | null
   created_at: string
   updated_at: string
 }

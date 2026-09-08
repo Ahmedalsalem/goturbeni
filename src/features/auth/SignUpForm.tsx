@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState, useState } from "react"
+import { useActionState, useEffect, useState } from "react"
 import Link from "next/link"
 import { Eye, EyeOff, Loader2, ShieldAlert, UserPlus } from "lucide-react"
 import { useTranslations } from "next-intl"
@@ -23,6 +23,13 @@ export function SignUpForm() {
   const [state, formAction, isPending] = useActionState(signUp, initialAuthActionState)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  // window.location'dan okunuyor (useSearchParams değil) — bu formu bir
+  // Suspense sınırına almaya gerek kalmasın diye; referral kodu yalnızca
+  // mount sonrası bir kere okunan, kritik olmayan bir alan.
+  const [refCode, setRefCode] = useState<string | null>(null)
+  useEffect(() => {
+    setRefCode(new URLSearchParams(window.location.search).get("ref"))
+  }, [])
 
   return (
     <div className="flex flex-col gap-6">
@@ -34,6 +41,7 @@ export function SignUpForm() {
       </div>
 
       <form action={formAction} className="flex flex-col gap-6">
+        {refCode && <input type="hidden" name="ref" value={refCode} />}
         {state?.error && (
           <Alert variant="destructive">
             <AlertDescription>{state.error}</AlertDescription>

@@ -109,6 +109,7 @@ export async function signUp(_prevState: AuthActionState, formData: FormData): P
     dateOfBirth: formData.get("dateOfBirth"),
     emailNotificationsOptIn: formData.get("emailNotificationsOptIn"),
     termsAccepted: formData.get("termsAccepted"),
+    ref: formData.get("ref"),
   })
   if (!parsed.success) {
     return { error: firstIssueMessage(parsed.error, tErrors("invalidForm")) }
@@ -127,7 +128,12 @@ export async function signUp(_prevState: AuthActionState, formData: FormData): P
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
-    options: { emailRedirectTo: `${siteUrl}/auth/callback` },
+    options: {
+      emailRedirectTo: `${siteUrl}/auth/callback`,
+      // handle_new_user (0080_referrals.sql) reads this back out of
+      // raw_user_meta_data to set profiles.referred_by.
+      data: parsed.data.ref ? { ref: parsed.data.ref } : undefined,
+    },
   })
   if (error) {
     logError(error, "auth.signUp")

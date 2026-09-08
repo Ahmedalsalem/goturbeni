@@ -20,6 +20,7 @@ import { ExperienceLevelBadge } from "@/features/reviews/ExperienceLevelBadge"
 import { StarRating } from "@/features/reviews/StarRating"
 import { getMyWaitlistEntry } from "@/features/waitlist/queries"
 import { WaitlistButton } from "@/features/waitlist/WaitlistButton"
+import { ShareRideButton } from "@/features/rides/ShareRideButton"
 import { estimateCo2SavingsKg } from "@/utils/co2-savings"
 import { formatCostShare } from "@/utils/currency"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
@@ -177,6 +178,7 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
               </Badge>
             )}
             <RideStatusBadge status={ride.status} />
+            <ShareRideButton title={routeLabel} url={`${SITE_URL}/rides/${id}`} />
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-6">
