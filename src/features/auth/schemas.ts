@@ -89,11 +89,17 @@ export function buildAuthSchemas(t: ValidationTranslator) {
       // karakteri (features/referrals/). Tamamen opsiyonel, hiçbir zaman
       // kaydı engellemez; geçersiz/bulunamayan kod handle_new_user
       // (0080_referrals.sql) tarafında sessizce yok sayılır.
+      // .nullish() (not .optional()): formData.get("ref") returns null, not
+      // undefined, when the hidden input isn't rendered (no ?ref= in the
+      // URL — the normal case for every signup). z.string().optional() only
+      // accepts undefined and rejected null with "Invalid input: expected
+      // string, received null" — this broke every non-referral signup in
+      // production until caught by a full e2e run and fixed here.
       ref: z
         .string()
         .trim()
         .max(8)
-        .optional()
+        .nullish()
         .transform((value) => (value ? value : undefined)),
     })
     .refine((data) => data.password === data.confirmPassword, {
