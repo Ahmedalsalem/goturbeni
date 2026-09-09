@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server"
 
 import { logError } from "@/lib/logger"
 import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-config"
-import { isResendConfigured, renderEmailHtml } from "@/lib/email"
+import { emailFrom, isResendConfigured, renderEmailHtml } from "@/lib/email"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 
 interface ReminderRecipient {
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       const to = getProvinceDisplayName(payload.arrivalCity, locale)
       try {
         await resend.emails.send({
-          from: process.env.RESEND_FROM_EMAIL!,
+          from: emailFrom(),
           to: recipient.email,
           subject: t("departureReminderSubject"),
           html: renderEmailHtml(locale, {

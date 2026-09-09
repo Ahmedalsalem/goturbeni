@@ -13,6 +13,16 @@ export function isResendConfigured(): boolean {
   return Boolean(process.env.RESEND_API_KEY && process.env.RESEND_FROM_EMAIL)
 }
 
+// Çıplak bir adres (görünen isim yok) spam filtrelerinde çoğu zaman kişisel/
+// toplu-gönderim ayrımını zorlaştıran bir sinyal — özellikle yeni, düşük
+// hacimli bir domain'de (bkz. Resend domain kaydı) itibar kurulana kadar bu
+// küçük fark önemli. Tüm gönderim noktalarının (email.ts + new-ride-broadcast-
+// email.ts + search-alert-notifications.ts + cron/departure-reminders) aynı
+// görünen ismi kullanması için tek yerde tutuluyor.
+export function emailFrom(): string {
+  return `GötürBeni <${process.env.RESEND_FROM_EMAIL}>`
+}
+
 // Shared branded wrapper for every outgoing email — a bare `<p>text</p>` had
 // no greeting, sign-off, or visual identity at all. RTL-aware (Arabic mail
 // clients need dir="rtl" and mirrored alignment, not just RTL-shaped text).
@@ -81,7 +91,7 @@ export async function sendVerificationCodeEmail(to: string, code: string, locale
     // attribute, or `<br>`, both trip INVALID_TAG); see email.test.ts.
     const codeBlockHtml = `<p style="margin:0 0 20px;">${t("verificationCodeIntro")}</p><p style="margin:0 0 20px;font-size:28px;font-weight:bold;letter-spacing:6px;text-align:center;background-color:#f4f4f5;border-radius:8px;padding:16px;">${code}</p><p style="margin:0;">${t("verificationCodeOutro")}</p>`
     await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL!,
+      from: emailFrom(),
       to,
       subject: t("verificationCodeSubject"),
       html: renderEmailHtml(locale, {
@@ -131,7 +141,7 @@ export async function sendEmailNotification(event: NotificationEvent): Promise<v
   const resend = new Resend(process.env.RESEND_API_KEY)
   try {
     await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL!,
+      from: emailFrom(),
       to: recipientEmail as string,
       subject: t(`${key}Title`),
       html: renderEmailHtml(locale, {
@@ -187,7 +197,7 @@ export async function sendSeatOpenedEmailNotifications(rideId: string): Promise<
       const tCommon = await getTranslations({ locale, namespace: "Email" })
       try {
         await resend.emails.send({
-          from: process.env.RESEND_FROM_EMAIL!,
+          from: emailFrom(),
           to: recipient.email,
           subject: t("seatOpenedTitle"),
           html: renderEmailHtml(locale, {

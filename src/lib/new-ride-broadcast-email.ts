@@ -6,7 +6,7 @@ import { getTranslations } from "next-intl/server"
 import { createClient } from "@/lib/supabase/server"
 import { logError } from "@/lib/logger"
 import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-config"
-import { isResendConfigured, renderEmailHtml } from "@/lib/email"
+import { emailFrom, isResendConfigured, renderEmailHtml } from "@/lib/email"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 
 interface BroadcastRecipientRow {
@@ -66,7 +66,7 @@ export async function sendNewRideBroadcastEmail(
       const bodyKey = postedByRole === "passenger" ? "newRideBroadcastBodyPassenger" : "newRideBroadcastBodyDriver"
       try {
         await resend.emails.send({
-          from: process.env.RESEND_FROM_EMAIL!,
+          from: emailFrom(),
           to: row.email,
           subject: t("newRideBroadcastSubject"),
           html: renderEmailHtml(locale, {

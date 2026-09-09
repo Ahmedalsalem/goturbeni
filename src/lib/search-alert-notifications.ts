@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/server"
 import { logError } from "@/lib/logger"
 import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-config"
 import { isVapidConfigured } from "@/lib/notifications"
-import { isResendConfigured, renderEmailHtml } from "@/lib/email"
+import { emailFrom, isResendConfigured, renderEmailHtml } from "@/lib/email"
 
 interface SearchAlertRecipientRow {
   user_id: string
@@ -83,7 +83,7 @@ export async function sendSearchAlertNotifications(rideId: string): Promise<void
             const tCommon = await getTranslations({ locale, namespace: "Email" })
             try {
               await resend.emails.send({
-                from: process.env.RESEND_FROM_EMAIL!,
+                from: emailFrom(),
                 to: email,
                 subject: t("searchAlertMatchTitle"),
                 html: renderEmailHtml(locale, {
