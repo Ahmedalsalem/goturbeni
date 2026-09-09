@@ -22,7 +22,6 @@ type ValidationTranslator = (
     | "costSharePassengerMin"
     | "descriptionMax"
     | "districtInvalid"
-    | "vipSoloSingleSeat"
     | "customCarFeatureMax"
     | "tooManyCustomCarFeatures"
     | "paymentMethodRequired"
@@ -61,7 +60,6 @@ export function buildRideSchema(t: ValidationTranslator) {
         .transform((value) => (value ? value : undefined)),
       petsAllowed: z.boolean().default(false),
       smokingAllowed: z.boolean().default(false),
-      vipSolo: z.boolean().default(false),
       paymentMethods: z.array(z.enum(["bank_transfer", "cash"])).min(1, t("paymentMethodRequired")).default(["bank_transfer"]),
       instantBooking: z.boolean().default(false),
       carFeatures: z.array(z.enum(CAR_FEATURE_KEYS)).default([]),
@@ -69,9 +67,6 @@ export function buildRideSchema(t: ValidationTranslator) {
         .array(z.string().trim().min(1).max(MAX_CUSTOM_CAR_FEATURE_LENGTH, t("customCarFeatureMax")))
         .max(MAX_CUSTOM_CAR_FEATURES, t("tooManyCustomCarFeatures"))
         .default([]),
-      quietRide: z.boolean().default(false),
-      noLargeLuggage: z.boolean().default(false),
-      noStops: z.boolean().default(false),
       // Only read on create (RideForm hides it in edit mode) — the first
       // ride's own departureDate/departureTime supply the series' weekday
       // and time-of-day, so there's no separate recurrence field to fill in.
@@ -103,12 +98,6 @@ export function buildRideSchema(t: ValidationTranslator) {
       message: t("districtInvalid"),
       path: ["arrivalDistrict"],
     })
-    // VIP (tek yolcu) ilanlar başkalarıyla paylaşılmaz — mirrors the
-    // rides_vip_solo_single_seat DB check constraint (0018_ride_trip_preferences.sql).
-    .refine((data) => !data.vipSolo || data.seatCount === 1, {
-      message: t("vipSoloSingleSeat"),
-      path: ["seatCount"],
-    })
     // Yolcu ilanında araç/politika alanları anlamsız (ilan sahibi henüz
     // sürücü değil) — form bunları zaten gizliyor (Task 5), ama şema
     // seviyesinde de zorlanıyor ki tamperlenmiş bir istek bu alanları
@@ -121,13 +110,9 @@ export function buildRideSchema(t: ValidationTranslator) {
             ...data,
             petsAllowed: false,
             smokingAllowed: false,
-            vipSolo: false,
             repeatWeekly: false,
             paymentMethods: ["bank_transfer"] as const,
             instantBooking: false,
-            quietRide: false,
-            noLargeLuggage: false,
-            noStops: false,
           }
         : data
     )

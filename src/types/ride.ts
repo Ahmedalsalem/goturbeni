@@ -20,14 +20,10 @@ export interface Ride {
   description: string | null
   pets_allowed: boolean
   smoking_allowed: boolean
-  vip_solo: boolean
   payment_methods: RidePaymentMethod[]
   instant_booking: boolean
   car_features: CarFeatureKey[]
   custom_car_features: string[]
-  quiet_ride: boolean
-  no_large_luggage: boolean
-  no_stops: boolean
   status: RideStatus
   series_id: string | null
   created_at: string

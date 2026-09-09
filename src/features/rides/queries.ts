@@ -75,9 +75,6 @@ function buildRidesQuery(
   if (filters?.smokingAllowed) {
     query = query.eq("smoking_allowed", true)
   }
-  if (filters?.vipOnly) {
-    query = query.eq("vip_solo", true)
-  }
   if (femaleDriverRideIds) {
     query = query.in("id", femaleDriverRideIds)
   }
@@ -114,9 +111,6 @@ function buildNearbyProvinceRidesQuery(
   }
   if (filters.smokingAllowed) {
     query = query.eq("smoking_allowed", true)
-  }
-  if (filters.vipOnly) {
-    query = query.eq("vip_solo", true)
   }
   if (femaleDriverRideIds) {
     query = query.in("id", femaleDriverRideIds)

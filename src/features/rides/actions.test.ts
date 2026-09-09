@@ -84,14 +84,10 @@ function validRideValues(overrides: Partial<RideFormValues> = {}): RideFormValue
     description: undefined,
     petsAllowed: false,
     smokingAllowed: false,
-    vipSolo: false,
     paymentMethods: ["bank_transfer"],
     instantBooking: false,
     carFeatures: [],
     customCarFeatures: [],
-    quietRide: false,
-    noLargeLuggage: false,
-    noStops: false,
     repeatWeekly: false,
     ...overrides,
   }
@@ -155,7 +151,6 @@ describe("rides/actions", () => {
           posted_by: FAKE_USER.id,
           pets_allowed: false,
           smoking_allowed: false,
-          vip_solo: false,
         })
       )
     })

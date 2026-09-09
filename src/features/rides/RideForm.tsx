@@ -92,14 +92,10 @@ export function RideForm({
       description: ride?.description ?? undefined,
       petsAllowed: ride?.pets_allowed ?? false,
       smokingAllowed: ride?.smoking_allowed ?? false,
-      vipSolo: ride?.vip_solo ?? false,
       paymentMethods: ride?.payment_methods ?? ["bank_transfer"],
       instantBooking: ride?.instant_booking ?? false,
       carFeatures: ride?.car_features ?? defaultCarFeatures ?? [],
       customCarFeatures: ride?.custom_car_features ?? defaultCustomCarFeatures ?? [],
-      quietRide: ride?.quiet_ride ?? false,
-      noLargeLuggage: ride?.no_large_luggage ?? false,
-      noStops: ride?.no_stops ?? false,
       repeatWeekly: false,
     },
   })
@@ -391,7 +387,6 @@ export function RideForm({
               type="number"
               min={MIN_SEAT_COUNT}
               max={MAX_SEAT_COUNT}
-              disabled={watch("vipSolo")}
               aria-invalid={!!errors.seatCount}
               aria-describedby={errors.seatCount ? "seatCount-error" : undefined}
               {...register("seatCount")}
@@ -488,69 +483,6 @@ export function RideForm({
                 {t("smokingAllowed")}
               </FieldLabel>
             </Field>
-
-            <Field orientation="horizontal">
-              <Controller
-                control={control}
-                name="quietRide"
-                render={({ field }) => (
-                  <Checkbox id="quietRide" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-                )}
-              />
-              <FieldLabel htmlFor="quietRide" className="font-normal">
-                {t("quietRide")}
-              </FieldLabel>
-            </Field>
-
-            <Field orientation="horizontal">
-              <Controller
-                control={control}
-                name="noLargeLuggage"
-                render={({ field }) => (
-                  <Checkbox id="noLargeLuggage" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-                )}
-              />
-              <FieldLabel htmlFor="noLargeLuggage" className="font-normal">
-                {t("noLargeLuggage")}
-              </FieldLabel>
-            </Field>
-
-            <Field orientation="horizontal">
-              <Controller
-                control={control}
-                name="noStops"
-                render={({ field }) => (
-                  <Checkbox id="noStops" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-                )}
-              />
-              <FieldLabel htmlFor="noStops" className="font-normal">
-                {t("noStops")}
-              </FieldLabel>
-            </Field>
-
-            <Field orientation="horizontal">
-              <Controller
-                control={control}
-                name="vipSolo"
-                render={({ field }) => (
-                  <Checkbox
-                    id="vipSolo"
-                    checked={field.value}
-                    onCheckedChange={(checked) => {
-                      const isVip = checked === true
-                      field.onChange(isVip)
-                      if (isVip) {
-                        setValue("seatCount", 1)
-                      }
-                    }}
-                  />
-                )}
-              />
-              <FieldLabel htmlFor="vipSolo" className="font-normal">
-                {t("vipSolo")}
-              </FieldLabel>
-            </Field>
-            {watch("vipSolo") && <FieldDescription>{t("vipSoloHint")}</FieldDescription>}
 
             <Field>
               <FieldLabel>{t("paymentMethodLabel")}</FieldLabel>

@@ -41,7 +41,6 @@ function buildQueryString(filters: Partial<RideSearchFilters>): string {
   if (filters.sort && filters.sort !== "date_asc") params.set("sort", filters.sort)
   if (filters.petsAllowed) params.set("petsAllowed", "1")
   if (filters.smokingAllowed) params.set("smokingAllowed", "1")
-  if (filters.vipOnly) params.set("vipOnly", "1")
   if (filters.femaleDriverOnly) params.set("femaleDriverOnly", "1")
   if (filters.postedByRole) params.set("type", filters.postedByRole)
   const qs = params.toString()
@@ -80,7 +79,6 @@ export function RideFilters({
   const [date, setDate] = useState(initial.date ?? "")
   const [petsAllowed, setPetsAllowed] = useState(initial.petsAllowed ?? false)
   const [smokingAllowed, setSmokingAllowed] = useState(initial.smokingAllowed ?? false)
-  const [vipOnly, setVipOnly] = useState(initial.vipOnly ?? false)
   const [femaleDriverOnly, setFemaleDriverOnly] = useState(initial.femaleDriverOnly ?? false)
   const [postedByRole, setPostedByRole] = useState<"driver" | "passenger" | undefined>(initial.postedByRole)
 
@@ -98,7 +96,6 @@ export function RideFilters({
         sort: initial.sort,
         petsAllowed,
         smokingAllowed,
-        vipOnly,
         femaleDriverOnly,
         postedByRole,
       })
@@ -116,7 +113,6 @@ export function RideFilters({
         sort,
         petsAllowed,
         smokingAllowed,
-        vipOnly,
         femaleDriverOnly,
         postedByRole,
       }),
@@ -311,12 +307,6 @@ export function RideFilters({
             />
             <FieldLabel htmlFor="filter-smoking-allowed" className="font-normal">
               {t("smokingAllowed")}
-            </FieldLabel>
-          </Field>
-          <Field orientation="horizontal">
-            <Checkbox id="filter-vip-only" checked={vipOnly} onCheckedChange={(checked) => setVipOnly(checked === true)} />
-            <FieldLabel htmlFor="filter-vip-only" className="font-normal">
-              {t("vipOnly")}
             </FieldLabel>
           </Field>
           <Field orientation="horizontal">

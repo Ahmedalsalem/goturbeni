@@ -121,7 +121,6 @@ export async function createRide(
     costShare: number
     petsAllowed?: boolean
     smokingAllowed?: boolean
-    vipSolo?: boolean
     paymentMethod?: "bank_transfer" | "cash"
     instantBooking?: boolean
   }
@@ -157,9 +156,6 @@ export async function createRide(
   }
   if (options.smokingAllowed) {
     await page.locator('[aria-labelledby="smokingAllowed-label"]').click()
-  }
-  if (options.vipSolo) {
-    await page.locator('[aria-labelledby="vipSolo-label"]').click()
   }
   if (options.paymentMethod === "cash") {
     // Bank transfer is checked by default (RideForm's paymentMethods

@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getFormatter, getTranslations } from "next-intl/server"
-import { ArrowRight, CalendarDays, Cigarette, Clock, Crown, LogIn, MapPin, PawPrint, Users } from "lucide-react"
+import { ArrowRight, CalendarDays, Cigarette, Clock, LogIn, MapPin, PawPrint, Users } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -172,11 +172,6 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
             {ride.arrival_district ? `${arrivalCity} (${ride.arrival_district})` : arrivalCity}
           </h1>
           <div className="flex items-center gap-2">
-            {ride.vip_solo && (
-              <Badge variant="secondary" className="gap-1">
-                <Crown className="size-3" aria-hidden="true" /> {tCard("vipSolo")}
-              </Badge>
-            )}
             <RideStatusBadge status={ride.status} />
             <ShareRideButton title={routeLabel} url={`${SITE_URL}/rides/${id}`} />
           </div>

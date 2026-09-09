@@ -45,14 +45,10 @@ function buildRideRow(parsed: RideFormValues) {
     description: parsed.description ?? null,
     pets_allowed: parsed.petsAllowed,
     smoking_allowed: parsed.smokingAllowed,
-    vip_solo: parsed.vipSolo,
     payment_methods: parsed.paymentMethods,
     instant_booking: parsed.instantBooking,
     car_features: parsed.carFeatures,
     custom_car_features: parsed.customCarFeatures,
-    quiet_ride: parsed.quietRide,
-    no_large_luggage: parsed.noLargeLuggage,
-    no_stops: parsed.noStops,
   }
 }
 
@@ -176,12 +172,8 @@ async function createRideSeriesForRide(rideId: string, driverId: string, parsed:
       description: parsed.description ?? null,
       pets_allowed: parsed.petsAllowed,
       smoking_allowed: parsed.smokingAllowed,
-      vip_solo: parsed.vipSolo,
       car_features: parsed.carFeatures,
       custom_car_features: parsed.customCarFeatures,
-      quiet_ride: parsed.quietRide,
-      no_large_luggage: parsed.noLargeLuggage,
-      no_stops: parsed.noStops,
     })
     .select("id")
     .single()
