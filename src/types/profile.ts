@@ -8,14 +8,9 @@ export type ProfileGender = "female" | "male"
 // which is free text the driver types themselves.
 export const CAR_FEATURE_KEYS = [
   "ac",
-  "bluetooth",
   "usb_charger",
   "large_trunk",
-  "leather_seats",
-  "sunroof",
-  "automatic_transmission",
   "child_seat",
-  "navigation",
   "wheelchair_accessible",
 ] as const
 export type CarFeatureKey = (typeof CAR_FEATURE_KEYS)[number]

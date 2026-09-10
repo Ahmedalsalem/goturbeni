@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useLocale, useTranslations } from "next-intl"
-import { Loader2, Plus, Send, X } from "lucide-react"
+import { ChevronDown, Loader2, Plus, Send, X } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -64,6 +64,12 @@ export function RideForm({
   const [serverError, setServerError] = useState<string | null>(null)
   const [customFeatureInput, setCustomFeatureInput] = useState("")
   const [freeRide, setFreeRide] = useState((ride?.cost_share ?? 0) === 0 && ride?.posted_by_role !== "passenger")
+  // Collapsed by default on create so a first-time poster only faces the
+  // handful of fields that actually block publishing (route, date, seats,
+  // price, description) — the rest are pre-filled with sane defaults. Open
+  // by default on edit since an existing ride may already have non-default
+  // values in there that the driver came back specifically to change.
+  const [showAdvanced, setShowAdvanced] = useState(!!ride)
 
   const {
     control,
@@ -122,7 +128,11 @@ export function RideForm({
   // (e.g. both fields briefly pointing at the same province) the live hint
   // would otherwise show a nonsensical "~0 ₺" for a moment.
   const estimatedCostShare =
-    departureCity && arrivalCity && departureCity !== arrivalCity && Number.isFinite(seatCountValue) && seatCountValue > 0
+    departureCity &&
+    arrivalCity &&
+    departureCity !== arrivalCity &&
+    Number.isFinite(seatCountValue) &&
+    seatCountValue > 0
       ? estimateCostSharePerSeat(departureCity, arrivalCity, seatCountValue)
       : null
 
@@ -212,7 +222,9 @@ export function RideForm({
                 setValue("departureDistrict", district ?? "")
               }}
             />
-            {errors.departureCity && <FieldError id="departureCity-error" errors={[{ message: errors.departureCity.message }]} />}
+            {errors.departureCity && (
+              <FieldError id="departureCity-error" errors={[{ message: errors.departureCity.message }]} />
+            )}
           </Field>
 
           <Field>
@@ -261,7 +273,9 @@ export function RideForm({
                 setValue("arrivalDistrict", district ?? "")
               }}
             />
-            {errors.arrivalCity && <FieldError id="arrivalCity-error" errors={[{ message: errors.arrivalCity.message }]} />}
+            {errors.arrivalCity && (
+              <FieldError id="arrivalCity-error" errors={[{ message: errors.arrivalCity.message }]} />
+            )}
           </Field>
         </div>
 
@@ -349,7 +363,9 @@ export function RideForm({
                 </Combobox>
               )}
             />
-            {errors.arrivalDistrict && <FieldError id="arrivalDistrict-error" errors={[{ message: errors.arrivalDistrict.message }]} />}
+            {errors.arrivalDistrict && (
+              <FieldError id="arrivalDistrict-error" errors={[{ message: errors.arrivalDistrict.message }]} />
+            )}
           </Field>
         </div>
 
@@ -363,7 +379,9 @@ export function RideForm({
               aria-describedby={errors.departureDate ? "departureDate-error" : undefined}
               {...register("departureDate")}
             />
-            {errors.departureDate && <FieldError id="departureDate-error" errors={[{ message: errors.departureDate.message }]} />}
+            {errors.departureDate && (
+              <FieldError id="departureDate-error" errors={[{ message: errors.departureDate.message }]} />
+            )}
           </Field>
 
           <Field>
@@ -375,7 +393,9 @@ export function RideForm({
               aria-describedby={errors.departureTime ? "departureTime-error" : undefined}
               {...register("departureTime")}
             />
-            {errors.departureTime && <FieldError id="departureTime-error" errors={[{ message: errors.departureTime.message }]} />}
+            {errors.departureTime && (
+              <FieldError id="departureTime-error" errors={[{ message: errors.departureTime.message }]} />
+            )}
           </Field>
         </div>
 
@@ -453,201 +473,256 @@ export function RideForm({
             {...register("description")}
           />
           <FieldDescription>{t("descriptionHint")}</FieldDescription>
-          {errors.description && <FieldError id="description-error" errors={[{ message: errors.description.message }]} />}
+          {errors.description && (
+            <FieldError id="description-error" errors={[{ message: errors.description.message }]} />
+          )}
         </Field>
 
-        {!isPassengerMode && (
-          <>
-            <Field orientation="horizontal">
-              <Controller
-                control={control}
-                name="petsAllowed"
-                render={({ field }) => (
-                  <Checkbox id="petsAllowed" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-                )}
-              />
-              <FieldLabel htmlFor="petsAllowed" className="font-normal">
-                {t("petsAllowed")}
-              </FieldLabel>
-            </Field>
-
-            <Field orientation="horizontal">
-              <Controller
-                control={control}
-                name="smokingAllowed"
-                render={({ field }) => (
-                  <Checkbox id="smokingAllowed" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-                )}
-              />
-              <FieldLabel htmlFor="smokingAllowed" className="font-normal">
-                {t("smokingAllowed")}
-              </FieldLabel>
-            </Field>
-
-            <Field>
-              <FieldLabel>{t("paymentMethodLabel")}</FieldLabel>
-              <Controller
-                control={control}
-                name="paymentMethods"
-                render={({ field }) => (
-                  <div className="flex gap-4">
-                    <Field orientation="horizontal">
-                      <Checkbox
-                        id="paymentMethodBankTransfer"
-                        checked={field.value?.includes("bank_transfer") ?? false}
-                        onCheckedChange={(checked) => {
-                          const current = field.value ?? []
-                          field.onChange(checked === true ? [...current, "bank_transfer"] : current.filter((v) => v !== "bank_transfer"))
-                        }}
-                      />
-                      <FieldLabel htmlFor="paymentMethodBankTransfer" className="font-normal">
-                        {t("paymentMethodBankTransfer")}
-                      </FieldLabel>
-                    </Field>
-                    <Field orientation="horizontal">
-                      <Checkbox
-                        id="paymentMethodCash"
-                        checked={field.value?.includes("cash") ?? false}
-                        onCheckedChange={(checked) => {
-                          const current = field.value ?? []
-                          field.onChange(checked === true ? [...current, "cash"] : current.filter((v) => v !== "cash"))
-                        }}
-                      />
-                      <FieldLabel htmlFor="paymentMethodCash" className="font-normal">
-                        {t("paymentMethodCash")}
-                      </FieldLabel>
-                    </Field>
-                  </div>
-                )}
-              />
-              {errors.paymentMethods && <FieldError errors={[{ message: errors.paymentMethods.message }]} />}
-              <FieldDescription>{t("paymentMethodHint")}</FieldDescription>
-            </Field>
-
-            <Field orientation="horizontal">
-              <Controller
-                control={control}
-                name="instantBooking"
-                render={({ field }) => (
-                  <Checkbox id="instantBooking" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
-                )}
-              />
-              <FieldLabel htmlFor="instantBooking" className="font-normal">
-                {t("instantBooking")}
-              </FieldLabel>
-            </Field>
-            <FieldDescription>{t("instantBookingHint")}</FieldDescription>
-          </>
-        )}
-
-        <Field>
-          <FieldLabel>{t(isPassengerMode ? "passengerNeedsLabel" : "carFeaturesLabel")}</FieldLabel>
-          <Controller
-            control={control}
-            name="carFeatures"
-            render={({ field }) => (
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3">
-                {CAR_FEATURE_KEYS.map((key) => (
-                  <Field key={key} orientation="horizontal">
-                    <Checkbox
-                      id={`carFeature-${key}`}
-                      checked={field.value?.includes(key) ?? false}
-                      onCheckedChange={(checked) => {
-                        const current = field.value ?? []
-                        field.onChange(checked === true ? [...current, key] : current.filter((item) => item !== key))
-                      }}
-                    />
-                    <FieldLabel htmlFor={`carFeature-${key}`} className="font-normal">
-                      {tCarFeatures(key)}
-                    </FieldLabel>
-                  </Field>
-                ))}
-              </div>
-            )}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="w-fit"
+          onClick={() => setShowAdvanced((value) => !value)}
+          aria-expanded={showAdvanced}
+        >
+          <ChevronDown
+            className={`size-4 transition-transform ${showAdvanced ? "rotate-180" : ""}`}
+            aria-hidden="true"
           />
+          {showAdvanced ? t("advancedOptionsHide") : t("advancedOptionsShow")}
+        </Button>
 
-          <FieldLabel className="mt-2">{t("customFeaturesLabel")}</FieldLabel>
-          <Controller
-            control={control}
-            name="customCarFeatures"
-            render={({ field }) => {
-              const customFeatures = field.value ?? []
-              return (
-                <>
-                  {customFeatures.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5">
-                      {customFeatures.map((feature) => (
-                        <Badge key={feature} variant="secondary" className="gap-1 pe-1">
-                          {feature}
-                          <button
-                            type="button"
-                            onClick={() => field.onChange(customFeatures.filter((item) => item !== feature))}
-                            aria-label={t("removeCustomFeature")}
-                            className="hover:text-destructive"
-                          >
-                            <X className="size-3" aria-hidden="true" />
-                          </button>
-                        </Badge>
-                      ))}
+        <div className={showAdvanced ? "flex flex-col gap-6" : "hidden"}>
+          {!isPassengerMode && (
+            <>
+              <Field orientation="horizontal">
+                <Controller
+                  control={control}
+                  name="petsAllowed"
+                  render={({ field }) => (
+                    <Checkbox
+                      id="petsAllowed"
+                      checked={field.value}
+                      onCheckedChange={(checked) => field.onChange(checked === true)}
+                    />
+                  )}
+                />
+                <FieldLabel htmlFor="petsAllowed" className="font-normal">
+                  {t("petsAllowed")}
+                </FieldLabel>
+              </Field>
+
+              <Field orientation="horizontal">
+                <Controller
+                  control={control}
+                  name="smokingAllowed"
+                  render={({ field }) => (
+                    <Checkbox
+                      id="smokingAllowed"
+                      checked={field.value}
+                      onCheckedChange={(checked) => field.onChange(checked === true)}
+                    />
+                  )}
+                />
+                <FieldLabel htmlFor="smokingAllowed" className="font-normal">
+                  {t("smokingAllowed")}
+                </FieldLabel>
+              </Field>
+
+              <Field>
+                <FieldLabel>{t("paymentMethodLabel")}</FieldLabel>
+                <Controller
+                  control={control}
+                  name="paymentMethods"
+                  render={({ field }) => (
+                    <div className="flex gap-4">
+                      <Field orientation="horizontal">
+                        <Checkbox
+                          id="paymentMethodBankTransfer"
+                          checked={field.value?.includes("bank_transfer") ?? false}
+                          onCheckedChange={(checked) => {
+                            const current = field.value ?? []
+                            field.onChange(
+                              checked === true
+                                ? [...current, "bank_transfer"]
+                                : current.filter((v) => v !== "bank_transfer")
+                            )
+                          }}
+                        />
+                        <FieldLabel htmlFor="paymentMethodBankTransfer" className="font-normal">
+                          {t("paymentMethodBankTransfer")}
+                        </FieldLabel>
+                      </Field>
+                      <Field orientation="horizontal">
+                        <Checkbox
+                          id="paymentMethodCash"
+                          checked={field.value?.includes("cash") ?? false}
+                          onCheckedChange={(checked) => {
+                            const current = field.value ?? []
+                            field.onChange(
+                              checked === true ? [...current, "cash"] : current.filter((v) => v !== "cash")
+                            )
+                          }}
+                        />
+                        <FieldLabel htmlFor="paymentMethodCash" className="font-normal">
+                          {t("paymentMethodCash")}
+                        </FieldLabel>
+                      </Field>
                     </div>
                   )}
-                  <div className="flex gap-2">
-                    <Input
-                      value={customFeatureInput}
-                      onChange={(event) => setCustomFeatureInput(event.target.value)}
-                      onKeyDown={(event) => {
-                        if (event.key !== "Enter") return
-                        event.preventDefault()
-                        const value = customFeatureInput.trim()
-                        if (!value || customFeatures.length >= MAX_CUSTOM_CAR_FEATURES || customFeatures.includes(value)) return
-                        field.onChange([...customFeatures, value])
-                        setCustomFeatureInput("")
-                      }}
-                      placeholder={t("addCustomFeaturePlaceholder")}
-                      maxLength={MAX_CUSTOM_CAR_FEATURE_LENGTH}
-                      disabled={customFeatures.length >= MAX_CUSTOM_CAR_FEATURES}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => {
-                        const value = customFeatureInput.trim()
-                        if (!value || customFeatures.length >= MAX_CUSTOM_CAR_FEATURES || customFeatures.includes(value)) return
-                        field.onChange([...customFeatures, value])
-                        setCustomFeatureInput("")
-                      }}
-                      disabled={customFeatures.length >= MAX_CUSTOM_CAR_FEATURES}
-                      aria-label={t("addCustomFeatureCta")}
-                    >
-                      <Plus className="size-4" aria-hidden="true" />
-                    </Button>
-                  </div>
-                </>
-              )
-            }}
-          />
-        </Field>
+                />
+                {errors.paymentMethods && <FieldError errors={[{ message: errors.paymentMethods.message }]} />}
+                <FieldDescription>{t("paymentMethodHint")}</FieldDescription>
+              </Field>
 
-        {!ride && !isPassengerMode && (
-          <Field orientation="horizontal">
+              <Field orientation="horizontal">
+                <Controller
+                  control={control}
+                  name="instantBooking"
+                  render={({ field }) => (
+                    <Checkbox
+                      id="instantBooking"
+                      checked={field.value}
+                      onCheckedChange={(checked) => field.onChange(checked === true)}
+                    />
+                  )}
+                />
+                <FieldLabel htmlFor="instantBooking" className="font-normal">
+                  {t("instantBooking")}
+                </FieldLabel>
+              </Field>
+              <FieldDescription>{t("instantBookingHint")}</FieldDescription>
+            </>
+          )}
+
+          <Field>
+            <FieldLabel>{t(isPassengerMode ? "passengerNeedsLabel" : "carFeaturesLabel")}</FieldLabel>
             <Controller
               control={control}
-              name="repeatWeekly"
+              name="carFeatures"
               render={({ field }) => (
-                <Checkbox id="repeatWeekly" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3">
+                  {CAR_FEATURE_KEYS.map((key) => (
+                    <Field key={key} orientation="horizontal">
+                      <Checkbox
+                        id={`carFeature-${key}`}
+                        checked={field.value?.includes(key) ?? false}
+                        onCheckedChange={(checked) => {
+                          const current = field.value ?? []
+                          field.onChange(checked === true ? [...current, key] : current.filter((item) => item !== key))
+                        }}
+                      />
+                      <FieldLabel htmlFor={`carFeature-${key}`} className="font-normal">
+                        {tCarFeatures(key)}
+                      </FieldLabel>
+                    </Field>
+                  ))}
+                </div>
               )}
             />
-            <FieldLabel htmlFor="repeatWeekly" className="font-normal">
-              {t("repeatWeekly")}
-            </FieldLabel>
+
+            <FieldLabel className="mt-2">{t("customFeaturesLabel")}</FieldLabel>
+            <Controller
+              control={control}
+              name="customCarFeatures"
+              render={({ field }) => {
+                const customFeatures = field.value ?? []
+                return (
+                  <>
+                    {customFeatures.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {customFeatures.map((feature) => (
+                          <Badge key={feature} variant="secondary" className="gap-1 pe-1">
+                            {feature}
+                            <button
+                              type="button"
+                              onClick={() => field.onChange(customFeatures.filter((item) => item !== feature))}
+                              aria-label={t("removeCustomFeature")}
+                              className="hover:text-destructive"
+                            >
+                              <X className="size-3" aria-hidden="true" />
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <Input
+                        value={customFeatureInput}
+                        onChange={(event) => setCustomFeatureInput(event.target.value)}
+                        onKeyDown={(event) => {
+                          if (event.key !== "Enter") return
+                          event.preventDefault()
+                          const value = customFeatureInput.trim()
+                          if (
+                            !value ||
+                            customFeatures.length >= MAX_CUSTOM_CAR_FEATURES ||
+                            customFeatures.includes(value)
+                          )
+                            return
+                          field.onChange([...customFeatures, value])
+                          setCustomFeatureInput("")
+                        }}
+                        placeholder={t("addCustomFeaturePlaceholder")}
+                        maxLength={MAX_CUSTOM_CAR_FEATURE_LENGTH}
+                        disabled={customFeatures.length >= MAX_CUSTOM_CAR_FEATURES}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          const value = customFeatureInput.trim()
+                          if (
+                            !value ||
+                            customFeatures.length >= MAX_CUSTOM_CAR_FEATURES ||
+                            customFeatures.includes(value)
+                          )
+                            return
+                          field.onChange([...customFeatures, value])
+                          setCustomFeatureInput("")
+                        }}
+                        disabled={customFeatures.length >= MAX_CUSTOM_CAR_FEATURES}
+                        aria-label={t("addCustomFeatureCta")}
+                      >
+                        <Plus className="size-4" aria-hidden="true" />
+                      </Button>
+                    </div>
+                  </>
+                )
+              }}
+            />
           </Field>
-        )}
-        {!isPassengerMode && watch("repeatWeekly") && <FieldDescription>{t("repeatWeeklyHint")}</FieldDescription>}
+
+          {!ride && !isPassengerMode && (
+            <Field orientation="horizontal">
+              <Controller
+                control={control}
+                name="repeatWeekly"
+                render={({ field }) => (
+                  <Checkbox
+                    id="repeatWeekly"
+                    checked={field.value}
+                    onCheckedChange={(checked) => field.onChange(checked === true)}
+                  />
+                )}
+              />
+              <FieldLabel htmlFor="repeatWeekly" className="font-normal">
+                {t("repeatWeekly")}
+              </FieldLabel>
+            </Field>
+          )}
+          {!isPassengerMode && watch("repeatWeekly") && <FieldDescription>{t("repeatWeeklyHint")}</FieldDescription>}
+        </div>
       </FieldGroup>
 
       <Button type="submit" size="lg" className="w-full sm:w-fit" disabled={isSubmitting}>
-        {isSubmitting ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <Send className="size-4" aria-hidden="true" />}
+        {isSubmitting ? (
+          <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+        ) : (
+          <Send className="size-4" aria-hidden="true" />
+        )}
         {ride ? t("updateSubmit") : t("createSubmit")}
       </Button>
     </form>

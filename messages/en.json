@@ -581,6 +581,8 @@
       "costShareUseEstimate": "Use this amount",
       "description": "Description",
       "descriptionHint": "Up to 500 characters.",
+      "advancedOptionsShow": "More options",
+      "advancedOptionsHide": "Show less",
       "petsAllowed": "Pets allowed",
       "smokingAllowed": "Smoking allowed",
       "paymentMethodLabel": "Payment method",

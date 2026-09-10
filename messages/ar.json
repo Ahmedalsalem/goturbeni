@@ -581,6 +581,8 @@
       "costShareUseEstimate": "استخدم هذا المبلغ",
       "description": "الوصف",
       "descriptionHint": "500 حرف كحد أقصى.",
+      "advancedOptionsShow": "خيارات إضافية",
+      "advancedOptionsHide": "عرض أقل",
       "petsAllowed": "يُسمح بالحيوانات الأليفة",
       "smokingAllowed": "يُسمح بالتدخين",
       "paymentMethodLabel": "طريقة الدفع",

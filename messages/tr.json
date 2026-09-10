@@ -581,6 +581,8 @@
       "costShareUseEstimate": "Bu tutarı kullan",
       "description": "Açıklama",
       "descriptionHint": "En fazla 500 karakter.",
+      "advancedOptionsShow": "Diğer ayarlar",
+      "advancedOptionsHide": "Daha az göster",
       "petsAllowed": "Evcil hayvan kabul edilir",
       "smokingAllowed": "Sigara içilebilir",
       "paymentMethodLabel": "Ödeme yöntemi",
