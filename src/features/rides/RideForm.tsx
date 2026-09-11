@@ -4,9 +4,8 @@ import { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useLocale, useTranslations } from "next-intl"
-import { ChevronDown, Loader2, Plus, Send, X } from "lucide-react"
+import { ChevronDown, Loader2, Send } from "lucide-react"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Field, FieldGroup, FieldLabel, FieldDescription, FieldError } from "@/components/ui/field"
@@ -35,34 +34,18 @@ import {
   type RideFormInput,
   type RideFormValues,
 } from "@/features/rides/schemas"
-import { MAX_CUSTOM_CAR_FEATURE_LENGTH, MAX_CUSTOM_CAR_FEATURES } from "@/features/profile/schemas"
 import { estimateCostSharePerSeat } from "@/utils/cost-estimate"
 import { TURKISH_PROVINCES } from "@/utils/turkish-provinces"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 import { TURKISH_PROVINCE_DISTRICTS } from "@/utils/turkish-districts"
 import { toIstanbulDateInputValue, toIstanbulTimeInputValue } from "@/utils/istanbul-time"
-import { CAR_FEATURE_KEYS } from "@/types/profile"
 import type { Ride } from "@/types/ride"
 
-export function RideForm({
-  ride,
-  defaultCarFeatures,
-  defaultCustomCarFeatures,
-}: {
-  ride?: Ride
-  // Only meaningful on create — the driver's profile car features, used to
-  // pre-fill the form so they're not re-picking the same 10 checkboxes on
-  // every ride (features/profile). Ignored in edit mode, where the ride's
-  // own stored values (below) already take precedence.
-  defaultCarFeatures?: Ride["car_features"]
-  defaultCustomCarFeatures?: string[]
-}) {
+export function RideForm({ ride }: { ride?: Ride }) {
   const t = useTranslations("Rides.form")
   const tValidation = useTranslations("Rides.validation")
-  const tCarFeatures = useTranslations("CarFeatures")
   const locale = useLocale()
   const [serverError, setServerError] = useState<string | null>(null)
-  const [customFeatureInput, setCustomFeatureInput] = useState("")
   const [freeRide, setFreeRide] = useState((ride?.cost_share ?? 0) === 0 && ride?.posted_by_role !== "passenger")
   // Collapsed by default on create so a first-time poster only faces the
   // handful of fields that actually block publishing (route, date, seats,
@@ -98,10 +81,11 @@ export function RideForm({
       description: ride?.description ?? undefined,
       petsAllowed: ride?.pets_allowed ?? false,
       smokingAllowed: ride?.smoking_allowed ?? false,
+      largeLuggageOk: ride?.large_luggage_ok ?? false,
+      childSeatAvailable: ride?.child_seat_available ?? false,
+      wheelchairAccessible: ride?.wheelchair_accessible ?? false,
       paymentMethods: ride?.payment_methods ?? ["bank_transfer"],
       instantBooking: ride?.instant_booking ?? false,
-      carFeatures: ride?.car_features ?? defaultCarFeatures ?? [],
-      customCarFeatures: ride?.custom_car_features ?? defaultCustomCarFeatures ?? [],
       repeatWeekly: false,
     },
   })
@@ -494,42 +478,93 @@ export function RideForm({
         </Button>
 
         <div className={showAdvanced ? "flex flex-col gap-6" : "hidden"}>
+          <Field orientation="horizontal">
+            <Controller
+              control={control}
+              name="petsAllowed"
+              render={({ field }) => (
+                <Checkbox
+                  id="petsAllowed"
+                  checked={field.value}
+                  onCheckedChange={(checked) => field.onChange(checked === true)}
+                />
+              )}
+            />
+            <FieldLabel htmlFor="petsAllowed" className="font-normal">
+              {t(isPassengerMode ? "petsAllowedPassenger" : "petsAllowed")}
+            </FieldLabel>
+          </Field>
+
+          <Field orientation="horizontal">
+            <Controller
+              control={control}
+              name="smokingAllowed"
+              render={({ field }) => (
+                <Checkbox
+                  id="smokingAllowed"
+                  checked={field.value}
+                  onCheckedChange={(checked) => field.onChange(checked === true)}
+                />
+              )}
+            />
+            <FieldLabel htmlFor="smokingAllowed" className="font-normal">
+              {t(isPassengerMode ? "smokingAllowedPassenger" : "smokingAllowed")}
+            </FieldLabel>
+          </Field>
+
+          <Field orientation="horizontal">
+            <Controller
+              control={control}
+              name="largeLuggageOk"
+              render={({ field }) => (
+                <Checkbox
+                  id="largeLuggageOk"
+                  checked={field.value}
+                  onCheckedChange={(checked) => field.onChange(checked === true)}
+                />
+              )}
+            />
+            <FieldLabel htmlFor="largeLuggageOk" className="font-normal">
+              {t(isPassengerMode ? "largeLuggageOkPassenger" : "largeLuggageOk")}
+            </FieldLabel>
+          </Field>
+
+          <Field orientation="horizontal">
+            <Controller
+              control={control}
+              name="childSeatAvailable"
+              render={({ field }) => (
+                <Checkbox
+                  id="childSeatAvailable"
+                  checked={field.value}
+                  onCheckedChange={(checked) => field.onChange(checked === true)}
+                />
+              )}
+            />
+            <FieldLabel htmlFor="childSeatAvailable" className="font-normal">
+              {t(isPassengerMode ? "childSeatAvailablePassenger" : "childSeatAvailable")}
+            </FieldLabel>
+          </Field>
+
+          <Field orientation="horizontal">
+            <Controller
+              control={control}
+              name="wheelchairAccessible"
+              render={({ field }) => (
+                <Checkbox
+                  id="wheelchairAccessible"
+                  checked={field.value}
+                  onCheckedChange={(checked) => field.onChange(checked === true)}
+                />
+              )}
+            />
+            <FieldLabel htmlFor="wheelchairAccessible" className="font-normal">
+              {t(isPassengerMode ? "wheelchairAccessiblePassenger" : "wheelchairAccessible")}
+            </FieldLabel>
+          </Field>
+
           {!isPassengerMode && (
             <>
-              <Field orientation="horizontal">
-                <Controller
-                  control={control}
-                  name="petsAllowed"
-                  render={({ field }) => (
-                    <Checkbox
-                      id="petsAllowed"
-                      checked={field.value}
-                      onCheckedChange={(checked) => field.onChange(checked === true)}
-                    />
-                  )}
-                />
-                <FieldLabel htmlFor="petsAllowed" className="font-normal">
-                  {t("petsAllowed")}
-                </FieldLabel>
-              </Field>
-
-              <Field orientation="horizontal">
-                <Controller
-                  control={control}
-                  name="smokingAllowed"
-                  render={({ field }) => (
-                    <Checkbox
-                      id="smokingAllowed"
-                      checked={field.value}
-                      onCheckedChange={(checked) => field.onChange(checked === true)}
-                    />
-                  )}
-                />
-                <FieldLabel htmlFor="smokingAllowed" className="font-normal">
-                  {t("smokingAllowed")}
-                </FieldLabel>
-              </Field>
-
               <Field>
                 <FieldLabel>{t("paymentMethodLabel")}</FieldLabel>
                 <Controller
@@ -595,105 +630,6 @@ export function RideForm({
               <FieldDescription>{t("instantBookingHint")}</FieldDescription>
             </>
           )}
-
-          <Field>
-            <FieldLabel>{t(isPassengerMode ? "passengerNeedsLabel" : "carFeaturesLabel")}</FieldLabel>
-            <Controller
-              control={control}
-              name="carFeatures"
-              render={({ field }) => (
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3">
-                  {CAR_FEATURE_KEYS.map((key) => (
-                    <Field key={key} orientation="horizontal">
-                      <Checkbox
-                        id={`carFeature-${key}`}
-                        checked={field.value?.includes(key) ?? false}
-                        onCheckedChange={(checked) => {
-                          const current = field.value ?? []
-                          field.onChange(checked === true ? [...current, key] : current.filter((item) => item !== key))
-                        }}
-                      />
-                      <FieldLabel htmlFor={`carFeature-${key}`} className="font-normal">
-                        {tCarFeatures(key)}
-                      </FieldLabel>
-                    </Field>
-                  ))}
-                </div>
-              )}
-            />
-
-            <FieldLabel className="mt-2">{t("customFeaturesLabel")}</FieldLabel>
-            <Controller
-              control={control}
-              name="customCarFeatures"
-              render={({ field }) => {
-                const customFeatures = field.value ?? []
-                return (
-                  <>
-                    {customFeatures.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {customFeatures.map((feature) => (
-                          <Badge key={feature} variant="secondary" className="gap-1 pe-1">
-                            {feature}
-                            <button
-                              type="button"
-                              onClick={() => field.onChange(customFeatures.filter((item) => item !== feature))}
-                              aria-label={t("removeCustomFeature")}
-                              className="hover:text-destructive"
-                            >
-                              <X className="size-3" aria-hidden="true" />
-                            </button>
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                    <div className="flex gap-2">
-                      <Input
-                        value={customFeatureInput}
-                        onChange={(event) => setCustomFeatureInput(event.target.value)}
-                        onKeyDown={(event) => {
-                          if (event.key !== "Enter") return
-                          event.preventDefault()
-                          const value = customFeatureInput.trim()
-                          if (
-                            !value ||
-                            customFeatures.length >= MAX_CUSTOM_CAR_FEATURES ||
-                            customFeatures.includes(value)
-                          )
-                            return
-                          field.onChange([...customFeatures, value])
-                          setCustomFeatureInput("")
-                        }}
-                        placeholder={t("addCustomFeaturePlaceholder")}
-                        maxLength={MAX_CUSTOM_CAR_FEATURE_LENGTH}
-                        disabled={customFeatures.length >= MAX_CUSTOM_CAR_FEATURES}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={() => {
-                          const value = customFeatureInput.trim()
-                          if (
-                            !value ||
-                            customFeatures.length >= MAX_CUSTOM_CAR_FEATURES ||
-                            customFeatures.includes(value)
-                          )
-                            return
-                          field.onChange([...customFeatures, value])
-                          setCustomFeatureInput("")
-                        }}
-                        disabled={customFeatures.length >= MAX_CUSTOM_CAR_FEATURES}
-                        aria-label={t("addCustomFeatureCta")}
-                      >
-                        <Plus className="size-4" aria-hidden="true" />
-                      </Button>
-                    </div>
-                  </>
-                )
-              }}
-            />
-          </Field>
 
           {!ride && !isPassengerMode && (
             <Field orientation="horizontal">

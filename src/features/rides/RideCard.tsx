@@ -1,5 +1,17 @@
 import Link from "next/link"
-import { ArrowRight, CalendarDays, Cigarette, Clock, MapPin, PawPrint, Sparkles, Users } from "lucide-react"
+import {
+  Accessibility,
+  ArrowRight,
+  Baby,
+  Briefcase,
+  CalendarDays,
+  Cigarette,
+  Clock,
+  MapPin,
+  PawPrint,
+  Sparkles,
+  Users,
+} from "lucide-react"
 import { getFormatter, getTranslations } from "next-intl/server"
 
 import { Badge } from "@/components/ui/badge"
@@ -73,16 +85,41 @@ export async function RideCard({
         </div>
         <div className="text-primary font-semibold">{ride.cost_share === 0 ? t("freeRide") : formatCostShare(ride.cost_share, locale)}</div>
       </CardContent>
-      {(ride.pets_allowed || ride.smoking_allowed || carFeatures.length > 0 || customCarFeatures.length > 0) && (
+      {(ride.pets_allowed ||
+        ride.smoking_allowed ||
+        ride.large_luggage_ok ||
+        ride.child_seat_available ||
+        ride.wheelchair_accessible ||
+        carFeatures.length > 0 ||
+        customCarFeatures.length > 0) && (
         <CardContent className="flex flex-wrap gap-1.5 pt-0">
           {ride.pets_allowed && (
             <Badge variant="outline" className="gap-1">
-              <PawPrint className="size-3" aria-hidden="true" /> {t("petsAllowed")}
+              <PawPrint className="size-3" aria-hidden="true" /> {t(isPassengerListing ? "petsAllowedPassenger" : "petsAllowed")}
             </Badge>
           )}
           {ride.smoking_allowed && (
             <Badge variant="outline" className="gap-1">
-              <Cigarette className="size-3" aria-hidden="true" /> {t("smokingAllowed")}
+              <Cigarette className="size-3" aria-hidden="true" />{" "}
+              {t(isPassengerListing ? "smokingAllowedPassenger" : "smokingAllowed")}
+            </Badge>
+          )}
+          {ride.large_luggage_ok && (
+            <Badge variant="outline" className="gap-1">
+              <Briefcase className="size-3" aria-hidden="true" />{" "}
+              {t(isPassengerListing ? "largeLuggageOkPassenger" : "largeLuggageOk")}
+            </Badge>
+          )}
+          {ride.child_seat_available && (
+            <Badge variant="outline" className="gap-1">
+              <Baby className="size-3" aria-hidden="true" />{" "}
+              {t(isPassengerListing ? "childSeatAvailablePassenger" : "childSeatAvailable")}
+            </Badge>
+          )}
+          {ride.wheelchair_accessible && (
+            <Badge variant="outline" className="gap-1">
+              <Accessibility className="size-3" aria-hidden="true" />{" "}
+              {t(isPassengerListing ? "wheelchairAccessiblePassenger" : "wheelchairAccessible")}
             </Badge>
           )}
           {carFeatures.map((key) => (

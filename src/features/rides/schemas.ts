@@ -1,10 +1,8 @@
 import { z } from "zod"
 
-import { MAX_CUSTOM_CAR_FEATURE_LENGTH, MAX_CUSTOM_CAR_FEATURES } from "@/features/profile/schemas"
 import { TURKISH_PROVINCES } from "@/utils/turkish-provinces"
 import { TURKISH_PROVINCE_DISTRICTS } from "@/utils/turkish-districts"
 import { parseIstanbulDateTime } from "@/utils/istanbul-time"
-import { CAR_FEATURE_KEYS } from "@/types/profile"
 
 export const MIN_SEAT_COUNT = 1
 export const MAX_SEAT_COUNT = 8
@@ -22,8 +20,6 @@ type ValidationTranslator = (
     | "costSharePassengerMin"
     | "descriptionMax"
     | "districtInvalid"
-    | "customCarFeatureMax"
-    | "tooManyCustomCarFeatures"
     | "paymentMethodRequired"
 ) => string
 
@@ -60,13 +56,11 @@ export function buildRideSchema(t: ValidationTranslator) {
         .transform((value) => (value ? value : undefined)),
       petsAllowed: z.boolean().default(false),
       smokingAllowed: z.boolean().default(false),
+      largeLuggageOk: z.boolean().default(false),
+      childSeatAvailable: z.boolean().default(false),
+      wheelchairAccessible: z.boolean().default(false),
       paymentMethods: z.array(z.enum(["bank_transfer", "cash"])).min(1, t("paymentMethodRequired")).default(["bank_transfer"]),
       instantBooking: z.boolean().default(false),
-      carFeatures: z.array(z.enum(CAR_FEATURE_KEYS)).default([]),
-      customCarFeatures: z
-        .array(z.string().trim().min(1).max(MAX_CUSTOM_CAR_FEATURE_LENGTH, t("customCarFeatureMax")))
-        .max(MAX_CUSTOM_CAR_FEATURES, t("tooManyCustomCarFeatures"))
-        .default([]),
       // Only read on create (RideForm hides it in edit mode) — the first
       // ride's own departureDate/departureTime supply the series' weekday
       // and time-of-day, so there's no separate recurrence field to fill in.
@@ -98,18 +92,17 @@ export function buildRideSchema(t: ValidationTranslator) {
       message: t("districtInvalid"),
       path: ["arrivalDistrict"],
     })
-    // Yolcu ilanında araç/politika alanları anlamsız (ilan sahibi henüz
-    // sürücü değil) — form bunları zaten gizliyor (Task 5), ama şema
-    // seviyesinde de zorlanıyor ki tamperlenmiş bir istek bu alanları
-    // dolaylı yoldan set edemesin. carFeatures/customCarFeatures istisna:
-    // yolcu için "araçta olsun istediğim özellikler" (klima, şarj, geniş
-    // bagaj vb.) anlamına döndüğünden her iki rolde de anlamlı — sıfırlanmaz.
+    // Ödeme yöntemi/anında onay/haftalık tekrar yalnızca sürücü için anlamlı
+    // (ilan sahibi henüz sürücü değil) — form bunları zaten gizliyor, ama şema
+    // seviyesinde de zorlanıyor ki tamperlenmiş bir istek bu alanları dolaylı
+    // yoldan set edemesin. petsAllowed/smokingAllowed/largeLuggageOk/
+    // childSeatAvailable/wheelchairAccessible istisna: yolcu için "kendi
+    // ihtiyacım" anlamına döndüğünden (ör. "sigara içiyorum", "büyük bagajım
+    // var") her iki rolde de anlamlı — sıfırlanmaz.
     .transform((data) =>
       data.postedByRole === "passenger"
         ? {
             ...data,
-            petsAllowed: false,
-            smokingAllowed: false,
             repeatWeekly: false,
             paymentMethods: ["bank_transfer"] as const,
             instantBooking: false,

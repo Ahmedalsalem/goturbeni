@@ -18,21 +18,23 @@ test.describe("ride form advanced-options toggle", () => {
 
     await page.getByRole("button", { name: "Diğer ayarlar" }).click()
     await expect(petsCheckbox).toBeVisible()
-    await expect(page.getByText("Araç Özellikleri")).toBeVisible()
+    await expect(page.getByText("Büyük bagaj alabilir")).toBeVisible()
 
     await page.getByRole("button", { name: "Daha az göster" }).click()
     await expect(petsCheckbox).toBeHidden()
   })
 
-  test("passenger mode: only passenger-needs + custom features live under the toggle, no pets/payment/repeat", async ({ page }) => {
+  test("passenger mode: pets/smoking/luggage/etc. show passenger-phrased labels, no payment/repeat", async ({ page }) => {
     await signUpAndVerify(page, uniqueEmail("advtogglepass"))
 
     await page.goto("/create-ride")
     await page.getByRole("button", { name: "Yolcuyum", exact: true }).click()
     await page.getByRole("button", { name: "Diğer ayarlar" }).click()
 
-    await expect(page.getByText("İhtiyaçlarım")).toBeVisible()
-    await expect(page.locator('[aria-labelledby="petsAllowed-label"]')).toHaveCount(0)
+    await expect(page.getByText("Evcil hayvanım var")).toBeVisible()
+    await expect(page.getByText("Sigara içiyorum")).toBeVisible()
+    await expect(page.getByText("Büyük bagajım var")).toBeVisible()
+    await expect(page.locator('[aria-labelledby="paymentMethodBankTransfer-label"]')).toHaveCount(0)
     await expect(page.locator('[aria-labelledby="repeatWeekly-label"]')).toHaveCount(0)
   })
 

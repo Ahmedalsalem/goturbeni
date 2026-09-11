@@ -84,10 +84,11 @@ function validRideValues(overrides: Partial<RideFormValues> = {}): RideFormValue
     description: undefined,
     petsAllowed: false,
     smokingAllowed: false,
+    largeLuggageOk: false,
+    childSeatAvailable: false,
+    wheelchairAccessible: false,
     paymentMethods: ["bank_transfer"],
     instantBooking: false,
-    carFeatures: [],
-    customCarFeatures: [],
     repeatWeekly: false,
     ...overrides,
   }
