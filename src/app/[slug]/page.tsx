@@ -13,6 +13,10 @@ import { getUserLocale } from "@/i18n/locale"
 import { languageAlternates } from "@/i18n/hreflang"
 import { POPULAR_ROUTES, CITY_PAGES, findRoutePage, findCityPage, routesFromCity, relatedRoutes } from "@/features/seo/route-pages"
 
+// Trailing slash is stripped so `${SITE_URL}/path` below never produces `//`
+// regardless of how NEXT_PUBLIC_SITE_URL is set in the deployment environment.
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/+$/, "")
+
 // Bu sayfa headers()'a (x-pathname) hiç dokunmuyor — bilerek: slug zaten
 // generateStaticParams'tan geliyor, canonical'ı build-time'da doğrudan
 // slug'tan kurmak sayfayı statik/ISR bırakır (diğer sayfaların x-pathname
@@ -106,8 +110,8 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ slu
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: tNav("home"), item: "/" },
-        { "@type": "ListItem", position: 2, name: t("h1", { from, to }), item: `/${slug}` },
+        { "@type": "ListItem", position: 1, name: tNav("home"), item: SITE_URL },
+        { "@type": "ListItem", position: 2, name: t("h1", { from, to }), item: `${SITE_URL}/${slug}` },
       ],
     }
 
@@ -179,8 +183,8 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ slu
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: tNav("home"), item: "/" },
-      { "@type": "ListItem", position: 2, name: t("h1", { city: cityName }), item: `/${slug}` },
+      { "@type": "ListItem", position: 1, name: tNav("home"), item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: t("h1", { city: cityName }), item: `${SITE_URL}/${slug}` },
     ],
   }
 
