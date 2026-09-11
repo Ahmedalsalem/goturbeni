@@ -2,7 +2,7 @@
 
 Türkiye'de şehirler arası masraf paylaşımı esaslı yolculuk platformu (BlaBlaCar benzeri). Kullanıcılar araç ilanı verip yolculuk masrafını paylaşabilir, ilan arayabilir ve kendi ilanlarını yönetebilir.
 
-**Faz 0 – Faz 20 tamamlandı; `0001`–`0079` migration'larının tamamı gerçek (production) Supabase projesine uygulanmış ve canlıda çalışıyor durumda** (anlaşmazlık çözümü, dolandırıcılık tespiti v2, toplu dekont onayı, alım doğrulama kodu, plaka format doğrulaması, İngilizce dil desteği, zorunlu araç rengi, Google ile giriş, ücretsiz yolculuk seçeneği dahil). Uygulama Vercel'de yayında ve GitHub'a bağlı sürekli deploy ile çalışıyor. Ayrıntılı durum raporu için [PROJECT_STATUS.md](./PROJECT_STATUS.md), sürüm geçmişi için [CHANGELOG.md](./CHANGELOG.md) dosyalarına bakın.
+**Faz 0 – Faz 23 tamamlandı; `0001`–`0084` migration'larının tamamı gerçek (production) Supabase projesine uygulanmış ve canlıda çalışıyor durumda** (anlaşmazlık çözümü, dolandırıcılık tespiti v2, toplu dekont onayı, alım doğrulama kodu, plaka format doğrulaması, İngilizce dil desteği, zorunlu araç rengi, Google ile giriş, ücretsiz yolculuk seçeneği, referral sistemi, yolculuk hatırlatma e-postası, admin panelde hesap doğrulama durumu dahil). Uygulama Vercel'de yayında ve GitHub'a bağlı sürekli deploy ile çalışıyor. Ayrıntılı durum raporu için [PROJECT_STATUS.md](./PROJECT_STATUS.md), sürüm geçmişi için [CHANGELOG.md](./CHANGELOG.md) dosyalarına bakın.
 
 ## Proje Amacı
 
@@ -255,6 +255,11 @@ Migration'lar dosya adı sırasına göre (`0001`, `0002`, `0003`, ...) uygulan�
 61. `supabase/migrations/0077_rename_phone_verified_to_email_verified.sql` — yanıltıcı `phone_verified` kolonu `email_verified`'a yeniden adlandırıldı (doğrulama `0035`'ten beri e-posta koduyla yapılıyor, kolon adı hiç güncellenmemişti).
 62. `supabase/migrations/0078_google_oauth_signup.sql` — Google ile giriş desteği: `handle_new_user` artık OAuth sağlayıcısından gelen ad-soyad/avatarı otomatik yazıyor, Google girişinde `email_verified` baştan `true` (Google zaten e-posta sahipliğini doğrulamış sayılır, ayrı bir kod istenmiyor).
 63. `supabase/migrations/0079_offer_driver_car_color_readiness.sql` — `get_offer_driver_readiness`'e `color_ok` eklendi — `0076` araç rengini yalnızca sürücü ilanı akışında zorunlu kılmıştı, yolcu ilanına teklif veren sürücü tarafında unutulmuştu.
+64. `supabase/migrations/0080_referrals.sql` — referral sistemi: ayrı bir kod kolonu/üretim fonksiyonu yok, `profiles.id`'nin ilk 8 karakteri kod olarak kullanılıyor. `handle_new_user`, `signUp()`'a eklenen opsiyonel `ref` alanını (`raw_user_meta_data` üzerinden) okuyup `profiles.referred_by`'ı dolduruyor; geçersiz/bulunamayan kod kaydı hiç engellemiyor.
+65. `supabase/migrations/0081_departure_reminder.sql` — yolculuk yaklaşıyor hatırlatma e-postası: pg_cron günde bir kez `send_departure_reminders()`'ı çağırıyor, alıcı listesini (sürücü + onaylı yolcular) veritabanı içinde çözüp pg_net ile `/api/cron/departure-reminders` webhook'una POST atıyor (gerçek Resend gönderimi orada). `SUPABASE_SERVICE_ROLE_KEY` bilinçli olarak eklenmedi.
+66. `supabase/migrations/0082_departure_reminder_config_table.sql` — `0081`'in tasarım hatasını düzeltiyor: `alter database ... set app.site_url/app.cron_secret` yerelde (`postgres` superuser) çalışıyordu ama production'da (`postgres` müşteri rolü superuser değil) "permission denied" veriyordu — GUC yerine düz bir `cron_config` tablosuna taşındı.
+67. `supabase/migrations/0083_remove_ride_extra_preferences.sql` — kullanıcı isteğiyle sürücü ilan formundan düşük değerli/niş dört özellik kaldırıldı: VIP (tek yolcu, koltuk mantığını karmaşıklaştırıyordu), sessiz yolculuk, büyük bagaj yok, mola yapmadan — sıfır gerçek ilan olduğundan veri kaybı yok.
+68. `supabase/migrations/0084_admin_user_verification_details.sql` — admin panelde hesap doğrulama durumu + kayıt/son giriş tarihi gösterilebilsin diye `admin_get_user_emails`'in (`0068`) yerine `admin_get_user_verification_details` RPC'si: aynı admin-gated/`p_user_ids`-scoped desen, artık `email`'in yanında `profiles_private.email_verified` ve `auth.users.last_sign_in_at`'i de dönüyor.
 
 ## RLS Yapısı
 
