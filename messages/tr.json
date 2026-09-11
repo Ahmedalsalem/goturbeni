@@ -988,6 +988,9 @@
         "pending": "Beklemede",
         "verified": "Doğrulandı"
       },
+      "registeredAt": "Kayıt: {date}",
+      "lastSignInAt": "Son giriş: {date}",
+      "neverSignedIn": "Hiç giriş yapmadı",
       "suspend": "Askıya Al",
       "unsuspend": "Askıyı Kaldır",
       "confirmToggle": "Emin misiniz?",

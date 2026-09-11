@@ -988,6 +988,9 @@
         "pending": "Pending",
         "verified": "Verified"
       },
+      "registeredAt": "Registered: {date}",
+      "lastSignInAt": "Last sign-in: {date}",
+      "neverSignedIn": "Never signed in",
       "suspend": "Suspend",
       "unsuspend": "Unsuspend",
       "confirmToggle": "Are you sure?",

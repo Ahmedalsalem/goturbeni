@@ -138,9 +138,12 @@ export interface AdminUserRow {
   created_at: string
   is_admin: boolean
   is_suspended: boolean
-  // From admin_get_user_emails (auth.users isn't reachable through
-  // PostgREST) — null only if that RPC call fails outright.
+  // From admin_get_user_verification_details (auth.users/profiles_private
+  // aren't reachable through PostgREST for another admin's rows) — null/false
+  // only if that RPC call fails outright.
   email: string | null
+  email_verified: boolean
+  last_sign_in_at: string | null
 }
 
 // admin_flags is 1:1 with profiles (PK doubles as FK), so PostgREST embeds
@@ -166,9 +169,15 @@ export async function getAdminUsers(page: number = 1): Promise<AdminPage<AdminUs
       | null) ?? []
   const { rows, hasMore } = splitPage(overfetched)
 
-  const { data: emailRows } = await supabase.rpc("admin_get_user_emails", { p_user_ids: rows.map((row) => row.id) })
-  const emailsById = new Map(
-    ((emailRows as { id: string; email: string | null }[] | null) ?? []).map((row) => [row.id, row.email])
+  const { data: verificationRows } = await supabase.rpc("admin_get_user_verification_details", {
+    p_user_ids: rows.map((row) => row.id),
+  })
+  const verificationById = new Map(
+    (
+      (verificationRows as
+        | { id: string; email: string | null; email_verified: boolean; last_sign_in_at: string | null }[]
+        | null) ?? []
+    ).map((row) => [row.id, row])
   )
 
   return {
@@ -180,7 +189,9 @@ export async function getAdminUsers(page: number = 1): Promise<AdminPage<AdminUs
       created_at: row.created_at,
       is_admin: row.admin_flags?.is_admin ?? false,
       is_suspended: row.admin_flags?.is_suspended ?? false,
-      email: emailsById.get(row.id) ?? null,
+      email: verificationById.get(row.id)?.email ?? null,
+      email_verified: verificationById.get(row.id)?.email_verified ?? false,
+      last_sign_in_at: verificationById.get(row.id)?.last_sign_in_at ?? null,
     })),
   }
 }

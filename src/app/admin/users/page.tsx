@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { getTranslations } from "next-intl/server"
+import { getFormatter, getTranslations } from "next-intl/server"
 import { ShieldAlert, Users } from "lucide-react"
 
 import { EmptyState } from "@/components/EmptyState"
@@ -24,6 +24,8 @@ export default async function AdminUsersPage({
   const currentUser = await verifySession()
   const t = await getTranslations("Admin.users")
   const tSuspicious = await getTranslations("Admin.suspicious")
+  const format = await getFormatter()
+  const dateTimeOptions = { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" } as const
   const resolvedSearchParams = await searchParams
   const page = Math.max(1, Number(resolvedSearchParams.page) || 1)
   const [{ rows: users, hasMore }, suspiciousAccounts] = await Promise.all([
@@ -89,12 +91,22 @@ export default async function AdminUsersPage({
                     <div>
                       <p className="font-medium">{name}</p>
                       <p className="text-muted-foreground text-xs">{user.email ?? "—"}</p>
+                      <p className="text-muted-foreground mt-1 text-xs">
+                        {t("registeredAt", { date: format.dateTime(new Date(user.created_at), dateTimeOptions) })}
+                        {" · "}
+                        {user.last_sign_in_at
+                          ? t("lastSignInAt", { date: format.dateTime(new Date(user.last_sign_in_at), dateTimeOptions) })
+                          : t("neverSignedIn")}
+                      </p>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-1.5">
                     {user.is_admin && <Badge>{t("adminBadge")}</Badge>}
                     {user.is_suspended && <Badge variant="destructive">{t("suspendedBadge")}</Badge>}
+                    <Badge variant={user.email_verified ? "success" : "warning"}>
+                      {user.email_verified ? t("verificationStatus.verified") : t("verificationStatus.unverified")}
+                    </Badge>
                   </div>
 
                   {user.id === currentUser.id ? (

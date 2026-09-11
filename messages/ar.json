@@ -988,6 +988,9 @@
         "pending": "قيد الانتظار",
         "verified": "موثّق"
       },
+      "registeredAt": "التسجيل: {date}",
+      "lastSignInAt": "آخر دخول: {date}",
+      "neverSignedIn": "لم يسجّل الدخول قط",
       "suspend": "تعليق",
       "unsuspend": "إلغاء التعليق",
       "confirmToggle": "هل أنت متأكد؟",
