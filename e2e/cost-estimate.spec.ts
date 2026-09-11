@@ -15,6 +15,9 @@ test("ride form suggests a cost share once the route is picked, and can fill it 
   await page.goto("/create-ride")
   await selectCombobox(page, "departureCity", "Ankara")
   await selectCombobox(page, "arrivalCity", "İstanbul")
+  // The estimate hint only renders when !freeRide (RideForm.tsx) — "Ücretsiz
+  // yolculuk" defaults to checked on create, so it must be unchecked first.
+  await page.locator('[aria-labelledby="freeRide-label"]').click()
 
   await expect(page.getByText("Tahmini maliyet: ~610 ₺")).toBeVisible()
 

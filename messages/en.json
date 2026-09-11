@@ -253,6 +253,7 @@
     "codeLabel": "Verification Code",
     "confirmCta": "Confirm Code",
     "resendCta": "Resend Code",
+    "resendCtaCooldown": "Resend Code ({seconds}s)",
     "sendCta": "Send Verification Code",
     "verifySuccess": "Your account has been verified."
   },

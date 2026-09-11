@@ -253,6 +253,7 @@
     "codeLabel": "Doğrulama Kodu",
     "confirmCta": "Kodu Onayla",
     "resendCta": "Kodu Tekrar Gönder",
+    "resendCtaCooldown": "Kodu Tekrar Gönder ({seconds}s)",
     "sendCta": "Doğrulama Kodu Gönder",
     "verifySuccess": "Hesabınız doğrulandı."
   },

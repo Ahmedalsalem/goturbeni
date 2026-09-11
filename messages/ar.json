@@ -253,6 +253,7 @@
     "codeLabel": "رمز التحقق",
     "confirmCta": "تأكيد الرمز",
     "resendCta": "إعادة إرسال الرمز",
+    "resendCtaCooldown": "إعادة إرسال الرمز ({seconds}ث)",
     "sendCta": "إرسال رمز التحقق",
     "verifySuccess": "تم التحقق من حسابك."
   },

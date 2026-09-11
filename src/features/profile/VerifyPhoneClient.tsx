@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { Loader2, ShieldCheck } from "lucide-react"
@@ -20,6 +20,15 @@ import {
 const GENDER_OPTIONS = ["female", "male"] as const
 type Gender = (typeof GENDER_OPTIONS)[number]
 
+// Two GötürBeni users this week resent the code within ~20s of the first
+// send (Resend dashboard: 2026-09-10 mebacanak@hotmail.com x3, 2026-09-11
+// azad.roj474734@gmail.com x2) — almost certainly a real inbox not showing
+// the mail yet (deliverability lag), not a UI bug, but with no cooldown
+// there was nothing stopping them from re-triggering it seconds later
+// instead of waiting for it to land. A visible countdown buys the email
+// time to arrive before the button is even clickable again.
+const RESEND_COOLDOWN_SECONDS = 30
+
 // Drives the mandatory one-time verification gate on /verify-phone. Legacy
 // accounts missing gender/phone (created before this requirement) fill them
 // in first; everyone else goes straight to the e-mail code send/verify step,
@@ -32,6 +41,13 @@ export function VerifyPhoneClient({ gender, phone }: { gender: Gender | null; ph
   const [codeSent, setCodeSent] = useState(false)
   const [code, setCode] = useState("")
   const [detailsMissing, setDetailsMissing] = useState(!gender || !phone)
+  const [resendCooldown, setResendCooldown] = useState(0)
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return
+    const timer = setInterval(() => setResendCooldown((seconds) => seconds - 1), 1000)
+    return () => clearInterval(timer)
+  }, [resendCooldown])
 
   function onSubmitDetails(formData: FormData) {
     const selectedGender = formData.get("gender") as Gender | null
@@ -46,6 +62,7 @@ export function VerifyPhoneClient({ gender, phone }: { gender: Gender | null; ph
       }
       setDetailsMissing(false)
       setCodeSent(true)
+      setResendCooldown(RESEND_COOLDOWN_SECONDS)
       toast.success(t("codeSentTitle"))
     })
   }
@@ -58,6 +75,7 @@ export function VerifyPhoneClient({ gender, phone }: { gender: Gender | null; ph
         return
       }
       setCodeSent(true)
+      setResendCooldown(RESEND_COOLDOWN_SECONDS)
       toast.success(t("codeSentTitle"))
     })
   }
@@ -138,8 +156,8 @@ export function VerifyPhoneClient({ gender, phone }: { gender: Gender | null; ph
           {isPending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <ShieldCheck className="size-4" aria-hidden="true" />}
           {t("confirmCta")}
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={onSend} disabled={isPending}>
-          {t("resendCta")}
+        <Button type="button" variant="ghost" size="sm" onClick={onSend} disabled={isPending || resendCooldown > 0}>
+          {resendCooldown > 0 ? t("resendCtaCooldown", { seconds: resendCooldown }) : t("resendCta")}
         </Button>
       </div>
     )
