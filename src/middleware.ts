@@ -41,9 +41,20 @@ export async function middleware(request: NextRequest) {
   // Refreshes the session token if needed and writes it back to the response
   // cookies. Keep this call here even though most routes don't check the
   // result — omitting it causes random logouts as tokens silently expire.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // A stale/revoked refresh-token cookie (seen live: AuthApiError "Invalid
+  // Refresh Token: Refresh Token Not Found", 8 occurrences from one browser
+  // over ~1.5 months) makes getUser() throw rather than resolve with a null
+  // user — uncaught, that crashes the middleware invocation on every request
+  // for that visitor instead of just falling through to the normal
+  // logged-out/redirect path below.
+  let user = null
+  try {
+    ;({
+      data: { user },
+    } = await supabase.auth.getUser())
+  } catch {
+    user = null
+  }
 
   // Middleware-level gating is intentionally minimal (cheap, cookie-based) —
   // it is not the sole authorization boundary. Each protected page also calls
