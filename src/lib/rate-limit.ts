@@ -4,6 +4,8 @@ import { headers } from "next/headers"
 import { Ratelimit } from "@upstash/ratelimit"
 import { Redis } from "@upstash/redis"
 
+import { logError } from "@/lib/logger"
+
 type Bucket = { count: number; resetAt: number }
 
 // Fixed-window limiter held in process memory. Resets on redeploy and does
@@ -76,8 +78,21 @@ export async function checkRateLimit(key: string, limit: number, windowMs: numbe
     }
     return checkInMemory(key, limit, windowMs, now)
   }
-  const { success } = await getLimiter(limit, windowMs).limit(key)
-  return success
+  try {
+    const { success } = await getLimiter(limit, windowMs).limit(key)
+    return success
+  } catch (error) {
+    // Upstash's own REST API has a per-second request cap (free tier: 10
+    // req/s account-wide, unrelated to any single caller's limit/windowMs)
+    // and throws rather than resolving when a burst exceeds it — seen live
+    // in production (Sentry: "rate_limit_exceeded ... 10 requests per
+    // second"), which crashed the calling server action instead of just
+    // failing this one check. A limiter that can't reach its store is a
+    // limiter that can't protect anything, so fail closed (deny) rather
+    // than let every caller silently bypass rate limiting during an outage.
+    logError(error, "rateLimit.checkRateLimit")
+    return false
+  }
 }
 
 // Best-effort client identifier for pre-auth actions (login, signup, password
