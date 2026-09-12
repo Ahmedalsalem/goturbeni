@@ -96,6 +96,11 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ slu
   const locale = await getUserLocale()
   const format = await getFormatter()
   const tNav = await getTranslations("Nav")
+  // This page is statically rendered (revalidate = 3600 below) — deciding
+  // guest-vs-member here would bake one visitor's auth state into the cached
+  // HTML for everyone until the next revalidation, so RideCard's click gate
+  // resolves the real session client-side instead (see GuestGateLink).
+  const guestLoginHref = (rideId: string) => `/login?next=${encodeURIComponent(`/rides/${rideId}`)}`
 
   if (route) {
     const t = await getTranslations("SeoPages.route")
@@ -142,7 +147,7 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ slu
           {rides.length > 0 ? (
             <div className="flex flex-col gap-4">
               {rides.slice(0, 10).map((ride) => (
-                <RideCard key={ride.id} ride={ride} />
+                <RideCard key={ride.id} ride={ride} requireAuthLoginHref={guestLoginHref(ride.id)} />
               ))}
             </div>
           ) : (
@@ -229,7 +234,7 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ slu
           <h2 className="mb-4 text-xl font-semibold">{cityName}</h2>
           <div className="flex flex-col gap-4">
             {rides.slice(0, 10).map((ride) => (
-              <RideCard key={ride.id} ride={ride} />
+              <RideCard key={ride.id} ride={ride} requireAuthLoginHref={guestLoginHref(ride.id)} />
             ))}
           </div>
         </div>

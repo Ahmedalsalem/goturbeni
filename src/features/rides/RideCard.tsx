@@ -19,6 +19,7 @@ import { getFormatter, getTranslations } from "next-intl/server"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { GuestGateLink } from "@/features/rides/GuestGateLink"
 import { RideStatusBadge } from "@/features/rides/RideStatusBadge"
 import { ExperienceLevelBadge } from "@/features/reviews/ExperienceLevelBadge"
 import { estimateCo2SavingsKg } from "@/utils/co2-savings"
@@ -32,10 +33,20 @@ export async function RideCard({
   ride,
   actions,
   driverCompletedRideCount,
+  requireAuthLoginHref,
 }: {
   ride: RideWithDriver
   actions?: React.ReactNode
   driverCompletedRideCount?: number
+  // SEO landing pages (src/app/[slug]/page.tsx) want a click on the card to
+  // require signup instead of opening the ride detail, but that page is
+  // statically rendered (revalidate = 3600) — deciding this server-side would
+  // bake whichever visitor rendered the cache (guest or not) into the HTML
+  // for everyone until the next revalidation. Passing a login href here just
+  // means "gate this for guests"; GuestGateLink checks the real session
+  // client-side at click time. undefined everywhere else (e.g. /rides),
+  // where guest browsing must stay ungated.
+  requireAuthLoginHref?: string
 }) {
   const t = await getTranslations("Rides.card")
   const tCarFeatures = await getTranslations("CarFeatures")
@@ -56,15 +67,28 @@ export async function RideCard({
   return (
     <Card className="ring-foreground/5 border-0 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg hover:shadow-foreground/5">
       <CardHeader className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <Link
-          href={`/rides/${ride.id}`}
-          className="flex flex-wrap items-center gap-2 text-lg font-semibold tracking-tight hover:text-primary"
-        >
-          <MapPin className="text-muted-foreground size-4" aria-hidden="true" />
-          {ride.departure_district ? `${departureCity} (${ride.departure_district})` : departureCity}
-          <ArrowRight className="text-muted-foreground size-4 rtl:-scale-x-100" aria-hidden="true" />
-          {ride.arrival_district ? `${arrivalCity} (${ride.arrival_district})` : arrivalCity}
-        </Link>
+        {requireAuthLoginHref ? (
+          <GuestGateLink
+            href={`/rides/${ride.id}`}
+            loginHref={requireAuthLoginHref}
+            className="flex flex-wrap items-center gap-2 text-lg font-semibold tracking-tight hover:text-primary"
+          >
+            <MapPin className="text-muted-foreground size-4" aria-hidden="true" />
+            {ride.departure_district ? `${departureCity} (${ride.departure_district})` : departureCity}
+            <ArrowRight className="text-muted-foreground size-4 rtl:-scale-x-100" aria-hidden="true" />
+            {ride.arrival_district ? `${arrivalCity} (${ride.arrival_district})` : arrivalCity}
+          </GuestGateLink>
+        ) : (
+          <Link
+            href={`/rides/${ride.id}`}
+            className="flex flex-wrap items-center gap-2 text-lg font-semibold tracking-tight hover:text-primary"
+          >
+            <MapPin className="text-muted-foreground size-4" aria-hidden="true" />
+            {ride.departure_district ? `${departureCity} (${ride.departure_district})` : departureCity}
+            <ArrowRight className="text-muted-foreground size-4 rtl:-scale-x-100" aria-hidden="true" />
+            {ride.arrival_district ? `${arrivalCity} (${ride.arrival_district})` : arrivalCity}
+          </Link>
+        )}
         <div className="flex items-center gap-2">
           <Badge variant={isPassengerListing ? "secondary" : "outline"} className="gap-1">
             <Users className="size-3" aria-hidden="true" /> {isPassengerListing ? t("passengerListingBadge") : t("driverListingBadge")}
