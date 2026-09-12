@@ -87,6 +87,8 @@ function validRideValues(overrides: Partial<RideFormValues> = {}): RideFormValue
     largeLuggageOk: false,
     childSeatAvailable: false,
     wheelchairAccessible: false,
+    usbChargerAvailable: false,
+    acAvailable: false,
     paymentMethods: ["bank_transfer"],
     instantBooking: false,
     repeatWeekly: false,

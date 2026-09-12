@@ -15,6 +15,8 @@ export interface RideSearchFilters {
   sort: RideSort
   petsAllowed?: boolean
   smokingAllowed?: boolean
+  usbChargerAvailable?: boolean
+  acAvailable?: boolean
   femaleDriverOnly?: boolean
   postedByRole?: "driver" | "passenger"
 }
@@ -42,6 +44,8 @@ export function parseRideSearchParams(searchParams: Record<string, string | stri
   const sort = firstValue(searchParams.sort)
   const petsAllowed = firstValue(searchParams.petsAllowed)
   const smokingAllowed = firstValue(searchParams.smokingAllowed)
+  const usbChargerAvailable = firstValue(searchParams.usbChargerAvailable)
+  const acAvailable = firstValue(searchParams.acAvailable)
   const femaleDriverOnly = firstValue(searchParams.femaleDriverOnly)
   const postedByRole = firstValue(searchParams.type)
 
@@ -60,6 +64,8 @@ export function parseRideSearchParams(searchParams: Record<string, string | stri
     sort: sort && isRideSort(sort) ? sort : DEFAULT_SORT,
     petsAllowed: petsAllowed === "1" ? true : undefined,
     smokingAllowed: smokingAllowed === "1" ? true : undefined,
+    usbChargerAvailable: usbChargerAvailable === "1" ? true : undefined,
+    acAvailable: acAvailable === "1" ? true : undefined,
     // Real enforcement is server-side (get_female_driver_ride_ids RPC raises
     // for a non-female caller) — this is just advisory parsing, same as
     // every other filter here.

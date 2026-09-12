@@ -8,6 +8,8 @@ import { isSupabaseConfigured } from "@/lib/supabase/is-configured"
 import { getUserLocale } from "@/i18n/locale"
 import { verifySession } from "@/lib/supabase/dal"
 import { logError } from "@/lib/logger"
+import { sendAdminResendVerificationEmail } from "@/lib/email"
+import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-config"
 
 export interface AdminActionState {
   error?: string
@@ -159,6 +161,54 @@ export async function confirmRefund(bookingId: string): Promise<AdminActionState
   }
 
   revalidatePath("/admin/payments")
+  return { success: true }
+}
+
+// Kullanıcının "hesaplar muhtemelen spam'e düştü" bulgusu üzerine: admin
+// doğrulanmamış bir hesaba yeni bir kod tetikleyebiliyor. Yetkilendirme
+// admin_resend_verification_code RPC'sinde (0086) — burada da normal
+// sendEmailVerificationCode ile aynı 6 haneli üretim, ama RPC bunu
+// (kullanıcının normal 10 dakikalık kodunun aksine) kasıtlı olarak süresiz
+// yapıyor — spam'den geç bulunan bir kodun hâlâ dolmuş olmaması için. Hedef
+// kullanıcının e-postası/dili admin_get_user_verification_details (0084) ve
+// profiles.language'dan okunuyor; ikisi de "select all profiles"/admin-gated
+// RPC olduğundan normal authenticated istemciyle erişilebilir.
+export async function adminResendVerificationCode(userId: string): Promise<AdminActionState> {
+  const tErrors = await getAdminErrorTranslator()
+  if (!isSupabaseConfigured()) {
+    return { error: tErrors("notConfigured") }
+  }
+
+  await verifySession()
+  const supabase = await createClient()
+
+  const [{ data: verificationRows }, { data: profileRow }] = await Promise.all([
+    supabase.rpc("admin_get_user_verification_details", { p_user_ids: [userId] }),
+    supabase.from("profiles").select("language").eq("id", userId).maybeSingle(),
+  ])
+  const email = (verificationRows as { email: string | null }[] | null)?.[0]?.email
+  if (!email) {
+    logError(new Error("no email for user"), "admin.adminResendVerificationCode")
+    return { error: tErrors("actionFailed") }
+  }
+  const locale = (profileRow?.language as AppLocale | null) ?? DEFAULT_LOCALE
+
+  const code = Math.floor(100_000 + Math.random() * 900_000).toString()
+  const { error } = await supabase.rpc("admin_resend_verification_code", { p_user_id: userId, p_code: code })
+  if (error) {
+    if (error.message.includes("not_admin")) {
+      return { error: tErrors("notAdmin") }
+    }
+    logError(error, "admin.adminResendVerificationCode")
+    return { error: tErrors("actionFailed") }
+  }
+
+  const sent = await sendAdminResendVerificationEmail(email, code, locale)
+  if (!sent) {
+    return { error: tErrors("actionFailed") }
+  }
+
+  revalidatePath("/admin/users")
   return { success: true }
 }
 

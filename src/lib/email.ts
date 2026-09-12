@@ -90,7 +90,12 @@ export async function sendVerificationCodeEmail(to: string, code: string, locale
     // t() can't format a message containing raw HTML tags (a `<strong>` with an
     // attribute, or `<br>`, both trip INVALID_TAG); see email.test.ts.
     const codeBlockHtml = `<p style="margin:0 0 20px;">${t("verificationCodeIntro")}</p><p style="margin:0 0 20px;font-size:28px;font-weight:bold;letter-spacing:6px;text-align:center;background-color:#f4f4f5;border-radius:8px;padding:16px;">${code}</p><p style="margin:0;">${t("verificationCodeOutro")}</p>`
-    await resend.emails.send({
+    // Resend's SDK does not throw on an API-level rejection (invalid
+    // recipient, rate limit, etc.) — it resolves with { data: null, error }.
+    // Only checking for a thrown exception here would silently report
+    // "sent" on a real failure (found while adding sendAdminResendVerificationEmail
+    // below: a rejected send still returned success).
+    const { error } = await resend.emails.send({
       from: emailFrom(),
       to,
       subject: t("verificationCodeSubject"),
@@ -101,9 +106,50 @@ export async function sendVerificationCodeEmail(to: string, code: string, locale
         footerNote: t("footerNote"),
       }),
     })
+    if (error) {
+      logError(error, "email.sendVerificationCodeEmail")
+      return false
+    }
     return true
   } catch (error) {
     logError(error, "email.sendVerificationCodeEmail")
+    return false
+  }
+}
+
+// Admin panelden, doğrulanmamış bir hesaba elle tetiklenen tekrar gönderim
+// (features/admin/actions.ts) — kullanıcının kendi normal akışından
+// (sendVerificationCodeEmail) farklı olarak: kod süresiz (admin_resend_
+// verification_code, 0086), ve gövde muhtemelen spam'e düşmüş ilk kod için
+// açık bir özür içeriyor — kullanıcının doğrulanmamış hesapları incelerken
+// fark ettiği gerçek bir şikayet üzerine eklendi.
+export async function sendAdminResendVerificationEmail(to: string, code: string, locale: AppLocale): Promise<boolean> {
+  if (!isResendConfigured()) {
+    return false
+  }
+
+  const t = await getTranslations({ locale, namespace: "Email" })
+  const resend = new Resend(process.env.RESEND_API_KEY)
+  try {
+    const bodyHtml = `<p style="margin:0 0 20px;">${t("adminResendApology")}</p><p style="margin:0 0 20px;font-size:28px;font-weight:bold;letter-spacing:6px;text-align:center;background-color:#f4f4f5;border-radius:8px;padding:16px;">${code}</p><p style="margin:0;">${t("adminResendOutro")}</p>`
+    const { error } = await resend.emails.send({
+      from: emailFrom(),
+      to,
+      subject: t("adminResendSubject"),
+      html: renderEmailHtml(locale, {
+        greeting: t("greeting"),
+        bodyHtml,
+        signoff: t("signoff"),
+        footerNote: t("footerNote"),
+      }),
+    })
+    if (error) {
+      logError(error, "email.sendAdminResendVerificationEmail")
+      return false
+    }
+    return true
+  } catch (error) {
+    logError(error, "email.sendAdminResendVerificationEmail")
     return false
   }
 }
@@ -140,7 +186,7 @@ export async function sendEmailNotification(event: NotificationEvent): Promise<v
 
   const resend = new Resend(process.env.RESEND_API_KEY)
   try {
-    await resend.emails.send({
+    const { error } = await resend.emails.send({
       from: emailFrom(),
       to: recipientEmail as string,
       subject: t(`${key}Title`),
@@ -153,6 +199,9 @@ export async function sendEmailNotification(event: NotificationEvent): Promise<v
         footerNote: tCommon("footerNote"),
       }),
     })
+    if (error) {
+      logError(error, "email.sendEmailNotification")
+    }
   } catch (error) {
     logError(error, "email.sendEmailNotification")
   }
@@ -196,7 +245,7 @@ export async function sendSeatOpenedEmailNotifications(rideId: string): Promise<
       const t = await getTranslations({ locale, namespace: "Push.notifications" })
       const tCommon = await getTranslations({ locale, namespace: "Email" })
       try {
-        await resend.emails.send({
+        const { error } = await resend.emails.send({
           from: emailFrom(),
           to: recipient.email,
           subject: t("seatOpenedTitle"),
@@ -209,6 +258,9 @@ export async function sendSeatOpenedEmailNotifications(rideId: string): Promise<
             footerNote: tCommon("footerNote"),
           }),
         })
+        if (error) {
+          logError(error, "email.sendSeatOpenedEmailNotifications")
+        }
       } catch (sendError) {
         logError(sendError, "email.sendSeatOpenedEmailNotifications")
       }

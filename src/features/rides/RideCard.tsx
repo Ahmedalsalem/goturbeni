@@ -9,7 +9,9 @@ import {
   Clock,
   MapPin,
   PawPrint,
+  Snowflake,
   Sparkles,
+  Usb,
   Users,
 } from "lucide-react"
 import { getFormatter, getTranslations } from "next-intl/server"
@@ -90,6 +92,8 @@ export async function RideCard({
         ride.large_luggage_ok ||
         ride.child_seat_available ||
         ride.wheelchair_accessible ||
+        ride.usb_charger_available ||
+        ride.ac_available ||
         carFeatures.length > 0 ||
         customCarFeatures.length > 0) && (
         <CardContent className="flex flex-wrap gap-1.5 pt-0">
@@ -120,6 +124,16 @@ export async function RideCard({
             <Badge variant="outline" className="gap-1">
               <Accessibility className="size-3" aria-hidden="true" />{" "}
               {t(isPassengerListing ? "wheelchairAccessiblePassenger" : "wheelchairAccessible")}
+            </Badge>
+          )}
+          {ride.usb_charger_available && (
+            <Badge variant="outline" className="gap-1">
+              <Usb className="size-3" aria-hidden="true" /> {t(isPassengerListing ? "usbChargerAvailablePassenger" : "usbChargerAvailable")}
+            </Badge>
+          )}
+          {ride.ac_available && (
+            <Badge variant="outline" className="gap-1">
+              <Snowflake className="size-3" aria-hidden="true" /> {t(isPassengerListing ? "acAvailablePassenger" : "acAvailable")}
             </Badge>
           )}
           {carFeatures.map((key) => (

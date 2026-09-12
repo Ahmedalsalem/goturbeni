@@ -41,6 +41,8 @@ function buildQueryString(filters: Partial<RideSearchFilters>): string {
   if (filters.sort && filters.sort !== "date_asc") params.set("sort", filters.sort)
   if (filters.petsAllowed) params.set("petsAllowed", "1")
   if (filters.smokingAllowed) params.set("smokingAllowed", "1")
+  if (filters.usbChargerAvailable) params.set("usbChargerAvailable", "1")
+  if (filters.acAvailable) params.set("acAvailable", "1")
   if (filters.femaleDriverOnly) params.set("femaleDriverOnly", "1")
   if (filters.postedByRole) params.set("type", filters.postedByRole)
   const qs = params.toString()
@@ -79,6 +81,8 @@ export function RideFilters({
   const [date, setDate] = useState(initial.date ?? "")
   const [petsAllowed, setPetsAllowed] = useState(initial.petsAllowed ?? false)
   const [smokingAllowed, setSmokingAllowed] = useState(initial.smokingAllowed ?? false)
+  const [usbChargerAvailable, setUsbChargerAvailable] = useState(initial.usbChargerAvailable ?? false)
+  const [acAvailable, setAcAvailable] = useState(initial.acAvailable ?? false)
   const [femaleDriverOnly, setFemaleDriverOnly] = useState(initial.femaleDriverOnly ?? false)
   const [postedByRole, setPostedByRole] = useState<"driver" | "passenger" | undefined>(initial.postedByRole)
 
@@ -96,6 +100,8 @@ export function RideFilters({
         sort: initial.sort,
         petsAllowed,
         smokingAllowed,
+        usbChargerAvailable,
+        acAvailable,
         femaleDriverOnly,
         postedByRole,
       })
@@ -113,6 +119,8 @@ export function RideFilters({
         sort,
         petsAllowed,
         smokingAllowed,
+        usbChargerAvailable,
+        acAvailable,
         femaleDriverOnly,
         postedByRole,
       }),
@@ -317,6 +325,22 @@ export function RideFilters({
             />
             <FieldLabel htmlFor="filter-female-driver-only" className="font-normal">
               {t("femaleDriverOnly")}
+            </FieldLabel>
+          </Field>
+          <Field orientation="horizontal">
+            <Checkbox
+              id="filter-usb-charger"
+              checked={usbChargerAvailable}
+              onCheckedChange={(checked) => setUsbChargerAvailable(checked === true)}
+            />
+            <FieldLabel htmlFor="filter-usb-charger" className="font-normal">
+              {t("usbChargerAvailable")}
+            </FieldLabel>
+          </Field>
+          <Field orientation="horizontal">
+            <Checkbox id="filter-ac" checked={acAvailable} onCheckedChange={(checked) => setAcAvailable(checked === true)} />
+            <FieldLabel htmlFor="filter-ac" className="font-normal">
+              {t("acAvailable")}
             </FieldLabel>
           </Field>
         </div>

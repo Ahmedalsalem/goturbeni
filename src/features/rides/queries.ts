@@ -75,6 +75,12 @@ function buildRidesQuery(
   if (filters?.smokingAllowed) {
     query = query.eq("smoking_allowed", true)
   }
+  if (filters?.usbChargerAvailable) {
+    query = query.eq("usb_charger_available", true)
+  }
+  if (filters?.acAvailable) {
+    query = query.eq("ac_available", true)
+  }
   if (femaleDriverRideIds) {
     query = query.in("id", femaleDriverRideIds)
   }
@@ -111,6 +117,12 @@ function buildNearbyProvinceRidesQuery(
   }
   if (filters.smokingAllowed) {
     query = query.eq("smoking_allowed", true)
+  }
+  if (filters.usbChargerAvailable) {
+    query = query.eq("usb_charger_available", true)
+  }
+  if (filters.acAvailable) {
+    query = query.eq("ac_available", true)
   }
   if (femaleDriverRideIds) {
     query = query.in("id", femaleDriverRideIds)

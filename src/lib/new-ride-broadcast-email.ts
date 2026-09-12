@@ -65,7 +65,11 @@ export async function sendNewRideBroadcastEmail(
       // (Rides.card.driverListingBadge/passengerListingBadge).
       const bodyKey = postedByRole === "passenger" ? "newRideBroadcastBodyPassenger" : "newRideBroadcastBodyDriver"
       try {
-        await resend.emails.send({
+        // Resend's SDK doesn't throw on an API-level rejection — it resolves
+        // with { data: null, error } (confirmed live: a rejected send never
+        // threw, only surfaced as this field) — checking only for a thrown
+        // exception here would silently count a real failure as sent.
+        const { error: sendError } = await resend.emails.send({
           from: emailFrom(),
           to: row.email,
           subject: t("newRideBroadcastSubject"),
@@ -78,6 +82,9 @@ export async function sendNewRideBroadcastEmail(
             footerNote: tCommon("footerNote"),
           }),
         })
+        if (sendError) {
+          logError(sendError, "newRideBroadcastEmail.email")
+        }
       } catch (sendError) {
         logError(sendError, "newRideBroadcastEmail.email")
       }

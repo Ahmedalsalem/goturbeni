@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { AdminPager } from "@/features/admin/AdminPager"
 import { SuspendToggleButton } from "@/features/admin/SuspendToggleButton"
+import { ResendVerificationButton } from "@/features/admin/ResendVerificationButton"
 import { getAdminUsers, getSuspiciousAccounts } from "@/features/admin/queries"
 import { verifySession } from "@/lib/supabase/dal"
 
@@ -112,7 +113,10 @@ export default async function AdminUsersPage({
                   {user.id === currentUser.id ? (
                     <span className="text-muted-foreground text-xs">{t("thatsYou")}</span>
                   ) : (
-                    <SuspendToggleButton userId={user.id} isSuspended={user.is_suspended} />
+                    <div className="flex items-center gap-1.5">
+                      {!user.email_verified && <ResendVerificationButton userId={user.id} />}
+                      <SuspendToggleButton userId={user.id} isSuspended={user.is_suspended} />
+                    </div>
                   )}
                 </CardContent>
               </Card>

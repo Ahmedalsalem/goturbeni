@@ -59,6 +59,8 @@ export function buildRideSchema(t: ValidationTranslator) {
       largeLuggageOk: z.boolean().default(false),
       childSeatAvailable: z.boolean().default(false),
       wheelchairAccessible: z.boolean().default(false),
+      usbChargerAvailable: z.boolean().default(false),
+      acAvailable: z.boolean().default(false),
       paymentMethods: z.array(z.enum(["bank_transfer", "cash"])).min(1, t("paymentMethodRequired")).default(["bank_transfer"]),
       instantBooking: z.boolean().default(false),
       // Only read on create (RideForm hides it in edit mode) — the first
@@ -96,9 +98,9 @@ export function buildRideSchema(t: ValidationTranslator) {
     // (ilan sahibi henüz sürücü değil) — form bunları zaten gizliyor, ama şema
     // seviyesinde de zorlanıyor ki tamperlenmiş bir istek bu alanları dolaylı
     // yoldan set edemesin. petsAllowed/smokingAllowed/largeLuggageOk/
-    // childSeatAvailable/wheelchairAccessible istisna: yolcu için "kendi
-    // ihtiyacım" anlamına döndüğünden (ör. "sigara içiyorum", "büyük bagajım
-    // var") her iki rolde de anlamlı — sıfırlanmaz.
+    // childSeatAvailable/wheelchairAccessible/usbChargerAvailable/acAvailable
+    // istisna: yolcu için "kendi ihtiyacım" anlamına döndüğünden (ör. "sigara
+    // içiyorum", "büyük bagajım var") her iki rolde de anlamlı — sıfırlanmaz.
     .transform((data) =>
       data.postedByRole === "passenger"
         ? {

@@ -23,6 +23,8 @@ export interface Ride {
   large_luggage_ok: boolean
   child_seat_available: boolean
   wheelchair_accessible: boolean
+  usb_charger_available: boolean
+  ac_available: boolean
   payment_methods: RidePaymentMethod[]
   instant_booking: boolean
   car_features: CarFeatureKey[]

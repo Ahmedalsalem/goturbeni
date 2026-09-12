@@ -118,6 +118,8 @@ function fakeRide(overrides: Partial<Ride> = {}): Ride {
     large_luggage_ok: false,
     child_seat_available: false,
     wheelchair_accessible: false,
+    usb_charger_available: false,
+    ac_available: false,
     payment_methods: ["bank_transfer"],
     instant_booking: false,
     car_features: [],

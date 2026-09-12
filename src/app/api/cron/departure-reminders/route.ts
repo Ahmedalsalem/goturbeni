@@ -49,7 +49,10 @@ export async function POST(request: NextRequest) {
       const from = getProvinceDisplayName(payload.departureCity, locale)
       const to = getProvinceDisplayName(payload.arrivalCity, locale)
       try {
-        await resend.emails.send({
+        // Resend's SDK doesn't throw on an API-level rejection — it resolves
+        // with { data: null, error } instead, so only catching a thrown
+        // exception would silently count a real failure as sent.
+        const { error } = await resend.emails.send({
           from: emailFrom(),
           to: recipient.email,
           subject: t("departureReminderSubject"),
@@ -62,6 +65,9 @@ export async function POST(request: NextRequest) {
             footerNote: t("footerNote"),
           }),
         })
+        if (error) {
+          logError(error, "cron.departureReminders")
+        }
       } catch (error) {
         logError(error, "cron.departureReminders")
       }

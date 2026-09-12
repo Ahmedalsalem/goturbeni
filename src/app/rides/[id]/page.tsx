@@ -2,7 +2,21 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getFormatter, getTranslations } from "next-intl/server"
-import { Accessibility, ArrowRight, Baby, Briefcase, CalendarDays, Cigarette, Clock, LogIn, MapPin, PawPrint, Users } from "lucide-react"
+import {
+  Accessibility,
+  ArrowRight,
+  Baby,
+  Briefcase,
+  CalendarDays,
+  Cigarette,
+  Clock,
+  LogIn,
+  MapPin,
+  PawPrint,
+  Snowflake,
+  Usb,
+  Users,
+} from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -216,7 +230,9 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
             ride.smoking_allowed ||
             ride.large_luggage_ok ||
             ride.child_seat_available ||
-            ride.wheelchair_accessible) && (
+            ride.wheelchair_accessible ||
+            ride.usb_charger_available ||
+            ride.ac_available) && (
             <div className="flex flex-wrap gap-1.5">
               {ride.pets_allowed && (
                 <Badge variant="outline" className="gap-1">
@@ -245,6 +261,17 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
                 <Badge variant="outline" className="gap-1">
                   <Accessibility className="size-3" aria-hidden="true" />{" "}
                   {tCard(isPassengerListing ? "wheelchairAccessiblePassenger" : "wheelchairAccessible")}
+                </Badge>
+              )}
+              {ride.usb_charger_available && (
+                <Badge variant="outline" className="gap-1">
+                  <Usb className="size-3" aria-hidden="true" />{" "}
+                  {tCard(isPassengerListing ? "usbChargerAvailablePassenger" : "usbChargerAvailable")}
+                </Badge>
+              )}
+              {ride.ac_available && (
+                <Badge variant="outline" className="gap-1">
+                  <Snowflake className="size-3" aria-hidden="true" /> {tCard(isPassengerListing ? "acAvailablePassenger" : "acAvailable")}
                 </Badge>
               )}
             </div>

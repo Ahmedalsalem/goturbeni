@@ -84,6 +84,8 @@ export function RideForm({ ride }: { ride?: Ride }) {
       largeLuggageOk: ride?.large_luggage_ok ?? false,
       childSeatAvailable: ride?.child_seat_available ?? false,
       wheelchairAccessible: ride?.wheelchair_accessible ?? false,
+      usbChargerAvailable: ride?.usb_charger_available ?? false,
+      acAvailable: ride?.ac_available ?? false,
       paymentMethods: ride?.payment_methods ?? ["bank_transfer"],
       instantBooking: ride?.instant_booking ?? false,
       repeatWeekly: false,
@@ -560,6 +562,36 @@ export function RideForm({ ride }: { ride?: Ride }) {
             />
             <FieldLabel htmlFor="wheelchairAccessible" className="font-normal">
               {t(isPassengerMode ? "wheelchairAccessiblePassenger" : "wheelchairAccessible")}
+            </FieldLabel>
+          </Field>
+
+          <Field orientation="horizontal">
+            <Controller
+              control={control}
+              name="usbChargerAvailable"
+              render={({ field }) => (
+                <Checkbox
+                  id="usbChargerAvailable"
+                  checked={field.value}
+                  onCheckedChange={(checked) => field.onChange(checked === true)}
+                />
+              )}
+            />
+            <FieldLabel htmlFor="usbChargerAvailable" className="font-normal">
+              {t(isPassengerMode ? "usbChargerAvailablePassenger" : "usbChargerAvailable")}
+            </FieldLabel>
+          </Field>
+
+          <Field orientation="horizontal">
+            <Controller
+              control={control}
+              name="acAvailable"
+              render={({ field }) => (
+                <Checkbox id="acAvailable" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
+              )}
+            />
+            <FieldLabel htmlFor="acAvailable" className="font-normal">
+              {t(isPassengerMode ? "acAvailablePassenger" : "acAvailable")}
             </FieldLabel>
           </Field>
 

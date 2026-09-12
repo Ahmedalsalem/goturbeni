@@ -48,6 +48,8 @@ function buildRideRow(parsed: RideFormValues) {
     large_luggage_ok: parsed.largeLuggageOk,
     child_seat_available: parsed.childSeatAvailable,
     wheelchair_accessible: parsed.wheelchairAccessible,
+    usb_charger_available: parsed.usbChargerAvailable,
+    ac_available: parsed.acAvailable,
     payment_methods: parsed.paymentMethods,
     instant_booking: parsed.instantBooking,
   }
@@ -176,6 +178,8 @@ async function createRideSeriesForRide(rideId: string, driverId: string, parsed:
       large_luggage_ok: parsed.largeLuggageOk,
       child_seat_available: parsed.childSeatAvailable,
       wheelchair_accessible: parsed.wheelchairAccessible,
+      usb_charger_available: parsed.usbChargerAvailable,
+      ac_available: parsed.acAvailable,
     })
     .select("id")
     .single()

@@ -82,7 +82,11 @@ export async function sendSearchAlertNotifications(rideId: string): Promise<void
             const t = await getTranslations({ locale, namespace: "Push.notifications" })
             const tCommon = await getTranslations({ locale, namespace: "Email" })
             try {
-              await resend.emails.send({
+              // Resend's SDK doesn't throw on an API-level rejection — it
+              // resolves with { data: null, error } instead, so only
+              // catching a thrown exception would silently count a real
+              // failure as sent.
+              const { error: sendError } = await resend.emails.send({
                 from: emailFrom(),
                 to: email,
                 subject: t("searchAlertMatchTitle"),
@@ -95,6 +99,9 @@ export async function sendSearchAlertNotifications(rideId: string): Promise<void
                   footerNote: tCommon("footerNote"),
                 }),
               })
+              if (sendError) {
+                logError(sendError, "searchAlertNotifications.email")
+              }
             } catch (sendError) {
               logError(sendError, "searchAlertNotifications.email")
             }
