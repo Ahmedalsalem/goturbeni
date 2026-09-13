@@ -977,7 +977,11 @@
       "ridesLast7Days": "Son 7 Günde Verilen İlan",
       "ridesLast30Days": "Son 30 Günde Verilen İlan",
       "bookingsByStatusTitle": "Duruma Göre Rezervasyonlar",
-      "ridesTrendTitle": "Son 7 Gün — Verilen İlan Sayısı"
+      "ridesTrendTitle": "Son 7 Gün — Verilen İlan Sayısı",
+      "popularRoutesTitle": "En Popüler Rotalar",
+      "popularRoutesEmpty": "Henüz hiç ilan verilmedi.",
+      "signupSourcesTitle": "Kullanıcılar Nereden Geldi",
+      "signupSourcesEmpty": "Henüz kayıt yok."
     },
     "suspicious": {
       "title": "Şüpheli Hesaplar",

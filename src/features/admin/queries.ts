@@ -175,8 +175,7 @@ export async function getAdminUsers(page: number = 1): Promise<AdminPage<AdminUs
   const verificationById = new Map(
     (
       (verificationRows as
-        | { id: string; email: string | null; email_verified: boolean; last_sign_in_at: string | null }[]
-        | null) ?? []
+        { id: string; email: string | null; email_verified: boolean; last_sign_in_at: string | null }[] | null) ?? []
     ).map((row) => [row.id, row])
   )
 
@@ -219,6 +218,12 @@ export interface AdminStats {
   // Rides created per day over the last 7 days, oldest first — backs the
   // plain-div bar chart on the analytics page (no charting library).
   ridesByDay: { date: string; count: number }[]
+  // Top routes by ride count and signup-attribution breakdown — the two
+  // metrics that answer "hangi rota çalışıyor" / "kullanıcı nereden geldi"
+  // for a marketplace whose bottleneck is supply, not just traffic volume
+  // (see admin_get_popular_routes / admin_get_signup_sources, 0089).
+  popularRoutes: { departureCity: string; arrivalCity: string; rideCount: number }[]
+  signupSources: { source: string; userCount: number }[]
 }
 
 function daysAgoIso(now: Date, days: number): string {
@@ -255,6 +260,8 @@ export async function getAdminStats(): Promise<AdminStats> {
     { count: ridesLast30Days },
     bookingStatusCounts,
     { data: recentRides },
+    { data: popularRoutesData },
+    { data: signupSourcesData },
   ] = await Promise.all([
     supabase.from("profiles").select("id", { count: "exact", head: true }),
     supabase.from("rides").select("id", { count: "exact", head: true }),
@@ -269,6 +276,8 @@ export async function getAdminStats(): Promise<AdminStats> {
       )
     ),
     supabase.from("rides").select("created_at").gte("created_at", sevenDaysAgo),
+    supabase.rpc("admin_get_popular_routes", { p_limit: 10 }),
+    supabase.rpc("admin_get_signup_sources"),
   ])
 
   const bookingsByStatus = BOOKING_STATUSES.reduce(
@@ -289,5 +298,12 @@ export async function getAdminStats(): Promise<AdminStats> {
     ridesLast7Days: ridesLast7Days ?? 0,
     ridesLast30Days: ridesLast30Days ?? 0,
     ridesByDay: buildRidesByDay((recentRides as { created_at: string }[] | null) ?? [], now),
+    popularRoutes: (
+      (popularRoutesData as { departure_city: string; arrival_city: string; ride_count: number }[] | null) ?? []
+    ).map((row) => ({ departureCity: row.departure_city, arrivalCity: row.arrival_city, rideCount: row.ride_count })),
+    signupSources: ((signupSourcesData as { signup_source: string; user_count: number }[] | null) ?? []).map((row) => ({
+      source: row.signup_source,
+      userCount: row.user_count,
+    })),
   }
 }

@@ -19,6 +19,7 @@ export async function GET(request: Request) {
   const tokenHash = searchParams.get("token_hash")
   const type = searchParams.get("type") as EmailOtpType | null
   const next = searchParams.get("next") ?? "/profile"
+  const source = searchParams.get("source")
 
   const supabase = await createClient()
 
@@ -28,8 +29,20 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${origin}${next}`)
     }
   } else if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
+      // Only the Google OAuth signup flow attaches `source` (features/auth/
+      // actions.ts, signInWithGoogle) — the email/password path already got
+      // signup_source at insert time via handle_new_user's raw_user_meta_data
+      // read. `.is(..., null)` makes this a no-op on every later Google
+      // login, not just the first.
+      if (source) {
+        await supabase
+          .from("profiles")
+          .update({ signup_source: source })
+          .eq("id", data.user.id)
+          .is("signup_source", null)
+      }
       return NextResponse.redirect(`${origin}${next}`)
     }
   }

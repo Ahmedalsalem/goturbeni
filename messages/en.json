@@ -977,7 +977,11 @@
       "ridesLast7Days": "Listings Posted in Last 7 Days",
       "ridesLast30Days": "Listings Posted in Last 30 Days",
       "bookingsByStatusTitle": "Bookings by Status",
-      "ridesTrendTitle": "Last 7 Days — Listings Posted"
+      "ridesTrendTitle": "Last 7 Days — Listings Posted",
+      "popularRoutesTitle": "Most Popular Routes",
+      "popularRoutesEmpty": "No listings posted yet.",
+      "signupSourcesTitle": "Where Users Came From",
+      "signupSourcesEmpty": "No signups yet."
     },
     "suspicious": {
       "title": "Suspicious Accounts",

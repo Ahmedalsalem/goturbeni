@@ -3,6 +3,34 @@ import { NextResponse, type NextRequest } from "next/server"
 
 import { isSupabaseConfigured } from "@/lib/supabase/is-configured"
 
+const SIGNUP_SOURCE_COOKIE = "gb_src"
+const SIGNUP_SOURCE_COOKIE_MAX_AGE = 90 * 24 * 60 * 60
+
+// First-touch attribution for the admin "kullanıcı nereden geldi" metric
+// (features/admin/queries.ts, signup_source column, 0088_signup_source.sql):
+// utm_source wins if present, else the external referrer's host, else
+// "direct". Written once per visitor — never overwritten once set, so a
+// later same-site navigation (e.g. clicking "Kayıt ol" from /rides) doesn't
+// clobber the campaign that actually brought them in.
+function resolveSignupSource(request: NextRequest): string {
+  const utmSource = request.nextUrl.searchParams.get("utm_source")
+  if (utmSource) {
+    return utmSource.slice(0, 100)
+  }
+  const referer = request.headers.get("referer")
+  if (referer) {
+    try {
+      const referrerHost = new URL(referer).host
+      if (referrerHost && referrerHost !== request.nextUrl.host) {
+        return referrerHost.slice(0, 100)
+      }
+    } catch {
+      // Malformed Referer header — fall through to "direct".
+    }
+  }
+  return "direct"
+}
+
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
@@ -74,6 +102,18 @@ export async function middleware(request: NextRequest) {
     const loginUrl = new URL("/login", request.url)
     loginUrl.searchParams.set("next", pathname)
     return NextResponse.redirect(loginUrl)
+  }
+
+  // Set last (after the supabase client's own setAll calls above, which
+  // replace `response` wholesale on every auth-cookie write) so this cookie
+  // always survives on the response actually returned.
+  if (!request.cookies.get(SIGNUP_SOURCE_COOKIE)) {
+    response.cookies.set(SIGNUP_SOURCE_COOKIE, resolveSignupSource(request), {
+      maxAge: SIGNUP_SOURCE_COOKIE_MAX_AGE,
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+    })
   }
 
   return response

@@ -1,6 +1,6 @@
 "use server"
 
-import { headers } from "next/headers"
+import { cookies, headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { getTranslations } from "next-intl/server"
 import { parsePhoneNumberFromString } from "libphonenumber-js"
@@ -23,6 +23,14 @@ const LOGIN_RATE_LIMIT = { limit: 10, windowMs: 5 * 60 * 1000 }
 // production, so this doesn't touch real abuse protection.
 const SIGNUP_RATE_LIMIT = { limit: process.env.E2E_TEST === "true" ? 100 : 5, windowMs: 60 * 60 * 1000 }
 const PASSWORD_RESET_RATE_LIMIT = { limit: 5, windowMs: 60 * 60 * 1000 }
+
+// Written by middleware.ts on a visitor's first request (SIGNUP_SOURCE_COOKIE
+// there, same value). Read here rather than passed through the form because
+// it must survive same-site navigation between landing and /signup.
+async function getSignupSource(): Promise<string | undefined> {
+  const cookieStore = await cookies()
+  return cookieStore.get("gb_src")?.value
+}
 
 async function resolveSiteUrl(): Promise<string> {
   const requestHeaders = await headers()
@@ -133,14 +141,16 @@ export async function signUp(_prevState: AuthActionState, formData: FormData): P
 
   const supabase = await createClient()
   const siteUrl = await resolveSiteUrl()
+  const signupSource = await getSignupSource()
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
       emailRedirectTo: `${siteUrl}/auth/callback`,
-      // handle_new_user (0080_referrals.sql) reads this back out of
-      // raw_user_meta_data to set profiles.referred_by.
-      data: parsed.data.ref ? { ref: parsed.data.ref } : undefined,
+      // handle_new_user (0080_referrals.sql / 0088_signup_source.sql) reads
+      // these back out of raw_user_meta_data to set profiles.referred_by /
+      // profiles.signup_source.
+      data: parsed.data.ref || signupSource ? { ref: parsed.data.ref, signup_source: signupSource } : undefined,
     },
   })
   if (error) {
@@ -192,9 +202,19 @@ export async function signInWithGoogle(): Promise<void> {
 
   const supabase = await createClient()
   const siteUrl = await resolveSiteUrl()
+  // Google's own profile payload has no room for our attribution data, so
+  // it rides along as a plain query param on the callback URL instead of
+  // raw_user_meta_data (which handle_new_user reads for the email/password
+  // path) — /auth/callback writes it to profiles.signup_source directly.
+  const signupSource = await getSignupSource()
+  const callbackUrl = new URL(`${siteUrl}/auth/callback`)
+  callbackUrl.searchParams.set("next", "/rides")
+  if (signupSource) {
+    callbackUrl.searchParams.set("source", signupSource)
+  }
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: `${siteUrl}/auth/callback?next=/rides` },
+    options: { redirectTo: callbackUrl.toString() },
   })
   if (error || !data.url) {
     logError(error ?? new Error("no OAuth URL returned"), "auth.signInWithGoogle")

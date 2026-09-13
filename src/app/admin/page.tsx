@@ -87,6 +87,56 @@ export default async function AdminAnalyticsPage() {
           </div>
         </CardContent>
       </Card>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("popularRoutesTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {stats.popularRoutes.length === 0 ? (
+              <p className="text-muted-foreground text-sm">{t("popularRoutesEmpty")}</p>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {stats.popularRoutes.map((route) => (
+                  <li
+                    key={`${route.departureCity}-${route.arrivalCity}`}
+                    className="border-border/70 flex items-center justify-between border-b pb-2 text-sm last:border-0 last:pb-0"
+                  >
+                    <span>
+                      {route.departureCity} → {route.arrivalCity}
+                    </span>
+                    <span className="text-muted-foreground tabular-nums">{route.rideCount}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("signupSourcesTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {stats.signupSources.length === 0 ? (
+              <p className="text-muted-foreground text-sm">{t("signupSourcesEmpty")}</p>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {stats.signupSources.map((entry) => (
+                  <li
+                    key={entry.source}
+                    className="border-border/70 flex items-center justify-between border-b pb-2 text-sm last:border-0 last:pb-0"
+                  >
+                    <span>{entry.source}</span>
+                    <span className="text-muted-foreground tabular-nums">{entry.userCount}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

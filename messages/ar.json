@@ -977,7 +977,11 @@
       "ridesLast7Days": "رحلات مُضافة خلال 7 أيام",
       "ridesLast30Days": "رحلات مُضافة خلال 30 يومًا",
       "bookingsByStatusTitle": "الحجوزات حسب الحالة",
-      "ridesTrendTitle": "آخر 7 أيام — عدد الرحلات المُضافة"
+      "ridesTrendTitle": "آخر 7 أيام — عدد الرحلات المُضافة",
+      "popularRoutesTitle": "أكثر المسارات نشاطاً",
+      "popularRoutesEmpty": "لا توجد رحلات مُضافة بعد.",
+      "signupSourcesTitle": "من أين جاء المستخدمون",
+      "signupSourcesEmpty": "لا يوجد تسجيل بعد."
     },
     "suspicious": {
       "title": "حسابات مشبوهة",
