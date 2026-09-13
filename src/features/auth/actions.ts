@@ -57,7 +57,15 @@ export async function signIn(_prevState: AuthActionState, formData: FormData): P
   const supabase = await createClient()
   const { data, error } = await supabase.auth.signInWithPassword(parsed.data)
   if (error) {
-    logError(error, "auth.signIn")
+    // A mistyped password/email is expected, normal user behavior, not an
+    // application error — logging it unconditionally reported one Sentry
+    // exception per failed login attempt site-wide (seen live: "Invalid
+    // login credentials", AuthApiError code invalid_credentials, 7
+    // occurrences over 2 months of pure noise). Any other auth failure
+    // (rate limit, provider outage, etc.) is still worth knowing about.
+    if (error.code !== "invalid_credentials") {
+      logError(error, "auth.signIn")
+    }
     return { error: tErrors("invalidCredentials") }
   }
 
