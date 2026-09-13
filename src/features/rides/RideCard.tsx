@@ -103,7 +103,7 @@ export async function RideCard({
         </div>
         <div className="text-muted-foreground flex items-center gap-2">
           <Clock className="size-4" aria-hidden="true" />
-          {format.dateTime(departureAt, { hour: "2-digit", minute: "2-digit" })}
+          {ride.time_flexible ? t("timeFlexible") : format.dateTime(departureAt, { hour: "2-digit", minute: "2-digit" })}
         </div>
         <div className="text-muted-foreground flex items-center gap-2">
           <Users className="size-4" aria-hidden="true" />

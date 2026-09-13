@@ -581,6 +581,7 @@
       "mapInstructions": "Konumunu ayarlamak için haritada bir noktaya dokun.",
       "departureDate": "Tarih",
       "departureTime": "Saat",
+      "timeFlexible": "Saat esnek / gün boyu uygun",
       "seatCount": "Koltuk Sayısı",
       "costShare": "Masraf Payı (₺)",
       "costShareEstimate": "Tahmini maliyet: ~{amount} ₺ (bu mesafe için, yaklaşık bir öneri)",
@@ -655,6 +656,7 @@
     "card": {
       "availableSeats": "{count} boş koltuk",
       "freeRide": "Ücretsiz",
+      "timeFlexible": "Gün boyu uygun",
       "unknownDriver": "Sürücü",
       "petsAllowed": "Evcil hayvan kabul edilir",
       "petsAllowedPassenger": "Evcil hayvanım var",

@@ -581,6 +581,7 @@
       "mapInstructions": "Tap a point on the map to set your location.",
       "departureDate": "Date",
       "departureTime": "Time",
+      "timeFlexible": "Flexible time / all day",
       "seatCount": "Number of Seats",
       "costShare": "Cost Share (₺)",
       "costShareEstimate": "Estimated cost: ~{amount} ₺ (a rough suggestion for this route)",
@@ -655,6 +656,7 @@
     "card": {
       "availableSeats": "{count} seats available",
       "freeRide": "Free",
+      "timeFlexible": "Flexible all day",
       "unknownDriver": "Driver",
       "petsAllowed": "Pets allowed",
       "petsAllowedPassenger": "I have a pet",

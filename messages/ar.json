@@ -581,6 +581,7 @@
       "mapInstructions": "اضغط على أي نقطة في الخريطة لضبط موقعك.",
       "departureDate": "التاريخ",
       "departureTime": "الوقت",
+      "timeFlexible": "وقت مرن / متاح طوال اليوم",
       "seatCount": "عدد المقاعد",
       "costShare": "المساهمة في التكلفة (₺)",
       "costShareEstimate": "التكلفة التقديرية: ~{amount} ₺ (تقديري، حسب المسافة فقط)",
@@ -655,6 +656,7 @@
     "card": {
       "availableSeats": "{count} مقعد متاح",
       "freeRide": "مجانية",
+      "timeFlexible": "متاح طوال اليوم",
       "unknownDriver": "السائق",
       "petsAllowed": "يُسمح بالحيوانات الأليفة",
       "petsAllowedPassenger": "معي حيوان أليف",

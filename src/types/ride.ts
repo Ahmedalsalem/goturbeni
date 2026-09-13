@@ -14,6 +14,7 @@ export interface Ride {
   departure_district: string | null
   arrival_district: string | null
   departure_time: string
+  time_flexible: boolean
   seat_count: number
   available_seats: number
   cost_share: number

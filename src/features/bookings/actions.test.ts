@@ -109,6 +109,7 @@ function fakeRide(overrides: Partial<Ride> = {}): Ride {
     departure_district: null,
     arrival_district: null,
     departure_time: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+    time_flexible: false,
     seat_count: 4,
     available_seats: 3,
     cost_share: 100,

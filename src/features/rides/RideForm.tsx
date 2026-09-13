@@ -76,6 +76,7 @@ export function RideForm({ ride }: { ride?: Ride }) {
       arrivalDistrict: ride?.arrival_district ?? "",
       departureDate: ride ? toIstanbulDateInputValue(ride.departure_time) : "",
       departureTime: ride ? toIstanbulTimeInputValue(ride.departure_time) : "",
+      timeFlexible: ride?.time_flexible ?? false,
       seatCount: ride?.seat_count ?? MIN_SEAT_COUNT,
       costShare: ride?.cost_share ?? 0,
       description: ride?.description ?? undefined,
@@ -99,6 +100,7 @@ export function RideForm({ ride }: { ride?: Ride }) {
   const arrivalCity = watch("arrivalCity")
   const postedByRole = watch("postedByRole")
   const isPassengerMode = postedByRole === "passenger"
+  const timeFlexible = watch("timeFlexible")
   const departureDistricts = departureCity ? (TURKISH_PROVINCE_DISTRICTS[departureCity] ?? []) : []
   const arrivalDistricts = arrivalCity ? (TURKISH_PROVINCE_DISTRICTS[arrivalCity] ?? []) : []
   // seatCount is RideFormInput's raw (pre-z.coerce) field — react-hook-form
@@ -370,7 +372,7 @@ export function RideForm({ ride }: { ride?: Ride }) {
             )}
           </Field>
 
-          <Field>
+          <Field className={isPassengerMode && timeFlexible ? "hidden" : undefined}>
             <FieldLabel htmlFor="departureTime">{t("departureTime")}</FieldLabel>
             <Input
               id="departureTime"
@@ -383,6 +385,30 @@ export function RideForm({ ride }: { ride?: Ride }) {
               <FieldError id="departureTime-error" errors={[{ message: errors.departureTime.message }]} />
             )}
           </Field>
+          {isPassengerMode && (
+            <Field orientation="horizontal" className={timeFlexible ? undefined : "self-end"}>
+              <Controller
+                control={control}
+                name="timeFlexible"
+                render={({ field }) => (
+                  <Checkbox
+                    id="timeFlexible"
+                    checked={field.value}
+                    onCheckedChange={(checked) => {
+                      const isFlexible = checked === true
+                      field.onChange(isFlexible)
+                      if (isFlexible && !watch("departureTime")) {
+                        setValue("departureTime", "09:00", { shouldValidate: true })
+                      }
+                    }}
+                  />
+                )}
+              />
+              <FieldLabel htmlFor="timeFlexible" className="font-normal">
+                {t("timeFlexible")}
+              </FieldLabel>
+            </Field>
+          )}
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">

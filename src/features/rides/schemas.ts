@@ -42,6 +42,7 @@ export function buildRideSchema(t: ValidationTranslator) {
       arrivalDistrict: districtField(),
       departureDate: z.string().min(1, t("dateRequired")),
       departureTime: z.string().min(1, t("timeRequired")),
+      timeFlexible: z.boolean().default(false),
       seatCount: z.coerce
         .number()
         .int()
@@ -81,7 +82,13 @@ export function buildRideSchema(t: ValidationTranslator) {
     })
     .refine(
       (data) => {
-        const departureAt = parseIstanbulDateTime(data.departureDate, data.departureTime)
+        // A time-flexible passenger listing's departureTime is a meaningless
+        // placeholder (RideForm fills it once, then hides the field) — the
+        // whole day should stay valid until it's actually over, not just
+        // until the placeholder's clock time passes.
+        const departureAt = data.timeFlexible
+          ? parseIstanbulDateTime(data.departureDate, "23:59")
+          : parseIstanbulDateTime(data.departureDate, data.departureTime)
         return departureAt.getTime() > Date.now()
       },
       { message: t("departureInPast"), path: ["departureTime"] }
@@ -111,6 +118,10 @@ export function buildRideSchema(t: ValidationTranslator) {
           }
         : data
     )
+    // Saat esnekliği tersi yönde: yalnızca yolcu için anlamlı (sürücü gerçek
+    // kalkış saatini taahhüt eder) — form sürücü modunda hiç göstermiyor, şema
+    // seviyesinde de zorlanıyor.
+    .transform((data) => (data.postedByRole === "driver" ? { ...data, timeFlexible: false } : data))
 }
 
 // Output type (after zod coercion/transforms) — what the create/update actions receive.

@@ -79,6 +79,7 @@ function validRideValues(overrides: Partial<RideFormValues> = {}): RideFormValue
     arrivalDistrict: undefined,
     departureDate,
     departureTime,
+    timeFlexible: false,
     seatCount: 2,
     costShare: 100,
     description: undefined,
