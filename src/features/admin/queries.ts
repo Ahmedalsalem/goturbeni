@@ -1,7 +1,7 @@
 import "server-only"
 
 import { createClient } from "@/lib/supabase/server"
-import type { Booking, BookingStatus } from "@/types/booking"
+import type { Booking, BookingPaymentStatus, BookingStatus } from "@/types/booking"
 import type { RideWithDriver } from "@/types/ride"
 
 // Was a flat 100-row cap with no way to reach anything past it — on a
@@ -10,7 +10,12 @@ import type { RideWithDriver } from "@/types/ride"
 // grows (found in a post-launch audit). Paginated instead: PAGE_SIZE per
 // page, callers get hasMore back to render a pager.
 const ADMIN_PAGE_SIZE = 50
-const RIDE_WITH_DRIVER_SELECT = "*, driver:profiles!rides_driver_id_fkey(full_name, avatar_url)"
+// bookings embed backs each row's match/payment status (getAdminRides below)
+// — the "select own or driver bookings" RLS policy has an is_admin() bypass
+// (0022_admin_bookings_select.sql), so this reads every booking regardless
+// of who the admin is.
+const RIDE_WITH_DRIVER_SELECT =
+  "*, driver:profiles!rides_driver_id_fkey(full_name, avatar_url), bookings(status, payment_status)"
 const BOOKING_STATUSES: BookingStatus[] = ["pending", "approved", "rejected", "cancelled"]
 const TREND_DAYS = 7
 
@@ -195,7 +200,26 @@ export async function getAdminUsers(page: number = 1): Promise<AdminPage<AdminUs
   }
 }
 
-export async function getAdminRides(page: number = 1): Promise<AdminPage<RideWithDriver>> {
+export interface AdminRideRow extends RideWithDriver {
+  bookings: { status: BookingStatus; payment_status: BookingPaymentStatus }[]
+}
+
+// A ride can carry several bookings (multiple passengers filling one ride's
+// seats) — "matched" means at least one was approved, "paid" means every
+// approved booking has settled (a partially-settled ride reads as unpaid,
+// not paid, since the driver hasn't actually collected everything yet).
+export function deriveRideMatchStatus(bookings: AdminRideRow["bookings"]): {
+  matched: boolean
+  paid: boolean
+} {
+  const approved = bookings.filter((booking) => booking.status === "approved")
+  return {
+    matched: approved.length > 0,
+    paid: approved.length > 0 && approved.every((booking) => booking.payment_status === "settled"),
+  }
+}
+
+export async function getAdminRides(page: number = 1): Promise<AdminPage<AdminRideRow>> {
   const supabase = await createClient()
   const { data } = await supabase
     .from("rides")
@@ -203,7 +227,7 @@ export async function getAdminRides(page: number = 1): Promise<AdminPage<RideWit
     .order("created_at", { ascending: false })
     .range(...overfetchRangeFor(page))
 
-  return splitPage((data as RideWithDriver[] | null) ?? [])
+  return splitPage((data as AdminRideRow[] | null) ?? [])
 }
 
 export interface AdminStats {

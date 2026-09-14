@@ -1032,6 +1032,10 @@
       "emptyTitle": "لا توجد رحلات بعد",
       "emptyDescription": "لم يتم إنشاء أي رحلة في المنصة بعد.",
       "unknownDriver": "سائق",
+      "matched": "تم العثور على راكب",
+      "unmatched": "لا يوجد راكب",
+      "paid": "تم الدفع",
+      "unpaid": "الدفع قيد الانتظار",
       "cancel": "إلغاء",
       "confirmCancel": "هل تريد إلغاء هذه الرحلة؟",
       "cancelSuccess": "تم إلغاء الرحلة."

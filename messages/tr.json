@@ -1032,6 +1032,10 @@
       "emptyTitle": "Henüz ilan yok",
       "emptyDescription": "Platformda henüz bir ilan oluşturulmadı.",
       "unknownDriver": "Sürücü",
+      "matched": "Yolcu bulundu",
+      "unmatched": "Yolcu bulunamadı",
+      "paid": "Ödendi",
+      "unpaid": "Ödeme bekleniyor",
       "cancel": "Kaldır",
       "confirmCancel": "Bu ilan kaldırılsın mı?",
       "cancelSuccess": "İlan kaldırıldı."

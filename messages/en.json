@@ -1032,6 +1032,10 @@
       "emptyTitle": "No listings yet",
       "emptyDescription": "No listing has been created on the platform yet.",
       "unknownDriver": "Driver",
+      "matched": "Passenger found",
+      "unmatched": "No passenger",
+      "paid": "Paid",
+      "unpaid": "Payment pending",
       "cancel": "Remove",
       "confirmCancel": "Remove this listing?",
       "cancelSuccess": "Listing removed."

@@ -4,10 +4,11 @@ import { getFormatter, getTranslations } from "next-intl/server"
 
 import { EmptyState } from "@/components/EmptyState"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { AdminPager } from "@/features/admin/AdminPager"
 import { CancelRideButton } from "@/features/admin/CancelRideButton"
-import { getAdminRides } from "@/features/admin/queries"
+import { deriveRideMatchStatus, getAdminRides } from "@/features/admin/queries"
 import { RideStatusBadge } from "@/features/rides/RideStatusBadge"
 import { getUserLocale } from "@/i18n/locale"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
@@ -44,6 +45,7 @@ export default async function AdminRidesPage({
             const driverName = ride.driver?.full_name ?? t("unknownDriver")
             const driverInitials = driverName.slice(0, 2).toUpperCase()
             const isCancellable = ride.status === "active" || ride.status === "full"
+            const { matched, paid } = deriveRideMatchStatus(ride.bookings)
 
             return (
               <Card key={ride.id}>
@@ -74,6 +76,8 @@ export default async function AdminRidesPage({
 
                   <div className="flex items-center gap-3">
                     <RideStatusBadge status={ride.status} />
+                    <Badge variant={matched ? "success" : "secondary"}>{matched ? t("matched") : t("unmatched")}</Badge>
+                    {matched && <Badge variant={paid ? "success" : "warning"}>{paid ? t("paid") : t("unpaid")}</Badge>}
                     {isCancellable && <CancelRideButton rideId={ride.id} />}
                   </div>
                 </CardContent>
