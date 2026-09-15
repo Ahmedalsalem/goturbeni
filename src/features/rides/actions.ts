@@ -17,7 +17,13 @@ import { sendNewRideBroadcastEmail } from "@/lib/new-ride-broadcast-email"
 import { parseIstanbulDateTime } from "@/utils/istanbul-time"
 import { buildRideSchema, type RideActionState, type RideFormValues } from "@/features/rides/schemas"
 import { getRide } from "@/features/rides/queries"
-import { TR_PLATE_PATTERN } from "@/features/profile/schemas"
+import { getMissingDriverFields, type MissingDriverField } from "@/features/profile/schemas"
+
+const MISSING_FIELD_LABEL_KEY: Record<MissingDriverField, "missingIban" | "missingCarPlate" | "missingCarColor"> = {
+  iban: "missingIban",
+  carPlate: "missingCarPlate",
+  carColor: "missingCarColor",
+}
 
 const CREATE_RIDE_RATE_LIMIT = { limit: 10, windowMs: 60 * 60 * 1000 }
 
@@ -82,32 +88,27 @@ export async function createRide(values: RideFormValues): Promise<RideActionStat
   // taşınıyor, approveBooking'de kontrol ediliyor (Faz 2A, bkz.
   // bookings/actions.ts).
   if (!isPassengerListing) {
-    // Sürücü IBAN + hesap sahibi adı olmadan ilan açamaz (bkz. "Yarı-Yarı
-    // Ödeme Akışı" — yolcunun ilk yarı ödemesini gönderebilmesi için ilan
-    // sahibinin ödeme bilgisi baştan tam olmalı).
-    const { data: paymentInfo } = await supabase
-      .from("profiles_private")
-      .select("iban, iban_holder_name")
-      .eq("id", user.id)
-      .maybeSingle()
-    if (!paymentInfo?.iban || !paymentInfo?.iban_holder_name) {
-      return { error: tErrors("ibanRequired") }
-    }
-
-    // Sürücü geçerli formatta bir plaka olmadan ilan açamaz — yolcunun aracı
-    // teşhis edebilmesi (bkz. 0050_car_plate.sql) artık zorunlu.
-    const { data: driverProfile } = await supabase
-      .from("profiles")
-      .select("car_plate, car_color")
-      .eq("id", user.id)
-      .maybeSingle()
-    if (!driverProfile?.car_plate || !TR_PLATE_PATTERN.test(driverProfile.car_plate)) {
-      return { error: tErrors("carPlateRequired") }
-    }
-
-    // Araç rengi de aynı gerekçeyle zorunlu (bkz. 0076_car_color.sql).
-    if (!driverProfile.car_color) {
-      return { error: tErrors("carColorRequired") }
+    // Sürücü IBAN, hesap sahibi adı, geçerli plaka ve araç rengi olmadan
+    // ilan açamaz (bkz. "Yarı-Yarı Ödeme Akışı" — yolcunun ilk yarı ödemesini
+    // gönderebilmesi için ilan sahibinin ödeme bilgisi baştan tam olmalı;
+    // plaka/renk de yolcunun aracı teşhis edebilmesi için zorunlu, bkz.
+    // 0050_car_plate.sql, 0076_car_color.sql). Eskiden bu üç alan sırayla
+    // kontrol edilip her seferinde ayrı bir hata dönüyordu — sürücü üç kez
+    // submit deneyip üç farklı eksik keşfediyordu. Artık hepsi tek seferde
+    // toplanıp tek mesajda bildiriliyor (bkz. profile/schemas.ts).
+    const [{ data: paymentInfo }, { data: driverProfile }] = await Promise.all([
+      supabase.from("profiles_private").select("iban, iban_holder_name").eq("id", user.id).maybeSingle(),
+      supabase.from("profiles").select("car_plate, car_color").eq("id", user.id).maybeSingle(),
+    ])
+    const missing = getMissingDriverFields({
+      iban: paymentInfo?.iban ?? null,
+      iban_holder_name: paymentInfo?.iban_holder_name ?? null,
+      car_plate: driverProfile?.car_plate ?? null,
+      car_color: driverProfile?.car_color ?? null,
+    })
+    if (missing.length > 0) {
+      const missingLabels = missing.map((field) => tErrors(MISSING_FIELD_LABEL_KEY[field]))
+      return { error: tErrors("profileIncomplete", { missing: missingLabels.join(", ") }), profileLink: true }
     }
   }
 

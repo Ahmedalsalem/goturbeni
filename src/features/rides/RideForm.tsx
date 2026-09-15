@@ -1,12 +1,13 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useLocale, useTranslations } from "next-intl"
 import { ChevronDown, Loader2, Send } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Field, FieldGroup, FieldLabel, FieldDescription, FieldError } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
@@ -41,11 +42,13 @@ import { TURKISH_PROVINCE_DISTRICTS } from "@/utils/turkish-districts"
 import { toIstanbulDateInputValue, toIstanbulTimeInputValue } from "@/utils/istanbul-time"
 import type { Ride } from "@/types/ride"
 
-export function RideForm({ ride }: { ride?: Ride }) {
+export function RideForm({ ride, driverProfileHint }: { ride?: Ride; driverProfileHint?: string }) {
   const t = useTranslations("Rides.form")
+  const tErrors = useTranslations("Rides.errors")
   const tValidation = useTranslations("Rides.validation")
   const locale = useLocale()
   const [serverError, setServerError] = useState<string | null>(null)
+  const [serverErrorProfileLink, setServerErrorProfileLink] = useState(false)
   const [freeRide, setFreeRide] = useState((ride?.cost_share ?? 0) === 0 && ride?.posted_by_role !== "passenger")
   // Collapsed by default on create so a first-time poster only faces the
   // handful of fields that actually block publishing (route, date, seats,
@@ -126,9 +129,11 @@ export function RideForm({ ride }: { ride?: Ride }) {
 
   async function onSubmit(values: RideFormValues) {
     setServerError(null)
+    setServerErrorProfileLink(false)
     const result = ride ? await updateRide(ride.id, values) : await createRide(values)
     if (result?.error) {
       setServerError(result.error)
+      setServerErrorProfileLink(!!result.profileLink)
     }
   }
 
@@ -136,7 +141,25 @@ export function RideForm({ ride }: { ride?: Ride }) {
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
       {serverError && (
         <Alert variant="destructive">
-          <AlertDescription>{serverError}</AlertDescription>
+          <AlertDescription className="flex flex-col items-start gap-2">
+            {serverError}
+            {serverErrorProfileLink && (
+              <Link href="/profile" className={buttonVariants({ variant: "outline", size: "sm" })}>
+                {tErrors("goToProfile")}
+              </Link>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {!ride && !serverError && driverProfileHint && !isPassengerMode && (
+        <Alert>
+          <AlertDescription className="flex flex-col items-start gap-2">
+            {driverProfileHint}
+            <Link href="/profile" className={buttonVariants({ variant: "outline", size: "sm" })}>
+              {tErrors("goToProfile")}
+            </Link>
+          </AlertDescription>
         </Alert>
       )}
 

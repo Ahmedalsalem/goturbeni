@@ -144,4 +144,7 @@ export type RideFormValues = z.output<ReturnType<typeof buildRideSchema>>
 // react-hook-form's useForm/register/Controller work with before the resolver runs.
 export type RideFormInput = z.input<ReturnType<typeof buildRideSchema>>
 
-export type RideActionState = { error?: string; success?: boolean }
+// profileLink: true tells RideForm the error is a missing-profile-field
+// error (see getMissingDriverFields) so it can render a link to /profile
+// instead of just showing the text — see profile/schemas.ts.
+export type RideActionState = { error?: string; success?: boolean; profileLink?: boolean }

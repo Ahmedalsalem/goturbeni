@@ -638,9 +638,11 @@
       "cancelFailed": "Listing could not be cancelled. Please try again.",
       "pauseFailed": "Recurring listing could not be stopped. Please try again.",
       "tooManyRequests": "Too many attempts. Please try again later.",
-      "ibanRequired": "To post a listing, first add your IBAN and account holder name to your profile.",
-      "carPlateRequired": "To post a listing, first add a valid license plate to your profile.",
-      "carColorRequired": "To post a listing, first add your car color to your profile.",
+      "missingIban": "your IBAN and account holder name",
+      "missingCarPlate": "a valid license plate",
+      "missingCarColor": "your car color",
+      "profileIncomplete": "To post a listing, first add the following to your profile: {missing}.",
+      "goToProfile": "Complete Profile",
       "seatCountBelowBooked": "You can't reduce the seat count below {count} — that many passengers are already approved on this listing."
     },
     "share": {

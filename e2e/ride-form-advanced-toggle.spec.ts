@@ -24,7 +24,9 @@ test.describe("ride form advanced-options toggle", () => {
     await expect(petsCheckbox).toBeHidden()
   })
 
-  test("passenger mode: pets/smoking/luggage/etc. show passenger-phrased labels, no payment/repeat", async ({ page }) => {
+  test("passenger mode: pets/smoking/luggage/etc. show passenger-phrased labels, payment method shown, no repeat", async ({
+    page,
+  }) => {
     await signUpAndVerify(page, uniqueEmail("advtogglepass"))
 
     await page.goto("/create-ride")
@@ -34,7 +36,9 @@ test.describe("ride form advanced-options toggle", () => {
     await expect(page.getByText("Evcil hayvanım var")).toBeVisible()
     await expect(page.getByText("Sigara içiyorum")).toBeVisible()
     await expect(page.getByText("Büyük bagajım var")).toBeVisible()
-    await expect(page.locator('[aria-labelledby="paymentMethodBankTransfer-label"]')).toHaveCount(0)
+    // Payment method is now asked on passenger listings too (see
+    // RideForm.tsx's paymentMethods field — no longer gated on !isPassengerMode).
+    await expect(page.locator('[aria-labelledby="paymentMethodBankTransfer-label"]')).toBeVisible()
     await expect(page.locator('[aria-labelledby="repeatWeekly-label"]')).toHaveCount(0)
   })
 

@@ -638,9 +638,11 @@
       "cancelFailed": "İlan iptal edilemedi. Lütfen tekrar deneyin.",
       "pauseFailed": "Tekrarlanan ilan durdurulamadı. Lütfen tekrar deneyin.",
       "tooManyRequests": "Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin.",
-      "ibanRequired": "İlan verebilmek için önce profilinize IBAN ve hesap sahibi ad soyad bilgisi ekleyin.",
-      "carPlateRequired": "İlan verebilmek için önce profilinize geçerli bir araç plakası ekleyin.",
-      "carColorRequired": "İlan verebilmek için önce profilinize araç renginizi ekleyin.",
+      "missingIban": "IBAN ve hesap sahibi ad soyad bilgisi",
+      "missingCarPlate": "geçerli bir araç plakası",
+      "missingCarColor": "araç renginiz",
+      "profileIncomplete": "İlan verebilmek için önce profilinize şunu ekleyin: {missing}.",
+      "goToProfile": "Profili Tamamla",
       "seatCountBelowBooked": "Koltuk sayısını {count} kişinin altına düşüremezsiniz — bu ilana zaten o kadar yolcu onaylanmış."
     },
     "share": {

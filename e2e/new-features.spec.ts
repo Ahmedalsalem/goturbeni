@@ -76,6 +76,10 @@ test("posting a ride without a valid car plate on file is rejected", async ({ pa
   await page.locator("#fullName").fill("E2E Plakasız Sürücü")
   await page.locator("#iban").fill("TR330006100519786457841326")
   await page.locator("#ibanHolderName").fill("E2E Plakasız Sürücü")
+  // Renk dolu, plaka boş bırakılıyor — testin amacı sadece plaka eksikliğini
+  // izole etmek (bkz. aşağıdaki assert), renk eksikliğinin de mesaja karışmasını
+  // önlemek için.
+  await page.locator("#carColor").fill("Siyah")
   await page.getByRole("button", { name: "Kaydet" }).click()
   await page.getByText("Profil güncellendi.").waitFor()
 
@@ -92,6 +96,6 @@ test("posting a ride without a valid car plate on file is rejected", async ({ pa
   await page.locator("#costShare").fill("50")
   await page.getByRole("button", { name: "İlanı Yayınla" }).click()
 
-  await expect(page.getByText("İlan verebilmek için önce profilinize geçerli bir araç plakası ekleyin.")).toBeVisible()
+  await expect(page.getByText("İlan verebilmek için önce profilinize şunu ekleyin: geçerli bir araç plakası.")).toBeVisible()
   await expect(page).toHaveURL(/\/create-ride$/)
 })

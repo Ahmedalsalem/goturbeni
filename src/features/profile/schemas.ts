@@ -33,6 +33,25 @@ const TR_IBAN_PATTERN = /^TR\d{24}$/
 export const TR_PLATE_PATTERN =
   /^(0[1-9]|[1-7][0-9]|8[01])\s?[A-PR-VYZ]\s?\d{4,5}$|^(0[1-9]|[1-7][0-9]|8[01])\s?[A-PR-VYZ]{2}\s?\d{3,4}$|^(0[1-9]|[1-7][0-9]|8[01])\s?[A-PR-VYZ]{3}\s?\d{2,3}$/
 
+export type MissingDriverField = "iban" | "carPlate" | "carColor"
+
+// Shared between features/rides/actions.ts (reactive check at submit time)
+// and app/create-ride/page.tsx (proactive hint before the driver ever
+// submits) so both places agree on exactly what "driver profile complete"
+// means.
+export function getMissingDriverFields(profile: {
+  iban: string | null
+  iban_holder_name: string | null
+  car_plate: string | null
+  car_color: string | null
+}): MissingDriverField[] {
+  const missing: MissingDriverField[] = []
+  if (!profile.iban || !profile.iban_holder_name) missing.push("iban")
+  if (!profile.car_plate || !TR_PLATE_PATTERN.test(profile.car_plate)) missing.push("carPlate")
+  if (!profile.car_color) missing.push("carColor")
+  return missing
+}
+
 type ValidationTranslator = (
   key:
     | "fullNameRequired"
