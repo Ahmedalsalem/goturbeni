@@ -74,6 +74,27 @@ export function renderEmailHtml(
 </html>`
 }
 
+// Plain-text companion to renderEmailHtml — an HTML-only send (no `text`
+// part) is itself a spam-scoring signal mailbox providers use (legitimate
+// transactional mail almost always carries a text/plain alternative;
+// HTML-only is disproportionately common in bulk/spam mail). Every
+// resend.emails.send() call below now passes both. bodyText must be plain
+// content (no markup) — callers pass the same translation string used for
+// bodyHtml when that string has no embedded HTML (true for every call site
+// here; the one exception, the styled OTP code block, builds its own
+// bodyText inline instead of reusing bodyHtml).
+export function renderEmailText(params: {
+  greeting: string
+  bodyText: string
+  ctaLabel?: string
+  ctaUrl?: string
+  signoff: string
+  footerNote: string
+}): string {
+  const cta = params.ctaLabel && params.ctaUrl ? `${params.ctaLabel}: ${params.ctaUrl}\n\n` : ""
+  return `${params.greeting}\n\n${params.bodyText}\n\n${cta}${params.signoff}\n\n---\n${params.footerNote}`
+}
+
 // Mandatory account verification (src/features/profile/actions.ts) — unlike
 // sendEmailNotification below, this isn't a best-effort background
 // notification: verification cannot proceed without it, so the caller needs
@@ -90,6 +111,7 @@ export async function sendVerificationCodeEmail(to: string, code: string, locale
     // t() can't format a message containing raw HTML tags (a `<strong>` with an
     // attribute, or `<br>`, both trip INVALID_TAG); see email.test.ts.
     const codeBlockHtml = `<p style="margin:0 0 20px;">${t("verificationCodeIntro")}</p><p style="margin:0 0 20px;font-size:28px;font-weight:bold;letter-spacing:6px;text-align:center;background-color:#f4f4f5;border-radius:8px;padding:16px;">${code}</p><p style="margin:0;">${t("verificationCodeOutro")}</p>`
+    const codeBlockText = `${t("verificationCodeIntro")}\n\n${code}\n\n${t("verificationCodeOutro")}`
     // Resend's SDK does not throw on an API-level rejection (invalid
     // recipient, rate limit, etc.) — it resolves with { data: null, error }.
     // Only checking for a thrown exception here would silently report
@@ -102,6 +124,12 @@ export async function sendVerificationCodeEmail(to: string, code: string, locale
       html: renderEmailHtml(locale, {
         greeting: t("greeting"),
         bodyHtml: codeBlockHtml,
+        signoff: t("signoff"),
+        footerNote: t("footerNote"),
+      }),
+      text: renderEmailText({
+        greeting: t("greeting"),
+        bodyText: codeBlockText,
         signoff: t("signoff"),
         footerNote: t("footerNote"),
       }),
@@ -132,6 +160,7 @@ export async function sendAdminResendVerificationEmail(to: string, code: string,
   const resend = new Resend(process.env.RESEND_API_KEY)
   try {
     const bodyHtml = `<p style="margin:0 0 20px;">${t("adminResendApology")}</p><p style="margin:0 0 20px;font-size:28px;font-weight:bold;letter-spacing:6px;text-align:center;background-color:#f4f4f5;border-radius:8px;padding:16px;">${code}</p><p style="margin:0;">${t("adminResendOutro")}</p>`
+    const bodyText = `${t("adminResendApology")}\n\n${code}\n\n${t("adminResendOutro")}`
     const { error } = await resend.emails.send({
       from: emailFrom(),
       to,
@@ -139,6 +168,12 @@ export async function sendAdminResendVerificationEmail(to: string, code: string,
       html: renderEmailHtml(locale, {
         greeting: t("greeting"),
         bodyHtml,
+        signoff: t("signoff"),
+        footerNote: t("footerNote"),
+      }),
+      text: renderEmailText({
+        greeting: t("greeting"),
+        bodyText,
         signoff: t("signoff"),
         footerNote: t("footerNote"),
       }),
@@ -198,6 +233,14 @@ export async function sendEmailNotification(event: NotificationEvent): Promise<v
         signoff: tCommon("signoff"),
         footerNote: tCommon("footerNote"),
       }),
+      text: renderEmailText({
+        greeting: tCommon("greeting"),
+        bodyText: t(`${key}Body`),
+        ctaLabel: tCommon("viewLinkLabel"),
+        ctaUrl: url,
+        signoff: tCommon("signoff"),
+        footerNote: tCommon("footerNote"),
+      }),
     })
     if (error) {
       logError(error, "email.sendEmailNotification")
@@ -252,6 +295,14 @@ export async function sendSeatOpenedEmailNotifications(rideId: string): Promise<
           html: renderEmailHtml(locale, {
             greeting: tCommon("greeting"),
             bodyHtml: t("seatOpenedBody"),
+            ctaLabel: tCommon("viewLinkLabel"),
+            ctaUrl: url,
+            signoff: tCommon("signoff"),
+            footerNote: tCommon("footerNote"),
+          }),
+          text: renderEmailText({
+            greeting: tCommon("greeting"),
+            bodyText: t("seatOpenedBody"),
             ctaLabel: tCommon("viewLinkLabel"),
             ctaUrl: url,
             signoff: tCommon("signoff"),
