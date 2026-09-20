@@ -661,6 +661,7 @@
     },
     "card": {
       "availableSeats": "{count} مقعد متاح",
+      "availableSeatsPassenger": "{count} أشخاص",
       "freeRide": "مجانية",
       "timeFlexible": "متاح طوال اليوم",
       "unknownDriver": "السائق",
@@ -697,6 +698,7 @@
   },
   "RideDetailPage": {
     "seats": "{available} / {total} مقعد متاح",
+    "seatsPassenger": "{available} / {total} أشخاص",
     "descriptionLabel": "الوصف",
     "co2Savings": "مشاركة هذه الرحلة تُوَفِّر ما يقارب {kg} كجم من ثاني أكسيد الكربون (تقديري، بحسب المسافة المستقيمة).",
     "metaDescription": "رحلة بتاريخ {date} - {cost}",

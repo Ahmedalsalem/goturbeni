@@ -661,6 +661,7 @@
     },
     "card": {
       "availableSeats": "{count} boş koltuk",
+      "availableSeatsPassenger": "{count} kişi",
       "freeRide": "Ücretsiz",
       "timeFlexible": "Gün boyu uygun",
       "unknownDriver": "Sürücü",
@@ -697,6 +698,7 @@
   },
   "RideDetailPage": {
     "seats": "{available} / {total} boş koltuk",
+    "seatsPassenger": "{available} / {total} kişi",
     "descriptionLabel": "Açıklama",
     "co2Savings": "Bu yolculuk paylaşılarak yaklaşık {kg} kg CO₂ tasarrufu sağlanıyor (tahmini, kuş uçuşu mesafeye göre).",
     "metaDescription": "{date} tarihli yolculuk - {cost}",

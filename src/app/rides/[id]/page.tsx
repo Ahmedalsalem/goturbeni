@@ -288,7 +288,7 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
             </div>
             <div className="flex items-center gap-2">
               <Users className="text-muted-foreground size-4" aria-hidden="true" />
-              {t("seats", { available: ride.available_seats, total: ride.seat_count })}
+              {t(isPassengerListing ? "seatsPassenger" : "seats", { available: ride.available_seats, total: ride.seat_count })}
             </div>
             <div className="font-medium">{ride.cost_share === 0 ? tCard("freeRide") : formatCostShare(ride.cost_share, locale)}</div>
           </div>

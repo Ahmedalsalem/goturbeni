@@ -661,6 +661,7 @@
     },
     "card": {
       "availableSeats": "{count} seats available",
+      "availableSeatsPassenger": "{count} people",
       "freeRide": "Free",
       "timeFlexible": "Flexible all day",
       "unknownDriver": "Driver",
@@ -697,6 +698,7 @@
   },
   "RideDetailPage": {
     "seats": "{available} / {total} seats available",
+    "seatsPassenger": "{available} / {total} people",
     "descriptionLabel": "Description",
     "co2Savings": "Sharing this ride saves an estimated {kg} kg of CO₂ (approximate, based on straight-line distance).",
     "metaDescription": "Ride on {date} - {cost}",
