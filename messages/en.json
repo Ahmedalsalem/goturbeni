@@ -553,6 +553,18 @@
       "title": "Select Passenger",
       "description": "Choose the passenger you want to chat with.",
       "unknownPassenger": "Passenger"
+    },
+    "driverPicker": {
+      "title": "Select Driver",
+      "description": "Choose the offering driver you want to chat with.",
+      "unknownPassenger": "Driver"
+    },
+    "noActiveOffer": {
+      "title": "You don't have an active offer",
+      "description": "To message about this listing, you need to make an offer first, or your existing offer must not be cancelled/rejected.",
+      "noOffersTitle": "No offers yet",
+      "noOffersDescription": "No driver has made an offer on this listing yet.",
+      "backToRide": "Back to Listing"
     }
   },
   "Rides": {
@@ -706,10 +718,13 @@
   },
   "Bookings": {
     "form": {
-      "seatCount": "Number of Seats"
+      "seatCount": "Number of Seats",
+      "offeredCostShare": "Your Offered Price (₺)",
+      "offeredCostShareReferenceHint": "The passenger's reference price in the listing: {amount}. You can offer below, above, or equal to it."
     },
     "validation": {
-      "seatCountMin": "Select at least 1 seat."
+      "seatCountMin": "Select at least 1 seat.",
+      "offeredCostShareMin": "Enter a valid price."
     },
     "status": {
       "pending": "Pending",
@@ -720,6 +735,7 @@
     "actions": {
       "reserve": "Book Now",
       "makeOffer": "Make an Offer",
+      "messageOwner": "Send a Message",
       "manageOffer": "Manage Offer",
       "approveOffer": "Accept Offer",
       "confirmApproveOffer": "Are you sure you want to accept this offer?",
@@ -771,6 +787,7 @@
     },
     "card": {
       "seatCount": "{count} seats",
+      "offeredCostShare": "Offer: {amount}",
       "unknownPassenger": "Passenger",
       "unknownDriver": "Driver",
       "uploadSettlementReceipt": "Upload Payment Receipt",

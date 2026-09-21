@@ -16,7 +16,13 @@ import { getBookingParties } from "@/features/bookings/queries"
 import { extractReceiptFields } from "@/lib/ocr"
 import { recordNotificationEvent, sendPushNotification, sendSeatOpenedPushNotifications } from "@/lib/notifications"
 import { sendEmailNotification, sendSeatOpenedEmailNotifications } from "@/lib/email"
-import { buildBookingSchema, type BookingActionState, type BookingFormValues } from "@/features/bookings/schemas"
+import {
+  buildBookingSchema,
+  buildOfferSchema,
+  type BookingActionState,
+  type BookingFormValues,
+  type OfferFormValues,
+} from "@/features/bookings/schemas"
 
 const CREATE_BOOKING_RATE_LIMIT = { limit: 20, windowMs: 60 * 60 * 1000 }
 const RECEIPT_UPLOAD_RATE_LIMIT = { limit: 20, windowMs: 60 * 60 * 1000 }
@@ -28,6 +34,13 @@ async function getBookingTranslators() {
   const tValidation = await getTranslations({ locale, namespace: "Bookings.validation" })
   const tErrors = await getTranslations({ locale, namespace: "Bookings.errors" })
   return { schema: buildBookingSchema(tValidation), tErrors }
+}
+
+async function getOfferTranslators() {
+  const locale = await getUserLocale()
+  const tValidation = await getTranslations({ locale, namespace: "Bookings.validation" })
+  const tErrors = await getTranslations({ locale, namespace: "Bookings.errors" })
+  return { schema: buildOfferSchema(tValidation), tErrors }
 }
 
 export async function createBooking(rideId: string, values: BookingFormValues): Promise<BookingActionState> {
@@ -110,10 +123,15 @@ export async function createBooking(rideId: string, values: BookingFormValues): 
 // dolayısıyla her zaman ride.seat_count kadar. IBAN/plaka kontrolü burada
 // YAPILMAZ — approveBooking'e taşındı (ilan sahibi onaylayana kadar hangi
 // sürücünün teklifinin kabul edileceği belli değil).
-export async function createOffer(rideId: string): Promise<BookingActionState> {
-  const { tErrors } = await getBookingTranslators()
+export async function createOffer(rideId: string, values: OfferFormValues): Promise<BookingActionState> {
+  const { schema, tErrors } = await getOfferTranslators()
   if (!isSupabaseConfigured()) {
     return { error: tErrors("notConfigured") }
+  }
+
+  const parsed = schema.safeParse(values)
+  if (!parsed.success) {
+    return { error: firstIssueMessage(parsed.error, tErrors("invalidForm")) }
   }
 
   const user = await requireVerifiedProfile()
@@ -131,7 +149,10 @@ export async function createOffer(rideId: string): Promise<BookingActionState> {
   if (ride.posted_by === user.id) {
     return { error: tErrors("ownRide") }
   }
-
+  // Yolcunun ilanda girdiği cost_share yalnızca bir referans/istek —
+  // sürücü parayı alan taraf olduğundan bağlayıcı bir tavan yok, istediği
+  // fiyatı önerebilir (bkz. 0090_passenger_listing_offer_price.sql,
+  // kullanıcı geri bildirimiyle tavan kaldırıldı).
   const supabase = await createClient()
   const { error } = await supabase.from("bookings").insert({
     ride_id: rideId,
@@ -139,6 +160,7 @@ export async function createOffer(rideId: string): Promise<BookingActionState> {
     booker_role: "driver",
     driver_id: user.id,
     seat_count: ride.seat_count,
+    offered_cost_share: parsed.data.offeredCostShare,
   })
 
   if (error) {

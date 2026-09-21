@@ -64,3 +64,27 @@ export async function getApprovedPassengers(rideId: string): Promise<ApprovedPas
     avatar_url: row.passenger?.avatar_url ?? null,
   }))
 }
+
+// getApprovedPassengers'ın yolcu-ilanı karşılığı — bir yolcu ilanına teklif
+// veren sürücüler (booker_role='driver'), henüz onaylanmamış olanlar dahil
+// (bkz. 0091_offer_chat_before_approval.sql: mesajlaşma artık onay
+// beklemiyor). Reddedilmiş/iptal edilmiş teklifler hariç.
+export async function getOfferingDrivers(rideId: string): Promise<ApprovedPassenger[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("bookings")
+    .select("driver_id, driver:profiles!bookings_driver_id_fkey(full_name, avatar_url)")
+    .eq("ride_id", rideId)
+    .eq("booker_role", "driver")
+    .in("status", ["pending", "approved"])
+
+  const rows = (data as { driver_id: string | null; driver: { full_name: string | null; avatar_url: string | null } | null }[] | null) ?? []
+
+  return rows
+    .filter((row): row is typeof row & { driver_id: string } => row.driver_id !== null)
+    .map((row) => ({
+      id: row.driver_id,
+      full_name: row.driver?.full_name ?? null,
+      avatar_url: row.driver?.avatar_url ?? null,
+    }))
+}

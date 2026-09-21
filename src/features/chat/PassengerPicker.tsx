@@ -7,9 +7,20 @@ import type { ApprovedPassenger } from "@/features/chat/queries"
 
 // Shown when the driver opens /rides/[id]/chat and has more than one
 // approved passenger — messages are 1:1, so the driver has one conversation
-// per passenger and needs to pick which one to open.
-export async function PassengerPicker({ rideId, passengers }: { rideId: string; passengers: ApprovedPassenger[] }) {
-  const t = await getTranslations("ChatPage.passengerPicker")
+// per passenger and needs to pick which one to open. Also reused on the
+// yolcu-ilanı side (ilan sahibi seçiyor arasından birden fazla teklif veren
+// sürücü) — counterpartRole swaps the copy so it says "Sürücü Seç" instead
+// of "Yolcu Seç" in that case (bkz. 0091_offer_chat_before_approval.sql).
+export async function PassengerPicker({
+  rideId,
+  passengers,
+  counterpartRole = "passenger",
+}: {
+  rideId: string
+  passengers: ApprovedPassenger[]
+  counterpartRole?: "passenger" | "driver"
+}) {
+  const t = await getTranslations(counterpartRole === "driver" ? "ChatPage.driverPicker" : "ChatPage.passengerPicker")
 
   return (
     <Card>

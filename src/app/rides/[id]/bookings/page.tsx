@@ -33,6 +33,8 @@ import { ReviewButton } from "@/features/reviews/ReviewButton"
 import { getMyReviewForRide, getReviewStats } from "@/features/reviews/queries"
 import { StarRating } from "@/features/reviews/StarRating"
 import { verifySession } from "@/lib/supabase/dal"
+import { getUserLocale } from "@/i18n/locale"
+import { formatCostShare } from "@/utils/currency"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("RideBookingsPage")
@@ -60,6 +62,7 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
   const tBookingActions = await getTranslations("Bookings.actions")
   const tPayment = await getTranslations("Bookings.payment")
   const format = await getFormatter()
+  const locale = await getUserLocale()
   const [allBookings, unreadMessages, waitlistCount] = await Promise.all([
     getRideBookings(id),
     getUnreadMessages(user.id),
@@ -223,6 +226,11 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                       <p className="text-muted-foreground text-sm">
                         {tCard("seatCount", { count: booking.seat_count })}
                       </p>
+                      {isOffer && booking.offered_cost_share !== null && (
+                        <p className="text-primary text-sm font-medium">
+                          {tCard("offeredCostShare", { amount: formatCostShare(booking.offered_cost_share, locale) })}
+                        </p>
+                      )}
                       {isApproved && counterpartyPhone && (
                         <a
                           href={`tel:${counterpartyPhone}`}
@@ -298,6 +306,27 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                       </Alert>
                     </CardFooter>
                   )}
+                {/* Teklif henüz onaylanmadan da mesajlaşılabilir (bkz.
+                    0091_offer_chat_before_approval.sql) — isApproved
+                    bloğundaki diğer aksiyonlar (pickup kodu, settlement vb.)
+                    bu aşamada anlamsız, o yüzden ayrı, sade bir blok. */}
+                {isOffer && booking.status === "pending" && (
+                  <CardFooter className="flex flex-wrap items-center gap-2">
+                    <Link
+                      href={`/rides/${id}/chat?passengerId=${counterparty.id}`}
+                      className={buttonVariants({ variant: "outline", size: "sm", className: "relative" })}
+                    >
+                      <MessageCircle className="size-4" aria-hidden="true" />
+                      {t("chat")}
+                      {unreadMessages.threadKeys.has(`${id}:${counterparty.id}`) && (
+                        <span
+                          className="bg-destructive ring-background absolute -end-1 -top-1 size-2.5 rounded-full ring-2"
+                          aria-hidden="true"
+                        />
+                      )}
+                    </Link>
+                  </CardFooter>
+                )}
                 {isApproved && (
                   <CardFooter className="flex flex-wrap items-center gap-2">
                     <Link

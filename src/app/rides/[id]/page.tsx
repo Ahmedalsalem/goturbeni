@@ -87,12 +87,13 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
     notFound()
   }
 
-  const [t, tCard, tNav, tReviews, tBookings, format, locale, user] = await Promise.all([
+  const [t, tCard, tNav, tReviews, tBookings, tBookingActions, format, locale, user] = await Promise.all([
     getTranslations("RideDetailPage"),
     getTranslations("Rides.card"),
     getTranslations("Nav"),
     getTranslations("Reviews"),
     getTranslations("Bookings.loginPrompt"),
+    getTranslations("Bookings.actions"),
     getFormatter(),
     getUserLocale(),
     getCurrentUser(),
@@ -322,8 +323,14 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
           </CardFooter>
         )}
         {canOffer && (
-          <CardFooter>
-            <OfferButton rideId={ride.id} existingOffer={existingOffer} />
+          <CardFooter className="flex flex-col items-stretch gap-3">
+            <OfferButton rideId={ride.id} existingOffer={existingOffer} referenceCostShare={ride.cost_share} />
+            <Link
+              href={`/rides/${ride.id}/chat?passengerId=${ride.posted_by}`}
+              className={buttonVariants({ variant: "outline", className: "w-full" })}
+            >
+              {tBookingActions("messageOwner")}
+            </Link>
           </CardFooter>
         )}
         {showLoginPrompt && (

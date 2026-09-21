@@ -553,6 +553,18 @@
       "title": "Yolcu Seç",
       "description": "Sohbet etmek istediğin yolcuyu seç.",
       "unknownPassenger": "Yolcu"
+    },
+    "driverPicker": {
+      "title": "Sürücü Seç",
+      "description": "Sohbet etmek istediğin, teklif veren sürücüyü seç.",
+      "unknownPassenger": "Sürücü"
+    },
+    "noActiveOffer": {
+      "title": "Aktif bir teklifin yok",
+      "description": "Bu ilana mesaj yazabilmek için önce bir teklif vermen ya da mevcut teklifinin iptal/reddedilmiş olmaması gerekir.",
+      "noOffersTitle": "Henüz teklif yok",
+      "noOffersDescription": "Bu ilana henüz hiçbir sürücü teklif vermedi.",
+      "backToRide": "İlana Dön"
     }
   },
   "Rides": {
@@ -706,10 +718,13 @@
   },
   "Bookings": {
     "form": {
-      "seatCount": "Koltuk Sayısı"
+      "seatCount": "Koltuk Sayısı",
+      "offeredCostShare": "Teklif Ettiğiniz Fiyat (₺)",
+      "offeredCostShareReferenceHint": "Yolcunun ilanda istediği referans fiyat: {amount}. Bunun altında, üstünde veya eşit bir fiyat önerebilirsiniz."
     },
     "validation": {
-      "seatCountMin": "En az 1 koltuk seçin."
+      "seatCountMin": "En az 1 koltuk seçin.",
+      "offeredCostShareMin": "Geçerli bir fiyat girin."
     },
     "status": {
       "pending": "Beklemede",
@@ -720,6 +735,7 @@
     "actions": {
       "reserve": "Rezervasyon Yap",
       "makeOffer": "Teklif Ver",
+      "messageOwner": "Mesaj Yaz",
       "manageOffer": "Teklifi Yönet",
       "approveOffer": "Teklifi Kabul Et",
       "confirmApproveOffer": "Teklifi kabul etmek istediğinize emin misiniz?",
@@ -771,6 +787,7 @@
     },
     "card": {
       "seatCount": "{count} koltuk",
+      "offeredCostShare": "Teklif: {amount}",
       "unknownPassenger": "Yolcu",
       "unknownDriver": "Sürücü",
       "uploadSettlementReceipt": "Ödeme Dekontu Yükle",

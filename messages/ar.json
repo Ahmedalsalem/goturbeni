@@ -553,6 +553,18 @@
       "title": "اختر راكبًا",
       "description": "اختر الراكب الذي تريد محادثته.",
       "unknownPassenger": "الراكب"
+    },
+    "driverPicker": {
+      "title": "اختر سائقًا",
+      "description": "اختر السائق الذي قدّم عرضًا والذي تريد محادثته.",
+      "unknownPassenger": "السائق"
+    },
+    "noActiveOffer": {
+      "title": "ليس لديك عرض نشط",
+      "description": "لإرسال رسالة بخصوص هذا الإعلان، يجب عليك تقديم عرض أولاً، أو أن يكون عرضك الحالي غير ملغى أو مرفوض.",
+      "noOffersTitle": "لا توجد عروض بعد",
+      "noOffersDescription": "لم يقدّم أي سائق عرضًا على هذا الإعلان بعد.",
+      "backToRide": "العودة إلى الإعلان"
     }
   },
   "Rides": {
@@ -706,10 +718,13 @@
   },
   "Bookings": {
     "form": {
-      "seatCount": "عدد المقاعد"
+      "seatCount": "عدد المقاعد",
+      "offeredCostShare": "السعر الذي تعرضه (₺)",
+      "offeredCostShareReferenceHint": "السعر المرجعي الذي طلبه الراكب في الإعلان: {amount}. يمكنك عرض سعر أقل أو أعلى أو مساويًا له."
     },
     "validation": {
-      "seatCountMin": "اختر مقعدًا واحدًا على الأقل."
+      "seatCountMin": "اختر مقعدًا واحدًا على الأقل.",
+      "offeredCostShareMin": "أدخل سعرًا صحيحًا."
     },
     "status": {
       "pending": "قيد الانتظار",
@@ -720,6 +735,7 @@
     "actions": {
       "reserve": "احجز",
       "makeOffer": "قدّم عرضًا",
+      "messageOwner": "أرسل رسالة",
       "manageOffer": "إدارة العرض",
       "approveOffer": "قبول العرض",
       "confirmApproveOffer": "هل أنت متأكد أنك تريد قبول هذا العرض؟",
@@ -771,6 +787,7 @@
     },
     "card": {
       "seatCount": "{count} مقعد",
+      "offeredCostShare": "العرض: {amount}",
       "unknownPassenger": "الراكب",
       "unknownDriver": "السائق",
       "uploadSettlementReceipt": "رفع إيصال الدفعة",

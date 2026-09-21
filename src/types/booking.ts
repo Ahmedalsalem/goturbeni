@@ -13,6 +13,7 @@ export interface Booking {
   seat_count: number
   booker_role: BookingBookerRole
   driver_id: string | null
+  offered_cost_share: number | null
   status: BookingStatus
   payment_status: BookingPaymentStatus
   driver_settled_at: string | null

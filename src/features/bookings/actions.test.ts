@@ -242,7 +242,7 @@ describe("bookings/actions", () => {
     it("rejects when the ride is not a passenger listing", async () => {
       getRideMock.mockResolvedValue(fakeRide({ posted_by_role: "driver" }))
 
-      const result = await createOffer("ride-1")
+      const result = await createOffer("ride-1", { offeredCostShare: 100 })
 
       expect(result.error).toBe("Bookings.errors.notPassengerListing")
       expect(fromMock).not.toHaveBeenCalled()
@@ -251,7 +251,7 @@ describe("bookings/actions", () => {
     it("rejects offering on your own passenger listing", async () => {
       getRideMock.mockResolvedValue(fakeRide({ posted_by_role: "passenger", posted_by: FAKE_USER.id, driver_id: null }))
 
-      const result = await createOffer("ride-1")
+      const result = await createOffer("ride-1", { offeredCostShare: 100 })
 
       expect(result.error).toBe("Bookings.errors.ownRide")
       expect(fromMock).not.toHaveBeenCalled()
@@ -267,7 +267,7 @@ describe("bookings/actions", () => {
       // unconditionally — needs a resolved rpc call.
       rpcMock.mockResolvedValue({ error: null })
 
-      const result = await createOffer("ride-1")
+      const result = await createOffer("ride-1", { offeredCostShare: 80 })
 
       expect(result).toEqual({ success: true })
       expect(insertMock).toHaveBeenCalledWith({
@@ -276,14 +276,31 @@ describe("bookings/actions", () => {
         booker_role: "driver",
         driver_id: FAKE_USER.id,
         seat_count: 3,
+        offered_cost_share: 80,
       })
+    })
+
+    it("allows an offered price above the ride's listed cost_share (reference price, not a ceiling)", async () => {
+      getRideMock.mockResolvedValue(
+        fakeRide({ posted_by_role: "passenger", posted_by: "passenger-1", driver_id: null, cost_share: 100, seat_count: 2 })
+      )
+      const insertMock = vi.fn().mockResolvedValue({ error: null })
+      fromMock.mockReturnValue({ insert: insertMock })
+      rpcMock.mockResolvedValue({ error: null })
+
+      const result = await createOffer("ride-1", { offeredCostShare: 150 })
+
+      expect(result).toEqual({ success: true })
+      expect(insertMock).toHaveBeenCalledWith(
+        expect.objectContaining({ offered_cost_share: 150 })
+      )
     })
 
     it("maps a unique-violation to alreadyOffered", async () => {
       getRideMock.mockResolvedValue(fakeRide({ posted_by_role: "passenger", posted_by: "passenger-1", driver_id: null }))
       fromMock.mockReturnValue({ insert: vi.fn().mockResolvedValue({ error: { code: "23505", message: "duplicate" } }) })
 
-      const result = await createOffer("ride-1")
+      const result = await createOffer("ride-1", { offeredCostShare: 100 })
 
       expect(result.error).toBe("Bookings.errors.alreadyOffered")
     })
