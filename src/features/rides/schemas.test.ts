@@ -11,6 +11,16 @@ function futureDateTimeParts(hoursFromNow: number) {
   return { departureDate, departureTime }
 }
 
+// A fixed clock time is wrong here (departureTime is itself
+// clock-time-of-day-dependent via futureDateTimeParts, so a hardcoded end
+// time could land before OR after it depending on when the suite runs) —
+// always derive the range end from the actual generated start instead.
+function oneHourLater(time: string) {
+  const [hours, minutes] = time.split(":").map(Number)
+  const next = (hours + 1) % 24
+  return `${String(next).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`
+}
+
 function validRide(overrides: Partial<Record<string, unknown>> = {}) {
   const { departureDate, departureTime } = futureDateTimeParts(24)
   return {
@@ -114,6 +124,47 @@ describe("buildRideSchema", () => {
     expect(result.success).toBe(true)
     if (result.success) {
       expect(result.data.departureDistrict).toBeUndefined()
+    }
+  })
+
+  it("accepts a passenger listing with a valid departure time range", () => {
+    const { departureDate, departureTime } = futureDateTimeParts(24)
+    const departureTimeEnd = oneHourLater(departureTime)
+    const result = schema.safeParse(
+      validRide({ postedByRole: "passenger", departureDate, departureTime, departureTimeEnd })
+    )
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.departureTimeEnd).toBe(departureTimeEnd)
+    }
+  })
+
+  it("rejects a departure time range end at or before the start", () => {
+    const { departureDate, departureTime } = futureDateTimeParts(24)
+    const result = schema.safeParse(
+      validRide({ postedByRole: "passenger", departureDate, departureTime, departureTimeEnd: departureTime })
+    )
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues[0].path).toEqual(["departureTimeEnd"])
+    }
+  })
+
+  it("clears the time range for a driver listing even if one was submitted", () => {
+    const result = schema.safeParse(validRide({ postedByRole: "driver", departureTimeEnd: "16:00" }))
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.departureTimeEnd).toBeUndefined()
+    }
+  })
+
+  it("clears the time range when the passenger listing is flexible/all-day", () => {
+    const result = schema.safeParse(
+      validRide({ postedByRole: "passenger", timeFlexible: true, departureTimeEnd: "16:00" })
+    )
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.departureTimeEnd).toBeUndefined()
     }
   })
 })

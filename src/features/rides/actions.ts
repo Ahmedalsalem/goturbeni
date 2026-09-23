@@ -45,6 +45,9 @@ function buildRideRow(parsed: RideFormValues) {
     departure_district: parsed.departureDistrict ?? null,
     arrival_district: parsed.arrivalDistrict ?? null,
     departure_time: parseIstanbulDateTime(parsed.departureDate, parsed.departureTime).toISOString(),
+    departure_time_range_end: parsed.departureTimeEnd
+      ? parseIstanbulDateTime(parsed.departureDate, parsed.departureTimeEnd).toISOString()
+      : null,
     time_flexible: parsed.timeFlexible,
     seat_count: parsed.seatCount,
     available_seats: parsed.seatCount,

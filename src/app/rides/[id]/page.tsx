@@ -285,7 +285,14 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
             </div>
             <div className="flex items-center gap-2">
               <Clock className="text-muted-foreground size-4" aria-hidden="true" />
-              {ride.time_flexible ? tCard("timeFlexible") : format.dateTime(departureAt, { hour: "2-digit", minute: "2-digit" })}
+              {ride.time_flexible
+                ? tCard("timeFlexible")
+                : ride.departure_time_range_end
+                  ? tCard("timeRange", {
+                      start: format.dateTime(departureAt, { hour: "2-digit", minute: "2-digit" }),
+                      end: format.dateTime(new Date(ride.departure_time_range_end), { hour: "2-digit", minute: "2-digit" }),
+                    })
+                  : format.dateTime(departureAt, { hour: "2-digit", minute: "2-digit" })}
             </div>
             <div className="flex items-center gap-2">
               <Users className="text-muted-foreground size-4" aria-hidden="true" />

@@ -21,6 +21,7 @@ type ValidationTranslator = (
     | "descriptionMax"
     | "districtInvalid"
     | "paymentMethodRequired"
+    | "departureTimeEndBeforeStart"
 ) => string
 
 // District is optional (a refinement on top of the required city), so an
@@ -43,6 +44,15 @@ export function buildRideSchema(t: ValidationTranslator) {
         arrivalDistrict: districtField(),
         departureDate: z.string().min(1, t("dateRequired")),
         departureTime: z.string().min(1, t("timeRequired")),
+        // Yolcu ilanında tek kesin saat yerine bir aralık ("14:00-16:00
+        // arası") verilebilsin diye — sadece postedByRole='passenger' ve
+        // !timeFlexible iken anlamlı, aşağıdaki transform diğer her
+        // durumda undefined'a zorluyor (bkz. 0092_ride_departure_time_
+        // range.sql).
+        departureTimeEnd: z
+          .string()
+          .optional()
+          .transform((value) => (value ? value : undefined)),
         timeFlexible: z.boolean().default(false),
         seatCount: z.coerce
           .number()
@@ -98,6 +108,17 @@ export function buildRideSchema(t: ValidationTranslator) {
         { message: t("departureInPast"), path: ["departureTime"] }
       )
       .refine(
+        (data) => {
+          if (data.postedByRole !== "passenger" || !data.departureTimeEnd || data.timeFlexible) {
+            return true
+          }
+          const start = parseIstanbulDateTime(data.departureDate, data.departureTime)
+          const end = parseIstanbulDateTime(data.departureDate, data.departureTimeEnd)
+          return end.getTime() > start.getTime()
+        },
+        { message: t("departureTimeEndBeforeStart"), path: ["departureTimeEnd"] }
+      )
+      .refine(
         (data) =>
           !data.departureDistrict || TURKISH_PROVINCE_DISTRICTS[data.departureCity]?.includes(data.departureDistrict),
         {
@@ -135,6 +156,12 @@ export function buildRideSchema(t: ValidationTranslator) {
       // kalkış saatini taahhüt eder) — form sürücü modunda hiç göstermiyor, şema
       // seviyesinde de zorlanıyor.
       .transform((data) => (data.postedByRole === "driver" ? { ...data, timeFlexible: false } : data))
+      // Saat aralığı da aynı şekilde yalnızca yolcu + !timeFlexible'da anlamlı
+      // — sürücü ilanında veya "gün boyu uygun" seçiliyken formda hiç
+      // gösterilmiyor, şema seviyesinde de temizleniyor.
+      .transform((data) =>
+        data.postedByRole === "driver" || data.timeFlexible ? { ...data, departureTimeEnd: undefined } : data
+      )
   )
 }
 

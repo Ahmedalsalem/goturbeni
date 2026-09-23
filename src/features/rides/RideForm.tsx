@@ -79,6 +79,7 @@ export function RideForm({ ride, driverProfileHint }: { ride?: Ride; driverProfi
       arrivalDistrict: ride?.arrival_district ?? "",
       departureDate: ride ? toIstanbulDateInputValue(ride.departure_time) : "",
       departureTime: ride ? toIstanbulTimeInputValue(ride.departure_time) : "",
+      departureTimeEnd: ride?.departure_time_range_end ? toIstanbulTimeInputValue(ride.departure_time_range_end) : "",
       timeFlexible: ride?.time_flexible ?? false,
       seatCount: ride?.seat_count ?? MIN_SEAT_COUNT,
       costShare: ride?.cost_share ?? 0,
@@ -396,7 +397,9 @@ export function RideForm({ ride, driverProfileHint }: { ride?: Ride; driverProfi
           </Field>
 
           <Field className={isPassengerMode && timeFlexible ? "hidden" : undefined}>
-            <FieldLabel htmlFor="departureTime">{t("departureTime")}</FieldLabel>
+            <FieldLabel htmlFor="departureTime">
+              {isPassengerMode ? t("departureTimeRangeStart") : t("departureTime")}
+            </FieldLabel>
             <Input
               id="departureTime"
               type="time"
@@ -408,6 +411,22 @@ export function RideForm({ ride, driverProfileHint }: { ride?: Ride; driverProfi
               <FieldError id="departureTime-error" errors={[{ message: errors.departureTime.message }]} />
             )}
           </Field>
+          {isPassengerMode && (
+            <Field className={timeFlexible ? "hidden" : undefined}>
+              <FieldLabel htmlFor="departureTimeEnd">{t("departureTimeRangeEnd")}</FieldLabel>
+              <Input
+                id="departureTimeEnd"
+                type="time"
+                aria-invalid={!!errors.departureTimeEnd}
+                aria-describedby={errors.departureTimeEnd ? "departureTimeEnd-error" : undefined}
+                {...register("departureTimeEnd")}
+              />
+              <FieldDescription>{t("departureTimeRangeEndHint")}</FieldDescription>
+              {errors.departureTimeEnd && (
+                <FieldError id="departureTimeEnd-error" errors={[{ message: errors.departureTimeEnd.message }]} />
+              )}
+            </Field>
+          )}
           {isPassengerMode && (
             <Field orientation="horizontal" className={timeFlexible ? undefined : "self-end"}>
               <Controller
