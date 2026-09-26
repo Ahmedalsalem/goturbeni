@@ -102,6 +102,11 @@
       "message": "Can we use your location to show you rides nearby?",
       "accept": "Allow"
     },
+    "recentRides": {
+      "title": "New Listings",
+      "subtitle": "Rides that were just posted.",
+      "viewAllCta": "View All"
+    },
     "popularRoutes": {
       "title": "Popular Routes",
       "subtitle": "Share a ride on the most searched routes."

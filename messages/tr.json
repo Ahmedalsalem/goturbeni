@@ -102,6 +102,11 @@
       "message": "Sana yakın yolculukları göstermek için konumunu kullanabilir miyiz?",
       "accept": "İzin Ver"
     },
+    "recentRides": {
+      "title": "Yeni İlanlar",
+      "subtitle": "Az önce paylaşılan yolculuklar.",
+      "viewAllCta": "Tümünü Gör"
+    },
     "popularRoutes": {
       "title": "Popüler Rotalar",
       "subtitle": "En çok aranan güzergahlarda araç paylaşımı yap."
