@@ -17,7 +17,8 @@ const RIDE_WITH_DRIVER_SELECT =
 // "nearby" doesn't quietly mean "anywhere in Turkey".
 const NEARBY_PROVINCE_RADIUS_KM = 150
 
-const SORT_COLUMN: Record<RideSort, { column: "departure_time" | "cost_share"; ascending: boolean }> = {
+const SORT_COLUMN: Record<RideSort, { column: "departure_time" | "cost_share" | "created_at"; ascending: boolean }> = {
+  newest: { column: "created_at", ascending: false },
   date_asc: { column: "departure_time", ascending: true },
   date_desc: { column: "departure_time", ascending: false },
   cost_asc: { column: "cost_share", ascending: true },
@@ -88,7 +89,7 @@ function buildRidesQuery(
     query = query.eq("posted_by_role", filters.postedByRole)
   }
 
-  const { column, ascending } = SORT_COLUMN[filters?.sort ?? "date_asc"]
+  const { column, ascending } = SORT_COLUMN[filters?.sort ?? "newest"]
   return query.order(column, { ascending })
 }
 
@@ -131,7 +132,7 @@ function buildNearbyProvinceRidesQuery(
     query = query.eq("posted_by_role", filters.postedByRole)
   }
 
-  const { column, ascending } = SORT_COLUMN[filters.sort ?? "date_asc"]
+  const { column, ascending } = SORT_COLUMN[filters.sort ?? "newest"]
   return query.order(column, { ascending })
 }
 

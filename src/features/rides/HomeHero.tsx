@@ -23,7 +23,7 @@ const item: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
 }
 
-const DEFAULT_FILTERS: RideSearchFilters = { sort: "date_asc" }
+const DEFAULT_FILTERS: RideSearchFilters = { sort: "newest" }
 const GEO_PROMPT_STORAGE_KEY = "geo-prompt-shown"
 
 export function HomeHero() {
@@ -50,7 +50,7 @@ export function HomeHero() {
             .then((address) => {
               const matched = matchTurkishLocation(address)
               if (matched) {
-                setGeoFilters({ sort: "date_asc", from: matched.province, fromDistrict: matched.district ?? undefined })
+                setGeoFilters({ sort: "newest", from: matched.province, fromDistrict: matched.district ?? undefined })
               }
             })
             .catch((error) => logError(error, "home.geoPrefill"))

@@ -391,6 +391,7 @@
       "typePassenger": "Yolcu İlanları",
       "sortLabel": "Sırala",
       "sort": {
+        "newest": "En Yeni İlanlar",
         "date_asc": "Tarih (Artan)",
         "date_desc": "Tarih (Azalan)",
         "cost_asc": "Masraf Payı (Artan)",

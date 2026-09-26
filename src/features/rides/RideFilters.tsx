@@ -38,7 +38,7 @@ function buildQueryString(filters: Partial<RideSearchFilters>): string {
   if (filters.fromDistrict) params.set("fromDistrict", filters.fromDistrict)
   if (filters.toDistrict) params.set("toDistrict", filters.toDistrict)
   if (filters.date) params.set("date", filters.date)
-  if (filters.sort && filters.sort !== "date_asc") params.set("sort", filters.sort)
+  if (filters.sort && filters.sort !== "newest") params.set("sort", filters.sort)
   if (filters.petsAllowed) params.set("petsAllowed", "1")
   if (filters.smokingAllowed) params.set("smokingAllowed", "1")
   if (filters.usbChargerAvailable) params.set("usbChargerAvailable", "1")

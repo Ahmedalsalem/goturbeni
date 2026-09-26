@@ -1,10 +1,13 @@
 import { TURKISH_PROVINCES, type TurkishProvince } from "@/utils/turkish-provinces"
 import { TURKISH_PROVINCE_DISTRICTS } from "@/utils/turkish-districts"
 
-export const RIDE_SORT_OPTIONS = ["date_asc", "date_desc", "cost_asc", "cost_desc"] as const
+export const RIDE_SORT_OPTIONS = ["newest", "date_asc", "date_desc", "cost_asc", "cost_desc"] as const
 export type RideSort = (typeof RIDE_SORT_OPTIONS)[number]
 
-const DEFAULT_SORT: RideSort = "date_asc"
+// A newly posted ride should surface on /rides right away rather than sink
+// behind soon-departing rides — "newest" (created_at desc) is the default;
+// date/cost sorting stays available but must be picked explicitly.
+const DEFAULT_SORT: RideSort = "newest"
 
 export interface RideSearchFilters {
   from?: TurkishProvince

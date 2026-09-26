@@ -391,6 +391,7 @@
       "typePassenger": "Passenger Listings",
       "sortLabel": "Sort",
       "sort": {
+        "newest": "Newest Listings",
         "date_asc": "Date (Ascending)",
         "date_desc": "Date (Descending)",
         "cost_asc": "Cost Share (Ascending)",

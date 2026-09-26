@@ -29,9 +29,9 @@ describe("parseRideSearchParams", () => {
     expect(result.date).toBeUndefined()
   })
 
-  it("falls back to date_asc for an unknown or missing sort", () => {
-    expect(parseRideSearchParams({}).sort).toBe("date_asc")
-    expect(parseRideSearchParams({ sort: "not_a_sort" }).sort).toBe("date_asc")
+  it("falls back to newest for an unknown or missing sort", () => {
+    expect(parseRideSearchParams({}).sort).toBe("newest")
+    expect(parseRideSearchParams({ sort: "not_a_sort" }).sort).toBe("newest")
   })
 
   it("parses a valid type filter and drops an invalid one", () => {
