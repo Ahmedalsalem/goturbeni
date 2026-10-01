@@ -69,6 +69,9 @@
     "newRideBroadcastSubject": "GötürBeni'nde yeni bir ilan yayınlandı",
     "newRideBroadcastBodyDriver": "{from} → {to} arasında yeni bir sürücü ilanı paylaşıldı.",
     "newRideBroadcastBodyPassenger": "{from} → {to} arasında yeni bir yolcu ilanı paylaşıldı.",
+    "rideReminderSubject": "Hatırlatma: {from} → {to} ilanı hâlâ açık",
+    "rideReminderBodyDriver": "{from} → {to} yolculuğunda hâlâ boş koltuk var. Bu güzergahta gidecekseniz koltuklar dolmadan yerinizi ayırtın.",
+    "rideReminderBodyPassenger": "{from} → {to} için bir yolcu hâlâ sürücü arıyor. Bu yöne gidiyorsanız ilana göz atın, yolculuğu birlikte paylaşın.",
     "departureReminderSubject": "Yolculuğunuz yaklaşıyor",
     "departureReminderBody": "{from} → {to} güzergahındaki yolculuğunuz 24 saat içinde başlıyor. İyi yolculuklar dileriz!"
   },

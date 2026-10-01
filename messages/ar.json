@@ -69,6 +69,9 @@
     "newRideBroadcastSubject": "إعلان جديد على GötürBeni",
     "newRideBroadcastBodyDriver": "تم نشر إعلان سائق جديد من {from} إلى {to} على GötürBeni.",
     "newRideBroadcastBodyPassenger": "تم نشر إعلان راكب جديد من {from} إلى {to} على GötürBeni.",
+    "rideReminderSubject": "تذكير: إعلان الرحلة من {from} إلى {to} لا يزال متاحًا",
+    "rideReminderBodyDriver": "لا تزال هناك مقاعد شاغرة في الرحلة من {from} إلى {to}. إن كنت متجهًا إلى هناك، فاحجز مقعدك قبل أن تمتلئ المقاعد.",
+    "rideReminderBodyPassenger": "لا يزال أحد الركاب يبحث عن سائق من {from} إلى {to}. إن كنت متجهًا في هذا الاتجاه، فاطّلع على الإعلان وشاركه الرحلة.",
     "departureReminderSubject": "رحلتك تقترب",
     "departureReminderBody": "رحلتك من {from} إلى {to} تبدأ خلال 24 ساعة. نتمنى لك رحلة سعيدة!"
   },

@@ -69,6 +69,9 @@
     "newRideBroadcastSubject": "A new ride was posted on GötürBeni",
     "newRideBroadcastBodyDriver": "A new driver listing from {from} to {to} was just posted on GötürBeni.",
     "newRideBroadcastBodyPassenger": "A new passenger listing from {from} to {to} was just posted on GötürBeni.",
+    "rideReminderSubject": "Reminder: the {from} → {to} listing is still open",
+    "rideReminderBodyDriver": "There are still free seats on the ride from {from} to {to}. If you're heading that way, grab your seat before they fill up.",
+    "rideReminderBodyPassenger": "A passenger is still looking for a driver from {from} to {to}. If you're driving that way, take a look and share the ride.",
     "departureReminderSubject": "Your ride is coming up",
     "departureReminderBody": "Your ride from {from} to {to} departs within 24 hours. Have a great trip!"
   },

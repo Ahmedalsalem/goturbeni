@@ -43,11 +43,11 @@ export async function sendNewRideBroadcastEmail(
     return
   }
 
-  await sendBroadcastToRows(supabase, rows, rideId, departureCity, arrivalCity, postedByRole)
+  await sendBroadcastToRows(supabase, rows, rideId, departureCity, arrivalCity, postedByRole, "newRideBroadcast")
 }
 
 // Admin panelinden elle tetiklenen "tekrar hatırlat" (features/admin/
-// actions.ts) — yukarıdaki otomatik yayınla aynı içerik, ama alıcılar
+// actions.ts) — ilk yayından ayrı bir hatırlatma metni (Email.rideReminder*), ve alıcılar
 // admin_get_ride_reminder_recipients'ten (0095) geliyor: dispatch kaydı yok,
 // yani aynı ilan için tekrar tekrar gönderilebilir. Gönderilen alıcı sayısını
 // döndürüyor; RPC hatası (ör. not_admin) çağırana fırlatılıyor.
@@ -71,7 +71,7 @@ export async function sendAdminRideReminderEmail(
     return 0
   }
 
-  await sendBroadcastToRows(supabase, rows, rideId, departureCity, arrivalCity, postedByRole)
+  await sendBroadcastToRows(supabase, rows, rideId, departureCity, arrivalCity, postedByRole, "rideReminder")
   return rows.length
 }
 
@@ -81,7 +81,8 @@ async function sendBroadcastToRows(
   rideId: string,
   departureCity: string,
   arrivalCity: string,
-  postedByRole: "driver" | "passenger"
+  postedByRole: "driver" | "passenger",
+  keyPrefix: "newRideBroadcast" | "rideReminder"
 ): Promise<void> {
   const userIds = rows.map((r) => r.user_id)
   const { data: profiles } = await supabase.from("profiles").select("id, language").in("id", userIds)
@@ -103,11 +104,11 @@ async function sendBroadcastToRows(
       // broadcast body says which one this is, reusing the exact same
       // "Sürücü İlanı"/"Yolcu İlanı" wording RideCard's own badge uses
       // (Rides.card.driverListingBadge/passengerListingBadge).
-      const bodyKey = postedByRole === "passenger" ? "newRideBroadcastBodyPassenger" : "newRideBroadcastBodyDriver"
+      const bodyKey = postedByRole === "passenger" ? `${keyPrefix}BodyPassenger` as const : `${keyPrefix}BodyDriver` as const
       return {
         from: emailFrom(),
         to: row.email,
-        subject: t("newRideBroadcastSubject"),
+        subject: t(`${keyPrefix}Subject`, { from, to }),
         html: renderEmailHtml(locale, {
           greeting: tCommon("greeting"),
           bodyHtml: t(bodyKey, { from, to }),
