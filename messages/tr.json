@@ -1074,7 +1074,10 @@
       "unpaid": "Ödeme bekleniyor",
       "cancel": "Kaldır",
       "confirmCancel": "Bu ilan kaldırılsın mı?",
-      "cancelSuccess": "İlan kaldırıldı."
+      "cancelSuccess": "İlan kaldırıldı.",
+      "remind": "Hatırlat",
+      "confirmRemind": "Tüm üyelere gönderilsin mi?",
+      "remindSuccess": "Hatırlatma {count} kişiye gönderildi."
     },
     "payments": {
       "title": "Ödemeler",

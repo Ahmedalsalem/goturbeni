@@ -1,6 +1,6 @@
 import "server-only"
 
-import { Resend } from "resend"
+import { Resend, type CreateBatchEmailOptions } from "resend"
 import { getTranslations } from "next-intl/server"
 
 import { createClient } from "@/lib/supabase/server"
@@ -93,6 +93,34 @@ export function renderEmailText(params: {
 }): string {
   const cta = params.ctaLabel && params.ctaUrl ? `${params.ctaLabel}: ${params.ctaUrl}\n\n` : ""
   return `${params.greeting}\n\n${params.bodyText}\n\n${cta}${params.signoff}\n\n---\n${params.footerNote}`
+}
+
+const RESEND_BATCH_LIMIT = 100
+
+// Multi-recipient fan-outs must go through here, not one resend.emails.send()
+// per recipient under Promise.all — that fires every request at once and
+// trips Resend's 10 req/s limit (rate_limit_exceeded) as soon as the
+// recipient list passes ~10, which is what the every-member new-ride
+// broadcast hit in prod. The batch endpoint takes up to 100 emails per
+// request; "permissive" validation keeps one bad address from rejecting
+// the whole chunk and reports it per index instead.
+export async function sendEmailBatch(resend: Resend, emails: CreateBatchEmailOptions[], context: string): Promise<void> {
+  for (let i = 0; i < emails.length; i += RESEND_BATCH_LIMIT) {
+    try {
+      const { data, error } = await resend.batch.send(emails.slice(i, i + RESEND_BATCH_LIMIT), {
+        batchValidation: "permissive",
+      })
+      if (error) {
+        logError(error, context)
+        continue
+      }
+      for (const failed of data?.errors ?? []) {
+        logError(new Error(`batch index ${i + failed.index}: ${failed.message}`), context)
+      }
+    } catch (error) {
+      logError(error, context)
+    }
+  }
 }
 
 // Mandatory account verification (src/features/profile/actions.ts) — unlike
@@ -282,39 +310,33 @@ export async function sendSeatOpenedEmailNotifications(rideId: string): Promise<
   const url = `${siteUrl}/rides/${rideId}`
   const resend = new Resend(process.env.RESEND_API_KEY)
 
-  await Promise.all(
+  const emails = await Promise.all(
     recipientRows.map(async (recipient) => {
       const locale = languageByUserId.get(recipient.user_id) ?? DEFAULT_LOCALE
       const t = await getTranslations({ locale, namespace: "Push.notifications" })
       const tCommon = await getTranslations({ locale, namespace: "Email" })
-      try {
-        const { error } = await resend.emails.send({
-          from: emailFrom(),
-          to: recipient.email,
-          subject: t("seatOpenedTitle"),
-          html: renderEmailHtml(locale, {
-            greeting: tCommon("greeting"),
-            bodyHtml: t("seatOpenedBody"),
-            ctaLabel: tCommon("viewLinkLabel"),
-            ctaUrl: url,
-            signoff: tCommon("signoff"),
-            footerNote: tCommon("footerNote"),
-          }),
-          text: renderEmailText({
-            greeting: tCommon("greeting"),
-            bodyText: t("seatOpenedBody"),
-            ctaLabel: tCommon("viewLinkLabel"),
-            ctaUrl: url,
-            signoff: tCommon("signoff"),
-            footerNote: tCommon("footerNote"),
-          }),
-        })
-        if (error) {
-          logError(error, "email.sendSeatOpenedEmailNotifications")
-        }
-      } catch (sendError) {
-        logError(sendError, "email.sendSeatOpenedEmailNotifications")
+      return {
+        from: emailFrom(),
+        to: recipient.email,
+        subject: t("seatOpenedTitle"),
+        html: renderEmailHtml(locale, {
+          greeting: tCommon("greeting"),
+          bodyHtml: t("seatOpenedBody"),
+          ctaLabel: tCommon("viewLinkLabel"),
+          ctaUrl: url,
+          signoff: tCommon("signoff"),
+          footerNote: tCommon("footerNote"),
+        }),
+        text: renderEmailText({
+          greeting: tCommon("greeting"),
+          bodyText: t("seatOpenedBody"),
+          ctaLabel: tCommon("viewLinkLabel"),
+          ctaUrl: url,
+          signoff: tCommon("signoff"),
+          footerNote: tCommon("footerNote"),
+        }),
       }
     })
   )
+  await sendEmailBatch(resend, emails, "email.sendSeatOpenedEmailNotifications")
 }

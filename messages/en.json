@@ -1074,7 +1074,10 @@
       "unpaid": "Payment pending",
       "cancel": "Remove",
       "confirmCancel": "Remove this listing?",
-      "cancelSuccess": "Listing removed."
+      "cancelSuccess": "Listing removed.",
+      "remind": "Remind members",
+      "confirmRemind": "Email all members?",
+      "remindSuccess": "Reminder sent to {count} members."
     },
     "payments": {
       "title": "Payments",

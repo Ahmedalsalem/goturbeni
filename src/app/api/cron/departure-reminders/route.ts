@@ -2,9 +2,8 @@ import { NextResponse, type NextRequest } from "next/server"
 import { Resend } from "resend"
 import { getTranslations } from "next-intl/server"
 
-import { logError } from "@/lib/logger"
 import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-config"
-import { emailFrom, isResendConfigured, renderEmailHtml } from "@/lib/email"
+import { emailFrom, isResendConfigured, renderEmailHtml, sendEmailBatch } from "@/lib/email"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 
 interface ReminderRecipient {
@@ -42,37 +41,28 @@ export async function POST(request: NextRequest) {
   const url = `${siteUrl}/rides/${payload.rideId}`
   const resend = new Resend(process.env.RESEND_API_KEY)
 
-  await Promise.all(
+  const emails = await Promise.all(
     payload.recipients.map(async (recipient) => {
       const locale = recipient.language ?? DEFAULT_LOCALE
       const t = await getTranslations({ locale, namespace: "Email" })
       const from = getProvinceDisplayName(payload.departureCity, locale)
       const to = getProvinceDisplayName(payload.arrivalCity, locale)
-      try {
-        // Resend's SDK doesn't throw on an API-level rejection — it resolves
-        // with { data: null, error } instead, so only catching a thrown
-        // exception would silently count a real failure as sent.
-        const { error } = await resend.emails.send({
-          from: emailFrom(),
-          to: recipient.email,
-          subject: t("departureReminderSubject"),
-          html: renderEmailHtml(locale, {
-            greeting: t("greeting"),
-            bodyHtml: t("departureReminderBody", { from, to }),
-            ctaLabel: t("viewLinkLabel"),
-            ctaUrl: url,
-            signoff: t("signoff"),
-            footerNote: t("footerNote"),
-          }),
-        })
-        if (error) {
-          logError(error, "cron.departureReminders")
-        }
-      } catch (error) {
-        logError(error, "cron.departureReminders")
+      return {
+        from: emailFrom(),
+        to: recipient.email,
+        subject: t("departureReminderSubject"),
+        html: renderEmailHtml(locale, {
+          greeting: t("greeting"),
+          bodyHtml: t("departureReminderBody", { from, to }),
+          ctaLabel: t("viewLinkLabel"),
+          ctaUrl: url,
+          signoff: t("signoff"),
+          footerNote: t("footerNote"),
+        }),
       }
     })
   )
+  await sendEmailBatch(resend, emails, "cron.departureReminders")
 
   return NextResponse.json({ ok: true })
 }

@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { AdminPager } from "@/features/admin/AdminPager"
 import { CancelRideButton } from "@/features/admin/CancelRideButton"
 import { deriveRideMatchStatus, getAdminRides } from "@/features/admin/queries"
+import { RideReminderButton } from "@/features/admin/RideReminderButton"
 import { RideStatusBadge } from "@/features/rides/RideStatusBadge"
 import { getUserLocale } from "@/i18n/locale"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
@@ -78,6 +79,7 @@ export default async function AdminRidesPage({
                     <RideStatusBadge status={ride.status} />
                     <Badge variant={matched ? "success" : "secondary"}>{matched ? t("matched") : t("unmatched")}</Badge>
                     {matched && <Badge variant={paid ? "success" : "warning"}>{paid ? t("paid") : t("unpaid")}</Badge>}
+                    {ride.status === "active" && <RideReminderButton rideId={ride.id} />}
                     {isCancellable && <CancelRideButton rideId={ride.id} />}
                   </div>
                 </CardContent>

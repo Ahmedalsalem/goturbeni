@@ -9,6 +9,7 @@ import { getUserLocale } from "@/i18n/locale"
 import { verifySession } from "@/lib/supabase/dal"
 import { logError } from "@/lib/logger"
 import { sendAdminResendVerificationEmail } from "@/lib/email"
+import { sendAdminRideReminderEmail } from "@/lib/new-ride-broadcast-email"
 import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-config"
 
 export interface AdminActionState {
@@ -77,6 +78,49 @@ export async function cancelRideAsAdmin(rideId: string): Promise<AdminActionStat
 
   revalidatePath("/admin/rides")
   return { success: true }
+}
+
+export interface AdminRideReminderState extends AdminActionState {
+  recipientCount?: number
+}
+
+// admin_get_ride_reminder_recipients (0095) is the authorization point
+// (raises 'not_admin') and already excludes the ride's own poster.
+export async function sendRideReminderAsAdmin(rideId: string): Promise<AdminRideReminderState> {
+  const tErrors = await getAdminErrorTranslator()
+  if (!isSupabaseConfigured()) {
+    return { error: tErrors("notConfigured") }
+  }
+
+  await verifySession()
+  const supabase = await createClient()
+  const { data: ride, error: rideError } = await supabase
+    .from("rides")
+    .select("departure_city, arrival_city, posted_by_role")
+    .eq("id", rideId)
+    .maybeSingle()
+  if (rideError || !ride) {
+    if (rideError) {
+      logError(rideError, "admin.sendRideReminderAsAdmin")
+    }
+    return { error: tErrors("actionFailed") }
+  }
+
+  try {
+    const recipientCount = await sendAdminRideReminderEmail(
+      rideId,
+      ride.departure_city,
+      ride.arrival_city,
+      ride.posted_by_role as "driver" | "passenger"
+    )
+    return { success: true, recipientCount }
+  } catch (error) {
+    if ((error as { message?: string }).message?.includes("not_admin")) {
+      return { error: tErrors("notAdmin") }
+    }
+    logError(error, "admin.sendRideReminderAsAdmin")
+    return { error: tErrors("actionFailed") }
+  }
 }
 
 // Same authorization shape — admin_review_settlement_receipt is the sole

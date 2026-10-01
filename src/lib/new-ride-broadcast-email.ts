@@ -6,7 +6,7 @@ import { getTranslations } from "next-intl/server"
 import { createClient } from "@/lib/supabase/server"
 import { logError } from "@/lib/logger"
 import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-config"
-import { emailFrom, isResendConfigured, renderEmailHtml } from "@/lib/email"
+import { emailFrom, isResendConfigured, renderEmailHtml, sendEmailBatch } from "@/lib/email"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 
 interface BroadcastRecipientRow {
@@ -43,6 +43,46 @@ export async function sendNewRideBroadcastEmail(
     return
   }
 
+  await sendBroadcastToRows(supabase, rows, rideId, departureCity, arrivalCity, postedByRole)
+}
+
+// Admin panelinden elle tetiklenen "tekrar hatırlat" (features/admin/
+// actions.ts) — yukarıdaki otomatik yayınla aynı içerik, ama alıcılar
+// admin_get_ride_reminder_recipients'ten (0095) geliyor: dispatch kaydı yok,
+// yani aynı ilan için tekrar tekrar gönderilebilir. Gönderilen alıcı sayısını
+// döndürüyor; RPC hatası (ör. not_admin) çağırana fırlatılıyor.
+export async function sendAdminRideReminderEmail(
+  rideId: string,
+  departureCity: string,
+  arrivalCity: string,
+  postedByRole: "driver" | "passenger"
+): Promise<number> {
+  if (!isResendConfigured()) {
+    return 0
+  }
+
+  const supabase = await createClient()
+  const { data, error } = await supabase.rpc("admin_get_ride_reminder_recipients", { p_ride_id: rideId })
+  if (error) {
+    throw error
+  }
+  const rows = (data as BroadcastRecipientRow[] | null) ?? []
+  if (rows.length === 0) {
+    return 0
+  }
+
+  await sendBroadcastToRows(supabase, rows, rideId, departureCity, arrivalCity, postedByRole)
+  return rows.length
+}
+
+async function sendBroadcastToRows(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  rows: BroadcastRecipientRow[],
+  rideId: string,
+  departureCity: string,
+  arrivalCity: string,
+  postedByRole: "driver" | "passenger"
+): Promise<void> {
   const userIds = rows.map((r) => r.user_id)
   const { data: profiles } = await supabase.from("profiles").select("id, language").in("id", userIds)
   const languageByUserId = new Map((profiles ?? []).map((p) => [p.id, p.language as AppLocale | null]))
@@ -50,7 +90,7 @@ export async function sendNewRideBroadcastEmail(
   const url = `${siteUrl}/rides/${rideId}`
   const resend = new Resend(process.env.RESEND_API_KEY)
 
-  await Promise.all(
+  const emails = await Promise.all(
     rows.map(async (row) => {
       const locale = languageByUserId.get(row.user_id) ?? DEFAULT_LOCALE
       const t = await getTranslations({ locale, namespace: "Email" })
@@ -64,30 +104,20 @@ export async function sendNewRideBroadcastEmail(
       // "Sürücü İlanı"/"Yolcu İlanı" wording RideCard's own badge uses
       // (Rides.card.driverListingBadge/passengerListingBadge).
       const bodyKey = postedByRole === "passenger" ? "newRideBroadcastBodyPassenger" : "newRideBroadcastBodyDriver"
-      try {
-        // Resend's SDK doesn't throw on an API-level rejection — it resolves
-        // with { data: null, error } (confirmed live: a rejected send never
-        // threw, only surfaced as this field) — checking only for a thrown
-        // exception here would silently count a real failure as sent.
-        const { error: sendError } = await resend.emails.send({
-          from: emailFrom(),
-          to: row.email,
-          subject: t("newRideBroadcastSubject"),
-          html: renderEmailHtml(locale, {
-            greeting: tCommon("greeting"),
-            bodyHtml: t(bodyKey, { from, to }),
-            ctaLabel: tCommon("viewLinkLabel"),
-            ctaUrl: url,
-            signoff: tCommon("signoff"),
-            footerNote: tCommon("footerNote"),
-          }),
-        })
-        if (sendError) {
-          logError(sendError, "newRideBroadcastEmail.email")
-        }
-      } catch (sendError) {
-        logError(sendError, "newRideBroadcastEmail.email")
+      return {
+        from: emailFrom(),
+        to: row.email,
+        subject: t("newRideBroadcastSubject"),
+        html: renderEmailHtml(locale, {
+          greeting: tCommon("greeting"),
+          bodyHtml: t(bodyKey, { from, to }),
+          ctaLabel: tCommon("viewLinkLabel"),
+          ctaUrl: url,
+          signoff: tCommon("signoff"),
+          footerNote: tCommon("footerNote"),
+        }),
       }
     })
   )
+  await sendEmailBatch(resend, emails, "newRideBroadcastEmail.email")
 }

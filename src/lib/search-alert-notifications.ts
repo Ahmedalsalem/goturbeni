@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/server"
 import { logError } from "@/lib/logger"
 import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-config"
 import { isVapidConfigured } from "@/lib/notifications"
-import { emailFrom, isResendConfigured, renderEmailHtml } from "@/lib/email"
+import { emailFrom, isResendConfigured, renderEmailHtml, sendEmailBatch } from "@/lib/email"
 
 interface SearchAlertRecipientRow {
   user_id: string
@@ -72,41 +72,31 @@ export async function sendSearchAlertNotifications(rideId: string): Promise<void
     : Promise.resolve()
 
   const emailPromise = resendConfigured
-    ? (() => {
+    ? (async () => {
         const resend = new Resend(process.env.RESEND_API_KEY)
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
         const uniqueRecipients = new Map(rows.map((r) => [r.user_id, r.email]))
-        return Promise.all(
+        const emails = await Promise.all(
           [...uniqueRecipients.entries()].map(async ([userId, email]) => {
             const locale = languageByUserId.get(userId) ?? DEFAULT_LOCALE
             const t = await getTranslations({ locale, namespace: "Push.notifications" })
             const tCommon = await getTranslations({ locale, namespace: "Email" })
-            try {
-              // Resend's SDK doesn't throw on an API-level rejection — it
-              // resolves with { data: null, error } instead, so only
-              // catching a thrown exception would silently count a real
-              // failure as sent.
-              const { error: sendError } = await resend.emails.send({
-                from: emailFrom(),
-                to: email,
-                subject: t("searchAlertMatchTitle"),
-                html: renderEmailHtml(locale, {
-                  greeting: tCommon("greeting"),
-                  bodyHtml: t("searchAlertMatchBody"),
-                  ctaLabel: tCommon("viewLinkLabel"),
-                  ctaUrl: `${siteUrl}${url}`,
-                  signoff: tCommon("signoff"),
-                  footerNote: tCommon("footerNote"),
-                }),
-              })
-              if (sendError) {
-                logError(sendError, "searchAlertNotifications.email")
-              }
-            } catch (sendError) {
-              logError(sendError, "searchAlertNotifications.email")
+            return {
+              from: emailFrom(),
+              to: email,
+              subject: t("searchAlertMatchTitle"),
+              html: renderEmailHtml(locale, {
+                greeting: tCommon("greeting"),
+                bodyHtml: t("searchAlertMatchBody"),
+                ctaLabel: tCommon("viewLinkLabel"),
+                ctaUrl: `${siteUrl}${url}`,
+                signoff: tCommon("signoff"),
+                footerNote: tCommon("footerNote"),
+              }),
             }
           })
         )
+        await sendEmailBatch(resend, emails, "searchAlertNotifications.email")
       })()
     : Promise.resolve()
 
