@@ -592,7 +592,7 @@
       "iAmDriver": "أنا سائق",
       "iAmPassenger": "أنا راكب",
       "seatCountPassenger": "كم عدد الأشخاص؟",
-      "costSharePassenger": "المبلغ الذي ترغب بدفعه (₺)",
+      "costSharePassenger": "المبلغ الذي ترغب بدفعه عن كل شخص (₺)",
       "freeRide": "رحلة مجانية",
       "useMyLocation": "استخدم موقعي",
       "detectingLocation": "جارٍ تحديد الموقع...",
@@ -609,8 +609,8 @@
       "departureTimeRangeEndHint": "اتركه فارغًا لوقت واحد محدد؛ املأه لنطاق مثل \"متاح بين 14:00-16:00\".",
       "timeFlexible": "وقت مرن / متاح طوال اليوم",
       "seatCount": "عدد المقاعد",
-      "costShare": "المساهمة في التكلفة (₺)",
-      "costShareEstimate": "التكلفة التقديرية: ~{amount} ₺ (تقديري، حسب المسافة فقط)",
+      "costShare": "المساهمة في التكلفة عن كل شخص (₺)",
+      "costShareEstimate": "التكلفة التقديرية للشخص الواحد: ~{amount} ₺ (تقديري، حسب المسافة فقط)",
       "costShareUseEstimate": "استخدم هذا المبلغ",
       "description": "الوصف",
       "descriptionHint": "500 حرف كحد أقصى.",
@@ -688,6 +688,8 @@
       "availableSeats": "{count} مقعد متاح",
       "availableSeatsPassenger": "{count} أشخاص",
       "freeRide": "مجانية",
+      "perPerson": "{amount} للشخص الواحد",
+      "totalBreakdown": "{count} × {amount} = الإجمالي {total}",
       "timeFlexible": "متاح طوال اليوم",
       "timeRange": "{start} - {end}",
       "unknownDriver": "السائق",
@@ -733,8 +735,8 @@
   "Bookings": {
     "form": {
       "seatCount": "عدد المقاعد",
-      "offeredCostShare": "السعر الذي تعرضه (₺)",
-      "offeredCostShareReferenceHint": "السعر المرجعي الذي طلبه الراكب في الإعلان: {amount}. يمكنك عرض سعر أقل أو أعلى أو مساويًا له."
+      "offeredCostShare": "السعر الذي تعرضه عن كل شخص (₺)",
+      "offeredCostShareReferenceHint": "السعر المرجعي للشخص الواحد الذي طلبه الراكب في الإعلان: {amount}. يمكنك عرض سعر أقل أو أعلى أو مساويًا له."
     },
     "validation": {
       "seatCountMin": "اختر مقعدًا واحدًا على الأقل.",
@@ -801,7 +803,7 @@
     },
     "card": {
       "seatCount": "{count} مقعد",
-      "offeredCostShare": "العرض: {amount}",
+      "offeredCostShare": "العرض: {amount} للشخص الواحد",
       "unknownPassenger": "الراكب",
       "unknownDriver": "السائق",
       "uploadSettlementReceipt": "رفع إيصال الدفعة",
@@ -821,6 +823,7 @@
       "settlementInstructionTitle": "بعد اكتمال الرحلة، أرسل كامل الأجرة إلى رقم IBAN التالي",
       "ibanLabel": "IBAN",
       "ibanHolderLabel": "صاحب الحساب",
+      "amountDue": "المبلغ المستحق: {amount}",
       "noCommissionDisclaimer": "منصتنا لا تتقاضى عمولة، والمدفوعات مباشرة بين الأشخاص.",
       "driverMemberSince": "عضو منذ: {date}",
       "driverCompletedRides": "{count} رحلة مكتملة",

@@ -36,6 +36,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function BookingsPage() {
   const t = await getTranslations("BookingsPage")
   const tCard = await getTranslations("Bookings.card")
+  const tRideCard = await getTranslations("Rides.card")
   const tReviewActions = await getTranslations("Reviews.actions")
   const tBookingActions = await getTranslations("Bookings.actions")
   const tPickup = await getTranslations("Pickup.passenger")
@@ -128,7 +129,15 @@ export default async function BookingsPage() {
                     })}
                   </div>
                   <div>{tCard("seatCount", { count: booking.seat_count })}</div>
-                  <div className="font-medium">{formatCostShare(booking.ride.cost_share, locale)}</div>
+                  <div className="font-medium">
+                    {booking.seat_count > 1
+                      ? tRideCard("totalBreakdown", {
+                          count: booking.seat_count,
+                          amount: formatCostShare(booking.ride.cost_share, locale),
+                          total: formatCostShare(booking.ride.cost_share * booking.seat_count, locale),
+                        })
+                      : tRideCard("perPerson", { amount: formatCostShare(booking.ride.cost_share, locale) })}
+                  </div>
                   {driverPhone && (
                     <a href={`tel:${driverPhone}`} className="text-primary flex items-center gap-1 hover:underline">
                       <Phone className="size-3.5" aria-hidden="true" /> {driverPhone}
@@ -241,7 +250,15 @@ export default async function BookingsPage() {
                     year: "numeric",
                   })}
                 </div>
-                <div className="font-medium">{formatCostShare(offer.ride.cost_share, locale)}</div>
+                <div className="font-medium">
+                  {offer.seat_count > 1
+                    ? tRideCard("totalBreakdown", {
+                        count: offer.seat_count,
+                        amount: formatCostShare(offer.ride.cost_share, locale),
+                        total: formatCostShare(offer.ride.cost_share * offer.seat_count, locale),
+                      })
+                    : tRideCard("perPerson", { amount: formatCostShare(offer.ride.cost_share, locale) })}
+                </div>
               </CardContent>
               <CardFooter className="flex flex-wrap items-center gap-2">
                 {offer.status === "pending" && <CancelBookingButton bookingId={offer.id} rideId={offer.ride.id} />}

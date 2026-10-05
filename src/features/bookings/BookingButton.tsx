@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { useFormatter, useTranslations } from "next-intl"
+import { useFormatter, useLocale, useTranslations } from "next-intl"
 import { Loader2, Send } from "lucide-react"
 import { toast } from "sonner"
 
@@ -17,6 +17,7 @@ import { MIN_BOOKING_SEAT_COUNT } from "@/features/bookings/schemas"
 import { ExperienceLevelBadge } from "@/features/reviews/ExperienceLevelBadge"
 import { StarRating } from "@/features/reviews/StarRating"
 import type { Booking } from "@/types/booking"
+import { formatCostShare } from "@/utils/currency"
 
 export interface DriverTrustInfo {
   memberSinceIso: string
@@ -32,6 +33,7 @@ export function BookingButton({
   driverPaymentInfo,
   driverTrustInfo,
   instantBooking,
+  costShare,
 }: {
   rideId: string
   availableSeats: number
@@ -39,11 +41,14 @@ export function BookingButton({
   driverPaymentInfo: { iban: string; iban_holder_name: string } | null
   driverTrustInfo: DriverTrustInfo | null
   instantBooking: boolean
+  costShare: number
 }) {
   const t = useTranslations("Bookings")
   const tPayment = useTranslations("Bookings.payment")
   const tSuccess = useTranslations("Bookings.success")
+  const tRideCard = useTranslations("Rides.card")
   const format = useFormatter()
+  const locale = useLocale()
   const router = useRouter()
   const [seatCount, setSeatCount] = useState(MIN_BOOKING_SEAT_COUNT)
   const [isPending, startTransition] = useTransition()
@@ -69,6 +74,11 @@ export function BookingButton({
               <span>
                 {tPayment("ibanHolderLabel")}: {driverPaymentInfo.iban_holder_name}
               </span>
+              {costShare > 0 && (
+                <span className="font-medium">
+                  {tPayment("amountDue", { amount: formatCostShare(costShare * existingBooking.seat_count, locale) })}
+                </span>
+              )}
               <span className="text-muted-foreground">{tPayment("noCommissionDisclaimer")}</span>
               {driverTrustInfo && (
                 <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 border-t pt-2">
@@ -109,22 +119,33 @@ export function BookingButton({
   }
 
   return (
-    <div className="flex items-end gap-3">
-      <Field className="w-28">
-        <FieldLabel htmlFor="booking-seat-count">{t("form.seatCount")}</FieldLabel>
-        <Input
-          id="booking-seat-count"
-          type="number"
-          min={MIN_BOOKING_SEAT_COUNT}
-          max={availableSeats}
-          value={seatCount}
-          onChange={(event) => setSeatCount(Number(event.target.value))}
-        />
-      </Field>
-      <Button onClick={onSubmit} disabled={isPending}>
-        {isPending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <Send className="size-4" aria-hidden="true" />}
-        {t("actions.reserve")}
-      </Button>
+    <div className="flex flex-col gap-2">
+      <div className="flex items-end gap-3">
+        <Field className="w-28">
+          <FieldLabel htmlFor="booking-seat-count">{t("form.seatCount")}</FieldLabel>
+          <Input
+            id="booking-seat-count"
+            type="number"
+            min={MIN_BOOKING_SEAT_COUNT}
+            max={availableSeats}
+            value={seatCount}
+            onChange={(event) => setSeatCount(Number(event.target.value))}
+          />
+        </Field>
+        <Button onClick={onSubmit} disabled={isPending}>
+          {isPending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <Send className="size-4" aria-hidden="true" />}
+          {t("actions.reserve")}
+        </Button>
+      </div>
+      {costShare > 0 && seatCount > 0 && (
+        <p className="text-muted-foreground text-sm">
+          {tRideCard("totalBreakdown", {
+            count: seatCount,
+            amount: formatCostShare(costShare, locale),
+            total: formatCostShare(costShare * seatCount, locale),
+          })}
+        </p>
+      )}
     </div>
   )
 }

@@ -30,12 +30,15 @@ export function OfferButton({
   rideId,
   existingOffer,
   referenceCostShare,
+  seatCount,
 }: {
   rideId: string
   existingOffer: Booking | null
   referenceCostShare: number
+  seatCount: number
 }) {
   const t = useTranslations("Bookings")
+  const tRideCard = useTranslations("Rides.card")
   const tSuccess = useTranslations("Bookings.success")
   const locale = useLocale()
   const router = useRouter()
@@ -83,6 +86,15 @@ export function OfferButton({
         <FieldDescription>
           {t("form.offeredCostShareReferenceHint", { amount: formatCostShare(referenceCostShare, locale) })}
         </FieldDescription>
+        {seatCount > 1 && Number(offeredCostShare) > 0 && (
+          <FieldDescription className="text-foreground font-medium">
+            {tRideCard("totalBreakdown", {
+              count: seatCount,
+              amount: formatCostShare(Number(offeredCostShare), locale),
+              total: formatCostShare(Number(offeredCostShare) * seatCount, locale),
+            })}
+          </FieldDescription>
+        )}
       </Field>
       <Button onClick={onSubmit} disabled={isPending} className="w-full">
         {isPending ? (

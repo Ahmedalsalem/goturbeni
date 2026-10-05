@@ -592,7 +592,7 @@
       "iAmDriver": "Sürücüyüm",
       "iAmPassenger": "Yolcuyum",
       "seatCountPassenger": "Kaç Kişisiniz?",
-      "costSharePassenger": "Ödemeyi Düşündüğünüz Tutar (₺)",
+      "costSharePassenger": "Kişi Başı Ödemek İstediğiniz Tutar (₺)",
       "freeRide": "Ücretsiz yolculuk",
       "useMyLocation": "Konumumu Kullan",
       "detectingLocation": "Konum algılanıyor...",
@@ -609,8 +609,8 @@
       "departureTimeRangeEndHint": "Boş bırakırsan tek bir saat olarak kalır; doldurursan \"14:00-16:00 arası uygunum\" gibi bir aralık olur.",
       "timeFlexible": "Saat esnek / gün boyu uygun",
       "seatCount": "Koltuk Sayısı",
-      "costShare": "Masraf Payı (₺)",
-      "costShareEstimate": "Tahmini maliyet: ~{amount} ₺ (bu mesafe için, yaklaşık bir öneri)",
+      "costShare": "Kişi Başı Masraf Payı (₺)",
+      "costShareEstimate": "Tahmini kişi başı maliyet: ~{amount} ₺ (bu mesafe için, yaklaşık bir öneri)",
       "costShareUseEstimate": "Bu tutarı kullan",
       "description": "Açıklama",
       "descriptionHint": "En fazla 500 karakter.",
@@ -688,6 +688,8 @@
       "availableSeats": "{count} boş koltuk",
       "availableSeatsPassenger": "{count} kişi",
       "freeRide": "Ücretsiz",
+      "perPerson": "{amount} / kişi",
+      "totalBreakdown": "{count} kişi × {amount} = toplam {total}",
       "timeFlexible": "Gün boyu uygun",
       "timeRange": "{start} - {end} arası",
       "unknownDriver": "Sürücü",
@@ -733,8 +735,8 @@
   "Bookings": {
     "form": {
       "seatCount": "Koltuk Sayısı",
-      "offeredCostShare": "Teklif Ettiğiniz Fiyat (₺)",
-      "offeredCostShareReferenceHint": "Yolcunun ilanda istediği referans fiyat: {amount}. Bunun altında, üstünde veya eşit bir fiyat önerebilirsiniz."
+      "offeredCostShare": "Kişi Başı Teklif Fiyatınız (₺)",
+      "offeredCostShareReferenceHint": "Yolcunun ilanda istediği kişi başı referans fiyat: {amount}. Bunun altında, üstünde veya eşit bir fiyat önerebilirsiniz."
     },
     "validation": {
       "seatCountMin": "En az 1 koltuk seçin.",
@@ -801,7 +803,7 @@
     },
     "card": {
       "seatCount": "{count} koltuk",
-      "offeredCostShare": "Teklif: {amount}",
+      "offeredCostShare": "Teklif: {amount} / kişi",
       "unknownPassenger": "Yolcu",
       "unknownDriver": "Sürücü",
       "uploadSettlementReceipt": "Ödeme Dekontu Yükle",
@@ -821,6 +823,7 @@
       "settlementInstructionTitle": "Yolculuk tamamlandıktan sonra ücretin tamamını aşağıdaki IBAN'a gönder",
       "ibanLabel": "IBAN",
       "ibanHolderLabel": "Hesap Sahibi",
+      "amountDue": "Ödenecek tutar: {amount}",
       "noCommissionDisclaimer": "Platformumuz komisyon almaz, ödemeler doğrudan şahıslar arasındadır.",
       "driverMemberSince": "Üyelik: {date}",
       "driverCompletedRides": "{count} tamamlanmış yolculuk",

@@ -19,7 +19,7 @@ test("ride form suggests a cost share once the route is picked, and can fill it 
   // yolculuk" defaults to checked on create, so it must be unchecked first.
   await page.locator('[aria-labelledby="freeRide-label"]').click()
 
-  await expect(page.getByText("Tahmini maliyet: ~610 ₺")).toBeVisible()
+  await expect(page.getByText("Tahmini kişi başı maliyet: ~610 ₺")).toBeVisible()
 
   await page.getByRole("button", { name: "Bu tutarı kullan", exact: true }).click()
   await expect(page.locator("#costShare")).toHaveValue("610")

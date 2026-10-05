@@ -36,6 +36,7 @@ import {
   type RideFormValues,
 } from "@/features/rides/schemas"
 import { estimateCostSharePerSeat } from "@/utils/cost-estimate"
+import { formatCostShare } from "@/utils/currency"
 import { TURKISH_PROVINCES } from "@/utils/turkish-provinces"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 import { TURKISH_PROVINCE_DISTRICTS } from "@/utils/turkish-districts"
@@ -44,6 +45,7 @@ import type { Ride } from "@/types/ride"
 
 export function RideForm({ ride, driverProfileHint }: { ride?: Ride; driverProfileHint?: string }) {
   const t = useTranslations("Rides.form")
+  const tCard = useTranslations("Rides.card")
   const tErrors = useTranslations("Rides.errors")
   const tValidation = useTranslations("Rides.validation")
   const locale = useLocale()
@@ -111,6 +113,7 @@ export function RideForm({ ride, driverProfileHint }: { ride?: Ride; driverProfi
   // hands back whatever the number input currently holds, typed `unknown`
   // until the resolver's z.coerce.number() runs on submit.
   const seatCountValue = Number(watch("seatCount"))
+  const costShareValue = Number(watch("costShare"))
   // A first-time poster has no idea what to charge — this is a rough,
   // clearly-labeled suggestion (cost-estimate.ts), never auto-filled without
   // the explicit click below, so a driver who already knows their route's
@@ -481,6 +484,15 @@ export function RideForm({ ride, driverProfileHint }: { ride?: Ride; driverProfi
               {...register("costShare")}
             />
             {errors.costShare && <FieldError id="costShare-error" errors={[{ message: errors.costShare.message }]} />}
+            {costShareValue > 0 && seatCountValue > 1 && (
+              <FieldDescription className="text-foreground font-medium">
+                {tCard("totalBreakdown", {
+                  count: seatCountValue,
+                  amount: formatCostShare(costShareValue, locale),
+                  total: formatCostShare(costShareValue * seatCountValue, locale),
+                })}
+              </FieldDescription>
+            )}
             {!isPassengerMode && (
               <Field orientation="horizontal">
                 <Checkbox

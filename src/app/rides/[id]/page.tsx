@@ -298,8 +298,19 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
               <Users className="text-muted-foreground size-4" aria-hidden="true" />
               {t(isPassengerListing ? "seatsPassenger" : "seats", { available: ride.available_seats, total: ride.seat_count })}
             </div>
-            <div className="font-medium">{ride.cost_share === 0 ? tCard("freeRide") : formatCostShare(ride.cost_share, locale)}</div>
+            <div className="font-medium">
+              {ride.cost_share === 0 ? tCard("freeRide") : tCard("perPerson", { amount: formatCostShare(ride.cost_share, locale) })}
+            </div>
           </div>
+          {isPassengerListing && ride.cost_share > 0 && ride.seat_count > 1 && (
+            <p className="text-muted-foreground text-sm">
+              {tCard("totalBreakdown", {
+                count: ride.seat_count,
+                amount: formatCostShare(ride.cost_share, locale),
+                total: formatCostShare(ride.cost_share * ride.seat_count, locale),
+              })}
+            </p>
+          )}
 
           {co2SavingsKg > 0 && <p className="text-muted-foreground text-sm">{t("co2Savings", { kg: co2SavingsKg })}</p>}
 
@@ -326,12 +337,18 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
               driverPaymentInfo={driverPaymentInfo}
               driverTrustInfo={driverTrustInfo}
               instantBooking={ride.instant_booking}
+              costShare={ride.cost_share}
             />
           </CardFooter>
         )}
         {canOffer && (
           <CardFooter className="flex flex-col items-stretch gap-3">
-            <OfferButton rideId={ride.id} existingOffer={existingOffer} referenceCostShare={ride.cost_share} />
+            <OfferButton
+              rideId={ride.id}
+              existingOffer={existingOffer}
+              referenceCostShare={ride.cost_share}
+              seatCount={ride.seat_count}
+            />
             <Link
               href={`/rides/${ride.id}/chat?passengerId=${ride.posted_by}`}
               className={buttonVariants({ variant: "outline", className: "w-full" })}

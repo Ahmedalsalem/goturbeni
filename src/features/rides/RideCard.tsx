@@ -116,7 +116,7 @@ export async function RideCard({
           <Users className="size-4" aria-hidden="true" />
           {t(isPassengerListing ? "availableSeatsPassenger" : "availableSeats", { count: ride.available_seats })}
         </div>
-        <div className="text-primary font-semibold">{ride.cost_share === 0 ? t("freeRide") : formatCostShare(ride.cost_share, locale)}</div>
+        <div className="text-primary font-semibold">{ride.cost_share === 0 ? t("freeRide") : t("perPerson", { amount: formatCostShare(ride.cost_share, locale) })}</div>
       </CardContent>
       {(ride.pets_allowed ||
         ride.smoking_allowed ||

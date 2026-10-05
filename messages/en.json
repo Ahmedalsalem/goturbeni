@@ -592,7 +592,7 @@
       "iAmDriver": "I'm a driver",
       "iAmPassenger": "I'm a passenger",
       "seatCountPassenger": "How Many Of You?",
-      "costSharePassenger": "Amount You're Willing to Pay (₺)",
+      "costSharePassenger": "Amount You're Willing to Pay per Person (₺)",
       "freeRide": "Free ride",
       "useMyLocation": "Use My Location",
       "detectingLocation": "Detecting location...",
@@ -609,8 +609,8 @@
       "departureTimeRangeEndHint": "Leave empty to keep a single time; fill it in for a window like \"available between 14:00-16:00\".",
       "timeFlexible": "Flexible time / all day",
       "seatCount": "Number of Seats",
-      "costShare": "Cost Share (₺)",
-      "costShareEstimate": "Estimated cost: ~{amount} ₺ (a rough suggestion for this route)",
+      "costShare": "Cost Share per Person (₺)",
+      "costShareEstimate": "Estimated cost per person: ~{amount} ₺ (a rough suggestion for this route)",
       "costShareUseEstimate": "Use this amount",
       "description": "Description",
       "descriptionHint": "Up to 500 characters.",
@@ -688,6 +688,8 @@
       "availableSeats": "{count} seats available",
       "availableSeatsPassenger": "{count} people",
       "freeRide": "Free",
+      "perPerson": "{amount} / person",
+      "totalBreakdown": "{count} × {amount} = {total} total",
       "timeFlexible": "Flexible all day",
       "timeRange": "{start} - {end}",
       "unknownDriver": "Driver",
@@ -733,8 +735,8 @@
   "Bookings": {
     "form": {
       "seatCount": "Number of Seats",
-      "offeredCostShare": "Your Offered Price (₺)",
-      "offeredCostShareReferenceHint": "The passenger's reference price in the listing: {amount}. You can offer below, above, or equal to it."
+      "offeredCostShare": "Your Offered Price per Person (₺)",
+      "offeredCostShareReferenceHint": "The passenger's reference price per person in the listing: {amount}. You can offer below, above, or equal to it."
     },
     "validation": {
       "seatCountMin": "Select at least 1 seat.",
@@ -801,7 +803,7 @@
     },
     "card": {
       "seatCount": "{count} seats",
-      "offeredCostShare": "Offer: {amount}",
+      "offeredCostShare": "Offer: {amount} / person",
       "unknownPassenger": "Passenger",
       "unknownDriver": "Driver",
       "uploadSettlementReceipt": "Upload Payment Receipt",
@@ -821,6 +823,7 @@
       "settlementInstructionTitle": "After the ride is completed, send the full fare to the IBAN below",
       "ibanLabel": "IBAN",
       "ibanHolderLabel": "Account Holder",
+      "amountDue": "Amount to pay: {amount}",
       "noCommissionDisclaimer": "Our platform doesn't take a commission — payments are made directly between individuals.",
       "driverMemberSince": "Member since: {date}",
       "driverCompletedRides": "{count} completed trips",
