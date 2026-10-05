@@ -44,11 +44,19 @@ export function uniqueIban(): string {
 // implemented — see README known limitations).
 export async function signUp(page: Page, email: string, password: string = TEST_PASSWORD): Promise<void> {
   await page.goto("/register")
-  await page.locator("#fullName").fill("Test Kullanıcı")
+  // SignUpForm is a 5-step flow (email → password → name → phone → profile
+  // + terms) since 39a1972; later steps' inputs stay in the DOM but hidden,
+  // so each step must be filled and advanced with "İleri" in order.
+  const next = page.getByRole("button", { name: "İleri", exact: true })
   await page.locator("#email").fill(email)
+  await next.click()
   await page.locator("#password").fill(password)
   await page.locator("#confirmPassword").fill(password)
+  await next.click()
+  await page.locator("#fullName").fill("Test Kullanıcı")
+  await next.click()
   await page.locator("#phone").fill("05551234567")
+  await next.click()
   // Required (schemas.ts: 18+ age gate) — any fixed date comfortably over 18
   // works since this helper's accounts are never used to test the age gate
   // itself (see auth/schemas.test.ts for that).
