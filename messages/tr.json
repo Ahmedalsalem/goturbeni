@@ -1198,7 +1198,7 @@
   },
   "CookieConsent": {
     "label": "Çerez onayı",
-    "message": "Deneyiminizi iyileştirmek için analiz amaçlı çerezler kullanıyoruz.",
+    "message": "Deneyiminizi iyileştirmek ve reklamlarımızı ölçmek için analiz ve reklam çerezleri kullanıyoruz.",
     "learnMore": "Detaylı bilgi",
     "accept": "Kabul Et",
     "reject": "Reddet"
@@ -1336,7 +1336,7 @@
           "body": [
             "Platform, dil tercihinizi hatırlamak için NEXT_LOCALE adlı bir çerez ve oturumunuzu açık tutmak için Supabase kimlik doğrulama çerezlerini kullanır — bunlar zorunlu çerezlerdir, açık rızanız gerekmez.",
             "Platform ayrıca Google Analytics (GA4) kullanır, ancak yalnızca sayfanın altındaki çerez bildirimini \"Kabul Et\" ile onayladığınızda etkinleşir; \"Reddet\" seçeneğinde veya bir seçim yapmadığınız sürece Google Analytics çerezsiz modda çalışır ve tarayıcınızda kalıcı bir tanımlayıcı bırakmaz. Tercihinizi istediğiniz zaman tarayıcı ayarlarınızdan çerezleri temizleyerek sıfırlayabilirsiniz.",
-            "Platform reklam amaçlı hiçbir çerez kullanmamaktadır."
+            "Platform ayrıca reklamlarının etkisini ölçmek için Meta Pixel kullanır. Meta Pixel de yalnızca çerez bildirimini \"Kabul Et\" ile onayladığınızda etkinleşir; onay vermediğiniz sürece Meta'ya hiçbir veri gönderilmez ve tarayıcınıza Meta çerezi bırakılmaz. Onay verdiğinizde ziyaret ettiğiniz sayfalar ve tarayıcı bilgileriniz Meta'ya iletilir; Meta'nın sunucuları Türkiye dışında bulunduğundan bu, kişisel verilerinizin yurt dışına aktarılması anlamına gelir."
           ],
           "items": []
         },

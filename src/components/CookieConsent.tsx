@@ -20,7 +20,14 @@ function updateAnalyticsConsent(granted: boolean) {
   w.gtag?.("consent", "update", { analytics_storage: granted ? "granted" : "denied" })
 }
 
-// Gates analytics cookies (GA) behind explicit user consent, as required by
+// The root layout defines window.fbq only when NEXT_PUBLIC_META_PIXEL_ID is
+// set, starting in the revoked state, so this is a no-op without the pixel.
+function updateMetaPixelConsent(granted: boolean) {
+  const w = window as unknown as { fbq?: (...args: unknown[]) => void }
+  w.fbq?.("consent", granted ? "grant" : "revoke")
+}
+
+// Gates analytics cookies (GA) and the Meta Pixel behind explicit user consent, as required by
 // KVKK for non-essential cookies. gtag('config', ...) itself runs
 // unconditionally from the root layout (Consent Mode v2 default: denied),
 // so GA operates cookieless with no persistent identifiers until this
@@ -39,6 +46,9 @@ export function CookieConsent({ gaMeasurementId }: { gaMeasurementId?: string })
       if (gaMeasurementId && stored === "accepted") {
         updateAnalyticsConsent(true)
       }
+      if (stored === "accepted") {
+        updateMetaPixelConsent(true)
+      }
     }
   }, [gaMeasurementId])
 
@@ -48,6 +58,7 @@ export function CookieConsent({ gaMeasurementId }: { gaMeasurementId?: string })
     if (gaMeasurementId) {
       updateAnalyticsConsent(value === "accepted")
     }
+    updateMetaPixelConsent(value === "accepted")
   }
 
   return (

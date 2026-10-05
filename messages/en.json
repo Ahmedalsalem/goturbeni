@@ -1198,7 +1198,7 @@
   },
   "CookieConsent": {
     "label": "Cookie consent",
-    "message": "We use analytics cookies to improve your experience.",
+    "message": "We use analytics and advertising cookies to improve your experience and measure our ads.",
     "learnMore": "Learn more",
     "accept": "Accept",
     "reject": "Reject"
@@ -1334,7 +1334,7 @@
           "body": [
             "The Platform uses a cookie named NEXT_LOCALE to remember your language preference, and Supabase authentication cookies to keep you signed in — these are strictly necessary cookies and don't require your consent.",
             "The Platform also uses Google Analytics (GA4), but it only activates once you accept the cookie notice at the bottom of the page; if you decline, or make no choice, Google Analytics runs in cookieless mode and leaves no persistent identifier in your browser. You can reset your choice at any time by clearing your browser's cookies.",
-            "The Platform does not use any advertising cookies."
+            "The Platform also uses the Meta Pixel to measure how well its ads perform. The Meta Pixel likewise only activates once you click \"Accept\" on the cookie notice; until you do, no data is sent to Meta and no Meta cookie is stored in your browser. Once you accept, the pages you visit and your browser information are sent to Meta; because Meta's servers are located outside Türkiye, this means your personal data is transferred abroad."
           ],
           "items": []
         },

@@ -29,6 +29,7 @@ const geistMono = Geist_Mono({
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID
 
 export const viewport: Viewport = {
   themeColor: "#47a736",
@@ -135,25 +136,54 @@ export default async function RootLayout({
           mode with no persistent identifiers until CookieConsent below calls
           gtag('consent', 'update', ...) after the user accepts, preserving the
           KVKK consent requirement for non-essential cookies. */}
-      {GA_MEASUREMENT_ID && (
+      {(GA_MEASUREMENT_ID || META_PIXEL_ID) && (
         <head>
-          <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} />
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('consent', 'default', {
-                  'ad_storage': 'denied',
-                  'ad_user_data': 'denied',
-                  'ad_personalization': 'denied',
-                  'analytics_storage': 'denied'
-                });
-                gtag('js', new Date());
-                gtag('config', '${GA_MEASUREMENT_ID}');
-              `,
-            }}
-          />
+          {GA_MEASUREMENT_ID && (
+            <>
+              <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} />
+              <script
+                dangerouslySetInnerHTML={{
+                  __html: `
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+                    gtag('consent', 'default', {
+                      'ad_storage': 'denied',
+                      'ad_user_data': 'denied',
+                      'ad_personalization': 'denied',
+                      'analytics_storage': 'denied'
+                    });
+                    gtag('js', new Date());
+                    gtag('config', '${GA_MEASUREMENT_ID}');
+                  `,
+                }}
+              />
+            </>
+          )}
+          {/* fbq('consent', 'revoke') must run before init: the pixel then
+              holds every event (including this PageView) and sends nothing
+              to Meta until CookieConsent calls fbq('consent', 'grant') —
+              the same KVKK gate GA sits behind. Meta's <noscript> image
+              fallback is deliberately omitted: it fires unconditionally,
+              with no way to wait for consent. */}
+          {META_PIXEL_ID && (
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  !function(f,b,e,v,n,t,s)
+                  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                  n.queue=[];t=b.createElement(e);t.async=!0;
+                  t.src=v;s=b.getElementsByTagName(e)[0];
+                  s.parentNode.insertBefore(t,s)}(window, document,'script',
+                  'https://connect.facebook.net/en_US/fbevents.js');
+                  fbq('consent', 'revoke');
+                  fbq('init', '${META_PIXEL_ID}');
+                  fbq('track', 'PageView');
+                `,
+              }}
+            />
+          )}
         </head>
       )}
       <body className="flex min-h-full flex-col">
