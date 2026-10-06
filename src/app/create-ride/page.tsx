@@ -12,9 +12,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title") }
 }
 
-const MISSING_FIELD_LABEL_KEY: Record<MissingDriverField, "missingIban" | "missingCarPlate" | "missingCarColor"> = {
+const MISSING_FIELD_LABEL_KEY: Record<MissingDriverField, "missingIban" | "missingCarColor"> = {
   iban: "missingIban",
-  carPlate: "missingCarPlate",
   carColor: "missingCarColor",
 }
 

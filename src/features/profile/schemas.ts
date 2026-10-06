@@ -28,12 +28,10 @@ const TR_IBAN_PATTERN = /^TR\d{24}$/
 // Turkish vehicle plate: 2-digit province code (01-81) + 1-3 letters (Turkish
 // plates never use Q, W or X) + digits, digit count depending on letter
 // count — e.g. "34 A 1234", "06 AB 123", "34 ABC 12". Spaces optional.
-// Exported for features/rides/actions.ts, which requires the driver's
-// profile to already have a valid plate before a ride can be created.
 export const TR_PLATE_PATTERN =
   /^(0[1-9]|[1-7][0-9]|8[01])\s?[A-PR-VYZ]\s?\d{4,5}$|^(0[1-9]|[1-7][0-9]|8[01])\s?[A-PR-VYZ]{2}\s?\d{3,4}$|^(0[1-9]|[1-7][0-9]|8[01])\s?[A-PR-VYZ]{3}\s?\d{2,3}$/
 
-export type MissingDriverField = "iban" | "carPlate" | "carColor"
+export type MissingDriverField = "iban" | "carColor"
 
 // Shared between features/rides/actions.ts (reactive check at submit time)
 // and app/create-ride/page.tsx (proactive hint before the driver ever
@@ -42,12 +40,10 @@ export type MissingDriverField = "iban" | "carPlate" | "carColor"
 export function getMissingDriverFields(profile: {
   iban: string | null
   iban_holder_name: string | null
-  car_plate: string | null
   car_color: string | null
 }): MissingDriverField[] {
   const missing: MissingDriverField[] = []
   if (!profile.iban || !profile.iban_holder_name) missing.push("iban")
-  if (!profile.car_plate || !TR_PLATE_PATTERN.test(profile.car_plate)) missing.push("carPlate")
   if (!profile.car_color) missing.push("carColor")
   return missing
 }
@@ -118,10 +114,8 @@ export function buildProfileSchema(t: ValidationTranslator) {
       .max(MAX_CAR_PLATE_LENGTH, t("carPlateMax"))
       .optional()
       .transform((value) => (value ? value.toUpperCase() : undefined))
-      // Only drivers who post rides need a plate at all (see carHint) — this
-      // field stays optional at the profile level, ride creation enforces
-      // presence separately (see features/rides/actions.ts). When a value IS
-      // given, though, it must be a real Turkish plate format.
+      // Optional everywhere, including for drivers posting rides. When a
+      // value IS given, though, it must be a real Turkish plate format.
       .refine((value) => !value || TR_PLATE_PATTERN.test(value), { message: t("carPlateInvalid") }),
     carColor: z
       .string()

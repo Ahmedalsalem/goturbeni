@@ -299,7 +299,7 @@
       "carModel": "Car Model",
       "carPlate": "License Plate",
       "carColor": "Car Color",
-      "carHint": "Required to post listings as a driver. You can leave the plate/color blank if you don't have them yet (e.g. 34 ABC 123).",
+      "carHint": "Car color is required to post listings as a driver. The license plate is optional; if you add it, it's shown publicly on your listings (e.g. 34 ABC 123).",
       "carFeaturesLabel": "Car Features",
       "customFeaturesLabel": "Other Features",
       "addCustomFeaturePlaceholder": "Add a feature (e.g. Wi-Fi)",
@@ -445,7 +445,7 @@
     },
     "trust": {
       "title": "Trusted profiles",
-      "description": "Every user has a profile with a history of past trips and mutual star ratings and reviews, so you can see who you're traveling with. You'll need to verify your account, and if you're a driver, add a valid license plate."
+      "description": "Every user has a profile with a history of past trips and mutual star ratings and reviews, so you can see who you're traveling with. You'll need to verify your account."
     },
     "help": {
       "title": "Need help?",
@@ -536,8 +536,8 @@
         "answer": "Accounts showing suspicious behavior or violating the rules may be suspended by an administrator. A suspended account cannot post new listings, make bookings, send messages, or leave reviews."
       },
       "carPlate": {
-        "question": "Why do you ask for a license plate?",
-        "answer": "To post listings as a driver, you need to add a license plate in a valid format to your profile. This information is shown publicly on listing and profile pages so passengers can recognize the correct vehicle at the meeting point."
+        "question": "Do I have to add a license plate?",
+        "answer": "No, the license plate is optional. If you add it, it's shown publicly on listing and profile pages, which helps passengers recognize the right vehicle at the meeting point. Even without it, your car's color is still shown on your listing."
       }
     }
   },
@@ -666,7 +666,6 @@
       "pauseFailed": "Recurring listing could not be stopped. Please try again.",
       "tooManyRequests": "Too many attempts. Please try again later.",
       "missingIban": "your IBAN and account holder name",
-      "missingCarPlate": "a valid license plate",
       "missingCarColor": "your car color",
       "profileIncomplete": "To post a listing, first add the following to your profile: {missing}.",
       "goToProfile": "Complete Profile",
@@ -793,7 +792,6 @@
       "settleFailed": "Payment could not be marked as settled. Please try again.",
       "driverNoShow": "The payment can't be processed because the driver was reported as a no-show. A dispute has been opened automatically.",
       "offerDriverIbanRequired": "You can't accept this offer — the offering driver's IBAN is missing.",
-      "offerDriverCarPlateRequired": "You can't accept this offer — the offering driver's license plate is missing or invalid.",
       "offerDriverCarColorRequired": "You can't accept this offer — the offering driver's car color is missing.",
       "actionFailed": "The action could not be completed. Please try again.",
       "receiptRequired": "Please select a receipt file.",

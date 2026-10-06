@@ -205,7 +205,8 @@ export async function approveBooking(bookingId: string, rideId: string): Promise
   // status/payment_status yazıyor, driver_id'yi hiç değiştirmiyor — bkz.
   // _apply_booking_approval, 0059_passenger_listings_approve_reject.sql).
   //
-  // IBAN/plaka kontrolü get_offer_driver_readiness RPC'si üzerinden yapılıyor
+  // IBAN/renk kontrolü get_offer_driver_readiness RPC'si üzerinden yapılıyor (plaka
+  // isteğe bağlı — RPC'nin plate_ok alanı kasıtlı olarak kontrol edilmiyor)
   // (0063_offer_driver_readiness_rpc.sql) — profiles_private yalnızca
   // SAHİBİ tarafından okunabildiğinden (0006), ilan sahibinin (burada
   // çağıran, yolcu) kendi client'ıyla doğrudan
@@ -224,9 +225,6 @@ export async function approveBooking(bookingId: string, rideId: string): Promise
       const readiness = data as { iban_ok: boolean; plate_ok: boolean; color_ok: boolean } | null
       if (!readiness?.iban_ok) {
         return { error: tErrors("offerDriverIbanRequired") }
-      }
-      if (!readiness?.plate_ok) {
-        return { error: tErrors("offerDriverCarPlateRequired") }
       }
       if (!readiness?.color_ok) {
         return { error: tErrors("offerDriverCarColorRequired") }

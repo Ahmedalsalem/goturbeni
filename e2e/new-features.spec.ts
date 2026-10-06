@@ -5,7 +5,7 @@ import { selectCombobox, signUpAndVerify, nearFutureIstanbulDateTime, uniqueEmai
 // Coverage for the batch of guest-facing/i18n changes that only had manual
 // (Playwright-script, not committed) verification during the session that
 // added them: mobile header CTA, welcome modal, expanded support page,
-// English locale, and the new car-plate-required-to-post-a-ride guard.
+// English locale, and posting a ride without a car plate (plate is optional).
 
 test("guest sees the welcome modal on first visit only", async ({ page }) => {
   await page.goto("/")
@@ -39,7 +39,7 @@ test("support page shows the contact card and categorized FAQ", async ({ page })
   await expect(page.getByText("Bize Ulaş")).toBeVisible()
   await expect(page.locator("a[href^='https://mail.google.com/mail/?view=cm']")).toHaveAttribute("href", /to=novarodigitalstudio%40gmail\.com/)
   await expect(page.getByText("Rezervasyon & Ödeme")).toBeVisible()
-  await expect(page.getByText("Neden araç plakası istiyorsunuz?")).toBeVisible()
+  await expect(page.getByText("Araç plakası eklemek zorunlu mu?")).toBeVisible()
 })
 
 test("switching to English persists across navigation", async ({ page }) => {
@@ -65,10 +65,9 @@ test("switching to English persists across navigation", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "How It Works" })).toBeVisible({ timeout: 30_000 })
 })
 
-// Regression for the new guard in features/rides/actions.ts createRide():
-// a driver without a valid plate on file must be blocked with a clear error,
-// not a generic failure or a silent insert.
-test("posting a ride without a valid car plate on file is rejected", async ({ page }) => {
+// The plate is optional (some drivers don't want it public): a driver with
+// IBAN and car color but no plate on file can still post a ride.
+test("posting a ride without a car plate on file succeeds", async ({ page }) => {
   const email = uniqueEmail("noplate")
   await signUpAndVerify(page, email)
 
@@ -76,9 +75,7 @@ test("posting a ride without a valid car plate on file is rejected", async ({ pa
   await page.locator("#fullName").fill("E2E Plakasız Sürücü")
   await page.locator("#iban").fill("TR330006100519786457841326")
   await page.locator("#ibanHolderName").fill("E2E Plakasız Sürücü")
-  // Renk dolu, plaka boş bırakılıyor — testin amacı sadece plaka eksikliğini
-  // izole etmek (bkz. aşağıdaki assert), renk eksikliğinin de mesaja karışmasını
-  // önlemek için.
+  // Renk dolu (hâlâ zorunlu), plaka kasıtlı olarak boş bırakılıyor.
   await page.locator("#carColor").fill("Siyah")
   await page.getByRole("button", { name: "Kaydet" }).click()
   await page.getByText("Profil güncellendi.").waitFor()
@@ -96,6 +93,5 @@ test("posting a ride without a valid car plate on file is rejected", async ({ pa
   await page.locator("#costShare").fill("50")
   await page.getByRole("button", { name: "İlanı Yayınla" }).click()
 
-  await expect(page.getByText("İlan verebilmek için önce profilinize şunu ekleyin: geçerli bir araç plakası.")).toBeVisible()
-  await expect(page).toHaveURL(/\/create-ride$/)
+  await expect(page).toHaveURL(/\/rides\/mine$/)
 })

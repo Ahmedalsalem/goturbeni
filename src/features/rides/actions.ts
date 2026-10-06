@@ -19,9 +19,8 @@ import { buildRideSchema, type RideActionState, type RideFormValues } from "@/fe
 import { getRide } from "@/features/rides/queries"
 import { getMissingDriverFields, type MissingDriverField } from "@/features/profile/schemas"
 
-const MISSING_FIELD_LABEL_KEY: Record<MissingDriverField, "missingIban" | "missingCarPlate" | "missingCarColor"> = {
+const MISSING_FIELD_LABEL_KEY: Record<MissingDriverField, "missingIban" | "missingCarColor"> = {
   iban: "missingIban",
-  carPlate: "missingCarPlate",
   carColor: "missingCarColor",
 }
 
@@ -91,22 +90,23 @@ export async function createRide(values: RideFormValues): Promise<RideActionStat
   // taşınıyor, approveBooking'de kontrol ediliyor (Faz 2A, bkz.
   // bookings/actions.ts).
   if (!isPassengerListing) {
-    // Sürücü IBAN, hesap sahibi adı, geçerli plaka ve araç rengi olmadan
-    // ilan açamaz (bkz. "Yarı-Yarı Ödeme Akışı" — yolcunun ilk yarı ödemesini
-    // gönderebilmesi için ilan sahibinin ödeme bilgisi baştan tam olmalı;
-    // plaka/renk de yolcunun aracı teşhis edebilmesi için zorunlu, bkz.
-    // 0050_car_plate.sql, 0076_car_color.sql). Eskiden bu üç alan sırayla
+    // Sürücü IBAN, hesap sahibi adı ve araç rengi olmadan ilan açamaz (bkz.
+    // "Yarı-Yarı Ödeme Akışı" — yolcunun ilk yarı ödemesini gönderebilmesi
+    // için ilan sahibinin ödeme bilgisi baştan tam olmalı; renk de yolcunun
+    // aracı teşhis edebilmesi için zorunlu, bkz. 0076_car_color.sql). Plaka
+    // kullanıcı isteğiyle isteğe bağlı: bazı sürücüler otobüs firmalarının
+    // dava açmasından çekindikleri için herkese açık plaka paylaşmak
+    // istemiyor. Eskiden bu alanlar sırayla
     // kontrol edilip her seferinde ayrı bir hata dönüyordu — sürücü üç kez
     // submit deneyip üç farklı eksik keşfediyordu. Artık hepsi tek seferde
     // toplanıp tek mesajda bildiriliyor (bkz. profile/schemas.ts).
     const [{ data: paymentInfo }, { data: driverProfile }] = await Promise.all([
       supabase.from("profiles_private").select("iban, iban_holder_name").eq("id", user.id).maybeSingle(),
-      supabase.from("profiles").select("car_plate, car_color").eq("id", user.id).maybeSingle(),
+      supabase.from("profiles").select("car_color").eq("id", user.id).maybeSingle(),
     ])
     const missing = getMissingDriverFields({
       iban: paymentInfo?.iban ?? null,
       iban_holder_name: paymentInfo?.iban_holder_name ?? null,
-      car_plate: driverProfile?.car_plate ?? null,
       car_color: driverProfile?.car_color ?? null,
     })
     if (missing.length > 0) {

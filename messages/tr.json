@@ -299,7 +299,7 @@
       "carModel": "Araç Modeli",
       "carPlate": "Plaka",
       "carColor": "Araç Rengi",
-      "carHint": "Sürücü olarak ilan verebilmek için gerekli. Plakanız/renginiz yoksa boş bırakabilirsiniz (örn. 34 ABC 123).",
+      "carHint": "Araç rengi, sürücü olarak ilan verebilmek için gerekli. Plaka isteğe bağlı; eklersen ilanında herkese açık görünür (örn. 34 ABC 123).",
       "carFeaturesLabel": "Araç Özellikleri",
       "customFeaturesLabel": "Diğer Özellikler",
       "addCustomFeaturePlaceholder": "Özellik ekle (ör. Wi-Fi)",
@@ -445,7 +445,7 @@
     },
     "trust": {
       "title": "Güvenilir profiller",
-      "description": "Her kullanıcının bir profili, geçmiş yolculuk kaydı ve karşılıklı yıldız/yorum puanı vardır; kiminle yolculuk yaptığını görebilirsin. Hesabını doğrulaman ve sürücüysen geçerli bir plaka eklemen gerekir."
+      "description": "Her kullanıcının bir profili, geçmiş yolculuk kaydı ve karşılıklı yıldız/yorum puanı vardır; kiminle yolculuk yaptığını görebilirsin. Hesabını doğrulaman gerekir."
     },
     "help": {
       "title": "Yardıma mı ihtiyacın var?",
@@ -536,8 +536,8 @@
         "answer": "Şüpheli davranış tespit edilen ya da kurallara aykırı hareket eden hesaplar bir yönetici tarafından askıya alınabilir. Askıya alınan bir hesap yeni ilan veremez, rezervasyon yapamaz, mesaj gönderemez ve yorum yapamaz."
       },
       "carPlate": {
-        "question": "Neden araç plakası istiyorsunuz?",
-        "answer": "Sürücü olarak ilan verebilmek için profiline geçerli formatta bir araç plakası eklemen gerekir. Bu bilgi, yolcunun buluşma noktasında doğru aracı tanıyabilmesi için ilan ve profil sayfalarında herkese açık gösterilir."
+        "question": "Araç plakası eklemek zorunlu mu?",
+        "answer": "Hayır, plaka isteğe bağlı. Eklersen ilan ve profil sayfalarında herkese açık gösterilir; bu, yolcunun buluşma noktasında doğru aracı tanımasını kolaylaştırır. Eklemezsen de aracının rengi ilanında görünür."
       }
     }
   },
@@ -666,7 +666,6 @@
       "pauseFailed": "Tekrarlanan ilan durdurulamadı. Lütfen tekrar deneyin.",
       "tooManyRequests": "Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin.",
       "missingIban": "IBAN ve hesap sahibi ad soyad bilgisi",
-      "missingCarPlate": "geçerli bir araç plakası",
       "missingCarColor": "araç renginiz",
       "profileIncomplete": "İlan verebilmek için önce profilinize şunu ekleyin: {missing}.",
       "goToProfile": "Profili Tamamla",
@@ -793,7 +792,6 @@
       "settleFailed": "Ödeme tamamlandı olarak işaretlenemedi. Lütfen tekrar deneyin.",
       "driverNoShow": "Sürücü gelmedi olarak işaretlendiği için ödeme işlenemez. Bir anlaşmazlık otomatik olarak açıldı.",
       "offerDriverIbanRequired": "Bu teklifi kabul edemezsiniz — teklif veren sürücünün IBAN bilgisi eksik.",
-      "offerDriverCarPlateRequired": "Bu teklifi kabul edemezsiniz — teklif veren sürücünün plaka bilgisi eksik veya geçersiz.",
       "offerDriverCarColorRequired": "Bu teklifi kabul edemezsiniz — teklif veren sürücünün araç rengi eksik.",
       "actionFailed": "İşlem gerçekleştirilemedi. Lütfen tekrar deneyin.",
       "receiptRequired": "Lütfen bir dekont dosyası seçin.",
