@@ -120,7 +120,7 @@ export async function createBooking(rideId: string, values: BookingFormValues): 
 // createBooking'in "ters" versiyonu — bir sürücü, bir yolcu ilanına teklif
 // verir. seat_count kullanıcıdan alınmaz: bir yolcu ilanı tek bir sürücü
 // tarafından TAM karşılanır (kısmi teklif yok, bkz. tasarım dokümanı),
-// dolayısıyla her zaman ride.seat_count kadar. IBAN/plaka kontrolü burada
+// dolayısıyla her zaman ride.seat_count kadar. Araç rengi kontrolü burada
 // YAPILMAZ — approveBooking'e taşındı (ilan sahibi onaylayana kadar hangi
 // sürücünün teklifinin kabul edileceği belli değil).
 export async function createOffer(rideId: string, values: OfferFormValues): Promise<BookingActionState> {
@@ -191,7 +191,7 @@ export async function approveBooking(bookingId: string, rideId: string): Promise
   const supabase = await createClient()
 
   // Yolcu ilanına verilen bir teklif onaylanıyorsa, teklif veren sürücünün
-  // IBAN + plaka bilgisi burada kontrol edilir — sürücü ilanında bu kontrol
+  // araç rengi burada kontrol edilir — sürücü ilanında bu kontrol
   // createRide'da (ilan açılırken) yapılıyordu; yolcu ilanında henüz bir
   // sürücü atanmadığından kontrol onay anına kayıyor (bkz. tasarım
   // dokümanı "Ödeme akışı sıralaması"). Ride, bookingId'nin gerçek
@@ -199,14 +199,15 @@ export async function approveBooking(bookingId: string, rideId: string): Promise
   // güvenilmiyor, çünkü onunla bookingId arasındaki eşleşmeyi hiçbir şey
   // zorunlu kılmıyor (uyuşmayan bir rideId bu kontrolü atlatabilirdi).
   // ride_id/driver_id/passenger_id tek bir getBookingParties okumasıyla
-  // birlikte çekiliyor — hem ride'ı çözmek + IBAN/plaka kontrolü için, hem
+  // birlikte çekiliyor — hem ride'ı çözmek + renk kontrolü için, hem
   // de aşağıda bildirim alıcısını belirlemek için; driver_id RPC'den önce
   // ve sonra ayrı ayrı sorgulanmıyor artık (approve_booking sadece
   // status/payment_status yazıyor, driver_id'yi hiç değiştirmiyor — bkz.
   // _apply_booking_approval, 0059_passenger_listings_approve_reject.sql).
   //
-  // IBAN/renk kontrolü get_offer_driver_readiness RPC'si üzerinden yapılıyor (plaka
-  // isteğe bağlı — RPC'nin plate_ok alanı kasıtlı olarak kontrol edilmiyor)
+  // Araç rengi kontrolü get_offer_driver_readiness RPC'si üzerinden yapılıyor
+  // (IBAN ve plaka isteğe bağlı — RPC'nin iban_ok/plate_ok alanları kasıtlı
+  // olarak kontrol edilmiyor)
   // (0063_offer_driver_readiness_rpc.sql) — profiles_private yalnızca
   // SAHİBİ tarafından okunabildiğinden (0006), ilan sahibinin (burada
   // çağıran, yolcu) kendi client'ıyla doğrudan
@@ -223,9 +224,6 @@ export async function approveBooking(bookingId: string, rideId: string): Promise
     if (offeringDriverId) {
       const { data } = await supabase.rpc("get_offer_driver_readiness", { p_booking_id: bookingId }).maybeSingle()
       const readiness = data as { iban_ok: boolean; plate_ok: boolean; color_ok: boolean } | null
-      if (!readiness?.iban_ok) {
-        return { error: tErrors("offerDriverIbanRequired") }
-      }
       if (!readiness?.color_ok) {
         return { error: tErrors("offerDriverCarColorRequired") }
       }

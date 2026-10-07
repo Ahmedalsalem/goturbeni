@@ -306,6 +306,16 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                       </Alert>
                     </CardFooter>
                   )}
+                {isApproved &&
+                  isPayer &&
+                  booking.driver_id === ride.driver_id &&
+                  booking.payment_status !== "settled" &&
+                  ride.payment_methods.includes("bank_transfer") &&
+                  !driverPaymentInfo && (
+                    <CardFooter>
+                      <p className="text-muted-foreground text-sm">{tPayment("ibanMissingNote")}</p>
+                    </CardFooter>
+                  )}
                 {/* Teklif henüz onaylanmadan da mesajlaşılabilir (bkz.
                     0091_offer_chat_before_approval.sql) — isApproved
                     bloğundaki diğer aksiyonlar (pickup kodu, settlement vb.)

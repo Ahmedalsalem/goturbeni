@@ -102,6 +102,9 @@ export function BookingButton({
             </AlertDescription>
           </Alert>
         )}
+        {isApprovedAwaitingPayment && !driverPaymentInfo && (
+          <p className="text-muted-foreground text-sm">{tPayment("ibanMissingNote")}</p>
+        )}
       </div>
     )
   }

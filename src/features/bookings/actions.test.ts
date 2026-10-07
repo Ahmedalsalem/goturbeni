@@ -81,7 +81,7 @@ function fromReturningPassengerId(passengerId: string | null, rideId = "ride-1")
   }
 }
 
-// approveBooking's offer IBAN/plate check now goes through the
+// approveBooking's offer car-color check now goes through the
 // get_offer_driver_readiness RPC (0063_offer_driver_readiness_rpc.sql)
 // instead of directly querying profiles_private (which RLS blocks for
 // anyone but the row's own owner — see that migration's comment). rpcMock
@@ -348,7 +348,7 @@ describe("bookings/actions", () => {
       expect(revalidatePathMock).toHaveBeenCalledWith("/rides/ride-1")
     })
 
-    it("rejects approving an offer when the offering driver has no IBAN", async () => {
+    it("approves an offer when the offering driver has no IBAN, since the IBAN is optional", async () => {
       getRideMock.mockResolvedValue(fakeRide({ posted_by_role: "passenger", driver_id: null }))
       fromMock.mockImplementation((table: string) => {
         if (table === "bookings")
@@ -357,23 +357,20 @@ describe("bookings/actions", () => {
           }
         return {}
       })
-      // Valid plate alongside the missing IBAN, same reasoning as the
-      // dedicated ordering test below: proves the IBAN half of the RPC
-      // result is what's being checked, not just "readiness is falsy".
-      rpcMock.mockImplementation(rpcMockWithReadiness(false, true))
+      rpcMock.mockImplementation(rpcMockWithReadiness(false, false))
 
       const result = await approveBooking("booking-1", "ride-1")
 
-      expect(result.error).toBe("Bookings.errors.offerDriverIbanRequired")
+      expect(result).toEqual({ success: true })
       expect(rpcMock).toHaveBeenCalledWith("get_offer_driver_readiness", { p_booking_id: "booking-1" })
-      expect(rpcMock).not.toHaveBeenCalledWith("approve_booking", expect.anything())
+      expect(rpcMock).toHaveBeenCalledWith("approve_booking", { p_booking_id: "booking-1" })
     })
 
-    it("derives the IBAN/plate check's ride from the booking's real ride_id, not the passed rideId parameter", async () => {
+    it("derives the car-color check's ride from the booking's real ride_id, not the passed rideId parameter", async () => {
       // The booking's authoritative ride ("real-ride-1") is a passenger
-      // listing missing the offering driver's IBAN — the caller-supplied
+      // listing missing the offering driver's car color — the caller-supplied
       // rideId ("malicious-ride-2") is a driver-posted ride, which would
-      // skip the IBAN check entirely if it were trusted instead.
+      // skip the check entirely if it were trusted instead.
       getRideMock.mockImplementation((rideId: string) =>
         Promise.resolve(
           rideId === "real-ride-1" ? fakeRide({ posted_by_role: "passenger", driver_id: null }) : fakeRide({ posted_by_role: "driver" })
@@ -386,32 +383,11 @@ describe("bookings/actions", () => {
           }
         return {}
       })
-      rpcMock.mockImplementation(rpcMockWithReadiness(false, true))
+      rpcMock.mockImplementation(rpcMockWithReadiness(true, true, false))
 
       const result = await approveBooking("booking-1", "malicious-ride-2")
 
-      expect(result.error).toBe("Bookings.errors.offerDriverIbanRequired")
-      expect(rpcMock).not.toHaveBeenCalledWith("approve_booking", expect.anything())
-    })
-
-    it("reports the IBAN error (not the color error) when both the IBAN and the car color are missing", async () => {
-      // get_offer_driver_readiness returns every flag in one RPC call — the
-      // code still must check iban_ok before color_ok. This test gives both
-      // flags false — only "IBAN is checked first" produces
-      // offerDriverIbanRequired instead of offerDriverCarColorRequired.
-      getRideMock.mockResolvedValue(fakeRide({ posted_by_role: "passenger", driver_id: null }))
-      fromMock.mockImplementation((table: string) => {
-        if (table === "bookings")
-          return {
-            select: () => ({ eq: () => ({ single: async () => ({ data: { driver_id: "offering-driver-1", ride_id: "ride-1" } }) }) }),
-          }
-        return {}
-      })
-      rpcMock.mockImplementation(rpcMockWithReadiness(false, false, false))
-
-      const result = await approveBooking("booking-1", "ride-1")
-
-      expect(result.error).toBe("Bookings.errors.offerDriverIbanRequired")
+      expect(result.error).toBe("Bookings.errors.offerDriverCarColorRequired")
       expect(rpcMock).not.toHaveBeenCalledWith("approve_booking", expect.anything())
     })
 

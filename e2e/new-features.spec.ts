@@ -5,7 +5,7 @@ import { selectCombobox, signUpAndVerify, nearFutureIstanbulDateTime, uniqueEmai
 // Coverage for the batch of guest-facing/i18n changes that only had manual
 // (Playwright-script, not committed) verification during the session that
 // added them: mobile header CTA, welcome modal, expanded support page,
-// English locale, and posting a ride without a car plate (plate is optional).
+// English locale, and posting a ride without a car plate or IBAN (both optional).
 
 test("guest sees the welcome modal on first visit only", async ({ page }) => {
   await page.goto("/")
@@ -65,17 +65,15 @@ test("switching to English persists across navigation", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "How It Works" })).toBeVisible({ timeout: 30_000 })
 })
 
-// The plate is optional (some drivers don't want it public): a driver with
-// IBAN and car color but no plate on file can still post a ride.
-test("posting a ride without a car plate on file succeeds", async ({ page }) => {
+// IBAN and plate are both optional (cash-only drivers, drivers who don't want
+// their plate public): a driver with only a car color on file can post.
+test("posting a ride without a car plate or IBAN on file succeeds", async ({ page }) => {
   const email = uniqueEmail("noplate")
   await signUpAndVerify(page, email)
 
   await page.goto("/profile")
   await page.locator("#fullName").fill("E2E Plakasız Sürücü")
-  await page.locator("#iban").fill("TR330006100519786457841326")
-  await page.locator("#ibanHolderName").fill("E2E Plakasız Sürücü")
-  // Renk dolu (hâlâ zorunlu), plaka kasıtlı olarak boş bırakılıyor.
+  // Renk dolu (hâlâ zorunlu), plaka ve IBAN kasıtlı olarak boş bırakılıyor.
   await page.locator("#carColor").fill("Siyah")
   await page.getByRole("button", { name: "Kaydet" }).click()
   await page.getByText("Profil güncellendi.").waitFor()

@@ -19,8 +19,7 @@ import { buildRideSchema, type RideActionState, type RideFormValues } from "@/fe
 import { getRide } from "@/features/rides/queries"
 import { getMissingDriverFields, type MissingDriverField } from "@/features/profile/schemas"
 
-const MISSING_FIELD_LABEL_KEY: Record<MissingDriverField, "missingIban" | "missingCarColor"> = {
-  iban: "missingIban",
+const MISSING_FIELD_LABEL_KEY: Record<MissingDriverField, "missingCarColor"> = {
   carColor: "missingCarColor",
 }
 
@@ -85,30 +84,17 @@ export async function createRide(values: RideFormValues): Promise<RideActionStat
   const supabase = await createClient()
   const isPassengerListing = parsed.data.postedByRole === "passenger"
 
-  // Yolcu ilanında henüz bir sürücü/araç yok — IBAN + plaka kontrolü (sürücü
-  // ilanında burada, ilan açılışında yapılırdı) teklif veren sürücüye
-  // taşınıyor, approveBooking'de kontrol ediliyor (Faz 2A, bkz.
+  // Yolcu ilanında henüz bir sürücü/araç yok — araç rengi kontrolü teklif
+  // veren sürücüye taşınıyor, approveBooking'de kontrol ediliyor (bkz.
   // bookings/actions.ts).
   if (!isPassengerListing) {
-    // Sürücü IBAN, hesap sahibi adı ve araç rengi olmadan ilan açamaz (bkz.
-    // "Yarı-Yarı Ödeme Akışı" — yolcunun ilk yarı ödemesini gönderebilmesi
-    // için ilan sahibinin ödeme bilgisi baştan tam olmalı; renk de yolcunun
-    // aracı teşhis edebilmesi için zorunlu, bkz. 0076_car_color.sql). Plaka
-    // kullanıcı isteğiyle isteğe bağlı: bazı sürücüler otobüs firmalarının
-    // dava açmasından çekindikleri için herkese açık plaka paylaşmak
-    // istemiyor. Eskiden bu alanlar sırayla
-    // kontrol edilip her seferinde ayrı bir hata dönüyordu — sürücü üç kez
-    // submit deneyip üç farklı eksik keşfediyordu. Artık hepsi tek seferde
-    // toplanıp tek mesajda bildiriliyor (bkz. profile/schemas.ts).
-    const [{ data: paymentInfo }, { data: driverProfile }] = await Promise.all([
-      supabase.from("profiles_private").select("iban, iban_holder_name").eq("id", user.id).maybeSingle(),
-      supabase.from("profiles").select("car_color").eq("id", user.id).maybeSingle(),
-    ])
-    const missing = getMissingDriverFields({
-      iban: paymentInfo?.iban ?? null,
-      iban_holder_name: paymentInfo?.iban_holder_name ?? null,
-      car_color: driverProfile?.car_color ?? null,
-    })
+    // Sürücü araç rengi olmadan ilan açamaz — yolcunun aracı buluşma
+    // noktasında teşhis edebilmesi için (bkz. 0076_car_color.sql). IBAN ve
+    // plaka kullanıcı isteğiyle isteğe bağlı: IBAN'ı olmayan sürücü nakit
+    // alır (taksi/Uber'deki gibi), plakayı da bazı sürücüler otobüs
+    // firmalarının dava açmasından çekindikleri için paylaşmak istemiyor.
+    const { data: driverProfile } = await supabase.from("profiles").select("car_color").eq("id", user.id).maybeSingle()
+    const missing = getMissingDriverFields({ car_color: driverProfile?.car_color ?? null })
     if (missing.length > 0) {
       const missingLabels = missing.map((field) => tErrors(MISSING_FIELD_LABEL_KEY[field]))
       return { error: tErrors("profileIncomplete", { missing: missingLabels.join(", ") }), profileLink: true }

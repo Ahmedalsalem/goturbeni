@@ -76,7 +76,7 @@ test.describe.serial("passenger listing reverse booking", () => {
     })
   })
 
-  test("driver makes an offer without needing IBAN/plate upfront", async () => {
+  test("driver makes an offer without needing IBAN/plate/color upfront", async () => {
     await signUpAndVerify(driverPage, driverEmail)
 
     await driverPage.goto(`/rides/${rideId}`)
@@ -84,13 +84,14 @@ test.describe.serial("passenger listing reverse booking", () => {
     await expect(driverPage.getByText("Teklifiniz gönderildi.")).toBeVisible()
   })
 
-  test("passenger cannot approve without the driver's IBAN/plate set", async () => {
+  // IBAN and plate are optional; car color is the one field still required.
+  test("passenger cannot approve without the driver's car color set", async () => {
     await passengerPage.goto(`/rides/${rideId}/bookings`)
     await clickWithConfirm(passengerPage, "Teklifi Kabul Et", "Teklifi kabul etmek istediğinize emin misiniz?")
-    await expect(passengerPage.getByText("Bu teklifi kabul edemezsiniz — teklif veren sürücünün IBAN bilgisi eksik.")).toBeVisible()
+    await expect(passengerPage.getByText("Bu teklifi kabul edemezsiniz — teklif veren sürücünün araç rengi eksik.")).toBeVisible()
   })
 
-  test("driver adds IBAN/plate, passenger approves the offer", async () => {
+  test("driver adds IBAN/plate/color, passenger approves the offer", async () => {
     await driverPage.goto("/profile")
     await driverPage.locator("#fullName").fill("E2E Teklif Sürücüsü")
     await driverPage.locator("#iban").fill("TR330006100519786457841326")

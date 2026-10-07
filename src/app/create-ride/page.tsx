@@ -12,8 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title") }
 }
 
-const MISSING_FIELD_LABEL_KEY: Record<MissingDriverField, "missingIban" | "missingCarColor"> = {
-  iban: "missingIban",
+const MISSING_FIELD_LABEL_KEY: Record<MissingDriverField, "missingCarColor"> = {
   carColor: "missingCarColor",
 }
 
@@ -40,7 +39,7 @@ export default async function CreateRidePage() {
           <CardDescription>{t("description")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <RideForm driverProfileHint={driverProfileHint} />
+          <RideForm driverProfileHint={driverProfileHint} hasIban={Boolean(profile?.iban && profile?.iban_holder_name)} />
         </CardContent>
       </Card>
     </div>
