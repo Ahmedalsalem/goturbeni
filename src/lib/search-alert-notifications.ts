@@ -12,7 +12,8 @@ import { emailFrom, isResendConfigured, renderEmailHtml, sendEmailBatch } from "
 
 interface SearchAlertRecipientRow {
   user_id: string
-  email: string
+  // null for accounts that never verified their email address (0098).
+  email: string | null
   endpoint: string | null
   p256dh: string | null
   auth: string | null
@@ -75,7 +76,7 @@ export async function sendSearchAlertNotifications(rideId: string): Promise<void
     ? (async () => {
         const resend = new Resend(process.env.RESEND_API_KEY)
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-        const uniqueRecipients = new Map(rows.map((r) => [r.user_id, r.email]))
+        const uniqueRecipients = new Map(rows.flatMap((r) => (r.email ? [[r.user_id, r.email] as const] : [])))
         const emails = await Promise.all(
           [...uniqueRecipients.entries()].map(async ([userId, email]) => {
             const locale = languageByUserId.get(userId) ?? DEFAULT_LOCALE
