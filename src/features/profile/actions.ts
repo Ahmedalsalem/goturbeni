@@ -17,7 +17,6 @@ import { buildProfileSchema, type ProfileActionState } from "@/features/profile/
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024
 const ALLOWED_AVATAR_TYPES = ["image/png", "image/jpeg", "image/webp"]
 const EMAIL_OTP_RATE_LIMIT = { limit: 5, windowMs: 60 * 60 * 1000 }
-const EMAIL_OTP_TTL_MS = 10 * 60 * 1000
 
 export async function updateProfile(_prevState: ProfileActionState, formData: FormData): Promise<ProfileActionState> {
   const user = await verifySession()
@@ -118,8 +117,9 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
 // working. The phone number is still collected and stored (contact/trust
 // info) — it just no longer carries the verification burden. The code
 // itself lives in profiles_private (email_otp_code/email_otp_expires_at,
-// 0035_email_based_verification.sql); verify_email_otp is the only thing
-// allowed to flip email_verified, checked against email_otp_code there.
+// 0035_email_based_verification.sql), written only through store_email_otp
+// (0099); verify_email_otp is the only thing allowed to flip email_verified,
+// checked against email_otp_code there.
 export async function sendEmailVerificationCode(): Promise<{ error?: string }> {
   const user = await verifySession()
   const locale = await getUserLocale()
@@ -131,10 +131,14 @@ export async function sendEmailVerificationCode(): Promise<{ error?: string }> {
 
   const code = Math.floor(100_000 + Math.random() * 900_000).toString()
   const supabase = await createClient()
-  const { error: updateError } = await supabase
-    .from("profiles_private")
-    .update({ email_otp_code: code, email_otp_expires_at: new Date(Date.now() + EMAIL_OTP_TTL_MS).toISOString() })
-    .eq("id", user.id)
+  // store_email_otp (0099) only accepts the code alongside the server-only
+  // EMAIL_OTP_SECRET — the user's own session can no longer write it, otherwise
+  // they could pick their own code and skip receiving the email. The 10-minute
+  // expiry is set there.
+  const { error: updateError } = await supabase.rpc("store_email_otp", {
+    p_code: code,
+    p_secret: process.env.EMAIL_OTP_SECRET ?? "",
+  })
   if (updateError) {
     logError(updateError, "profile.sendEmailVerificationCode.store")
     return { error: t("sendError") }
