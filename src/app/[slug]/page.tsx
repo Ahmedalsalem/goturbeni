@@ -107,7 +107,7 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ slu
     const from = getProvinceDisplayName(route.from, locale)
     const to = getProvinceDisplayName(route.to, locale)
     const distanceKm = Math.round(getProvinceDistanceKm(route.from, route.to))
-    const estimatedCost = estimateCostSharePerSeat(route.from, route.to, 2)
+    const estimatedCost = estimateCostSharePerSeat(route.from, route.to)
     const { rides } = await getRides({ from: route.from, to: route.to, sort: "date_asc" })
     const related = relatedRoutes(route)
 

@@ -142,12 +142,8 @@ export function RideForm({
   // (e.g. both fields briefly pointing at the same province) the live hint
   // would otherwise show a nonsensical "~0 ₺" for a moment.
   const estimatedCostShare =
-    departureCity &&
-    arrivalCity &&
-    departureCity !== arrivalCity &&
-    Number.isFinite(seatCountValue) &&
-    seatCountValue > 0
-      ? estimateCostSharePerSeat(departureCity, arrivalCity, seatCountValue)
+    departureCity && arrivalCity && departureCity !== arrivalCity
+      ? estimateCostSharePerSeat(departureCity, arrivalCity)
       : null
 
   async function onSubmit(values: RideFormValues) {
