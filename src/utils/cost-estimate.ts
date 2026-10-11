@@ -1,32 +1,25 @@
 import { getProvinceDistanceKm } from "./turkish-provinces-geo"
 import type { TurkishProvince } from "./turkish-provinces"
 
-// Fuel cost per km = pump price × typical consumption. Not a live lookup —
-// update FUEL_PRICE_TL_PER_LITRE when pump prices move (last set
-// 2026-10-11: benzin ~84 TL/L in İstanbul/Ankara, motorin ~97 TL/L; a
-// diesel car's lower consumption lands at roughly the same cost per km).
-const FUEL_PRICE_TL_PER_LITRE = 84
-const FUEL_LITRES_PER_100_KM = 7
-const ESTIMATED_COST_PER_KM_TL = (FUEL_PRICE_TL_PER_LITRE * FUEL_LITRES_PER_100_KM) / 100
+// The suggestion is anchored to the bus, not to fuel cost: a car-share has
+// to beat the intercity bus to be worth choosing, and Turkish bus fares sit
+// well below a fair split of current fuel prices. The target is roughly
+// half a bus ticket (product decision, 2026-10-11 — Ankara–İstanbul bus was
+// ~490–650 TL, BlaBlaCar ~500 TL), expressed per road km so it scales with
+// the route. Revisit when bus fares move, not when fuel prices do.
+const SEAT_PRICE_TL_PER_ROAD_KM = 0.63
 
 // getProvinceDistanceKm is straight-line between provincial capitals; real
 // roads run about a quarter longer (Ankara–İstanbul: ~350 km straight,
-// ~450 km by road), so the fuel estimate scales it up.
+// ~450 km by road).
 const ROAD_DISTANCE_FACTOR = 1.25
 
-// The per-person price depends only on the route, not on how many seats
-// the ride has: dividing the trip cost by (seatCount + 1) made the
-// suggestion drop every time a driver offered another seat (or a passenger
-// listing added another person), which users read as a bug. Assumes a
-// typical car of the driver plus two passengers sharing the cost.
-const TYPICAL_COST_SHARERS = 3
-
-// Rounds to the nearest 5 TL — a suggestion for a first-time poster who has
+// Per person and independent of the seat count — dividing a trip cost by
+// (seatCount + 1) made the suggestion drop every time a driver offered
+// another seat, which users read as a bug. Rounds to the nearest 5 TL — a suggestion for a first-time poster who has
 // no idea what to charge, not a precise invoice line (a number like
 // "83.42 ₺" would oversell how rough this estimate is).
 export function estimateCostSharePerSeat(departureCity: TurkishProvince, arrivalCity: TurkishProvince): number {
-  const distanceKm = getProvinceDistanceKm(departureCity, arrivalCity)
-  const totalCost = distanceKm * ROAD_DISTANCE_FACTOR * ESTIMATED_COST_PER_KM_TL
-  const perSeat = totalCost / TYPICAL_COST_SHARERS
-  return Math.round(perSeat / 5) * 5
+  const roadKm = getProvinceDistanceKm(departureCity, arrivalCity) * ROAD_DISTANCE_FACTOR
+  return Math.round((roadKm * SEAT_PRICE_TL_PER_ROAD_KM) / 5) * 5
 }
