@@ -11,19 +11,12 @@ export const initialProfileActionState: ProfileActionState = {}
 export const MAX_FULL_NAME_LENGTH = 100
 export const MAX_PHONE_LENGTH = 20
 export const MAX_BIO_LENGTH = 500
-export const MAX_IBAN_LENGTH = 34
-export const MAX_IBAN_HOLDER_NAME_LENGTH = 100
 export const MAX_CAR_BRAND_LENGTH = 50
 export const MAX_CAR_MODEL_LENGTH = 50
 export const MAX_CAR_PLATE_LENGTH = 15
 export const MAX_CAR_COLOR_LENGTH = 30
 export const MAX_CUSTOM_CAR_FEATURES = 10
 export const MAX_CUSTOM_CAR_FEATURE_LENGTH = 30
-
-// TR + 24 digits (26 chars total), spaces/dashes stripped before matching —
-// the standard Turkish IBAN format (matches the DB check constraint in
-// supabase/migrations/0016_gender_payment_profile.sql).
-const TR_IBAN_PATTERN = /^TR\d{24}$/
 
 // Turkish vehicle plate: 2-digit province code (01-81) + 1-3 letters (Turkish
 // plates never use Q, W or X) + digits, digit count depending on letter
@@ -50,8 +43,6 @@ type ValidationTranslator = (
     | "phoneMax"
     | "phoneInvalid"
     | "bioMax"
-    | "ibanInvalid"
-    | "ibanHolderNameMax"
     | "carBrandMax"
     | "carModelMax"
     | "carPlateMax"
@@ -78,19 +69,6 @@ export function buildProfileSchema(t: ValidationTranslator) {
       .optional()
       .transform((value) => (value ? value : undefined)),
     language: z.enum(SUPPORTED_LOCALES),
-    iban: z
-      .string()
-      .trim()
-      .transform((value) => value.replace(/[\s-]/g, "").toUpperCase())
-      .optional()
-      .transform((value) => (value ? value : undefined))
-      .refine((value) => !value || TR_IBAN_PATTERN.test(value), { message: t("ibanInvalid") }),
-    ibanHolderName: z
-      .string()
-      .trim()
-      .max(MAX_IBAN_HOLDER_NAME_LENGTH, t("ibanHolderNameMax"))
-      .optional()
-      .transform((value) => (value ? value : undefined)),
     carBrand: z
       .string()
       .trim()

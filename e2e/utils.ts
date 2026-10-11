@@ -21,20 +21,6 @@ export function uniqueSuffix(): string {
   return `${Date.now().toString(36)}${Math.floor(Math.random() * 46656).toString(36)}`
 }
 
-// TR + 24 digits is the only format-level requirement (TR_IBAN_PATTERN,
-// src/features/profile/schemas.ts) — no real checksum, so any digit string
-// works. createRide() always sets the driver's IBAN to the same fixed value
-// ("TR330006100519786457841326") every other spec's driver also uses — fine
-// for specs that never load /admin/payments, but a spec that does (and
-// asserts on that IBAN text, or on a risk badge next to it) will collide
-// with every other concurrently-pending receipt sharing that same IBAN.
-// Call this after createRide() and overwrite #iban on /profile when that
-// matters.
-export function uniqueIban(): string {
-  const digits = `${Date.now()}${Math.floor(Math.random() * 10000)}`.padStart(24, "0").slice(-24)
-  return `TR${digits}`
-}
-
 // NOTE: registration now requires mandatory phone OTP verification (see
 // src/app/verify-phone/page.tsx) — this helper fills the now-required
 // phone/gender fields so the form submits, but lands on /verify-phone, not
@@ -134,15 +120,10 @@ export async function createRide(
   }
 ): Promise<string> {
   // createRide (src/features/rides/actions.ts) refuses to insert a ride
-  // unless the driver's profile already has an IBAN + holder name (the
-  // half-up-front/half-on-arrival payment flow needs it from the start) and,
-  // as of the car-plate-format check, a valid Turkish plate on file too —
-  // ensure both are set first so callers that don't otherwise care about
-  // payment/vehicle info (most of them) don't hit either guard.
+  // unless the driver's profile has a car color; the plate is optional but
+  // set too so ride cards show the usual vehicle line.
   await page.goto("/profile")
   await page.locator("#fullName").fill("E2E Sürücü")
-  await page.locator("#iban").fill("TR330006100519786457841326")
-  await page.locator("#ibanHolderName").fill("E2E Sürücü")
   await page.locator("#carPlate").fill("34 ABC 123")
   await page.locator("#carColor").fill("Beyaz")
   await page.getByRole("button", { name: "Kaydet" }).click()
@@ -178,11 +159,9 @@ export async function createRide(
   if (options.smokingAllowed) {
     await page.locator('[aria-labelledby="smokingAllowed-label"]').click()
   }
-  if (options.paymentMethod === "cash") {
-    // Bank transfer is checked by default (RideForm's paymentMethods
-    // default) — uncheck it so the ride ends up cash-only, matching this
-    // option's pre-multi-select meaning (see cash-payment.spec.ts, which
-    // asserts the receipt-upload UI is entirely absent for such a ride).
+  if (options.paymentMethod === "bank_transfer") {
+    // Cash is checked by default (RideForm's paymentMethods default) — swap
+    // it for bank transfer so the ride ends up bank-transfer-only.
     await page.locator('[aria-labelledby="paymentMethodBankTransfer-label"]').click()
     await page.locator('[aria-labelledby="paymentMethodCash-label"]').click()
   }
@@ -263,21 +242,6 @@ export async function backdateRideDeparture(rideId: string, secondsAgo: number):
   }
 }
 
-// The OCR auto-approval risk gate (submit_settlement_receipt_ocr,
-// 0054_settlement_ocr_auto_approval.sql) requires the account be ≥14 days
-// old — a freshly signed-up e2e test account never qualifies, so tests
-// exercising the auto-approval path need to backdate it, same idea as
-// backdateRideDeparture above.
-export async function backdateAccountAge(email: string, daysAgo: number): Promise<void> {
-  const admin = createAdminClient()
-  const user = await findAuthUserByEmail(admin, email)
-  const createdAt = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000).toISOString()
-  const { error } = await admin.from("profiles").update({ created_at: createdAt }).eq("id", user.id)
-  if (error) {
-    throw error
-  }
-}
-
 // GoTrue lowercases stored emails; uniqueEmail()'s prefixes aren't always
 // lowercase ("passengerA", "payDriver") so a case-sensitive match here always
 // missed them — every prefix without an uppercase letter ("driver",
@@ -347,40 +311,4 @@ export async function makeAdminForTest(email: string): Promise<void> {
   if (upsertError) {
     throw upsertError
   }
-}
-
-// A minimal valid PNG (1x1 transparent pixel) as a Playwright file payload —
-// submitRefundProof/submitSettlementReceipt only check size/mime type (see
-// MAX_RECEIPT_BYTES/ALLOWED_RECEIPT_TYPES in src/features/bookings/actions.ts),
-// so a real photo isn't needed.
-const ONE_PIXEL_PNG_BASE64 =
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
-
-export function receiptFilePayload(name: string): { name: string; mimeType: string; buffer: Buffer } {
-  return { name, mimeType: "image/png", buffer: Buffer.from(ONE_PIXEL_PNG_BASE64, "base64") }
-}
-
-// Unlike receiptFilePayload's blank pixel, this renders actual IBAN/amount
-// text into a screenshot — for exercising the OCR auto-approval path
-// (submit_settlement_receipt_ocr, src/lib/ocr.ts), which needs something a real
-// bank app screenshot's text to recognize. Uses a throwaway page in the same
-// browser context rather than a separate image library dependency.
-export async function realisticReceiptFilePayload(
-  page: Page,
-  name: string,
-  iban: string,
-  amount: number
-): Promise<{ name: string; mimeType: string; buffer: Buffer }> {
-  const scratchPage = await page.context().newPage()
-  await scratchPage.setContent(`
-    <html><body style="font-family: Arial; font-size: 22px; padding: 20px; width: 500px;">
-      <div>Gonderen: E2E Yolcu</div>
-      <div>Alici IBAN: ${iban}</div>
-      <div>Tutar: ${amount.toFixed(2).replace(".", ",")} TL</div>
-      <div>Aciklama: Yolculuk odemesi</div>
-    </body></html>
-  `)
-  const buffer = await scratchPage.screenshot()
-  await scratchPage.close()
-  return { name, mimeType: "image/png", buffer }
 }

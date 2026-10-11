@@ -1,7 +1,7 @@
 import "server-only"
 
 import { createClient } from "@/lib/supabase/server"
-import type { Booking, BookingPaymentStatus, BookingStatus } from "@/types/booking"
+import type { BookingPaymentStatus, BookingStatus } from "@/types/booking"
 import type { RideWithDriver } from "@/types/ride"
 
 // Was a flat 100-row cap with no way to reach anything past it — on a
@@ -34,68 +34,6 @@ function overfetchRangeFor(page: number): [number, number] {
 
 function splitPage<T>(overfetched: T[]): AdminPage<T> {
   return { rows: overfetched.slice(0, ADMIN_PAGE_SIZE), hasMore: overfetched.length > ADMIN_PAGE_SIZE }
-}
-
-export interface AdminBookingRow extends Booking {
-  passenger: {
-    id: string
-    full_name: string | null
-    created_at: string
-    admin_flags: { is_suspended: boolean } | null
-  } | null
-  ride: { departure_city: string; arrival_city: string; driver: { full_name: string | null } | null }
-}
-
-// Passenger's id/created_at/admin_flags are pulled in (beyond just full_name)
-// so the payments page can compute a risk tier (features/admin/risk.ts)
-// without a second round-trip per row.
-const ADMIN_BOOKING_SELECT =
-  "*, passenger:profiles!bookings_passenger_id_fkey(id, full_name, created_at, admin_flags(is_suspended)), ride:rides(departure_city, arrival_city, driver:profiles!rides_driver_id_fkey(full_name))"
-
-// Refunds where the driver already uploaded proof and it's waiting on an
-// admin to confirm — see submit_refund_proof/admin_confirm_refund
-// (0021_cancellation_refunds.sql).
-export async function getPendingRefunds(page: number = 1): Promise<AdminPage<AdminBookingRow>> {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from("bookings")
-    .select(ADMIN_BOOKING_SELECT)
-    .eq("refund_status", "proof_submitted")
-    .order("refund_requested_at", { ascending: true })
-    .range(...overfetchRangeFor(page))
-
-  return splitPage((data as unknown as AdminBookingRow[] | null) ?? [])
-}
-
-// Settlement (post-trip full-fare) receipts a passenger uploaded but
-// nobody has reviewed yet — see submit_settlement_receipt/
-// admin_review_settlement_receipt (0025_settlement_receipts_and_reject_reasons.sql).
-export async function getPendingSettlementReceipts(page: number = 1): Promise<AdminPage<AdminBookingRow>> {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from("bookings")
-    .select(ADMIN_BOOKING_SELECT)
-    .eq("settlement_receipt_status", "pending")
-    .order("settlement_receipt_reviewed_at", { ascending: true, nullsFirst: true })
-    .range(...overfetchRangeFor(page))
-
-  return splitPage((data as unknown as AdminBookingRow[] | null) ?? [])
-}
-
-// Lets an admin visually cross-check the driver's registered IBAN/holder
-// name against an uploaded receipt while reviewing it — profiles_private has
-// no admin bypass (see AdminUserRow above), so this goes through a scoped
-// security-definer RPC instead (admin_get_driver_payment_info, 0025).
-export async function getDriverPaymentInfoForAdmin(
-  bookingId: string
-): Promise<{ iban: string; iban_holder_name: string } | null> {
-  const supabase = await createClient()
-  const { data } = await supabase.rpc("admin_get_driver_payment_info", { p_booking_id: bookingId }).maybeSingle()
-  const row = data as { iban: string | null; iban_holder_name: string | null } | null
-  if (!row?.iban || !row?.iban_holder_name) {
-    return null
-  }
-  return { iban: row.iban, iban_holder_name: row.iban_holder_name }
 }
 
 export type SuspiciousAccountReason =

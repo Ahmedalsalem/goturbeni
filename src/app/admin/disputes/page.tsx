@@ -7,7 +7,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { AdminDisputeResolveActions } from "@/features/disputes/AdminDisputeResolveActions"
 import { DisputeStatusBadge } from "@/features/disputes/DisputeStatusBadge"
 import { getOpenDisputesForAdmin, getResolvedDisputesForAdmin } from "@/features/disputes/queries"
-import { getDriverPaymentInfoForAdmin } from "@/features/admin/queries"
 import { getUserLocale } from "@/i18n/locale"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 
@@ -21,15 +20,6 @@ export default async function AdminDisputesPage() {
   const locale = await getUserLocale()
   const format = await getFormatter()
   const [openDisputes, resolvedDisputes] = await Promise.all([getOpenDisputesForAdmin(), getResolvedDisputesForAdmin()])
-  // Lets the admin cross-check payment state right on the dispute card
-  // instead of separately hunting for the matching row on /admin/payments
-  // or /admin/rides (found in a post-launch audit) — cheap no-op (returns
-  // null) for disputes whose driver never set an IBAN.
-  const driverPaymentInfos = new Map(
-    await Promise.all(
-      openDisputes.map(async (dispute) => [dispute.id, await getDriverPaymentInfoForAdmin(dispute.booking_id)] as const)
-    )
-  )
 
   return (
     <div className="flex flex-col gap-8">
@@ -65,13 +55,6 @@ export default async function AdminDisputesPage() {
                     <p className="text-muted-foreground mt-1 text-xs">
                       {t("paymentStatusLabel")}: {t(`paymentStatus.${dispute.booking.payment_status}`)}
                     </p>
-                    {driverPaymentInfos.get(dispute.id) && (
-                      <p className="text-muted-foreground text-xs">
-                        {t("driverIbanLabel")}:{" "}
-                        <span className="font-mono">{driverPaymentInfos.get(dispute.id)!.iban}</span> (
-                        {driverPaymentInfos.get(dispute.id)!.iban_holder_name})
-                      </p>
-                    )}
                     <p className="text-muted-foreground mt-1 text-xs">
                       {format.dateTime(new Date(dispute.created_at), {
                         day: "2-digit",

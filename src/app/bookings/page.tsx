@@ -10,7 +10,6 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { BookingStatusBadge } from "@/features/bookings/BookingStatusBadge"
 import { CancelBookingButton } from "@/features/bookings/CancelBookingButton"
 import { ReportNoShowButton } from "@/features/bookings/ReportNoShowButton"
-import { SettlementReceiptUpload } from "@/features/bookings/SettlementReceiptUpload"
 import { SettlePaymentButton } from "@/features/bookings/SettlePaymentButton"
 import { DisputeAgainstMeNotice } from "@/features/disputes/DisputeAgainstMeNotice"
 import { OpenDisputeButton } from "@/features/disputes/OpenDisputeButton"
@@ -192,16 +191,6 @@ export default async function BookingsPage() {
                       booking.payment_status === "awaiting_settlement" &&
                       !booking.passenger_settled_at && (
                         <SettlePaymentButton bookingId={booking.id} rideId={booking.ride.id} />
-                      )}
-                    {isCompleted &&
-                      booking.payment_status !== "settled" &&
-                      booking.ride.payment_methods.includes("bank_transfer") && (
-                        <SettlementReceiptUpload
-                          bookingId={booking.id}
-                          rideId={booking.ride.id}
-                          status={booking.settlement_receipt_status}
-                          rejectReason={booking.settlement_receipt_reject_reason}
-                        />
                       )}
                     {isCompleted &&
                       (reviewedRideIds.has(booking.ride.id) ? (

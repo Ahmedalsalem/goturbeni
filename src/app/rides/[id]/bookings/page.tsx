@@ -13,10 +13,8 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { BookingStatusBadge } from "@/features/bookings/BookingStatusBadge"
 import { BookingActions } from "@/features/bookings/BookingActions"
 import type { DriverTrustInfo } from "@/features/bookings/BookingButton"
-import { RefundProofUpload } from "@/features/bookings/RefundProofUpload"
 import { ReportNoShowButton } from "@/features/bookings/ReportNoShowButton"
 import { SettlePaymentButton } from "@/features/bookings/SettlePaymentButton"
-import { SettlementReceiptUpload } from "@/features/bookings/SettlementReceiptUpload"
 import { DisputeAgainstMeNotice } from "@/features/disputes/DisputeAgainstMeNotice"
 import { OpenDisputeButton } from "@/features/disputes/OpenDisputeButton"
 import { getDisputeAgainstMeForBooking, getMyDisputeForBooking } from "@/features/disputes/queries"
@@ -24,7 +22,7 @@ import { VerifyPickupCodeForm } from "@/features/pickup/VerifyPickupCodeForm"
 import { getPickupVerificationStatus } from "@/features/pickup/queries"
 import { getProfile } from "@/features/profile/queries"
 import { getDriverCompletedRideCount, getRide } from "@/features/rides/queries"
-import { getRideBookings, getRideCounterpartyPhone, getRideDriverPaymentInfo } from "@/features/bookings/queries"
+import { getRideBookings, getRideCounterpartyPhone } from "@/features/bookings/queries"
 import { ShareLocationToggle } from "@/features/live-location/ShareLocationToggle"
 import { getRideWaitlistCount } from "@/features/waitlist/queries"
 import { getUnreadMessages } from "@/features/chat/queries"
@@ -82,20 +80,19 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
   // olmadığından booking bazlı değil, sayfa bazlı bir sabit.
   const viewerIsDriverSide = isOwner ? ride.posted_by_role === "driver" : true
   const isPayer = !viewerIsDriverSide
-  // Yolcu ilanında, ödeyen taraf (ilan sahibi) onaylanmış teklifin sürücü
-  // IBAN'ını burada görmeli — normal sürücü-ilanı akışında bu zaten
-  // rides/[id]/page.tsx'teki BookingButton üzerinden gösteriliyor, ama o
-  // sayfa yolcu ilanları için existingBooking'i hiç çekmiyor (bkz. Finding),
-  // bu yüzden yolcu ilanı akışının TEK ödeme-bilgisi yüzeyi burasıdır.
-  const [driverPaymentInfo, driverProfile, driverCompletedRideCount, driverReviewStats] =
+  // Yolcu ilanında, ödeyen taraf (ilan sahibi) ödeme talimatını burada
+  // görmeli — normal sürücü-ilanı akışında bu rides/[id]/page.tsx'teki
+  // BookingButton üzerinden gösteriliyor, ama o sayfa yolcu ilanları için
+  // existingBooking'i hiç çekmiyor, bu yüzden yolcu ilanı akışının TEK
+  // ödeme-bilgisi yüzeyi burasıdır.
+  const [driverProfile, driverCompletedRideCount, driverReviewStats] =
     isPayer && ride.driver_id
       ? await Promise.all([
-          getRideDriverPaymentInfo(id),
           getProfile(ride.driver_id),
           getDriverCompletedRideCount(ride.driver_id),
           getReviewStats(ride.driver_id),
         ])
-      : [null, null, 0, { averageRating: null, reviewCount: 0 }]
+      : [null, 0, { averageRating: null, reviewCount: 0 }]
   const driverTrustInfo: DriverTrustInfo | null =
     isPayer && ride.driver_id
       ? {
@@ -247,16 +244,6 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                     <BookingStatusBadge status={booking.status} />
                   )}
                 </CardContent>
-                {booking.refund_status !== "not_applicable" && (
-                  <CardFooter className="flex flex-wrap items-center gap-2">
-                    <RefundProofUpload
-                      bookingId={booking.id}
-                      rideId={id}
-                      refundStatus={booking.refund_status}
-                      rejectReason={booking.refund_reject_reason}
-                    />
-                  </CardFooter>
-                )}
                 {isApproved && disputesAgainstMe.get(booking.id) && (
                   <CardFooter>
                     <DisputeAgainstMeNotice dispute={disputesAgainstMe.get(booking.id)!} />
@@ -265,20 +252,17 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                 {isApproved &&
                   isPayer &&
                   booking.driver_id === ride.driver_id &&
-                  booking.payment_status !== "settled" &&
-                  ride.payment_methods.includes("bank_transfer") &&
-                  driverPaymentInfo && (
+                  booking.payment_status !== "settled" && (
                     <CardFooter>
                       <Alert>
                         <AlertTitle>{tPayment("settlementInstructionTitle")}</AlertTitle>
                         <AlertDescription className="flex flex-col gap-1">
-                          <span>
-                            {tPayment("ibanLabel")}:{" "}
-                            <span className="font-mono font-medium">{driverPaymentInfo.iban}</span>
-                          </span>
-                          <span>
-                            {tPayment("ibanHolderLabel")}: {driverPaymentInfo.iban_holder_name}
-                          </span>
+                          {ride.payment_methods.includes("bank_transfer") && <span>{tPayment("bankTransferNote")}</span>}
+                          {ride.cost_share > 0 && (
+                            <span className="font-medium">
+                              {tPayment("amountDue", { amount: formatCostShare(ride.cost_share * booking.seat_count, locale) })}
+                            </span>
+                          )}
                           <span className="text-muted-foreground">{tPayment("noCommissionDisclaimer")}</span>
                           {driverTrustInfo && (
                             <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 border-t pt-2">
@@ -304,16 +288,6 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                           )}
                         </AlertDescription>
                       </Alert>
-                    </CardFooter>
-                  )}
-                {isApproved &&
-                  isPayer &&
-                  booking.driver_id === ride.driver_id &&
-                  booking.payment_status !== "settled" &&
-                  ride.payment_methods.includes("bank_transfer") &&
-                  !driverPaymentInfo && (
-                    <CardFooter>
-                      <p className="text-muted-foreground text-sm">{tPayment("ibanMissingNote")}</p>
                     </CardFooter>
                   )}
                 {/* Teklif henüz onaylanmadan da mesajlaşılabilir (bkz.
@@ -360,17 +334,6 @@ export default async function RideBookingsPage({ params }: { params: Promise<{ i
                     {isRideOver && booking.payment_status === "awaiting_settlement" && !viewerSettled && (
                       <SettlePaymentButton bookingId={booking.id} rideId={id} />
                     )}
-                    {isPayer &&
-                      isRideOver &&
-                      booking.payment_status !== "settled" &&
-                      ride.payment_methods.includes("bank_transfer") && (
-                        <SettlementReceiptUpload
-                          bookingId={booking.id}
-                          rideId={id}
-                          status={booking.settlement_receipt_status}
-                          rejectReason={booking.settlement_receipt_reject_reason}
-                        />
-                      )}
                     {isRideOver &&
                       (alreadyReviewed ? (
                         <Badge variant="secondary">{tReviewActions("alreadyReviewed")}</Badge>

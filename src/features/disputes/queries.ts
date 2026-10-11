@@ -39,8 +39,7 @@ export async function getDisputeAgainstMeForBooking(bookingId: string, userId: s
 }
 
 // Admin queue — RLS ("select own or against or admin") already lets an admin
-// see every row, oldest-first so the longest-waiting complaint surfaces first
-// (same ordering convention as getPendingSettlementReceipts).
+// see every row, oldest-first so the longest-waiting complaint surfaces first.
 export async function getOpenDisputesForAdmin(): Promise<DisputeWithParties[]> {
   const supabase = await createClient()
   const { data } = await supabase

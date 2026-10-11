@@ -43,15 +43,7 @@ import { TURKISH_PROVINCE_DISTRICTS } from "@/utils/turkish-districts"
 import { toIstanbulDateInputValue, toIstanbulTimeInputValue } from "@/utils/istanbul-time"
 import type { Ride } from "@/types/ride"
 
-export function RideForm({
-  ride,
-  driverProfileHint,
-  hasIban = true,
-}: {
-  ride?: Ride
-  driverProfileHint?: string
-  hasIban?: boolean
-}) {
+export function RideForm({ ride, driverProfileHint }: { ride?: Ride; driverProfileHint?: string }) {
   const t = useTranslations("Rides.form")
   const tCard = useTranslations("Rides.card")
   const tErrors = useTranslations("Rides.errors")
@@ -101,8 +93,7 @@ export function RideForm({
       wheelchairAccessible: ride?.wheelchair_accessible ?? false,
       usbChargerAvailable: ride?.usb_charger_available ?? false,
       acAvailable: ride?.ac_available ?? false,
-      // A driver with no IBAN on file can still post — they start on cash.
-      paymentMethods: ride?.payment_methods ?? (hasIban ? ["bank_transfer"] : ["cash"]),
+      paymentMethods: ride?.payment_methods ?? ["cash"],
       instantBooking: ride?.instant_booking ?? false,
       repeatWeekly: false,
     },
@@ -116,15 +107,6 @@ export function RideForm({
   const postedByRole = watch("postedByRole")
   const isPassengerMode = postedByRole === "passenger"
 
-  // The cash-only default for a driver without an IBAN only makes sense in
-  // driver mode — a passenger listing's payment method is about how the
-  // passenger pays, not the poster's own IBAN.
-  function selectRole(role: "driver" | "passenger") {
-    setValue("postedByRole", role)
-    if (!hasIban) {
-      setValue("paymentMethods", role === "driver" ? ["cash"] : ["bank_transfer"])
-    }
-  }
   const timeFlexible = watch("timeFlexible")
   const departureDistricts = departureCity ? (TURKISH_PROVINCE_DISTRICTS[departureCity] ?? []) : []
   const arrivalDistricts = arrivalCity ? (TURKISH_PROVINCE_DISTRICTS[arrivalCity] ?? []) : []
@@ -190,14 +172,14 @@ export function RideForm({
               <Button
                 type="button"
                 variant={postedByRole === "driver" ? "default" : "outline"}
-                onClick={() => selectRole("driver")}
+                onClick={() => setValue("postedByRole", "driver")}
               >
                 {t("iAmDriver")}
               </Button>
               <Button
                 type="button"
                 variant={postedByRole === "passenger" ? "default" : "outline"}
-                onClick={() => selectRole("passenger")}
+                onClick={() => setValue("postedByRole", "passenger")}
               >
                 {t("iAmPassenger")}
               </Button>

@@ -17,6 +17,7 @@ import { MIN_BOOKING_SEAT_COUNT } from "@/features/bookings/schemas"
 import { ExperienceLevelBadge } from "@/features/reviews/ExperienceLevelBadge"
 import { StarRating } from "@/features/reviews/StarRating"
 import type { Booking } from "@/types/booking"
+import type { RidePaymentMethod } from "@/types/ride"
 import { formatCostShare } from "@/utils/currency"
 
 export interface DriverTrustInfo {
@@ -30,7 +31,7 @@ export function BookingButton({
   rideId,
   availableSeats,
   existingBooking,
-  driverPaymentInfo,
+  paymentMethods,
   driverTrustInfo,
   instantBooking,
   costShare,
@@ -38,7 +39,7 @@ export function BookingButton({
   rideId: string
   availableSeats: number
   existingBooking: Booking | null
-  driverPaymentInfo: { iban: string; iban_holder_name: string } | null
+  paymentMethods: RidePaymentMethod[]
   driverTrustInfo: DriverTrustInfo | null
   instantBooking: boolean
   costShare: number
@@ -64,16 +65,11 @@ export function BookingButton({
             <CancelBookingButton bookingId={existingBooking.id} rideId={rideId} />
           )}
         </div>
-        {isApprovedAwaitingPayment && driverPaymentInfo && (
+        {isApprovedAwaitingPayment && (
           <Alert>
             <AlertTitle>{tPayment("settlementInstructionTitle")}</AlertTitle>
             <AlertDescription className="flex flex-col gap-1">
-              <span>
-                {tPayment("ibanLabel")}: <span className="font-mono font-medium">{driverPaymentInfo.iban}</span>
-              </span>
-              <span>
-                {tPayment("ibanHolderLabel")}: {driverPaymentInfo.iban_holder_name}
-              </span>
+              {paymentMethods.includes("bank_transfer") && <span>{tPayment("bankTransferNote")}</span>}
               {costShare > 0 && (
                 <span className="font-medium">
                   {tPayment("amountDue", { amount: formatCostShare(costShare * existingBooking.seat_count, locale) })}
@@ -101,9 +97,6 @@ export function BookingButton({
               )}
             </AlertDescription>
           </Alert>
-        )}
-        {isApprovedAwaitingPayment && !driverPaymentInfo && (
-          <p className="text-muted-foreground text-sm">{tPayment("ibanMissingNote")}</p>
         )}
       </div>
     )

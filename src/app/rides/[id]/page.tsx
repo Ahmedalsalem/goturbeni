@@ -25,7 +25,7 @@ import { buttonVariants } from "@/components/ui/button"
 import { RideStatusBadge } from "@/features/rides/RideStatusBadge"
 import { getDriverCompletedRideCount, getRideWithDriver } from "@/features/rides/queries"
 import { getProfile, isEmailVerified } from "@/features/profile/queries"
-import { getMyBookingForRide, getMyOfferForRide, getRideDriverPaymentInfo } from "@/features/bookings/queries"
+import { getMyBookingForRide, getMyOfferForRide } from "@/features/bookings/queries"
 import { BookingButton } from "@/features/bookings/BookingButton"
 import { OfferButton } from "@/features/bookings/OfferButton"
 import { ReviewSection } from "@/features/reviews/ReviewSection"
@@ -114,18 +114,14 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
       ])
     : [null, null, false]
   const isApprovedAwaitingPayment = existingBooking?.status === "approved" && existingBooking.payment_status !== "settled"
-  // driverCompletedRideCount is fetched unconditionally (whenever there's a
-  // driver at all) so the experience-level badge can show next to the
-  // rating on every ride detail page, not just the post-approval payment
-  // alert — driverPaymentInfo stays gated to isApprovedAwaitingPayment as before.
-  const [driverPaymentInfo, driverCompletedRideCount] = await Promise.all([
-    isApprovedAwaitingPayment && ride.driver_id ? getRideDriverPaymentInfo(ride.id) : Promise.resolve(null),
-    !isPassengerListing && ride.driver_id ? getDriverCompletedRideCount(ride.driver_id) : Promise.resolve(0),
-  ])
-  // Shown next to the IBAN so the passenger has a trust signal alongside the
-  // account they'll eventually send real money to — a fresh, reviewless
-  // account is the actual "post a fake ride, collect, vanish" fraud pattern;
-  // an IBAN checksum wouldn't catch that (see conversation).
+  // driverCompletedRideCount is fetched whenever there's a driver at all so
+  // the experience-level badge can show next to the rating on every ride
+  // detail page, not just the post-approval payment alert.
+  const driverCompletedRideCount =
+    !isPassengerListing && ride.driver_id ? await getDriverCompletedRideCount(ride.driver_id) : 0
+  // Shown in the payment alert so the passenger has a trust signal before
+  // paying — a fresh, reviewless account is the actual "post a fake ride,
+  // collect, vanish" fraud pattern.
   const driverTrustInfo = isApprovedAwaitingPayment
     ? {
         memberSinceIso: driverProfile?.created_at ?? ride.created_at,
@@ -148,6 +144,10 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
   // kendi ilanına rezervasyon/teklif CTA'sı görmemeli (eskiden sadece
   // driver_id kontrol edildiği için bu bir bug'dı, bkz. Task açıklaması).
   const canBook = user && !isOwnListing && !isPassengerListing && isActiveForBooking && userVerified
+  // A passenger who already holds a booking keeps seeing its status, cancel
+  // button and payment instructions after the ride fills up — otherwise
+  // taking the last seat hid them from the ride page entirely.
+  const showBookingSection = canBook || Boolean(existingBooking)
   const canOffer = user && !isOwnListing && isPassengerListing && isActiveForBooking && userVerified
   // Guests can view every ride, but only a signed-in, non-owner, phone-
   // verified user can book it — show a CTA instead of hiding the footer
@@ -328,13 +328,13 @@ export default async function RideDetailPage({ params }: { params: Promise<{ id:
             </div>
           )}
         </CardContent>
-        {canBook && (
+        {showBookingSection && (
           <CardFooter>
             <BookingButton
               rideId={ride.id}
               availableSeats={ride.available_seats}
               existingBooking={existingBooking}
-              driverPaymentInfo={driverPaymentInfo}
+              paymentMethods={ride.payment_methods}
               driverTrustInfo={driverTrustInfo}
               instantBooking={ride.instant_booking}
               costShare={ride.cost_share}

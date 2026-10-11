@@ -2,13 +2,11 @@ import { expect, test, type Browser, type BrowserContext, type Page } from "@pla
 
 import { backdateRideDeparture, clickWithConfirm, createRide, signUpAndVerify, uniqueEmail } from "./utils"
 
-// Cash-only rides skip the receipt-upload/OCR path entirely (see
-// src/app/bookings/page.tsx and src/app/rides/[id]/bookings/page.tsx's
-// payment_methods.includes("bank_transfer") gate, 0073_ride_payment_methods_multi.sql) —
-// only the preexisting receipt-free mutual "Ödeme Tamamlandı" confirm
-// button (confirm_remaining_payment RPC) is available. This test proves
-// both: the upload control never appears, and the mutual-confirm path
-// alone is enough to reach payment_status='settled'.
+// Every booking settles through the mutual "Ödeme Tamamlandı" confirm
+// (confirm_remaining_payment RPC) — the receipt upload was removed entirely
+// (0101_remove_receipts_and_iban.sql). This test proves both: no upload
+// control appears, and the mutual-confirm path alone is enough to reach
+// payment_status='settled'.
 test.describe.serial("cash payment", () => {
   test.describe.configure({ retries: 1 })
 
@@ -63,7 +61,7 @@ test.describe.serial("cash payment", () => {
     await passengerPage.goto("/bookings")
     // The mutual confirm button is present...
     await expect(passengerPage.getByRole("button", { name: "Ödeme Tamamlandı", exact: true })).toBeVisible()
-    // ...but no file input for a receipt is (SettlementReceiptUpload never renders for cash).
+    // ...but no file input for a receipt is (the receipt upload no longer exists).
     await expect(passengerPage.locator('input[type="file"]')).toHaveCount(0)
 
     await passengerPage.getByRole("button", { name: "Ödeme Tamamlandı", exact: true }).click()

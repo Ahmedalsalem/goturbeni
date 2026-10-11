@@ -22,8 +22,6 @@ export interface Profile {
   phone: string | null
   email_verified: boolean
   gender: ProfileGender | null
-  iban: string | null
-  iban_holder_name: string | null
   car_brand: string | null
   car_model: string | null
   car_plate: string | null

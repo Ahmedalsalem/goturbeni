@@ -12,7 +12,7 @@ import { languageAlternates } from "@/i18n/hreflang"
 const SUPPORT_EMAIL = "novarodigitalstudio@gmail.com"
 
 const FAQ_CATEGORIES = [
-  { key: "booking", items: ["booking", "cancellation", "payment", "depositRejected", "waitlist"] },
+  { key: "booking", items: ["booking", "cancellation", "payment", "waitlist"] },
   { key: "safety", items: ["safety", "femaleDriver", "pickupCode", "dispute"] },
   { key: "account", items: ["suspendedAccount", "carPlate"] },
 ] as const

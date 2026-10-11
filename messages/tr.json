@@ -125,7 +125,7 @@
       },
       "payment": {
         "title": "Şeffaf ve güvenli ödeme",
-        "description": "Sürücü banka havalesi (IBAN) ve/veya nakit kabul edebilir. Havale seçildiyse dekontlar sistem üzerinden yüklenir ve incelenir. Şüpheli hesap ve ilanları otomatik olarak tespit edip inceliyoruz."
+        "description": "Sürücü nakit ve/veya banka havalesi kabul edebilir; ödeme, iki tarafın uygulamada \"Ödeme Tamamlandı\" demesiyle kayda geçer. Şüpheli hesap ve ilanları otomatik olarak tespit edip inceliyoruz."
       }
     }
   },
@@ -292,9 +292,6 @@
       },
       "phone": "Telefon",
       "phoneHint": "Başında 0 olmadan girin (örn. 5XX XXX XX XX).",
-      "iban": "IBAN",
-      "ibanHint": "İsteğe bağlı. Eklersen yolcular ücreti banka havalesiyle buraya gönderebilir; eklemezsen nakit ödeme alırsın.",
-      "ibanHolderName": "Hesap Sahibi Ad Soyad",
       "carBrand": "Araç Markası",
       "carModel": "Araç Modeli",
       "carPlate": "Plaka",
@@ -336,8 +333,6 @@
       "phoneMax": "Telefon en fazla 20 karakter olmalı.",
       "phoneInvalid": "Geçerli bir telefon numarası girin (örn. 05XX XXX XX XX veya +90 5XX XXX XX XX).",
       "bioMax": "Hakkımda en fazla 500 karakter olmalı.",
-      "ibanInvalid": "Geçerli bir IBAN girin (TR ile başlayan 26 karakter).",
-      "ibanHolderNameMax": "Hesap sahibi adı en fazla 100 karakter olmalı.",
       "carBrandMax": "Araç markası en fazla 50 karakter olmalı.",
       "carModelMax": "Araç modeli en fazla 50 karakter olmalı.",
       "carPlateMax": "Plaka en fazla 15 karakter olmalı.",
@@ -440,7 +435,7 @@
       },
       "complete": {
         "title": "Yolculuğu tamamla, değerlendir",
-        "description": "Yolculuk tamamlandıktan sonra yolcu ücreti ilanda kabul edilen yöntemle öder: nakit olarak doğrudan sürücüye ya da banka havalesiyle sürücünün IBAN'ına (havalede dekont uygulamaya yüklenir). Ardından iki taraf da birbirini 1-5 yıldız ve yorumla değerlendirir — bu değerlendirmeler diğer kullanıcıların profilinde görünür."
+        "description": "Yolculuk tamamlandıktan sonra yolcu ücreti ilanda kabul edilen yöntemle doğrudan sürücüye öder: nakit ya da banka havalesi (IBAN bilgisi sohbette paylaşılır). İki taraf ödemeyi uygulamada onaylar, ardından birbirini 1-5 yıldız ve yorumla değerlendirir — bu değerlendirmeler diğer kullanıcıların profilinde görünür."
       }
     },
     "trust": {
@@ -505,11 +500,7 @@
       },
       "payment": {
         "question": "Ödeme nasıl yapılıyor?",
-        "answer": "GötürBeni komisyon almaz. Rezervasyonun onaylanması ödeme gerektirmez — yolculuk tamamlandıktan sonra ücretin tamamını ilanda belirtilen yöntemle ödersin: nakit ödemede parayı doğrudan sürücüye verirsin ve iki taraf ödemeyi uygulamada onaylar; havalede sürücünün IBAN'ına gönderip dekontunu uygulama üzerinden yüklersin, dekont incelenip onaylanınca ödeme tamamlanmış sayılır."
-      },
-      "depositRejected": {
-        "question": "Yüklediğim dekont reddedilirse ne olur?",
-        "answer": "Reddedilme nedeni sana gösterilir; sorunu giderip aynı rezervasyon için tekrar dekont yükleyebilirsin."
+        "answer": "GötürBeni komisyon almaz. Rezervasyonun onaylanması ödeme gerektirmez — yolculuk tamamlandıktan sonra ücretin tamamını ilanda belirtilen yöntemle doğrudan sürücüye ödersin: nakit ya da banka havalesi (havale için IBAN'ı sohbetten sürücüden istersin). Ödeme yapıldıktan sonra iki taraf da uygulamada \"Ödeme Tamamlandı\" der ve ödeme tamamlanmış sayılır."
       },
       "waitlist": {
         "question": "İlan doluysa ne yapabilirim?",
@@ -634,7 +625,7 @@
       "paymentMethodLabelPassenger": "Ödeme şeklim",
       "paymentMethodBankTransfer": "Banka Havalesi (IBAN)",
       "paymentMethodCash": "Nakit",
-      "paymentMethodHint": "Birden fazla seçebilirsin. Sadece nakit kabul edersen yolcu dekont yüklemez, yolculuk sonrası her iki taraf da \"Ödeme Tamamlandı\" butonuyla karşılıklı onaylar.",
+      "paymentMethodHint": "Birden fazla seçebilirsin. Havale seçersen IBAN'ını yolcuyla sohbette paylaşırsın; her iki yöntemde de yolculuk sonrası iki taraf \"Ödeme Tamamlandı\" butonuyla karşılıklı onaylar.",
       "paymentMethodHintPassenger": "Birden fazla seçebilirsin. Sürücüye hangi ödeme şeklini kullanabileceğini bildirir.",
       "instantBooking": "Anında Onay",
       "instantBookingHint": "Açıksa, koltuk müsaitse yolcunun rezervasyon talebi beklemeden otomatik onaylanır.",
@@ -792,23 +783,13 @@
       "settleFailed": "Ödeme tamamlandı olarak işaretlenemedi. Lütfen tekrar deneyin.",
       "driverNoShow": "Sürücü gelmedi olarak işaretlendiği için ödeme işlenemez. Bir anlaşmazlık otomatik olarak açıldı.",
       "offerDriverCarColorRequired": "Bu teklifi kabul edemezsiniz — teklif veren sürücünün araç rengi eksik.",
-      "actionFailed": "İşlem gerçekleştirilemedi. Lütfen tekrar deneyin.",
-      "receiptRequired": "Lütfen bir dekont dosyası seçin.",
-      "receiptTooLarge": "Dekont dosyası en fazla 5 MB olabilir.",
-      "receiptInvalidType": "Dekont PNG, JPEG, WEBP veya PDF olmalı.",
-      "receiptUploadFailed": "Dekont yüklenemedi. Lütfen tekrar deneyin."
+      "actionFailed": "İşlem gerçekleştirilemedi. Lütfen tekrar deneyin."
     },
     "card": {
       "seatCount": "{count} koltuk",
       "offeredCostShare": "Teklif: {amount} / kişi",
       "unknownPassenger": "Yolcu",
-      "unknownDriver": "Sürücü",
-      "uploadSettlementReceipt": "Ödeme Dekontu Yükle",
-      "settlementReceiptStatus": {
-        "pending": "Ödeme dekontu inceleniyor",
-        "approved": "Ödeme dekontu onaylandı",
-        "rejected": "Ödeme dekontu reddedildi — lütfen yeniden yükleyin"
-      }
+      "unknownDriver": "Sürücü"
     },
     "loginPrompt": {
       "message": "Rezervasyon yapmak için giriş yapmalısınız.",
@@ -817,26 +798,14 @@
       "verifyCta": "Doğrulamayı Tamamla"
     },
     "payment": {
-      "settlementInstructionTitle": "Yolculuk tamamlandıktan sonra ücretin tamamını aşağıdaki IBAN'a gönder",
-      "ibanLabel": "IBAN",
-      "ibanHolderLabel": "Hesap Sahibi",
-      "ibanMissingNote": "Sürücünün kayıtlı bir IBAN'ı yok. Ödemeyi nakit yapabilir ya da IBAN'ı mesajla sürücüden isteyebilirsin.",
+      "settlementInstructionTitle": "Yolculuk tamamlandıktan sonra ücreti ilanda belirtilen yöntemle sürücüye öde",
+      "bankTransferNote": "Havale ile ödeyeceksen IBAN bilgisini sohbetten sürücüden iste. Ödemeyi yaptıktan sonra iki taraf da uygulamada \"Ödeme Tamamlandı\" der.",
       "amountDue": "Ödenecek tutar: {amount}",
       "noCommissionDisclaimer": "Platformumuz komisyon almaz, ödemeler doğrudan şahıslar arasındadır.",
       "driverMemberSince": "Üyelik: {date}",
       "driverCompletedRides": "{count} tamamlanmış yolculuk",
       "settleCta": "Ödeme Tamamlandı",
-      "settleSuccess": "Ödeme tamamlandı olarak işaretlendi.",
-      "receiptUploadSuccess": "Dekont yüklendi, inceleme bekleniyor."
-    },
-    "refund": {
-      "uploadProof": "İade Dekontu Yükle",
-      "proofRejected": "İade dekontu reddedildi",
-      "status": {
-        "pending": "İade bekleniyor",
-        "proof_submitted": "İade dekontu inceleniyor",
-        "confirmed": "İade onaylandı"
-      }
+      "settleSuccess": "Ödeme tamamlandı olarak işaretlendi."
     }
   },
   "Chat": {
@@ -1002,7 +971,6 @@
       "analytics": "Analytics",
       "users": "Kullanıcılar",
       "rides": "İlanlar",
-      "payments": "Ödemeler",
       "disputes": "Anlaşmazlıklar",
       "backToSite": "Siteye Dön"
     },
@@ -1083,32 +1051,6 @@
       "confirmRemind": "Tüm üyelere gönderilsin mi?",
       "remindSuccess": "Hatırlatma {count} kişiye gönderildi."
     },
-    "payments": {
-      "title": "Ödemeler",
-      "description": "Bekleyen ödeme dekontlarını ve iade taleplerini incele.",
-      "settlementReceiptsTitle": "İncelenmeyi Bekleyen Ödeme Dekontları",
-      "noPendingSettlements": "Bekleyen ödeme dekontu yok",
-      "refundsTitle": "İncelenmeyi Bekleyen İadeler",
-      "noPendingRefunds": "Bekleyen iade yok",
-      "viewReceipt": "Dekontu Görüntüle",
-      "driverLabel": "Sürücü",
-      "passengerLabel": "Yolcu",
-      "unknownUser": "Kullanıcı",
-      "driverIbanLabel": "Sürücü IBAN",
-      "approve": "Onayla",
-      "reject": "Reddet",
-      "cancel": "Vazgeç",
-      "confirmReject": "Reddi Onayla",
-      "rejectReasonPlaceholder": "Red gerekçesi (isteğe bağlı, ilgili kullanıcıya gösterilir)",
-      "receiptApproved": "Dekont onaylandı.",
-      "receiptRejected": "Dekont reddedildi.",
-      "confirmRefund": "İadeyi Onayla",
-      "refundConfirmed": "İade onaylandı.",
-      "riskLow": "Düşük Risk",
-      "riskHigh": "İnceleme Gerekli",
-      "bulkApprove": "{count} düşük riskli dekontu onayla",
-      "bulkApproveSuccess": "{count} dekont onaylandı."
-    },
     "disputes": {
       "title": "Anlaşmazlıklar",
       "description": "Kullanıcıların bildirdiği anlaşmazlıkları incele ve sonuçlandır.",
@@ -1130,7 +1072,6 @@
         "awaiting_settlement": "Ödeme Bekleniyor",
         "settled": "Ödendi"
       },
-      "driverIbanLabel": "Sürücü IBAN",
       "resolutionNoteLabel": "Sonuç Notu",
       "resolutionNotePlaceholder": "Sonuç notu (isteğe bağlı, taraflara gösterilir)",
       "startReview": "İncelemeye Al",
@@ -1244,9 +1185,9 @@
           "heading": "Rezervasyon ve İptal Politikası",
           "body": [
             "Yolcular bir yolculuk ilanına koltuk talebinde bulunur; sürücü bu talebi onaylayabilir veya reddedebilir. Onaylanan bir rezervasyon, yolculuk gerçekleşmeden önce sürücü veya yolcu tarafından iptal edilebilir.",
-            "Platform bir ödeme kuruluşu değildir ve parayı hiçbir aşamada elinde tutmaz. Yolculuk masrafının paylaşımı, ilanda kabul edilen yönteme göre doğrudan kullanıcılar arasında yapılır: nakit olarak ya da sürücünün IBAN'ına banka havalesiyle. Havale ile yapılan ödemelerde yolcu gönderdiği dekontu sisteme yükler; sürücü ve gerektiğinde Platform bu dekontu inceleyerek ödemenin yapıldığını doğrular. Nakit ödemeler tarafların uygulama üzerindeki karşılıklı onayıyla kaydedilir; Platform nakit ödemenin fiilen gerçekleştiğini doğrulayamaz.",
-            "Bir sürücü, ödemesi alınmış bir rezervasyonu iptal ederse Platform otomatik olarak bir iade süreci başlatır; sürücünün iadeyi yaptığını gösteren dekontu sisteme yüklemesi ve bu iadenin Platform tarafından denetlenmesi beklenir.",
-            "Platform, kullanıcılar arasındaki masraf paylaşımı anlaşmazlıklarına taraf değildir; yukarıdaki dekont inceleme süreci bir denetim kolaylığıdır, ödemenin fiilen gerçekleşmesini garanti etmez."
+            "Platform bir ödeme kuruluşu değildir ve parayı hiçbir aşamada elinde tutmaz. Yolculuk masrafının paylaşımı, ilanda kabul edilen yönteme göre doğrudan kullanıcılar arasında, nakit olarak ya da banka havalesiyle yapılır; havale için gereken banka bilgileri kullanıcılar arasında paylaşılır, Platform bu bilgileri talep etmez. Ödeme, tarafların uygulama üzerindeki karşılıklı onayıyla kaydedilir; Platform ödemenin fiilen gerçekleştiğini doğrulayamaz.",
+            "Ödemesi yapılmış bir yolculuk iptal edilirse iade, sürücü ile yolcu arasında doğrudan yapılır; Platform iade sürecine aracılık etmez.",
+            "Platform, kullanıcılar arasındaki masraf paylaşımı anlaşmazlıklarına taraf değildir; uygulamadaki ödeme onayı bir kayıt kolaylığıdır, ödemenin fiilen gerçekleşmesini garanti etmez. Kullanıcılar sorun yaşadıklarında uygulama üzerinden anlaşmazlık bildirebilir."
           ],
           "items": []
         },
@@ -1368,7 +1309,7 @@
           "items": [
             "Kimlik verisi: ad, soyad, doğum tarihi, cinsiyet",
             "İletişim verisi: e-posta adresi, telefon numarası",
-            "Finansal veri: sürücü olarak profilinize eklemeyi tercih etmeniz halinde IBAN ve hesap sahibi adı",
+            "Finansal veri: Platform IBAN veya banka hesap bilgisi talep etmez; kullanıcılar havale bilgilerini birbirleriyle sohbet üzerinden paylaşırsa bu bilgiler mesaj içeriği olarak saklanır",
             "Konum/seyahat verisi: kalkış ve varış şehri, yolculuk tarihi, koltuk sayısı, masraf paylaşım tutarı",
             "İşlem güvenliği verisi: hesap oluşturma ve oturum açma kayıtları, IP adresi ve benzeri teknik erişim bilgileri"
           ]

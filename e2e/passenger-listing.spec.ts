@@ -76,7 +76,7 @@ test.describe.serial("passenger listing reverse booking", () => {
     })
   })
 
-  test("driver makes an offer without needing IBAN/plate/color upfront", async () => {
+  test("driver makes an offer without needing plate/color upfront", async () => {
     await signUpAndVerify(driverPage, driverEmail)
 
     await driverPage.goto(`/rides/${rideId}`)
@@ -84,24 +84,16 @@ test.describe.serial("passenger listing reverse booking", () => {
     await expect(driverPage.getByText("Teklifiniz gönderildi.")).toBeVisible()
   })
 
-  // IBAN and plate are optional; car color is the one field still required.
+  // Plate is optional and there is no IBAN; car color is the one field still required.
   test("passenger cannot approve without the driver's car color set", async () => {
     await passengerPage.goto(`/rides/${rideId}/bookings`)
     await clickWithConfirm(passengerPage, "Teklifi Kabul Et", "Teklifi kabul etmek istediğinize emin misiniz?")
     await expect(passengerPage.getByText("Bu teklifi kabul edemezsiniz — teklif veren sürücünün araç rengi eksik.")).toBeVisible()
   })
 
-  test("driver adds IBAN/plate/color, passenger approves the offer", async () => {
+  test("driver adds plate/color, passenger approves the offer", async () => {
     await driverPage.goto("/profile")
     await driverPage.locator("#fullName").fill("E2E Teklif Sürücüsü")
-    await driverPage.locator("#iban").fill("TR330006100519786457841326")
-    // Kasıtlı olarak fullName'den FARKLI — /rides/[id]/bookings sayfasındaki
-    // ödeme talimatı bloğu iban_holder_name'i düz metin olarak render ediyor
-    // (src/app/rides/[id]/bookings/page.tsx), fullName ise aynı sayfada karşı
-    // taraf başlığı olarak zaten görünüyor; aynı değer kullanılırsa aşağıdaki
-    // testteki "/bookings'te sızıntı yok" kontrolü hesap sahibi adıyla
-    // çakışıp yanlışlıkla başarısız olurdu.
-    await driverPage.locator("#ibanHolderName").fill("E2E Teklif Hesap Sahibi")
     await driverPage.locator("#carPlate").fill("34 ABC 789")
     await driverPage.locator("#carColor").fill("Siyah")
     await driverPage.getByRole("button", { name: "Kaydet" }).click()
@@ -156,16 +148,16 @@ test.describe.serial("passenger listing reverse booking", () => {
     await expect(passengerPage.getByText("Henüz rezervasyonun yok")).toBeVisible()
 
     // Single-payment model: approval alone doesn't mean money moved — the
-    // passenger (ride owner, the payer here) must see the driver's IBAN
-    // somewhere. /bookings excludes booker_role='driver' rows by design (see
-    // above), so this surfaces on /rides/[id]/bookings instead, alongside
+    // passenger (ride owner, the payer here) must see the payment
+    // instructions somewhere. /bookings excludes booker_role='driver' rows by
+    // design (see above), so this surfaces on /rides/[id]/bookings instead, alongside
     // the rest of this offer's management tools (chat/pickup/settle/no-show/
     // review already lived here). Not repeating the "driver's full name
     // invisible" check on THIS page — the driver's name is legitimately
     // shown here as the counterparty in the card header, so that check
     // wouldn't distinguish anything on this specific page.
     await passengerPage.goto(`/rides/${rideId}/bookings`)
-    await expect(passengerPage.getByText("TR330006100519786457841326")).toBeVisible()
+    await expect(passengerPage.getByText("Yolculuk tamamlandıktan sonra ücreti ilanda belirtilen yöntemle sürücüye öde")).toBeVisible()
 
     // driver_id artık teklif veren sürücü olduğundan, sürücü ride'ın
     // /bookings yönetim sayfasına (ilan sahibi olmadığı hâlde) erişebilmeli.

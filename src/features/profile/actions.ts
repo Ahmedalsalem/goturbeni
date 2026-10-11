@@ -30,8 +30,6 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
     phone: formData.get("phone"),
     bio: formData.get("bio"),
     language: formData.get("language"),
-    iban: formData.get("iban"),
-    ibanHolderName: formData.get("ibanHolderName"),
     carBrand: formData.get("carBrand"),
     carModel: formData.get("carModel"),
     carPlate: formData.get("carPlate"),
@@ -89,8 +87,10 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
     p_language: parsed.data.language,
     p_avatar_url: avatarUrl ?? null,
     p_phone: normalizedPhone,
-    p_iban: parsed.data.iban ?? null,
-    p_iban_holder_name: parsed.data.ibanHolderName ?? null,
+    // IBAN was removed from the profile (bank transfer details are now
+    // shared in chat); null clears anything stored before.
+    p_iban: null,
+    p_iban_holder_name: null,
     p_car_brand: parsed.data.carBrand ?? null,
     p_car_model: parsed.data.carModel ?? null,
     p_car_plate: parsed.data.carPlate ?? null,

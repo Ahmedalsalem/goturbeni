@@ -12,8 +12,7 @@ const { rpcMock, fromMock, createClientMock, verifySessionMock, getRideMock, rev
   getRideMock: vi.fn(),
   revalidatePathMock: vi.fn(),
   // approveBooking/rejectBooking now schedule their notification fan-out via
-  // next/server's after() (see the same pattern already used by
-  // submitSettlementReceipt, which this file doesn't test). after() throws
+  // next/server's after(). after() throws
   // if called outside a real Next.js request scope
   // (no AsyncLocalStorage work store — see node_modules/next/dist/server/
   // after/after.js), which this plain-vitest environment never provides, so

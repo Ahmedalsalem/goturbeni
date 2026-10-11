@@ -26,8 +26,6 @@ import {
   MAX_CUSTOM_CAR_FEATURE_LENGTH,
   MAX_CUSTOM_CAR_FEATURES,
   MAX_FULL_NAME_LENGTH,
-  MAX_IBAN_HOLDER_NAME_LENGTH,
-  MAX_IBAN_LENGTH,
   MAX_PHONE_LENGTH,
 } from "@/features/profile/schemas"
 import { SUPPORTED_LOCALES, type AppLocale } from "@/i18n/locale-config"
@@ -202,28 +200,6 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
           </div>
           <FieldDescription>{t("phoneHint")}</FieldDescription>
           <PhoneVerification phone={profile.phone} verified={profile.email_verified} />
-        </Field>
-
-        <Field>
-          <FieldLabel htmlFor="iban">{t("iban")}</FieldLabel>
-          <Input
-            id="iban"
-            name="iban"
-            defaultValue={initialProfile.iban ?? ""}
-            maxLength={MAX_IBAN_LENGTH}
-            placeholder="TR.."
-          />
-          <FieldDescription>{t("ibanHint")}</FieldDescription>
-        </Field>
-
-        <Field>
-          <FieldLabel htmlFor="ibanHolderName">{t("ibanHolderName")}</FieldLabel>
-          <Input
-            id="ibanHolderName"
-            name="ibanHolderName"
-            defaultValue={initialProfile.iban_holder_name ?? ""}
-            maxLength={MAX_IBAN_HOLDER_NAME_LENGTH}
-          />
         </Field>
 
         <div className="grid gap-4 sm:grid-cols-4">

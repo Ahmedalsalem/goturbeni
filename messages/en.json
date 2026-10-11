@@ -125,7 +125,7 @@
       },
       "payment": {
         "title": "Transparent, secure payment",
-        "description": "Drivers can accept bank transfer (IBAN) and/or cash. For bank transfer, receipts are uploaded and reviewed through the system. We automatically detect and review suspicious accounts and listings."
+        "description": "Drivers can accept cash and/or bank transfer; a payment is recorded once both sides tap \"Mark Payment as Complete\" in the app. We automatically detect and review suspicious accounts and listings."
       }
     }
   },
@@ -292,9 +292,6 @@
       },
       "phone": "Phone",
       "phoneHint": "Enter without the leading 0 (e.g. 5XX XXX XX XX).",
-      "iban": "IBAN",
-      "ibanHint": "Optional. If you add it, passengers can pay you by bank transfer; without it, you'll be paid in cash.",
-      "ibanHolderName": "Account Holder Full Name",
       "carBrand": "Car Make",
       "carModel": "Car Model",
       "carPlate": "License Plate",
@@ -336,8 +333,6 @@
       "phoneMax": "Phone number must be at most 20 characters.",
       "phoneInvalid": "Enter a valid phone number (e.g. 05XX XXX XX XX or +90 5XX XXX XX XX).",
       "bioMax": "About Me must be at most 500 characters.",
-      "ibanInvalid": "Enter a valid IBAN (26 characters, starting with TR).",
-      "ibanHolderNameMax": "Account holder name must be at most 100 characters.",
       "carBrandMax": "Car make must be at most 50 characters.",
       "carModelMax": "Car model must be at most 50 characters.",
       "carPlateMax": "License plate must be at most 15 characters.",
@@ -440,7 +435,7 @@
       },
       "complete": {
         "title": "Finish the trip, leave a review",
-        "description": "After the trip is completed, the passenger pays the fare by the method the listing accepts: in cash directly to the driver, or by bank transfer to the driver's IBAN with the receipt uploaded in the app. Both sides then rate each other with 1–5 stars and a comment — these reviews appear on each user's profile."
+        "description": "After the trip is completed, the passenger pays the driver directly by the method the listing accepts: cash or bank transfer (the IBAN is shared in chat). Both sides confirm the payment in the app, then rate each other with 1–5 stars and a comment — these reviews appear on each user's profile."
       }
     },
     "trust": {
@@ -505,11 +500,7 @@
       },
       "payment": {
         "question": "How does payment work?",
-        "answer": "GötürBeni doesn't take a commission. Approving a booking doesn't require any payment — once the ride is completed, you pay the full fare by the method shown on the listing: for cash, you hand it to the driver and both of you confirm the payment in the app; for bank transfer, you send it to the driver's IBAN and upload the receipt through the app, and once it's reviewed and approved the payment is considered complete."
-      },
-      "depositRejected": {
-        "question": "What happens if my uploaded receipt is rejected?",
-        "answer": "You'll be shown the reason for the rejection, and you can fix the issue and upload a new receipt for the same booking."
+        "answer": "GötürBeni doesn't take a commission. Approving a booking doesn't require any payment — once the ride is completed, you pay the full fare directly to the driver by the method shown on the listing: cash or bank transfer (for a transfer, ask the driver for their IBAN in chat). After paying, both of you tap \"Mark Payment as Complete\" in the app and the payment is considered complete."
       },
       "waitlist": {
         "question": "What can I do if a listing is full?",
@@ -634,7 +625,7 @@
       "paymentMethodLabelPassenger": "How I can pay",
       "paymentMethodBankTransfer": "Bank Transfer (IBAN)",
       "paymentMethodCash": "Cash",
-      "paymentMethodHint": "You can select more than one. If you only accept cash, the passenger won't upload a receipt — after the trip, both sides confirm with the \"Mark Payment as Complete\" button instead.",
+      "paymentMethodHint": "You can select more than one. If you accept bank transfer, you share your IBAN with the passenger in chat; either way, after the trip both sides confirm with the \"Mark Payment as Complete\" button.",
       "paymentMethodHintPassenger": "You can select more than one. Lets the driver know which payment method you can use.",
       "instantBooking": "Instant Booking",
       "instantBookingHint": "When on, a passenger's request is approved automatically as soon as there's room — no waiting for you to confirm.",
@@ -792,23 +783,13 @@
       "settleFailed": "Payment could not be marked as settled. Please try again.",
       "driverNoShow": "The payment can't be processed because the driver was reported as a no-show. A dispute has been opened automatically.",
       "offerDriverCarColorRequired": "You can't accept this offer — the offering driver's car color is missing.",
-      "actionFailed": "The action could not be completed. Please try again.",
-      "receiptRequired": "Please select a receipt file.",
-      "receiptTooLarge": "Receipt file must be at most 5 MB.",
-      "receiptInvalidType": "Receipt must be PNG, JPEG, WEBP, or PDF.",
-      "receiptUploadFailed": "Receipt could not be uploaded. Please try again."
+      "actionFailed": "The action could not be completed. Please try again."
     },
     "card": {
       "seatCount": "{count} seats",
       "offeredCostShare": "Offer: {amount} / person",
       "unknownPassenger": "Passenger",
-      "unknownDriver": "Driver",
-      "uploadSettlementReceipt": "Upload Payment Receipt",
-      "settlementReceiptStatus": {
-        "pending": "Payment receipt under review",
-        "approved": "Payment receipt approved",
-        "rejected": "Payment receipt rejected — please re-upload"
-      }
+      "unknownDriver": "Driver"
     },
     "loginPrompt": {
       "message": "You need to log in to make a booking.",
@@ -817,26 +798,14 @@
       "verifyCta": "Complete Verification"
     },
     "payment": {
-      "settlementInstructionTitle": "After the ride is completed, send the full fare to the IBAN below",
-      "ibanLabel": "IBAN",
-      "ibanHolderLabel": "Account Holder",
-      "ibanMissingNote": "The driver hasn't added an IBAN. You can pay in cash or ask the driver for their IBAN in chat.",
+      "settlementInstructionTitle": "After the ride is completed, pay the driver by the method shown on the listing",
+      "bankTransferNote": "If you're paying by bank transfer, ask the driver for their IBAN in chat. Once paid, both of you tap \"Mark Payment as Complete\" in the app.",
       "amountDue": "Amount to pay: {amount}",
       "noCommissionDisclaimer": "Our platform doesn't take a commission — payments are made directly between individuals.",
       "driverMemberSince": "Member since: {date}",
       "driverCompletedRides": "{count} completed trips",
       "settleCta": "Mark Payment as Complete",
-      "settleSuccess": "Payment marked as complete.",
-      "receiptUploadSuccess": "Receipt uploaded, awaiting review."
-    },
-    "refund": {
-      "uploadProof": "Upload Refund Receipt",
-      "proofRejected": "Refund receipt rejected",
-      "status": {
-        "pending": "Refund pending",
-        "proof_submitted": "Refund receipt under review",
-        "confirmed": "Refund confirmed"
-      }
+      "settleSuccess": "Payment marked as complete."
     }
   },
   "Chat": {
@@ -1002,7 +971,6 @@
       "analytics": "Analytics",
       "users": "Users",
       "rides": "Listings",
-      "payments": "Payments",
       "disputes": "Disputes",
       "backToSite": "Back to Site"
     },
@@ -1083,32 +1051,6 @@
       "confirmRemind": "Email all members?",
       "remindSuccess": "Reminder sent to {count} members."
     },
-    "payments": {
-      "title": "Payments",
-      "description": "Review pending payment receipts and refund requests.",
-      "settlementReceiptsTitle": "Payment Receipts Awaiting Review",
-      "noPendingSettlements": "No pending payment receipts",
-      "refundsTitle": "Refunds Awaiting Review",
-      "noPendingRefunds": "No pending refunds",
-      "viewReceipt": "View Receipt",
-      "driverLabel": "Driver",
-      "passengerLabel": "Passenger",
-      "unknownUser": "User",
-      "driverIbanLabel": "Driver IBAN",
-      "approve": "Approve",
-      "reject": "Decline",
-      "cancel": "Cancel",
-      "confirmReject": "Confirm Rejection",
-      "rejectReasonPlaceholder": "Reason for rejection (optional, shown to the relevant user)",
-      "receiptApproved": "Receipt approved.",
-      "receiptRejected": "Receipt rejected.",
-      "confirmRefund": "Confirm Refund",
-      "refundConfirmed": "Refund confirmed.",
-      "riskLow": "Low Risk",
-      "riskHigh": "Review Required",
-      "bulkApprove": "Approve {count} low-risk receipts",
-      "bulkApproveSuccess": "{count} receipts approved."
-    },
     "disputes": {
       "title": "Disputes",
       "description": "Review and resolve disputes reported by users.",
@@ -1130,7 +1072,6 @@
         "awaiting_settlement": "Awaiting Payment",
         "settled": "Paid"
       },
-      "driverIbanLabel": "Driver IBAN",
       "resolutionNoteLabel": "Resolution Note",
       "resolutionNotePlaceholder": "Resolution note (optional, shown to both parties)",
       "startReview": "Start Review",
@@ -1244,9 +1185,9 @@
           "heading": "Booking and Cancellation Policy",
           "body": [
             "Passengers submit seat requests on a ride listing; the driver may approve or decline the request. An approved booking may be cancelled by either the driver or the passenger before the trip takes place.",
-            "The Platform is not a payment institution and does not hold funds at any stage. The cost of the trip is shared directly between users by the method the listing accepts: in cash, or by bank transfer to the driver's IBAN. For bank transfers, the passenger uploads the transfer receipt to the system, and the driver — and the Platform when necessary — reviews it to confirm the payment was made. Cash payments are recorded by both parties confirming them in the app; the Platform cannot verify that a cash payment actually took place.",
-            "If a driver cancels a booking for which payment has already been received, the Platform automatically initiates a refund process; the driver is expected to upload a receipt showing the refund was made, and this refund is reviewed by the Platform.",
-            "The Platform is not a party to cost-sharing disputes between users; the receipt review process described above is an oversight convenience and does not guarantee that payment has actually taken place."
+            "The Platform is not a payment institution and does not hold funds at any stage. The cost of the trip is shared directly between users by the method the listing accepts, in cash or by bank transfer; the bank details needed for a transfer are shared between users, and the Platform does not request them. A payment is recorded by both parties confirming it in the app; the Platform cannot verify that a payment actually took place.",
+            "If a trip that has already been paid for is cancelled, any refund is made directly between the driver and the passenger; the Platform does not act as an intermediary in refunds.",
+            "The Platform is not a party to cost-sharing disputes between users; the payment confirmation in the app is a record-keeping convenience and does not guarantee that payment has actually taken place. Users can report a dispute through the app if something goes wrong."
           ],
           "items": []
         },
@@ -1364,7 +1305,7 @@
           "items": [
             "Identity data: first name, last name, date of birth, gender",
             "Contact data: email address, phone number",
-            "Financial data: the IBAN and account holder name, if you choose to add them to your profile as a driver",
+            "Financial data: the Platform does not request an IBAN or bank account details; if users share transfer details with each other in chat, they are stored as message content",
             "Location/travel data: departure and arrival city, trip date, seat count, cost share amount",
             "Transaction security data: account creation and login records, IP address, and similar technical access information"
           ]

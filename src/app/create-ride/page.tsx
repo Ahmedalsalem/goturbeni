@@ -39,7 +39,7 @@ export default async function CreateRidePage() {
           <CardDescription>{t("description")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <RideForm driverProfileHint={driverProfileHint} hasIban={Boolean(profile?.iban && profile?.iban_holder_name)} />
+          <RideForm driverProfileHint={driverProfileHint} />
         </CardContent>
       </Card>
     </div>

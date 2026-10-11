@@ -90,8 +90,8 @@ export async function createRide(values: RideFormValues): Promise<RideActionStat
   if (!isPassengerListing) {
     // Sürücü araç rengi olmadan ilan açamaz — yolcunun aracı buluşma
     // noktasında teşhis edebilmesi için (bkz. 0076_car_color.sql). IBAN ve
-    // plaka kullanıcı isteğiyle isteğe bağlı: IBAN'ı olmayan sürücü nakit
-    // alır (taksi/Uber'deki gibi), plakayı da bazı sürücüler otobüs
+    // plaka kullanıcı isteğiyle istenmiyor: havalede IBAN sohbette paylaşılır
+    // (nakit de taksi/Uber'deki gibi kabul), plakayı da bazı sürücüler otobüs
     // firmalarının dava açmasından çekindikleri için paylaşmak istemiyor.
     const { data: driverProfile } = await supabase.from("profiles").select("car_color").eq("id", user.id).maybeSingle()
     const missing = getMissingDriverFields({ car_color: driverProfile?.car_color ?? null })
