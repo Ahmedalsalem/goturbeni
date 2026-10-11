@@ -1,12 +1,18 @@
 import { getProvinceDistanceKm } from "./turkish-provinces-geo"
 import type { TurkishProvince } from "./turkish-provinces"
 
-// Round mid-range fuel+wear estimate for Turkey — not a live fuel-price
-// lookup (no such API exists in this codebase, and prices move too often
-// for a hardcoded constant to track precisely anyway). A human should
-// revisit this periodically, same review convention already applied to
-// estimateCo2SavingsKg's own emission factor (co2-savings.ts).
-const ESTIMATED_COST_PER_KM_TL = 3.5
+// Fuel cost per km = pump price × typical consumption. Not a live lookup —
+// update FUEL_PRICE_TL_PER_LITRE when pump prices move (last set
+// 2026-10-11: benzin ~84 TL/L in İstanbul/Ankara, motorin ~97 TL/L; a
+// diesel car's lower consumption lands at roughly the same cost per km).
+const FUEL_PRICE_TL_PER_LITRE = 84
+const FUEL_LITRES_PER_100_KM = 7
+const ESTIMATED_COST_PER_KM_TL = (FUEL_PRICE_TL_PER_LITRE * FUEL_LITRES_PER_100_KM) / 100
+
+// getProvinceDistanceKm is straight-line between provincial capitals; real
+// roads run about a quarter longer (Ankara–İstanbul: ~350 km straight,
+// ~450 km by road), so the fuel estimate scales it up.
+const ROAD_DISTANCE_FACTOR = 1.25
 
 // The per-person price depends only on the route, not on how many seats
 // the ride has: dividing the trip cost by (seatCount + 1) made the
@@ -20,7 +26,7 @@ const TYPICAL_COST_SHARERS = 3
 // "83.42 ₺" would oversell how rough this estimate is).
 export function estimateCostSharePerSeat(departureCity: TurkishProvince, arrivalCity: TurkishProvince): number {
   const distanceKm = getProvinceDistanceKm(departureCity, arrivalCity)
-  const totalCost = distanceKm * ESTIMATED_COST_PER_KM_TL
+  const totalCost = distanceKm * ROAD_DISTANCE_FACTOR * ESTIMATED_COST_PER_KM_TL
   const perSeat = totalCost / TYPICAL_COST_SHARERS
   return Math.round(perSeat / 5) * 5
 }
