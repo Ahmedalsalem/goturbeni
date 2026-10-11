@@ -440,7 +440,7 @@
       },
       "complete": {
         "title": "Finish the trip, leave a review",
-        "description": "After the trip is completed, the passenger sends the full fare to the driver's IBAN and uploads the receipt; both sides rate each other with 1–5 stars and a comment — these reviews appear on each user's profile."
+        "description": "After the trip is completed, the passenger pays the fare by the method the listing accepts: in cash directly to the driver, or by bank transfer to the driver's IBAN with the receipt uploaded in the app. Both sides then rate each other with 1–5 stars and a comment — these reviews appear on each user's profile."
       }
     },
     "trust": {
@@ -466,7 +466,7 @@
     "values": {
       "noCommission": {
         "title": "No Commission",
-        "description": "Payments go directly from passenger to driver via IBAN transfer. The platform never takes a cut."
+        "description": "Payments go directly between passenger and driver, in cash or by bank transfer. The platform never takes a cut."
       },
       "trust": {
         "title": "Trust",
@@ -505,7 +505,7 @@
       },
       "payment": {
         "question": "How does payment work?",
-        "answer": "GötürBeni doesn't take a commission. Approving a booking doesn't require any payment — once the ride is completed, you send the full fare to the IBAN shown on the driver's profile and upload the receipt through the app; once it's reviewed and approved, the payment is considered complete."
+        "answer": "GötürBeni doesn't take a commission. Approving a booking doesn't require any payment — once the ride is completed, you pay the full fare by the method shown on the listing: for cash, you hand it to the driver and both of you confirm the payment in the app; for bank transfer, you send it to the driver's IBAN and upload the receipt through the app, and once it's reviewed and approved the payment is considered complete."
       },
       "depositRejected": {
         "question": "What happens if my uploaded receipt is rejected?",
@@ -668,7 +668,8 @@
       "missingCarColor": "your car color",
       "profileIncomplete": "To post a listing, first add the following to your profile: {missing}.",
       "goToProfile": "Complete Profile",
-      "seatCountBelowBooked": "You can't reduce the seat count below {count} — that many passengers are already approved on this listing."
+      "seatCountBelowBooked": "You can't reduce the seat count below {count} — that many passengers are already approved on this listing.",
+      "lockedAfterApproval": "This listing already has approved passengers, so its price and departure time can't be changed. If something has to change, message your passengers or cancel the listing and post a new one."
     },
     "share": {
       "share": "Share",
@@ -1243,7 +1244,7 @@
           "heading": "Booking and Cancellation Policy",
           "body": [
             "Passengers submit seat requests on a ride listing; the driver may approve or decline the request. An approved booking may be cancelled by either the driver or the passenger before the trip takes place.",
-            "The Platform is not a payment institution and does not hold funds at any stage. The cost of the trip is shared via direct bank transfer to the driver's IBAN; the passenger uploads the transfer receipt to the system, and the driver — and the Platform when necessary — reviews this receipt to confirm the payment was made.",
+            "The Platform is not a payment institution and does not hold funds at any stage. The cost of the trip is shared directly between users by the method the listing accepts: in cash, or by bank transfer to the driver's IBAN. For bank transfers, the passenger uploads the transfer receipt to the system, and the driver — and the Platform when necessary — reviews it to confirm the payment was made. Cash payments are recorded by both parties confirming them in the app; the Platform cannot verify that a cash payment actually took place.",
             "If a driver cancels a booking for which payment has already been received, the Platform automatically initiates a refund process; the driver is expected to upload a receipt showing the refund was made, and this refund is reviewed by the Platform.",
             "The Platform is not a party to cost-sharing disputes between users; the receipt review process described above is an oversight convenience and does not guarantee that payment has actually taken place."
           ],
@@ -1363,7 +1364,7 @@
           "items": [
             "Identity data: first name, last name, date of birth, gender",
             "Contact data: email address, phone number",
-            "Financial data: the IBAN and account holder name you provide when posting a listing as a driver",
+            "Financial data: the IBAN and account holder name, if you choose to add them to your profile as a driver",
             "Location/travel data: departure and arrival city, trip date, seat count, cost share amount",
             "Transaction security data: account creation and login records, IP address, and similar technical access information"
           ]

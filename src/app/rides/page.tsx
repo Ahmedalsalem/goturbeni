@@ -59,7 +59,7 @@ export default async function RidesPage({
       </div>
 
       <div className="mb-6">
-        <RideFilters initial={filters} />
+        <RideFilters initial={filters} showFemaleDriverFilter={Boolean(user)} />
       </div>
 
       {showSearchAlertToggle && filters.from && filters.to && (

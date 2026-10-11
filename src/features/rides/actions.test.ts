@@ -59,6 +59,7 @@ vi.mock("next-intl/server", () => ({
 
 import { createRide, updateRide } from "@/features/rides/actions"
 import type { RideFormValues } from "@/features/rides/schemas"
+import { parseIstanbulDateTime } from "@/utils/istanbul-time"
 
 const FAKE_USER = { id: "user-1" }
 
@@ -177,14 +178,46 @@ describe("rides/actions", () => {
       // 4 total seats, 3 already taken by an approved booking (available_seats=1)
       // — widening the listing back up to 4 should leave those 3 seats taken
       // and free up the difference, not just reset available_seats to 4.
-      getRideMock.mockResolvedValue({ posted_by: FAKE_USER.id, status: "active", seat_count: 2, available_seats: 2 - 1 })
+      const values = validRideValues({ seatCount: 4 })
+      getRideMock.mockResolvedValue({
+        posted_by: FAKE_USER.id,
+        status: "active",
+        seat_count: 2,
+        available_seats: 2 - 1,
+        cost_share: values.costShare,
+        departure_time: parseIstanbulDateTime(values.departureDate, values.departureTime).toISOString(),
+        departure_time_range_end: null,
+      })
       const eqMock = vi.fn().mockReturnThis()
       const updateMock = vi.fn().mockReturnValue({ eq: eqMock })
       fromMock.mockReturnValue({ update: updateMock })
 
-      await updateRide("ride-1", validRideValues({ seatCount: 4 }))
+      await updateRide("ride-1", values)
 
       expect(updateMock).toHaveBeenCalledWith(expect.objectContaining({ seat_count: 4, available_seats: 3 }))
+    })
+
+    it.each([
+      ["price", { costShare: 250 }],
+      ["departure time", { departureTime: "23:59" }],
+    ])("refuses to change the %s once a passenger is approved", async (_label, overrides) => {
+      const base = validRideValues()
+      getRideMock.mockResolvedValue({
+        posted_by: FAKE_USER.id,
+        status: "active",
+        seat_count: 2,
+        available_seats: 1,
+        cost_share: base.costShare,
+        departure_time: parseIstanbulDateTime(base.departureDate, base.departureTime).toISOString(),
+        departure_time_range_end: null,
+      })
+      const updateMock = vi.fn()
+      fromMock.mockReturnValue({ update: updateMock })
+
+      const result = await updateRide("ride-1", { ...base, ...overrides })
+
+      expect(result?.error).toBe("Rides.errors.lockedAfterApproval")
+      expect(updateMock).not.toHaveBeenCalled()
     })
 
     it("refuses to shrink seatCount below the number of already-approved passengers", async () => {

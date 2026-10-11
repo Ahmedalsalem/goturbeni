@@ -25,8 +25,8 @@ const SORT_COLUMN: Record<RideSort, { column: "departure_time" | "cost_share" | 
   cost_desc: { column: "cost_share", ascending: false },
 }
 
-// Any searcher can filter for rides with a female driver (0033 — open to
-// everyone, not just self-declared female users). Driver gender
+// Any signed-in searcher can filter for rides with a female driver (0033
+// opened it beyond self-declared female users; 0100 closed it to guests). Driver gender
 // (profiles_private.gender) itself stays private (see
 // 0016_gender_payment_profile.sql) — get_female_driver_ride_ids only exposes
 // which ride ids have a female driver, never the raw gender column.
@@ -39,7 +39,9 @@ async function resolveFemaleDriverRideIds(
   }
   const { data, error } = await supabase.rpc("get_female_driver_ride_ids")
   if (error) {
-    return null
+    // Fail closed: a guest (or a failed call) asking for female drivers only
+    // must not silently get every ride back.
+    return []
   }
   return (data as string[] | null) ?? []
 }

@@ -65,10 +65,14 @@ export function RideFilters({
   initial,
   showSort = true,
   variant = "bar",
+  showFemaleDriverFilter = false,
 }: {
   initial: RideSearchFilters
   showSort?: boolean
   variant?: "hero" | "bar"
+  // Signed-in only: get_female_driver_ride_ids is no longer callable by
+  // anonymous visitors (0100), since it reveals which drivers are women.
+  showFemaleDriverFilter?: boolean
 }) {
   const t = useTranslations("RidesPage.filters")
   const locale = useLocale()
@@ -317,16 +321,18 @@ export function RideFilters({
               {t("smokingAllowed")}
             </FieldLabel>
           </Field>
-          <Field orientation="horizontal">
-            <Checkbox
-              id="filter-female-driver-only"
-              checked={femaleDriverOnly}
-              onCheckedChange={(checked) => setFemaleDriverOnly(checked === true)}
-            />
-            <FieldLabel htmlFor="filter-female-driver-only" className="font-normal">
-              {t("femaleDriverOnly")}
-            </FieldLabel>
-          </Field>
+          {showFemaleDriverFilter && (
+            <Field orientation="horizontal">
+              <Checkbox
+                id="filter-female-driver-only"
+                checked={femaleDriverOnly}
+                onCheckedChange={(checked) => setFemaleDriverOnly(checked === true)}
+              />
+              <FieldLabel htmlFor="filter-female-driver-only" className="font-normal">
+                {t("femaleDriverOnly")}
+              </FieldLabel>
+            </Field>
+          )}
           <Field orientation="horizontal">
             <Checkbox
               id="filter-usb-charger"

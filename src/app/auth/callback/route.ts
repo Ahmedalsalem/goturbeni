@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import type { EmailOtpType } from "@supabase/supabase-js"
 
 import { createClient } from "@/lib/supabase/server"
+import { safeNextPath } from "@/lib/safe-next-path"
 
 // Handles two kinds of links, distinguished by which params are present:
 // - `code` (PKCE): email confirmation / OAuth. Requires exchanging on the
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
   const code = searchParams.get("code")
   const tokenHash = searchParams.get("token_hash")
   const type = searchParams.get("type") as EmailOtpType | null
-  const next = searchParams.get("next") ?? "/profile"
+  const next = safeNextPath(searchParams.get("next"))
   const source = searchParams.get("source")
 
   const supabase = await createClient()

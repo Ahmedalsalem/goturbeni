@@ -440,7 +440,7 @@
       },
       "complete": {
         "title": "Yolculuğu tamamla, değerlendir",
-        "description": "Yolculuk tamamlandıktan sonra yolcu, ücretin tamamını sürücünün IBAN'ına gönderir ve dekontu yükler; iki taraf da birbirini 1-5 yıldız ve yorumla değerlendirir — bu değerlendirmeler diğer kullanıcıların profilinde görünür."
+        "description": "Yolculuk tamamlandıktan sonra yolcu ücreti ilanda kabul edilen yöntemle öder: nakit olarak doğrudan sürücüye ya da banka havalesiyle sürücünün IBAN'ına (havalede dekont uygulamaya yüklenir). Ardından iki taraf da birbirini 1-5 yıldız ve yorumla değerlendirir — bu değerlendirmeler diğer kullanıcıların profilinde görünür."
       }
     },
     "trust": {
@@ -466,7 +466,7 @@
     "values": {
       "noCommission": {
         "title": "Komisyonsuz",
-        "description": "Ödemeler doğrudan sürücü ile yolcu arasında, IBAN üzerinden gerçekleşir. Platform hiçbir kesinti almaz."
+        "description": "Ödemeler doğrudan sürücü ile yolcu arasında, nakit ya da banka havalesiyle gerçekleşir. Platform hiçbir kesinti almaz."
       },
       "trust": {
         "title": "Güven",
@@ -505,7 +505,7 @@
       },
       "payment": {
         "question": "Ödeme nasıl yapılıyor?",
-        "answer": "GötürBeni komisyon almaz. Rezervasyonun onaylanması ödeme gerektirmez — yolculuk tamamlandıktan sonra ücretin tamamını sürücünün profilinde görünen IBAN'ına gönderir, dekontunu uygulama üzerinden yüklersin; incelenip onaylanınca ödeme tamamlanmış sayılır."
+        "answer": "GötürBeni komisyon almaz. Rezervasyonun onaylanması ödeme gerektirmez — yolculuk tamamlandıktan sonra ücretin tamamını ilanda belirtilen yöntemle ödersin: nakit ödemede parayı doğrudan sürücüye verirsin ve iki taraf ödemeyi uygulamada onaylar; havalede sürücünün IBAN'ına gönderip dekontunu uygulama üzerinden yüklersin, dekont incelenip onaylanınca ödeme tamamlanmış sayılır."
       },
       "depositRejected": {
         "question": "Yüklediğim dekont reddedilirse ne olur?",
@@ -668,7 +668,8 @@
       "missingCarColor": "araç renginiz",
       "profileIncomplete": "İlan verebilmek için önce profilinize şunu ekleyin: {missing}.",
       "goToProfile": "Profili Tamamla",
-      "seatCountBelowBooked": "Koltuk sayısını {count} kişinin altına düşüremezsiniz — bu ilana zaten o kadar yolcu onaylanmış."
+      "seatCountBelowBooked": "Koltuk sayısını {count} kişinin altına düşüremezsiniz — bu ilana zaten o kadar yolcu onaylanmış.",
+      "lockedAfterApproval": "Bu ilanda onaylanmış yolcu olduğu için fiyat ve kalkış saati değiştirilemez. Değişiklik gerekiyorsa yolcularınızla mesajlaşın ya da ilanı iptal edip yenisini açın."
     },
     "share": {
       "share": "Paylaş",
@@ -1243,7 +1244,7 @@
           "heading": "Rezervasyon ve İptal Politikası",
           "body": [
             "Yolcular bir yolculuk ilanına koltuk talebinde bulunur; sürücü bu talebi onaylayabilir veya reddedebilir. Onaylanan bir rezervasyon, yolculuk gerçekleşmeden önce sürücü veya yolcu tarafından iptal edilebilir.",
-            "Platform bir ödeme kuruluşu değildir ve parayı hiçbir aşamada elinde tutmaz. Yolculuk masrafının paylaşımı, sürücünün IBAN'ına doğrudan banka havalesiyle yapılır; yolcu gönderdiği dekontu sisteme yükler, sürücü ve gerektiğinde Platform bu dekontu inceleyerek ödemenin yapıldığını doğrular.",
+            "Platform bir ödeme kuruluşu değildir ve parayı hiçbir aşamada elinde tutmaz. Yolculuk masrafının paylaşımı, ilanda kabul edilen yönteme göre doğrudan kullanıcılar arasında yapılır: nakit olarak ya da sürücünün IBAN'ına banka havalesiyle. Havale ile yapılan ödemelerde yolcu gönderdiği dekontu sisteme yükler; sürücü ve gerektiğinde Platform bu dekontu inceleyerek ödemenin yapıldığını doğrular. Nakit ödemeler tarafların uygulama üzerindeki karşılıklı onayıyla kaydedilir; Platform nakit ödemenin fiilen gerçekleştiğini doğrulayamaz.",
             "Bir sürücü, ödemesi alınmış bir rezervasyonu iptal ederse Platform otomatik olarak bir iade süreci başlatır; sürücünün iadeyi yaptığını gösteren dekontu sisteme yüklemesi ve bu iadenin Platform tarafından denetlenmesi beklenir.",
             "Platform, kullanıcılar arasındaki masraf paylaşımı anlaşmazlıklarına taraf değildir; yukarıdaki dekont inceleme süreci bir denetim kolaylığıdır, ödemenin fiilen gerçekleşmesini garanti etmez."
           ],
@@ -1367,7 +1368,7 @@
           "items": [
             "Kimlik verisi: ad, soyad, doğum tarihi, cinsiyet",
             "İletişim verisi: e-posta adresi, telefon numarası",
-            "Finansal veri: sürücü olarak ilan verirken sağladığınız IBAN ve hesap sahibi adı",
+            "Finansal veri: sürücü olarak profilinize eklemeyi tercih etmeniz halinde IBAN ve hesap sahibi adı",
             "Konum/seyahat verisi: kalkış ve varış şehri, yolculuk tarihi, koltuk sayısı, masraf paylaşım tutarı",
             "İşlem güvenliği verisi: hesap oluşturma ve oturum açma kayıtları, IP adresi ve benzeri teknik erişim bilgileri"
           ]

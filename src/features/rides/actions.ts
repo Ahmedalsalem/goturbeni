@@ -223,9 +223,25 @@ export async function updateRide(rideId: string, values: RideFormValues): Promis
     return { error: tErrors("seatCountBelowBooked", { count: seatsAlreadyTaken }) }
   }
 
+  // Approved passengers agreed to this price and departure time, and the
+  // settlement check reads the ride's current cost_share — changing either
+  // afterwards would silently change what they owe or when they leave. The
+  // DB enforces the same rule (0100) for direct API updates.
+  const row = buildRideRow(parsed.data)
+  const sameTime = (a: string | null, b: string | null) =>
+    a === b || (a !== null && b !== null && new Date(a).getTime() === new Date(b).getTime())
+  if (
+    seatsAlreadyTaken > 0 &&
+    (Number(row.cost_share) !== Number(currentRide.cost_share) ||
+      !sameTime(row.departure_time, currentRide.departure_time) ||
+      !sameTime(row.departure_time_range_end, currentRide.departure_time_range_end))
+  ) {
+    return { error: tErrors("lockedAfterApproval") }
+  }
+
   const { error } = await supabase
     .from("rides")
-    .update({ ...buildRideRow(parsed.data), available_seats: parsed.data.seatCount - seatsAlreadyTaken })
+    .update({ ...row, available_seats: parsed.data.seatCount - seatsAlreadyTaken })
     .eq("id", rideId)
     .eq("posted_by", user.id)
     .eq("status", "active")
