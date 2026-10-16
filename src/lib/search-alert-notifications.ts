@@ -1,14 +1,13 @@
 import "server-only"
 
 import webpush from "web-push"
-import { Resend } from "resend"
 import { getTranslations } from "next-intl/server"
 
 import { createClient } from "@/lib/supabase/server"
 import { logError } from "@/lib/logger"
 import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-config"
 import { isVapidConfigured } from "@/lib/notifications"
-import { emailFrom, isResendConfigured, renderEmailHtml, sendEmailBatch } from "@/lib/email"
+import { isEmailConfigured, renderEmailHtml, sendEmailBatch } from "@/lib/email"
 
 interface SearchAlertRecipientRow {
   user_id: string
@@ -29,8 +28,8 @@ interface SearchAlertRecipientRow {
 // (src/features/rides/actions.ts) right after a successful insert.
 export async function sendSearchAlertNotifications(rideId: string): Promise<void> {
   const vapidConfigured = isVapidConfigured()
-  const resendConfigured = isResendConfigured()
-  if (!vapidConfigured && !resendConfigured) {
+  const emailConfigured = isEmailConfigured()
+  if (!vapidConfigured && !emailConfigured) {
     return
   }
 
@@ -72,9 +71,8 @@ export async function sendSearchAlertNotifications(rideId: string): Promise<void
       })()
     : Promise.resolve()
 
-  const emailPromise = resendConfigured
+  const emailPromise = emailConfigured
     ? (async () => {
-        const resend = new Resend(process.env.RESEND_API_KEY)
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
         const uniqueRecipients = new Map(rows.flatMap((r) => (r.email ? [[r.user_id, r.email] as const] : [])))
         const emails = await Promise.all(
@@ -83,7 +81,6 @@ export async function sendSearchAlertNotifications(rideId: string): Promise<void
             const t = await getTranslations({ locale, namespace: "Push.notifications" })
             const tCommon = await getTranslations({ locale, namespace: "Email" })
             return {
-              from: emailFrom(),
               to: email,
               subject: t("searchAlertMatchTitle"),
               html: renderEmailHtml(locale, {
@@ -97,7 +94,7 @@ export async function sendSearchAlertNotifications(rideId: string): Promise<void
             }
           })
         )
-        await sendEmailBatch(resend, emails, "searchAlertNotifications.email")
+        await sendEmailBatch(emails, "searchAlertNotifications.email")
       })()
     : Promise.resolve()
 

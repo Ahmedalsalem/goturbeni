@@ -1,49 +1,15 @@
 import "server-only"
 
-import { Resend } from "resend"
 import { getTranslations } from "next-intl/server"
 
 import { createClient } from "@/lib/supabase/server"
-import { logError } from "@/lib/logger"
 import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-config"
-import { emailFrom, isResendConfigured, renderEmailHtml, sendEmailBatch } from "@/lib/email"
+import { isEmailConfigured, renderEmailHtml, sendEmailBatch } from "@/lib/email"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 
 interface BroadcastRecipientRow {
   user_id: string
   email: string
-}
-
-// Every new ride emails every member — a deliberately broader fan-out than
-// sendSearchAlertNotifications (search-alert-notifications.ts), which only
-// reaches users who saved a matching route alert. This was an explicit user
-// request, not a design default: as the user base grows, mailing everyone on
-// every single ride posted is a real deliverability/spam-complaint risk (no
-// per-user opt-out exists for it, unlike search alerts which are opt-in by
-// construction). get_all_member_emails_for_broadcast (0067_new_ride_
-// broadcast.sql) marks the ride as dispatched the moment it's called, so a
-// retry of this function for the same ride is a no-op, not a second blast.
-export async function sendNewRideBroadcastEmail(
-  rideId: string,
-  departureCity: string,
-  arrivalCity: string,
-  postedByRole: "driver" | "passenger"
-): Promise<void> {
-  if (!isResendConfigured()) {
-    return
-  }
-
-  const supabase = await createClient()
-  const { data, error } = await supabase.rpc("get_all_member_emails_for_broadcast", { p_ride_id: rideId })
-  const rows = data as BroadcastRecipientRow[] | null
-  if (error || !rows || rows.length === 0) {
-    if (error) {
-      logError(error, "newRideBroadcastEmail.sendNewRideBroadcastEmail")
-    }
-    return
-  }
-
-  await sendBroadcastToRows(supabase, rows, rideId, departureCity, arrivalCity, postedByRole, "newRideBroadcast")
 }
 
 // Admin panelinden elle tetiklenen "tekrar hatırlat" (features/admin/
@@ -57,7 +23,7 @@ export async function sendAdminRideReminderEmail(
   arrivalCity: string,
   postedByRole: "driver" | "passenger"
 ): Promise<number> {
-  if (!isResendConfigured()) {
+  if (!isEmailConfigured()) {
     return 0
   }
 
@@ -71,7 +37,7 @@ export async function sendAdminRideReminderEmail(
     return 0
   }
 
-  await sendBroadcastToRows(supabase, rows, rideId, departureCity, arrivalCity, postedByRole, "rideReminder")
+  await sendBroadcastToRows(supabase, rows, rideId, departureCity, arrivalCity, postedByRole)
   return rows.length
 }
 
@@ -81,15 +47,13 @@ async function sendBroadcastToRows(
   rideId: string,
   departureCity: string,
   arrivalCity: string,
-  postedByRole: "driver" | "passenger",
-  keyPrefix: "newRideBroadcast" | "rideReminder"
+  postedByRole: "driver" | "passenger"
 ): Promise<void> {
   const userIds = rows.map((r) => r.user_id)
   const { data: profiles } = await supabase.from("profiles").select("id, language").in("id", userIds)
   const languageByUserId = new Map((profiles ?? []).map((p) => [p.id, p.language as AppLocale | null]))
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
   const url = `${siteUrl}/rides/${rideId}`
-  const resend = new Resend(process.env.RESEND_API_KEY)
 
   const emails = await Promise.all(
     rows.map(async (row) => {
@@ -104,11 +68,10 @@ async function sendBroadcastToRows(
       // broadcast body says which one this is, reusing the exact same
       // "Sürücü İlanı"/"Yolcu İlanı" wording RideCard's own badge uses
       // (Rides.card.driverListingBadge/passengerListingBadge).
-      const bodyKey = postedByRole === "passenger" ? `${keyPrefix}BodyPassenger` as const : `${keyPrefix}BodyDriver` as const
+      const bodyKey = postedByRole === "passenger" ? "rideReminderBodyPassenger" : "rideReminderBodyDriver"
       return {
-        from: emailFrom(),
         to: row.email,
-        subject: t(`${keyPrefix}Subject`, { from, to }),
+        subject: t("rideReminderSubject", { from, to }),
         html: renderEmailHtml(locale, {
           greeting: tCommon("greeting"),
           bodyHtml: t(bodyKey, { from, to }),
@@ -120,5 +83,5 @@ async function sendBroadcastToRows(
       }
     })
   )
-  await sendEmailBatch(resend, emails, "newRideBroadcastEmail.email")
+  await sendEmailBatch(emails, "rideReminderEmail.email")
 }

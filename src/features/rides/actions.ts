@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import { after } from "next/server"
 import { getTranslations } from "next-intl/server"
 
 import { createClient } from "@/lib/supabase/server"
@@ -13,7 +12,6 @@ import { requireVerifiedProfile, verifySession } from "@/lib/supabase/dal"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { logError } from "@/lib/logger"
 import { sendSearchAlertNotifications } from "@/lib/search-alert-notifications"
-import { sendNewRideBroadcastEmail } from "@/lib/new-ride-broadcast-email"
 import { parseIstanbulDateTime } from "@/utils/istanbul-time"
 import { buildRideSchema, type RideActionState, type RideFormValues } from "@/features/rides/schemas"
 import { getRide } from "@/features/rides/queries"
@@ -122,22 +120,6 @@ export async function createRide(values: RideFormValues): Promise<RideActionStat
   }
 
   await sendSearchAlertNotifications(ride.id)
-
-  // Every-member broadcast (unlike the alert-matched fan-out above) can
-  // reach the whole user base — run it after the response so ride creation
-  // itself never waits on however many recipients that turns out to be.
-  after(async () => {
-    try {
-      await sendNewRideBroadcastEmail(
-        ride.id,
-        parsed.data.departureCity,
-        parsed.data.arrivalCity,
-        parsed.data.postedByRole
-      )
-    } catch (error) {
-      logError(error, "rides.createRide.broadcast")
-    }
-  })
 
   redirect("/rides/mine")
 }

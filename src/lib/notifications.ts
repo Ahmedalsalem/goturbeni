@@ -67,7 +67,7 @@ interface PushSubscriptionRow {
 }
 
 // Exported for src/lib/search-alert-notifications.ts, which needs both this
-// and email.ts's isResendConfigured() to decide which channels to send on.
+// and email.ts's isEmailConfigured() to decide which channels to send on.
 export function isVapidConfigured(): boolean {
   return Boolean(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY && process.env.VAPID_SUBJECT)
 }

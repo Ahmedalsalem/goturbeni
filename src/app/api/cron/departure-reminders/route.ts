@@ -1,9 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server"
-import { Resend } from "resend"
 import { getTranslations } from "next-intl/server"
 
 import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-config"
-import { emailFrom, isResendConfigured, renderEmailHtml, sendEmailBatch } from "@/lib/email"
+import { isEmailConfigured, renderEmailHtml, sendEmailBatch } from "@/lib/email"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 
 interface ReminderRecipient {
@@ -21,8 +20,8 @@ interface ReminderPayload {
 }
 
 // send_departure_reminders() (0081_departure_reminder.sql) pg_net ile günde
-// bir kez burayı çağırır — Resend'in Node SDK'sı Postgres'ten
-// çağrılamadığından gerçek gönderim burada yapılıyor. Authorization
+// bir kez burayı çağırır — e-posta render'ı ve gönderimi Postgres'ten
+// yapılamadığından gerçek gönderim burada yapılıyor. Authorization
 // başlığındaki secret, migration'da ayarlanan app.cron_secret ile aynı
 // CRON_SECRET env var'a karşı kontrol ediliyor; eşleşmezse istek reddedilir.
 export async function POST(request: NextRequest) {
@@ -32,14 +31,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 })
   }
 
-  if (!isResendConfigured()) {
+  if (!isEmailConfigured()) {
     return NextResponse.json({ ok: true })
   }
 
   const payload = (await request.json()) as ReminderPayload
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
   const url = `${siteUrl}/rides/${payload.rideId}`
-  const resend = new Resend(process.env.RESEND_API_KEY)
 
   const emails = await Promise.all(
     payload.recipients.map(async (recipient) => {
@@ -48,7 +46,6 @@ export async function POST(request: NextRequest) {
       const from = getProvinceDisplayName(payload.departureCity, locale)
       const to = getProvinceDisplayName(payload.arrivalCity, locale)
       return {
-        from: emailFrom(),
         to: recipient.email,
         subject: t("departureReminderSubject"),
         html: renderEmailHtml(locale, {
@@ -62,7 +59,7 @@ export async function POST(request: NextRequest) {
       }
     })
   )
-  await sendEmailBatch(resend, emails, "cron.departureReminders")
+  await sendEmailBatch(emails, "cron.departureReminders")
 
   return NextResponse.json({ ok: true })
 }

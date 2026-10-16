@@ -109,7 +109,7 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
   return { success: true }
 }
 
-// Mandatory account verification via a 6-digit code e-mailed through Resend
+// Mandatory account verification via a 6-digit code e-mailed through Brevo
 // (src/lib/email.ts) — replaces the earlier SMS/OTP approach (Supabase
 // Auth's phone_change flow via Twilio). Real SMS delivery has a genuine
 // per-message telecom cost with no free tier that lifts a trial account's

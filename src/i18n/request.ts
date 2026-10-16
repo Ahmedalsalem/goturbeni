@@ -1,9 +1,14 @@
 import { getRequestConfig } from "next-intl/server"
 
 import { getUserLocale } from "@/i18n/locale"
+import { isSupportedLocale } from "@/i18n/locale-config"
 
-export default getRequestConfig(async () => {
-  const locale = await getUserLocale()
+// An explicit getTranslations({ locale }) — every email, rendered in the
+// recipient's language rather than the request's — arrives here as `locale`;
+// ignoring it sent every AR/EN email in the cookie locale (Turkish for cron
+// requests, which carry no cookie).
+export default getRequestConfig(async ({ locale: explicitLocale }) => {
+  const locale = isSupportedLocale(explicitLocale) ? explicitLocale : await getUserLocale()
 
   return {
     locale,

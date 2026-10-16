@@ -1,6 +1,5 @@
 import "server-only"
 
-import { Resend, type CreateBatchEmailOptions } from "resend"
 import { getTranslations } from "next-intl/server"
 
 import { createClient } from "@/lib/supabase/server"
@@ -8,19 +7,55 @@ import { logError } from "@/lib/logger"
 import { DEFAULT_LOCALE, isRtlLocale, type AppLocale } from "@/i18n/locale-config"
 import { NOTIFICATION_KEY, NOTIFICATION_URL, type NotificationEvent } from "@/lib/notifications"
 
-// Exported for src/lib/search-alert-notifications.ts.
-export function isResendConfigured(): boolean {
-  return Boolean(process.env.RESEND_API_KEY && process.env.RESEND_FROM_EMAIL)
+// Brevo (transactional API); BREVO_API_KEY/EMAIL_FROM_ADDRESS ayarlanmamışsa
+// (ör. yerel geliştirme) her gönderim no-op'a düşer, VAPID/push ile aynı desen.
+export function isEmailConfigured(): boolean {
+  return Boolean(process.env.BREVO_API_KEY && process.env.EMAIL_FROM_ADDRESS)
 }
+
+export interface OutgoingEmail {
+  to: string
+  subject: string
+  html: string
+  text?: string
+}
+
+const BREVO_SEND_URL = "https://api.brevo.com/v3/smtp/email"
 
 // Çıplak bir adres (görünen isim yok) spam filtrelerinde çoğu zaman kişisel/
 // toplu-gönderim ayrımını zorlaştıran bir sinyal — özellikle yeni, düşük
-// hacimli bir domain'de (bkz. Resend domain kaydı) itibar kurulana kadar bu
-// küçük fark önemli. Tüm gönderim noktalarının (email.ts + new-ride-broadcast-
-// email.ts + search-alert-notifications.ts + cron/departure-reminders) aynı
-// görünen ismi kullanması için tek yerde tutuluyor.
-export function emailFrom(): string {
-  return `GötürBeni <${process.env.RESEND_FROM_EMAIL}>`
+// hacimli bir domain'de itibar kurulana kadar bu küçük fark önemli; tüm
+// gönderimler aynı görünen ismi buradan alıyor.
+async function postToBrevo(body: Record<string, unknown>): Promise<void> {
+  const response = await fetch(BREVO_SEND_URL, {
+    method: "POST",
+    headers: {
+      "api-key": process.env.BREVO_API_KEY as string,
+      "content-type": "application/json",
+      accept: "application/json",
+    },
+    body: JSON.stringify({ sender: { name: "GötürBeni", email: process.env.EMAIL_FROM_ADDRESS }, ...body }),
+  })
+  if (!response.ok) {
+    throw new Error(`Brevo ${response.status}: ${await response.text()}`)
+  }
+}
+
+// Returns whether the send was accepted, for callers that must know
+// (verification codes); best-effort callers can ignore the result.
+export async function sendEmail(email: OutgoingEmail, context: string): Promise<boolean> {
+  try {
+    await postToBrevo({
+      to: [{ email: email.to }],
+      subject: email.subject,
+      htmlContent: email.html,
+      ...(email.text ? { textContent: email.text } : {}),
+    })
+    return true
+  } catch (error) {
+    logError(error, context)
+    return false
+  }
 }
 
 // Shared branded wrapper for every outgoing email — a bare `<p>text</p>` had
@@ -78,7 +113,7 @@ export function renderEmailHtml(
 // part) is itself a spam-scoring signal mailbox providers use (legitimate
 // transactional mail almost always carries a text/plain alternative;
 // HTML-only is disproportionately common in bulk/spam mail). Every
-// resend.emails.send() call below now passes both. bodyText must be plain
+// single send below now passes both. bodyText must be plain
 // content (no markup) — callers pass the same translation string used for
 // bodyHtml when that string has no embedded HTML (true for every call site
 // here; the one exception, the styled OTP code block, builds its own
@@ -95,28 +130,30 @@ export function renderEmailText(params: {
   return `${params.greeting}\n\n${params.bodyText}\n\n${cta}${params.signoff}\n\n---\n${params.footerNote}`
 }
 
-const RESEND_BATCH_LIMIT = 100
+const BREVO_VERSIONS_PER_REQUEST = 100
 
-// Multi-recipient fan-outs must go through here, not one resend.emails.send()
-// per recipient under Promise.all — that fires every request at once and
-// trips Resend's 10 req/s limit (rate_limit_exceeded) as soon as the
-// recipient list passes ~10, which is what the every-member new-ride
-// broadcast hit in prod. The batch endpoint takes up to 100 emails per
-// request; "permissive" validation keeps one bad address from rejecting
-// the whole chunk and reports it per index instead.
-export async function sendEmailBatch(resend: Resend, emails: CreateBatchEmailOptions[], context: string): Promise<void> {
-  for (let i = 0; i < emails.length; i += RESEND_BATCH_LIMIT) {
+// Multi-recipient fan-outs must go through here, not one send per recipient
+// under Promise.all — that fires every request at once and trips the
+// provider's rate limit as soon as the recipient list grows, which is what
+// the old every-member new-ride broadcast hit in prod. One Brevo request
+// carries up to 100 messageVersions, each with its own recipient and
+// content. The top-level subject/htmlContent are required by the API but
+// every version overrides them; textContent is deliberately left off the
+// top level so a version without one never inherits another recipient's.
+export async function sendEmailBatch(emails: OutgoingEmail[], context: string): Promise<void> {
+  for (let i = 0; i < emails.length; i += BREVO_VERSIONS_PER_REQUEST) {
+    const chunk = emails.slice(i, i + BREVO_VERSIONS_PER_REQUEST)
     try {
-      const { data, error } = await resend.batch.send(emails.slice(i, i + RESEND_BATCH_LIMIT), {
-        batchValidation: "permissive",
+      await postToBrevo({
+        subject: chunk[0].subject,
+        htmlContent: chunk[0].html,
+        messageVersions: chunk.map((email) => ({
+          to: [{ email: email.to }],
+          subject: email.subject,
+          htmlContent: email.html,
+          ...(email.text ? { textContent: email.text } : {}),
+        })),
       })
-      if (error) {
-        logError(error, context)
-        continue
-      }
-      for (const failed of data?.errors ?? []) {
-        logError(new Error(`batch index ${i + failed.index}: ${failed.message}`), context)
-      }
     } catch (error) {
       logError(error, context)
     }
@@ -128,25 +165,18 @@ export async function sendEmailBatch(resend: Resend, emails: CreateBatchEmailOpt
 // notification: verification cannot proceed without it, so the caller needs
 // to know whether it actually went out (a boolean, not a swallowed error).
 export async function sendVerificationCodeEmail(to: string, code: string, locale: AppLocale): Promise<boolean> {
-  if (!isResendConfigured()) {
+  if (!isEmailConfigured()) {
     return false
   }
 
   const t = await getTranslations({ locale, namespace: "Email" })
-  const resend = new Resend(process.env.RESEND_API_KEY)
-  try {
-    // The code's styling lives here, not in the translated string — next-intl's
-    // t() can't format a message containing raw HTML tags (a `<strong>` with an
-    // attribute, or `<br>`, both trip INVALID_TAG); see email.test.ts.
-    const codeBlockHtml = `<p style="margin:0 0 20px;">${t("verificationCodeIntro")}</p><p style="margin:0 0 20px;font-size:28px;font-weight:bold;letter-spacing:6px;text-align:center;background-color:#f4f4f5;border-radius:8px;padding:16px;">${code}</p><p style="margin:0;">${t("verificationCodeOutro")}</p>`
-    const codeBlockText = `${t("verificationCodeIntro")}\n\n${code}\n\n${t("verificationCodeOutro")}`
-    // Resend's SDK does not throw on an API-level rejection (invalid
-    // recipient, rate limit, etc.) — it resolves with { data: null, error }.
-    // Only checking for a thrown exception here would silently report
-    // "sent" on a real failure (found while adding sendAdminResendVerificationEmail
-    // below: a rejected send still returned success).
-    const { error } = await resend.emails.send({
-      from: emailFrom(),
+  // The code's styling lives here, not in the translated string — next-intl's
+  // t() can't format a message containing raw HTML tags (a `<strong>` with an
+  // attribute, or `<br>`, both trip INVALID_TAG); see email.test.ts.
+  const codeBlockHtml = `<p style="margin:0 0 20px;">${t("verificationCodeIntro")}</p><p style="margin:0 0 20px;font-size:28px;font-weight:bold;letter-spacing:6px;text-align:center;background-color:#f4f4f5;border-radius:8px;padding:16px;">${code}</p><p style="margin:0;">${t("verificationCodeOutro")}</p>`
+  const codeBlockText = `${t("verificationCodeIntro")}\n\n${code}\n\n${t("verificationCodeOutro")}`
+  return sendEmail(
+    {
       to,
       subject: t("verificationCodeSubject"),
       html: renderEmailHtml(locale, {
@@ -161,16 +191,9 @@ export async function sendVerificationCodeEmail(to: string, code: string, locale
         signoff: t("signoff"),
         footerNote: t("footerNote"),
       }),
-    })
-    if (error) {
-      logError(error, "email.sendVerificationCodeEmail")
-      return false
-    }
-    return true
-  } catch (error) {
-    logError(error, "email.sendVerificationCodeEmail")
-    return false
-  }
+    },
+    "email.sendVerificationCodeEmail"
+  )
 }
 
 // Admin panelden, doğrulanmamış bir hesaba elle tetiklenen tekrar gönderim
@@ -180,17 +203,15 @@ export async function sendVerificationCodeEmail(to: string, code: string, locale
 // açık bir özür içeriyor — kullanıcının doğrulanmamış hesapları incelerken
 // fark ettiği gerçek bir şikayet üzerine eklendi.
 export async function sendAdminResendVerificationEmail(to: string, code: string, locale: AppLocale): Promise<boolean> {
-  if (!isResendConfigured()) {
+  if (!isEmailConfigured()) {
     return false
   }
 
   const t = await getTranslations({ locale, namespace: "Email" })
-  const resend = new Resend(process.env.RESEND_API_KEY)
-  try {
-    const bodyHtml = `<p style="margin:0 0 20px;">${t("adminResendApology")}</p><p style="margin:0 0 20px;font-size:28px;font-weight:bold;letter-spacing:6px;text-align:center;background-color:#f4f4f5;border-radius:8px;padding:16px;">${code}</p><p style="margin:0;">${t("adminResendOutro")}</p>`
-    const bodyText = `${t("adminResendApology")}\n\n${code}\n\n${t("adminResendOutro")}`
-    const { error } = await resend.emails.send({
-      from: emailFrom(),
+  const bodyHtml = `<p style="margin:0 0 20px;">${t("adminResendApology")}</p><p style="margin:0 0 20px;font-size:28px;font-weight:bold;letter-spacing:6px;text-align:center;background-color:#f4f4f5;border-radius:8px;padding:16px;">${code}</p><p style="margin:0;">${t("adminResendOutro")}</p>`
+  const bodyText = `${t("adminResendApology")}\n\n${code}\n\n${t("adminResendOutro")}`
+  return sendEmail(
+    {
       to,
       subject: t("adminResendSubject"),
       html: renderEmailHtml(locale, {
@@ -205,24 +226,17 @@ export async function sendAdminResendVerificationEmail(to: string, code: string,
         signoff: t("signoff"),
         footerNote: t("footerNote"),
       }),
-    })
-    if (error) {
-      logError(error, "email.sendAdminResendVerificationEmail")
-      return false
-    }
-    return true
-  } catch (error) {
-    logError(error, "email.sendAdminResendVerificationEmail")
-    return false
-  }
+    },
+    "email.sendAdminResendVerificationEmail"
+  )
 }
 
 // Uygulama içi push bildirimi (src/lib/notifications.ts) kullanıcı siteyi
 // açık tutmuyorsa görülmeyebiliyordu — aynı olaylar için e-posta yedeği.
-// Resend, RESEND_API_KEY/RESEND_FROM_EMAIL ayarlanmamışsa (ör. yerel
-// geliştirme) no-op'a düşer, VAPID/push ile aynı desen (bkz. .env.example).
+// E-posta ayarlanmamışsa (ör. yerel geliştirme) no-op'a düşer, VAPID/push
+// ile aynı desen (bkz. .env.example).
 export async function sendEmailNotification(event: NotificationEvent): Promise<void> {
-  if (!isResendConfigured()) {
+  if (!isEmailConfigured()) {
     return
   }
 
@@ -247,10 +261,8 @@ export async function sendEmailNotification(event: NotificationEvent): Promise<v
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
   const url = `${siteUrl}${NOTIFICATION_URL[event.type](event.rideId)}`
 
-  const resend = new Resend(process.env.RESEND_API_KEY)
-  try {
-    const { error } = await resend.emails.send({
-      from: emailFrom(),
+  await sendEmail(
+    {
       to: recipientEmail as string,
       subject: t(`${key}Title`),
       html: renderEmailHtml(locale, {
@@ -269,13 +281,9 @@ export async function sendEmailNotification(event: NotificationEvent): Promise<v
         signoff: tCommon("signoff"),
         footerNote: tCommon("footerNote"),
       }),
-    })
-    if (error) {
-      logError(error, "email.sendEmailNotification")
-    }
-  } catch (error) {
-    logError(error, "email.sendEmailNotification")
-  }
+    },
+    "email.sendEmailNotification"
+  )
 }
 
 // Fans out to every waitlisted passenger on a ride — same reasoning as
@@ -283,7 +291,7 @@ export async function sendEmailNotification(event: NotificationEvent): Promise<v
 // the single-recipient NotificationEvent shape, so it's a standalone
 // function rather than reusing sendEmailNotification's event union.
 export async function sendSeatOpenedEmailNotifications(rideId: string): Promise<void> {
-  if (!isResendConfigured()) {
+  if (!isEmailConfigured()) {
     return
   }
 
@@ -308,7 +316,6 @@ export async function sendSeatOpenedEmailNotifications(rideId: string): Promise<
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
   const url = `${siteUrl}/rides/${rideId}`
-  const resend = new Resend(process.env.RESEND_API_KEY)
 
   const emails = await Promise.all(
     recipientRows.map(async (recipient) => {
@@ -316,7 +323,6 @@ export async function sendSeatOpenedEmailNotifications(rideId: string): Promise<
       const t = await getTranslations({ locale, namespace: "Push.notifications" })
       const tCommon = await getTranslations({ locale, namespace: "Email" })
       return {
-        from: emailFrom(),
         to: recipient.email,
         subject: t("seatOpenedTitle"),
         html: renderEmailHtml(locale, {
@@ -338,5 +344,5 @@ export async function sendSeatOpenedEmailNotifications(rideId: string): Promise<
       }
     })
   )
-  await sendEmailBatch(resend, emails, "email.sendSeatOpenedEmailNotifications")
+  await sendEmailBatch(emails, "email.sendSeatOpenedEmailNotifications")
 }
