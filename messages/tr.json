@@ -601,7 +601,7 @@
       "timeFlexible": "Saat esnek / gün boyu uygun",
       "seatCount": "Koltuk Sayısı",
       "costShare": "Kişi Başı Masraf Payı (₺)",
-      "costShareEstimate": "Tahmini kişi başı maliyet: ~{amount} ₺ (bu mesafe için, yaklaşık bir öneri)",
+      "costShareEstimate": "Tahmini kişi başı maliyet: ~{amount} ₺ (yakıt masrafına ve otobüs fiyatlarına göre yaklaşık bir öneri)",
       "costShareUseEstimate": "Bu tutarı kullan",
       "description": "Açıklama",
       "descriptionHint": "En fazla 500 karakter.",

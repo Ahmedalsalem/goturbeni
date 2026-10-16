@@ -601,7 +601,7 @@
       "timeFlexible": "وقت مرن / متاح طوال اليوم",
       "seatCount": "عدد المقاعد",
       "costShare": "المساهمة في التكلفة عن كل شخص (₺)",
-      "costShareEstimate": "التكلفة التقديرية للشخص الواحد: ~{amount} ₺ (تقديري، حسب المسافة فقط)",
+      "costShareEstimate": "التكلفة التقديرية للشخص الواحد: ~{amount} ₺ (تقديري، حسب تكلفة الوقود وأسعار الحافلات)",
       "costShareUseEstimate": "استخدم هذا المبلغ",
       "description": "الوصف",
       "descriptionHint": "500 حرف كحد أقصى.",

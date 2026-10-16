@@ -127,9 +127,11 @@ export default async function SeoLandingPage({ params }: { params: Promise<{ slu
 
         <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">{t("h1", { from, to })}</h1>
         <p className="text-muted-foreground mt-3 text-lg leading-relaxed text-balance">{t("description", { from, to })}</p>
-        <p className="text-muted-foreground mt-4 text-sm leading-relaxed">
-          {t("intro", { from, to, distance: distanceKm, cost: format.number(estimatedCost) })}
-        </p>
+        {estimatedCost !== null && (
+          <p className="text-muted-foreground mt-4 text-sm leading-relaxed">
+            {t("intro", { from, to, distance: distanceKm, cost: format.number(estimatedCost) })}
+          </p>
+        )}
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Link

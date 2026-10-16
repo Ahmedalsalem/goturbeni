@@ -601,7 +601,7 @@
       "timeFlexible": "Flexible time / all day",
       "seatCount": "Number of Seats",
       "costShare": "Cost Share per Person (₺)",
-      "costShareEstimate": "Estimated cost per person: ~{amount} ₺ (a rough suggestion for this route)",
+      "costShareEstimate": "Estimated cost per person: ~{amount} ₺ (a rough suggestion based on fuel cost and bus fares)",
       "costShareUseEstimate": "Use this amount",
       "description": "Description",
       "descriptionHint": "Up to 500 characters.",
