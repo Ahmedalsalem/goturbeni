@@ -37,8 +37,7 @@ import {
 } from "@/features/rides/schemas"
 import { estimateCostSharePerSeat } from "@/utils/cost-estimate"
 import { formatCostShare } from "@/utils/currency"
-import { TURKISH_PROVINCES } from "@/utils/turkish-provinces"
-import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
+import { getProvinceDisplayName, getProvincesSortedForLocale } from "@/utils/turkish-provinces-ar"
 import { TURKISH_PROVINCE_DISTRICTS } from "@/utils/turkish-districts"
 import { toIstanbulDateInputValue, toIstanbulTimeInputValue } from "@/utils/istanbul-time"
 import type { Ride } from "@/types/ride"
@@ -51,7 +50,7 @@ export function RideForm({ ride, driverProfileHint }: { ride?: Ride; driverProfi
   const locale = useLocale()
   const [serverError, setServerError] = useState<string | null>(null)
   const [serverErrorProfileLink, setServerErrorProfileLink] = useState(false)
-  const [freeRide, setFreeRide] = useState((ride?.cost_share ?? 0) === 0 && ride?.posted_by_role !== "passenger")
+  const [freeRide, setFreeRide] = useState(!!ride && ride.cost_share === 0 && ride.posted_by_role !== "passenger")
   // Collapsed by default on create so a first-time poster only faces the
   // handful of fields that actually block publishing (route, date, seats,
   // price, description) — the rest are pre-filled with sane defaults. Open
@@ -187,7 +186,7 @@ export function RideForm({ ride, driverProfileHint }: { ride?: Ride; driverProfi
           </Field>
         )}
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-flow-col sm:grid-cols-2 sm:grid-rows-[auto_auto]">
           <Field>
             <FieldLabel htmlFor="departureCity">{t("departureCity")}</FieldLabel>
             <Controller
@@ -195,7 +194,7 @@ export function RideForm({ ride, driverProfileHint }: { ride?: Ride; driverProfi
               name="departureCity"
               render={({ field }) => (
                 <Combobox
-                  items={TURKISH_PROVINCES}
+                  items={getProvincesSortedForLocale(locale)}
                   value={field.value || null}
                   itemToStringLabel={(city) => getProvinceDisplayName(city, locale)}
                   onValueChange={(value) => {
@@ -240,59 +239,6 @@ export function RideForm({ ride, driverProfileHint }: { ride?: Ride; driverProfi
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="arrivalCity">{t("arrivalCity")}</FieldLabel>
-            <Controller
-              control={control}
-              name="arrivalCity"
-              render={({ field }) => (
-                <Combobox
-                  items={TURKISH_PROVINCES}
-                  value={field.value || null}
-                  itemToStringLabel={(city) => getProvinceDisplayName(city, locale)}
-                  onValueChange={(value) => {
-                    field.onChange(value ?? "")
-                    setValue("arrivalDistrict", "")
-                  }}
-                >
-                  <ComboboxInputGroup>
-                    <ComboboxInput
-                      id="arrivalCity"
-                      placeholder={t("selectCity")}
-                      aria-invalid={!!errors.arrivalCity}
-                      aria-describedby={errors.arrivalCity ? "arrivalCity-error" : undefined}
-                    />
-                    <ComboboxTriggerGroup>
-                      <ComboboxClear aria-label={t("clearSelection")} />
-                      <ComboboxTrigger aria-label={t("arrivalCity")} />
-                    </ComboboxTriggerGroup>
-                  </ComboboxInputGroup>
-                  <ComboboxContent>
-                    <ComboboxEmpty>{t("noResults")}</ComboboxEmpty>
-                    <ComboboxList>
-                      {(city: string) => (
-                        <ComboboxItem key={city} value={city}>
-                          {getProvinceDisplayName(city, locale)}
-                        </ComboboxItem>
-                      )}
-                    </ComboboxList>
-                  </ComboboxContent>
-                </Combobox>
-              )}
-            />
-            <LocationPicker
-              onLocationResolved={(province, district) => {
-                setValue("arrivalCity", province)
-                setValue("arrivalDistrict", district ?? "")
-              }}
-            />
-            {errors.arrivalCity && (
-              <FieldError id="arrivalCity-error" errors={[{ message: errors.arrivalCity.message }]} />
-            )}
-          </Field>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field>
             <FieldLabel htmlFor="departureDistrict">
               {t("departureDistrict")} <span className="text-muted-foreground font-normal">{t("optional")}</span>
             </FieldLabel>
@@ -333,6 +279,57 @@ export function RideForm({ ride, driverProfileHint }: { ride?: Ride; driverProfi
             />
             {errors.departureDistrict && (
               <FieldError id="departureDistrict-error" errors={[{ message: errors.departureDistrict.message }]} />
+            )}
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="arrivalCity">{t("arrivalCity")}</FieldLabel>
+            <Controller
+              control={control}
+              name="arrivalCity"
+              render={({ field }) => (
+                <Combobox
+                  items={getProvincesSortedForLocale(locale)}
+                  value={field.value || null}
+                  itemToStringLabel={(city) => getProvinceDisplayName(city, locale)}
+                  onValueChange={(value) => {
+                    field.onChange(value ?? "")
+                    setValue("arrivalDistrict", "")
+                  }}
+                >
+                  <ComboboxInputGroup>
+                    <ComboboxInput
+                      id="arrivalCity"
+                      placeholder={t("selectCity")}
+                      aria-invalid={!!errors.arrivalCity}
+                      aria-describedby={errors.arrivalCity ? "arrivalCity-error" : undefined}
+                    />
+                    <ComboboxTriggerGroup>
+                      <ComboboxClear aria-label={t("clearSelection")} />
+                      <ComboboxTrigger aria-label={t("arrivalCity")} />
+                    </ComboboxTriggerGroup>
+                  </ComboboxInputGroup>
+                  <ComboboxContent>
+                    <ComboboxEmpty>{t("noResults")}</ComboboxEmpty>
+                    <ComboboxList>
+                      {(city: string) => (
+                        <ComboboxItem key={city} value={city}>
+                          {getProvinceDisplayName(city, locale)}
+                        </ComboboxItem>
+                      )}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </Combobox>
+              )}
+            />
+            <LocationPicker
+              onLocationResolved={(province, district) => {
+                setValue("arrivalCity", province)
+                setValue("arrivalDistrict", district ?? "")
+              }}
+            />
+            {errors.arrivalCity && (
+              <FieldError id="arrivalCity-error" errors={[{ message: errors.arrivalCity.message }]} />
             )}
           </Field>
 

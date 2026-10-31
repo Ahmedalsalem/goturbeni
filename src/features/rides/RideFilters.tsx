@@ -23,8 +23,8 @@ import {
   ComboboxTrigger,
   ComboboxTriggerGroup,
 } from "@/components/ui/combobox"
-import { TURKISH_PROVINCES, type TurkishProvince } from "@/utils/turkish-provinces"
-import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
+import type { TurkishProvince } from "@/utils/turkish-provinces"
+import { getProvinceDisplayName, getProvincesSortedForLocale } from "@/utils/turkish-provinces-ar"
 import { TURKISH_PROVINCE_DISTRICTS } from "@/utils/turkish-districts"
 import { RIDE_SORT_OPTIONS, type RideSearchFilters, type RideSort } from "@/features/rides/filters"
 import { LocationPicker } from "@/features/rides/LocationPicker"
@@ -155,7 +155,7 @@ export function RideFilters({
         <Field className="sm:w-48">
           <FieldLabel htmlFor="filter-from">{t("fromLabel")}</FieldLabel>
           <Combobox
-            items={TURKISH_PROVINCES}
+            items={getProvincesSortedForLocale(locale)}
             value={from}
             itemToStringLabel={(city) => getProvinceDisplayName(city, locale)}
             onValueChange={(value) => {
@@ -224,7 +224,7 @@ export function RideFilters({
         <Field className="sm:w-48">
           <FieldLabel htmlFor="filter-to">{t("toLabel")}</FieldLabel>
           <Combobox
-            items={TURKISH_PROVINCES}
+            items={getProvincesSortedForLocale(locale)}
             value={to}
             itemToStringLabel={(city) => getProvinceDisplayName(city, locale)}
             onValueChange={(value) => {

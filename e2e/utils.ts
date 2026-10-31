@@ -136,12 +136,6 @@ export async function createRide(
   await page.locator("#departureDate").fill(date)
   await page.locator("#departureTime").fill(time)
   await page.locator("#seatCount").fill(String(options.seatCount))
-  // "Ücretsiz yolculuk" (freeRide) defaults to checked on create (RideForm.tsx:
-  // cost_share is 0 pre-fill), which disables #costShare — uncheck it first so
-  // a non-zero costShare here actually sticks.
-  if (options.costShare > 0) {
-    await page.locator('[aria-labelledby="freeRide-label"]').click()
-  }
   await page.locator("#costShare").fill(String(options.costShare))
   // pets/smoking/payment/instantBooking live behind the collapsed "Diğer
   // ayarlar" section (RideForm.tsx) — expand it first whenever any of them

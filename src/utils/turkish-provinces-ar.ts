@@ -1,4 +1,4 @@
-import type { TurkishProvince } from "@/utils/turkish-provinces"
+import { TURKISH_PROVINCES, type TurkishProvince } from "@/utils/turkish-provinces"
 
 // Arapça arayüzde gösterilen il adları. rides.departure_city/arrival_city'ye
 // yazılan ve aranan değer her zaman Türkçe kalır (bkz. turkish-provinces.ts,
@@ -90,4 +90,20 @@ export const TURKISH_PROVINCE_NAMES_AR: Record<TurkishProvince, string> = {
 export function getProvinceDisplayName(city: string, locale: string): string {
   if (locale !== "ar") return city
   return TURKISH_PROVINCE_NAMES_AR[city as TurkishProvince] ?? city
+}
+
+const sortedProvincesByLocale = new Map<string, TurkishProvince[]>()
+
+// TURKISH_PROVINCES plaka sırasında; il seçicileri gösterilen ada göre o dilin
+// alfabesiyle sıralanıyor. EN'de de adlar Türkçe olduğu için Türkçe sıralama
+// (Ç, Ş, İ doğru yerde).
+export function getProvincesSortedForLocale(locale: string): TurkishProvince[] {
+  const cached = sortedProvincesByLocale.get(locale)
+  if (cached) return cached
+  const collator = new Intl.Collator(locale === "ar" ? "ar" : "tr")
+  const sorted = [...TURKISH_PROVINCES].sort((a, b) =>
+    collator.compare(getProvinceDisplayName(a, locale), getProvinceDisplayName(b, locale))
+  )
+  sortedProvincesByLocale.set(locale, sorted)
+  return sorted
 }

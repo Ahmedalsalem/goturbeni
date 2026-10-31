@@ -85,9 +85,6 @@ test("posting a ride without a car plate or IBAN on file succeeds", async ({ pag
   await page.locator("#departureDate").fill(date)
   await page.locator("#departureTime").fill(time)
   await page.locator("#seatCount").fill("2")
-  // "Ücretsiz yolculuk" defaults to checked on create (RideForm.tsx), which
-  // disables #costShare — uncheck it first so "50" actually sticks.
-  await page.locator('[aria-labelledby="freeRide-label"]').click()
   await page.locator("#costShare").fill("50")
   await page.getByRole("button", { name: "İlanı Yayınla" }).click()
 
