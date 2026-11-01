@@ -117,8 +117,8 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
 // working. The phone number is still collected and stored (contact/trust
 // info) — it just no longer carries the verification burden. The code
 // itself lives in profiles_private (email_otp_code/email_otp_expires_at,
-// 0035_email_based_verification.sql), written only through store_email_otp
-// (0099); verify_email_otp is the only thing allowed to flip email_verified,
+// 0035_email_based_verification.sql), written only through
+// store_or_reuse_email_otp (0105); verify_email_otp is the only thing allowed to flip email_verified,
 // checked against email_otp_code there.
 export async function sendEmailVerificationCode(): Promise<{ error?: string }> {
   const user = await verifySession()
@@ -131,20 +131,21 @@ export async function sendEmailVerificationCode(): Promise<{ error?: string }> {
 
   const code = Math.floor(100_000 + Math.random() * 900_000).toString()
   const supabase = await createClient()
-  // store_email_otp (0099) only accepts the code alongside the server-only
-  // EMAIL_OTP_SECRET — the user's own session can no longer write it, otherwise
-  // they could pick their own code and skip receiving the email. The 10-minute
-  // expiry is set there.
-  const { error: updateError } = await supabase.rpc("store_email_otp", {
+  // store_or_reuse_email_otp (0105) only accepts the code alongside the
+  // server-only EMAIL_OTP_SECRET — the user's own session can no longer write
+  // it, otherwise they could pick their own code and skip receiving the
+  // email. While a previous code is still valid it keeps that one and returns
+  // it, so every email a user got carries the same working code.
+  const { data: storedCode, error: updateError } = await supabase.rpc("store_or_reuse_email_otp", {
     p_code: code,
     p_secret: process.env.EMAIL_OTP_SECRET ?? "",
   })
-  if (updateError) {
-    logError(updateError, "profile.sendEmailVerificationCode.store")
+  if (updateError || !storedCode) {
+    logError(updateError ?? new Error("no profiles_private row"), "profile.sendEmailVerificationCode.store")
     return { error: t("sendError") }
   }
 
-  const sent = await sendVerificationCodeEmail(user.email!, code, locale)
+  const sent = await sendVerificationCodeEmail(user.email!, storedCode, locale)
   if (!sent) {
     return { error: t("sendError") }
   }
