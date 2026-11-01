@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 
 import trMessages from "../../messages/tr.json"
 import arMessages from "../../messages/ar.json"
+import enMessages from "../../messages/en.json"
 
 // Regression test for a real production bug: the verification email body
 // used to embed a <strong> tag directly in the translated message and render
@@ -28,5 +29,35 @@ describe("Email verification code messages", () => {
     expect(outro).not.toContain("Email.verificationCodeOutro")
     expect(intro).not.toMatch(/<[^>]+>/)
     expect(outro).not.toMatch(/<[^>]+>/)
+  })
+})
+
+describe("Ride reminder variants", () => {
+  it.each([
+    ["tr", trMessages],
+    ["en", enMessages],
+    ["ar", arMessages],
+  ])("%s: every subject/body variant exists and fills its placeholders", (locale, messages) => {
+    const t = createTranslator({ locale, messages, namespace: "Email" })
+    const values = { from: "FROMCITY", to: "TOCITY", date: "DATEVALUE" }
+
+    const subjects = new Set<string>()
+    for (const variant of [1, 2, 3] as const) {
+      const subject = t(`rideReminderSubject${variant}`, values)
+      subjects.add(subject)
+      for (const text of [
+        subject,
+        t(`rideReminderBodyDriver${variant}`, values),
+        t(`rideReminderBodyPassenger${variant}`, values),
+      ]) {
+        expect(text).not.toContain("Email.")
+        expect(text).toContain("FROMCITY")
+        expect(text).toContain("TOCITY")
+        expect(text).not.toMatch(/[{}]/)
+      }
+      expect(t(`rideReminderBodyDriver${variant}`, values)).toContain("DATEVALUE")
+      expect(t(`rideReminderBodyPassenger${variant}`, values)).toContain("DATEVALUE")
+    }
+    expect(subjects.size).toBe(3)
   })
 })

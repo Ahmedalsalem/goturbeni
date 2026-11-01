@@ -4,8 +4,10 @@ import { getTranslations } from "next-intl/server"
 
 import { createClient } from "@/lib/supabase/server"
 import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-config"
-import { isEmailConfigured, renderEmailHtml, sendEmailBatch } from "@/lib/email"
+import { isEmailConfigured, renderEmailHtml, renderEmailText, sendEmailBatch } from "@/lib/email"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
+
+const REMINDER_VARIANTS = [1, 2, 3] as const
 
 interface BroadcastRecipientRow {
   user_id: string
@@ -21,6 +23,7 @@ export async function sendAdminRideReminderEmail(
   rideId: string,
   departureCity: string,
   arrivalCity: string,
+  departureTime: string,
   postedByRole: "driver" | "passenger"
 ): Promise<number> {
   if (!isEmailConfigured()) {
@@ -37,7 +40,7 @@ export async function sendAdminRideReminderEmail(
     return 0
   }
 
-  await sendBroadcastToRows(supabase, rows, rideId, departureCity, arrivalCity, postedByRole)
+  await sendBroadcastToRows(supabase, rows, rideId, departureCity, arrivalCity, departureTime, postedByRole)
   return rows.length
 }
 
@@ -47,6 +50,7 @@ async function sendBroadcastToRows(
   rideId: string,
   departureCity: string,
   arrivalCity: string,
+  departureTime: string,
   postedByRole: "driver" | "passenger"
 ): Promise<void> {
   const userIds = rows.map((r) => r.user_id)
@@ -68,13 +72,33 @@ async function sendBroadcastToRows(
       // broadcast body says which one this is, reusing the exact same
       // "Sürücü İlanı"/"Yolcu İlanı" wording RideCard's own badge uses
       // (Rides.card.driverListingBadge/passengerListingBadge).
-      const bodyKey = postedByRole === "passenger" ? "rideReminderBodyPassenger" : "rideReminderBodyDriver"
+      // Kullanıcı kararı (2026-11-01): aynı ilan için tekrar tekrar basılan
+      // hatırlatma, her seferinde 100 kişiye birebir aynı konu/metinle gidince
+      // Gmail'de spam'e düştü. Her alıcıya rastgele bir varyant gidiyor.
+      const variant = REMINDER_VARIANTS[Math.floor(Math.random() * REMINDER_VARIANTS.length)]
+      const role = postedByRole === "passenger" ? "Passenger" : "Driver"
+      const date = new Intl.DateTimeFormat(locale, {
+        timeZone: "Europe/Istanbul",
+        day: "numeric",
+        month: "long",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(new Date(departureTime))
+      const body = t(`rideReminderBody${role}${variant}`, { from, to, date })
       return {
         to: row.email,
-        subject: t("rideReminderSubject", { from, to }),
+        subject: t(`rideReminderSubject${variant}`, { from, to, date }),
         html: renderEmailHtml(locale, {
           greeting: tCommon("greeting"),
-          bodyHtml: t(bodyKey, { from, to }),
+          bodyHtml: body,
+          ctaLabel: tCommon("viewLinkLabel"),
+          ctaUrl: url,
+          signoff: tCommon("signoff"),
+          footerNote: tCommon("footerNote"),
+        }),
+        text: renderEmailText({
+          greeting: tCommon("greeting"),
+          bodyText: body,
           ctaLabel: tCommon("viewLinkLabel"),
           ctaUrl: url,
           signoff: tCommon("signoff"),

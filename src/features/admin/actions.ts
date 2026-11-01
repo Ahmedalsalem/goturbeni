@@ -96,7 +96,7 @@ export async function sendRideReminderAsAdmin(rideId: string): Promise<AdminRide
   const supabase = await createClient()
   const { data: ride, error: rideError } = await supabase
     .from("rides")
-    .select("departure_city, arrival_city, posted_by_role")
+    .select("departure_city, arrival_city, departure_time, posted_by_role")
     .eq("id", rideId)
     .maybeSingle()
   if (rideError || !ride) {
@@ -111,6 +111,7 @@ export async function sendRideReminderAsAdmin(rideId: string): Promise<AdminRide
       rideId,
       ride.departure_city,
       ride.arrival_city,
+      ride.departure_time,
       ride.posted_by_role as "driver" | "passenger"
     )
     return { success: true, recipientCount }
