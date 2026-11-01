@@ -71,12 +71,9 @@ export async function updateProfile(_prevState: ProfileActionState, formData: Fo
     avatarUrl = `${publicUrl}?v=${Date.now()}`
   }
 
-  // Normalize to E.164 before comparing/storing — update_own_profile
-  // (0077_rename_phone_verified_to_email_verified.sql) resets email_verified to false whenever
-  // the submitted phone differs from what's stored. The form now displays
-  // the number without its "+90"/leading-zero prefix (see ProfileForm.tsx),
-  // so submitting that raw display value unchanged would always look like a
-  // change on the server and silently un-verify the phone.
+  // Normalize to E.164 before storing — the form displays the number without
+  // its "+90"/leading-zero prefix (see ProfileForm.tsx), and every other
+  // writer (complete_registration_details) stores the E.164 form.
   const normalizedPhone = parsed.data.phone
     ? (parsePhoneNumberFromString(parsed.data.phone, "TR")?.number ?? parsed.data.phone)
     : null
