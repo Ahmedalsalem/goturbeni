@@ -126,7 +126,7 @@ export async function sendRideReminderAsAdmin(rideId: string): Promise<AdminRide
 
 // Kullanıcının "hesaplar muhtemelen spam'e düştü" bulgusu üzerine: admin
 // doğrulanmamış bir hesaba yeni bir kod tetikleyebiliyor. Yetkilendirme
-// admin_resend_verification_code RPC'sinde (0086) — burada da normal
+// admin_resend_or_reuse_verification_code RPC'sinde (0108) — burada da normal
 // sendEmailVerificationCode ile aynı 6 haneli üretim, ama RPC bunu
 // (kullanıcının normal 10 dakikalık kodunun aksine) kasıtlı olarak süresiz
 // yapıyor — spam'den geç bulunan bir kodun hâlâ dolmuş olmaması için. Hedef
@@ -154,16 +154,19 @@ export async function adminResendVerificationCode(userId: string): Promise<Admin
   const locale = (profileRow?.language as AppLocale | null) ?? DEFAULT_LOCALE
 
   const code = Math.floor(100_000 + Math.random() * 900_000).toString()
-  const { error } = await supabase.rpc("admin_resend_verification_code", { p_user_id: userId, p_code: code })
-  if (error) {
-    if (error.message.includes("not_admin")) {
+  const { data: storedCode, error } = await supabase.rpc("admin_resend_or_reuse_verification_code", {
+    p_user_id: userId,
+    p_code: code,
+  })
+  if (error || !storedCode) {
+    if (error?.message.includes("not_admin")) {
       return { error: tErrors("notAdmin") }
     }
-    logError(error, "admin.adminResendVerificationCode")
+    logError(error ?? new Error("no stored code"), "admin.adminResendVerificationCode")
     return { error: tErrors("actionFailed") }
   }
 
-  const sent = await sendAdminResendVerificationEmail(email, code, locale)
+  const sent = await sendAdminResendVerificationEmail(email, storedCode, locale)
   if (!sent) {
     return { error: tErrors("actionFailed") }
   }
