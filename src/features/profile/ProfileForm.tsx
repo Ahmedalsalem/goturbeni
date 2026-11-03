@@ -37,6 +37,28 @@ const LOCALE_LABELS: Record<AppLocale, string> = {
   en: "English",
 }
 
+const AVATAR_MAX_DIMENSION = 512
+
+async function resizeAvatar(file: File): Promise<File | null> {
+  try {
+    const bitmap = await createImageBitmap(file)
+    const scale = Math.min(1, AVATAR_MAX_DIMENSION / Math.max(bitmap.width, bitmap.height))
+    const canvas = document.createElement("canvas")
+    canvas.width = Math.round(bitmap.width * scale)
+    canvas.height = Math.round(bitmap.height * scale)
+    const context = canvas.getContext("2d")
+    if (!context) return null
+    context.fillStyle = "#ffffff"
+    context.fillRect(0, 0, canvas.width, canvas.height)
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+    bitmap.close()
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.85))
+    return blob ? new File([blob], "avatar.jpg", { type: "image/jpeg" }) : null
+  } catch {
+    return null
+  }
+}
+
 export function ProfileForm({ profile, email }: { profile: Profile; email: string }) {
   const t = useTranslations("Profile.form")
   const tCarFeatures = useTranslations("CarFeatures")
@@ -110,10 +132,21 @@ export function ProfileForm({ profile, email }: { profile: Profile; email: strin
     return () => document.removeEventListener("click", handleClick, true)
   }, [isDirty, t])
 
-  function onAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0]
+  async function onAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const input = event.target
+    const file = input.files?.[0]
     if (!file) return
     setAvatarPreview(URL.createObjectURL(file))
+
+    // Server actions reject request bodies over 1 MB and Vercel functions
+    // over 4.5 MB, while phone camera photos are usually 2-6 MB. The avatar
+    // is only ever shown small, so shrink it here before the form submits.
+    const resized = await resizeAvatar(file)
+    if (resized) {
+      const transfer = new DataTransfer()
+      transfer.items.add(resized)
+      input.files = transfer.files
+    }
   }
 
   function addCustomFeature() {
