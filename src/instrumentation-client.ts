@@ -14,6 +14,16 @@ Sentry.init({
     // covering both (and any other suffix from the same bridge failure).
     /^Error invoking postMessage: Java/,
   ],
+  // Google's crawler renderer (seen as "Google-Read-Aloud") stubs
+  // navigator.serviceWorker.register to reject, which was the whole
+  // "Rejected" issue on /rides. Crawler errors are not user-facing.
+  beforeSend(event) {
+    return /Googlebot|Google-Read-Aloud|Google-InspectionTool|AdsBot-Google|Mediapartners-Google/.test(
+      navigator.userAgent
+    )
+      ? null
+      : event
+  },
 })
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart
