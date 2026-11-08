@@ -200,17 +200,34 @@ export async function verifyEmailVerificationCode(code: string): Promise<{ error
   return {}
 }
 
-// delete_own_account (0075) anonymizes profiles/profiles_private and stamps
-// profiles.deleted_at — it never touches auth.users (no service_role, same
-// limitation admin_set_suspended documents in 0014_admin.sql). Signing out
-// here ends the current session immediately; signIn()/verifySession() catch
-// any other still-active session for this account afterward.
+// delete_own_account (0109) anonymizes profiles/profiles_private, stamps
+// profiles.deleted_at and frees the email (placeholder email, identities
+// removed) so the same address can sign up again. Avatar files must be removed
+// here, through the Storage API, while the session still exists: the
+// "delete own avatar" policy needs auth.uid(), and Storage refuses SQL deletes.
+// Signing out ends the current session immediately; signIn()/verifySession()
+// catch any other still-active session for this account afterward.
 export async function deleteOwnAccount(): Promise<{ error?: string }> {
-  await verifySession()
+  const user = await verifySession()
   const locale = await getUserLocale()
   const t = await getTranslations({ locale, namespace: "Profile.errors" })
 
   const supabase = await createClient()
+  const { data: avatarFiles, error: listError } = await supabase.storage.from("avatars").list(user.id)
+  if (listError) {
+    logError(listError, "profile.deleteOwnAccount.avatar")
+    return { error: t("deleteAccountFailed") }
+  }
+  if (avatarFiles.length > 0) {
+    const { error: removeError } = await supabase.storage
+      .from("avatars")
+      .remove(avatarFiles.map((file) => `${user.id}/${file.name}`))
+    if (removeError) {
+      logError(removeError, "profile.deleteOwnAccount.avatar")
+      return { error: t("deleteAccountFailed") }
+    }
+  }
+
   const { error } = await supabase.rpc("delete_own_account")
   if (error) {
     logError(error, "profile.deleteOwnAccount")
