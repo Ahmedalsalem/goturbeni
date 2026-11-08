@@ -28,7 +28,7 @@ export async function Header() {
   // into the "İlanlarım"/"Rezervasyonlarım" dots themselves, see there.
   const unreadMessages = user ? await getUnreadMessages(user.id) : null
   const [isAdmin, navBadges] = user
-    ? await Promise.all([checkIsAdmin(user.id), getUnreadNavBadges(user.id, unreadMessages!.rideIds)])
+    ? await Promise.all([checkIsAdmin(user.id).catch(() => false), getUnreadNavBadges(user.id, unreadMessages!.rideIds)])
     : [false, { myRides: false, myBookings: false }]
   const hasUnreadMessages = unreadMessages ? unreadMessages.count > 0 : false
   // The trigger's own dot must reflect EVERYTHING inside the menu — otherwise

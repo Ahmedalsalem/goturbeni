@@ -58,11 +58,17 @@ export const verifySession = cache(async () => {
 export async function requireVerifiedProfile() {
   const user = await verifySession()
   const supabase = await createClient()
-  const { data: privateRow } = await supabase
+  const { data: privateRow, error } = await supabase
     .from("profiles_private")
     .select("email_verified")
     .eq("id", user.id)
     .maybeSingle()
+  // A failed query is not "unverified": during the 2026-11-08 PostgREST
+  // outage (PGRST303) this sent verified users to /verify-phone. Throwing
+  // shows the error boundary's retry page instead.
+  if (error) {
+    throw error
+  }
   if (!privateRow?.email_verified) {
     redirect("/verify-phone")
   }

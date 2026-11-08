@@ -92,12 +92,14 @@ export async function signIn(_prevState: AuthActionState, formData: FormData): P
   // completed it (or predates this requirement) is sent to /verify-phone
   // instead of straight into the app. Once verified, this check is never
   // shown again — no repeated OTP on subsequent logins.
-  const { data: privateRow } = await supabase
+  const { data: privateRow, error: privateError } = await supabase
     .from("profiles_private")
     .select("email_verified")
     .eq("id", data.user.id)
     .maybeSingle()
-  if (!privateRow?.email_verified) {
+  if (privateError) {
+    logError(privateError, "auth.signIn.verificationCheck")
+  } else if (!privateRow?.email_verified) {
     redirect("/verify-phone")
   }
 

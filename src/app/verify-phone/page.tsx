@@ -16,6 +16,12 @@ export default async function VerifyPhonePage() {
   const t = await getTranslations("VerifyPhone")
   const user = await verifySession()
   const profile = await getProfile(user.id)
+  // Every signed-in user has a profile row; null here means the query failed
+  // (e.g. a PostgREST outage), and showing the form would ask a verified
+  // user to verify again.
+  if (!profile) {
+    throw new Error("profile_unavailable")
+  }
 
   // Already fully verified (e.g. a stale bookmark, or a link followed after
   // completing the flow in another tab) — nothing left to do here.

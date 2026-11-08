@@ -68,9 +68,14 @@ export async function getSuspiciousAccounts(): Promise<SuspiciousAccountRow[]> {
   return (data as SuspiciousAccountRow[] | null) ?? []
 }
 
+// Throws on a failed query so /admin shows the retry page instead of a 404
+// during an outage; Header catches it and just hides the admin link.
 export async function checkIsAdmin(userId: string): Promise<boolean> {
   const supabase = await createClient()
-  const { data } = await supabase.rpc("is_admin", { p_user_id: userId })
+  const { data, error } = await supabase.rpc("is_admin", { p_user_id: userId })
+  if (error) {
+    throw error
+  }
   return data === true
 }
 
