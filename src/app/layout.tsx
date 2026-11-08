@@ -159,24 +159,21 @@ export default async function RootLayout({
               />
             </>
           )}
-          {/* fbq('consent', 'revoke') must run before init: the pixel then
-              holds every event (including this PageView) and sends nothing
-              to Meta until CookieConsent calls fbq('consent', 'grant') —
-              the same KVKK gate GA sits behind. Meta's <noscript> image
-              fallback is deliberately omitted: it fires unconditionally,
-              with no way to wait for consent. */}
+          {/* Only the fbq queue stub — fbevents.js itself is injected by
+              CookieConsent after the user accepts, so Meta receives no
+              request at all (not even the script fetch) before consent.
+              The queued revoke/init/PageView replay once it loads.
+              Meta's <noscript> image fallback is deliberately omitted: it
+              fires unconditionally, with no way to wait for consent. */}
           {META_PIXEL_ID && (
             <script
               dangerouslySetInnerHTML={{
                 __html: `
-                  !function(f,b,e,v,n,t,s)
+                  !function(f,n)
                   {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
                   n.callMethod.apply(n,arguments):n.queue.push(arguments)};
                   if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-                  n.queue=[];t=b.createElement(e);t.async=!0;
-                  t.src=v;s=b.getElementsByTagName(e)[0];
-                  s.parentNode.insertBefore(t,s)}(window, document,'script',
-                  'https://connect.facebook.net/en_US/fbevents.js');
+                  n.queue=[]}(window);
                   fbq('consent', 'revoke');
                   fbq('init', '${META_PIXEL_ID}');
                   fbq('track', 'PageView');

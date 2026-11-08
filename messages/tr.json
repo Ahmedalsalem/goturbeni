@@ -1239,11 +1239,14 @@
           "heading": "Toplanan Veriler",
           "body": ["Platforma kayıt olduğunuzda ve platformu kullandığınızda aşağıdaki kişisel verileri işliyoruz:"],
           "items": [
-            "Kimlik ve iletişim bilgileri: ad soyad, e-posta adresi, telefon numarası",
+            "Kimlik ve iletişim bilgileri: ad soyad, e-posta adresi, telefon numarası, doğum tarihi, cinsiyet",
             "Profil bilgileri: profil fotoğrafı, kısa biyografi",
             "Yolculuk verileri: kalkış ve varış şehri, tarih, koltuk sayısı, masraf paylaşım tutarı",
             "İletişim verileri: sürücü ve yolcu arasında uygulama içinde gönderilen mesajlar",
-            "Değerlendirme verileri: diğer kullanıcılara verdiğiniz veya onlardan aldığınız puanlar ve yorumlar"
+            "Değerlendirme verileri: diğer kullanıcılara verdiğiniz veya onlardan aldığınız puanlar ve yorumlar",
+            "Konum verileri: sohbette paylaşmayı seçtiğiniz konum; sürücüyseniz ve canlı konum paylaşımını açtıysanız yolculuk sırasındaki anlık konumunuz (yalnızca son konum tutulur, konum geçmişi saklanmaz); haritada seçtiğiniz kalkış ve varış noktaları",
+            "Teknik veriler: IP adresi, tarayıcı ve cihaz bilgisi, hata kayıtları, anlık bildirimleri açtıysanız bildirim aboneliği",
+            "Kayıt kaynağı: çerezleri kabul ettiyseniz siteye hangi bağlantıdan geldiğiniz (örneğin bir reklam veya video); kayıt olduğunuzda hesabınıza işlenir"
           ]
         },
         "purposes": {
@@ -1253,16 +1256,26 @@
             "Rezervasyon taleplerinin oluşturulması, onaylanması ve yönetilmesi",
             "Sürücü ve yolcunun birbiriyle iletişim kurabilmesinin sağlanması",
             "Kullanıcı güveni ve platform güvenliğinin sağlanması amacıyla değerlendirme/puanlama sisteminin işletilmesi",
-            "Hesabınızın oluşturulması ve yönetilmesi"
+            "Hesabınızın oluşturulması ve yönetilmesi",
+            "Hataların tespit edilmesi ve kötüye kullanımın önlenmesi",
+            "Onay vermeniz hâlinde site kullanımının analiz edilmesi ve reklamlarımızın etkisinin ölçülmesi"
           ]
         },
         "storage": {
           "heading": "Verilerin Saklanması",
           "body": [
-            "Verileriniz, altyapı sağlayıcımız Supabase üzerinde barındırılmaktadır. Supabase'in sunucuları Türkiye dışında bulunabilir; bu durumda verileriniz yurt dışına aktarılmış olur. Bu husus, uluslararası veri aktarımı olarak açıkça beyan edilir.",
+            "Platformu çalıştırmak için aşağıdaki hizmet sağlayıcılarla çalışıyoruz. Bunların sunucuları Türkiye dışında bulunduğundan, ilgili verileriniz yurt dışına aktarılmış olur. Google Analytics ve Meta için Çerezler bölümüne bakınız.",
             "Verileriniz, sektör standardı güvenlik önlemleriyle (şifreli bağlantı, erişim kontrolü) korunur."
           ],
-          "items": []
+          "items": [
+            "Supabase: veritabanı, giriş ve profil fotoğrafı depolama",
+            "Vercel: sitenin barındırılması",
+            "Brevo: doğrulama kodu ve bildirim e-postalarının gönderimi",
+            "Sentry: hata takibi (hata anında sayfa adresi, tarayıcı bilgisi ve IP adresi)",
+            "Upstash: kötüye kullanımı önlemek için IP adresine dayalı istek sınırlama",
+            "OpenStreetMap: harita görüntüleri ve haritada seçilen noktanın adrese çevrilmesi",
+            "Google: \"Google ile devam et\" seçeneğini kullanırsanız Google'dan ad, e-posta ve profil fotoğrafınız alınır"
+          ]
         },
         "retention": {
           "heading": "Saklama Süresi",
@@ -1284,7 +1297,8 @@
           "body": [
             "Platform, dil tercihinizi hatırlamak için NEXT_LOCALE adlı bir çerez ve oturumunuzu açık tutmak için Supabase kimlik doğrulama çerezlerini kullanır — bunlar zorunlu çerezlerdir, açık rızanız gerekmez.",
             "Platform ayrıca Google Analytics (GA4) kullanır, ancak yalnızca sayfanın altındaki çerez bildirimini \"Kabul Et\" ile onayladığınızda etkinleşir; \"Reddet\" seçeneğinde veya bir seçim yapmadığınız sürece Google Analytics çerezsiz modda çalışır ve tarayıcınızda kalıcı bir tanımlayıcı bırakmaz. Tercihinizi istediğiniz zaman tarayıcı ayarlarınızdan çerezleri temizleyerek sıfırlayabilirsiniz.",
-            "Platform ayrıca reklamlarının etkisini ölçmek için Meta Pixel kullanır. Meta Pixel de yalnızca çerez bildirimini \"Kabul Et\" ile onayladığınızda etkinleşir; onay vermediğiniz sürece Meta'ya hiçbir veri gönderilmez ve tarayıcınıza Meta çerezi bırakılmaz. Onay verdiğinizde ziyaret ettiğiniz sayfalar ve tarayıcı bilgileriniz Meta'ya iletilir; Meta'nın sunucuları Türkiye dışında bulunduğundan bu, kişisel verilerinizin yurt dışına aktarılması anlamına gelir."
+            "Platform ayrıca reklamlarının etkisini ölçmek için Meta Pixel kullanır. Meta Pixel de yalnızca çerez bildirimini \"Kabul Et\" ile onayladığınızda etkinleşir; onay vermediğiniz sürece Meta'ya hiçbir veri gönderilmez ve tarayıcınıza Meta çerezi bırakılmaz. Onay verdiğinizde ziyaret ettiğiniz sayfalar ve tarayıcı bilgileriniz Meta'ya iletilir; Meta'nın sunucuları Türkiye dışında bulunduğundan bu, kişisel verilerinizin yurt dışına aktarılması anlamına gelir.",
+            "gb_src çerezi de yalnızca \"Kabul Et\" ile onay verdiğinizde bırakılır. Siteye hangi kaynaktan geldiğinizi kayıt anında hesabınıza işlemek için kullanılır ve 90 gün saklanır."
           ],
           "items": []
         },
@@ -1315,9 +1329,11 @@
           "items": [
             "Kimlik verisi: ad, soyad, doğum tarihi, cinsiyet",
             "İletişim verisi: e-posta adresi, telefon numarası",
+            "Görsel veri: profil fotoğrafı",
             "Finansal veri: Platform IBAN veya banka hesap bilgisi talep etmez; kullanıcılar havale bilgilerini birbirleriyle sohbet üzerinden paylaşırsa bu bilgiler mesaj içeriği olarak saklanır",
-            "Konum/seyahat verisi: kalkış ve varış şehri, yolculuk tarihi, koltuk sayısı, masraf paylaşım tutarı",
-            "İşlem güvenliği verisi: hesap oluşturma ve oturum açma kayıtları, IP adresi ve benzeri teknik erişim bilgileri"
+            "Konum ve seyahat verisi: kalkış ve varış noktası, yolculuk tarihi, koltuk sayısı, masraf paylaşım tutarı; sohbette paylaşılan konum; sürücünün canlı konumu (yalnızca son konum)",
+            "İşlem güvenliği verisi: hesap oluşturma ve oturum açma kayıtları, IP adresi, tarayıcı ve cihaz bilgisi, hata kayıtları",
+            "Pazarlama verisi: kayıt kaynağı; çerez onayı vermeniz hâlinde analiz ve reklam ölçüm verileri"
           ]
         },
         "retention": {
@@ -1330,31 +1346,40 @@
         "purposes": {
           "heading": "Kişisel Verilerin İşlenme Amaçları",
           "body": [
-            "Kişisel verileriniz; üyelik ve hesap yönetiminin sağlanması, yolculuk rezervasyon süreçlerinin (talep, onay, ret, iptal) yürütülmesi, sürücü ve yolcu arasında iletişimin sağlanması, kullanıcı ve platform güvenliğinin sağlanması ile değerlendirme/puanlama sisteminin işletilmesi amaçlarıyla işlenmektedir."
+            "Kişisel verileriniz; üyelik ve hesap yönetiminin sağlanması, yolculuk rezervasyon süreçlerinin (talep, onay, ret, iptal) yürütülmesi, sürücü ve yolcu arasında iletişimin sağlanması, kullanıcı ve platform güvenliğinin sağlanması, hataların tespiti ve kötüye kullanımın önlenmesi, değerlendirme/puanlama sisteminin işletilmesi ile onay vermeniz hâlinde site kullanımının analizi ve reklam etkinliğinin ölçülmesi amaçlarıyla işlenmektedir."
           ],
           "items": []
         },
         "legalBasis": {
           "heading": "Kişisel Veri İşlemenin Hukuki Sebebi",
           "body": [
-            "Kişisel verileriniz, KVKK'nın 5/2 maddesinde yer alan “bir sözleşmenin kurulması veya ifasıyla doğrudan doğruya ilgili olması kaydıyla sözleşmenin taraflarına ait kişisel verilerin işlenmesinin gerekli olması” ve “ilgili kişinin temel hak ve özgürlüklerine zarar vermemek kaydıyla veri sorumlusunun meşru menfaatleri için veri işlenmesinin zorunlu olması” hukuki sebeplerine dayanılarak işlenmektedir."
+            "Kişisel verileriniz, KVKK'nın 5/2 maddesinde yer alan “bir sözleşmenin kurulması veya ifasıyla doğrudan doğruya ilgili olması kaydıyla sözleşmenin taraflarına ait kişisel verilerin işlenmesinin gerekli olması” ve “ilgili kişinin temel hak ve özgürlüklerine zarar vermemek kaydıyla veri sorumlusunun meşru menfaatleri için veri işlenmesinin zorunlu olması” hukuki sebeplerine dayanılarak işlenmektedir.",
+            "Analiz ve reklam çerezleri ile kayıt kaynağı çerezi ise yalnızca açık rızanıza (çerez bildiriminde \"Kabul Et\") dayanılarak işlenir. Rızanızı tarayıcınızdaki site verilerini temizleyerek geri alabilirsiniz."
           ],
           "items": []
         },
         "collectionMethod": {
           "heading": "Kişisel Verilerin Toplanma Yöntemi",
           "body": [
-            "Kişisel verileriniz, elektronik ortamda, GötürBeni web uygulaması üzerinden kayıt formu, profil düzenleme, yolculuk ilanı oluşturma, rezervasyon ve mesajlaşma işlemleri sırasında doğrudan sizin tarafınızdan sağlanan bilgiler yoluyla otomatik olarak toplanmaktadır."
+            "Kişisel verileriniz, elektronik ortamda, GötürBeni web uygulaması üzerinden kayıt formu, profil düzenleme, yolculuk ilanı oluşturma, rezervasyon ve mesajlaşma işlemleri sırasında doğrudan sizin tarafınızdan sağlanan bilgiler yoluyla; IP adresi, tarayıcı bilgisi ve hata kayıtları siteyi kullanırken otomatik olarak; \"Google ile devam et\" seçeneğini kullanırsanız ad, e-posta ve profil fotoğrafınız Google'dan toplanmaktadır."
           ],
           "items": []
         },
         "transfer": {
           "heading": "Kişisel Verilerin Aktarımı",
           "body": [
-            "Kişisel verileriniz, platformun teknik altyapısını sağlayan Supabase hizmeti üzerinde barındırılmaktadır. Supabase'in sunucu altyapısı Türkiye dışında yer alabileceğinden, kişisel verileriniz KVKK'nın 9. maddesi kapsamında yurt dışına aktarılabilmektedir.",
-            "Bu aktarım, KVKK'nın 9. maddesinde öngörülen şartlara (açık rıza veya Kişisel Verileri Koruma Kurulu tarafından yeterli korumaya sahip olduğu ilan edilen ülkeler ya da yeterli korumanın yazılı taahhüt yoluyla sağlanması) uygun şekilde gerçekleştirilir."
+            "Kişisel verileriniz, platformu çalıştırmak için hizmet aldığımız aşağıdaki sağlayıcılara, yalnızca ilgili hizmetin gerektirdiği ölçüde aktarılmaktadır. Bu sağlayıcıların sunucuları Türkiye dışında bulunduğundan, söz konusu aktarım yurt dışına aktarım niteliğindedir.",
+            "Çerez onayı vermeniz hâlinde analiz ve reklam ölçüm verileri ayrıca Google (Google Analytics) ve Meta'ya (Meta Pixel) aktarılır."
           ],
-          "items": []
+          "items": [
+            "Supabase: veritabanı, giriş ve profil fotoğrafı depolama",
+            "Vercel: sitenin barındırılması",
+            "Brevo: doğrulama kodu ve bildirim e-postalarının gönderimi",
+            "Sentry: hata takibi",
+            "Upstash: IP adresine dayalı istek sınırlama",
+            "OpenStreetMap: harita görüntüleri ve seçilen noktanın adrese çevrilmesi",
+            "Google: Google hesabıyla giriş hizmeti"
+          ]
         },
         "rights": {
           "heading": "KVKK Madde 11 Uyarınca Haklarınız",

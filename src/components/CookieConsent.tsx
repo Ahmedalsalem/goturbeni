@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 
@@ -20,14 +20,57 @@ function updateAnalyticsConsent(granted: boolean) {
   w.gtag?.("consent", "update", { analytics_storage: granted ? "granted" : "denied" })
 }
 
-// The root layout defines window.fbq only when NEXT_PUBLIC_META_PIXEL_ID is
-// set, starting in the revoked state, so this is a no-op without the pixel.
+const META_PIXEL_SRC = "https://connect.facebook.net/en_US/fbevents.js"
+
+// The root layout defines window.fbq (a queue stub, no network request) only
+// when NEXT_PUBLIC_META_PIXEL_ID is set, so this is a no-op without the
+// pixel. fbevents.js is fetched here, on the first grant, and not before.
 function updateMetaPixelConsent(granted: boolean) {
   const w = window as unknown as { fbq?: (...args: unknown[]) => void }
-  w.fbq?.("consent", granted ? "grant" : "revoke")
+  if (!w.fbq) {
+    return
+  }
+  w.fbq("consent", granted ? "grant" : "revoke")
+  if (granted && !document.querySelector(`script[src="${META_PIXEL_SRC}"]`)) {
+    const script = document.createElement("script")
+    script.async = true
+    script.src = META_PIXEL_SRC
+    document.head.appendChild(script)
+  }
 }
 
-// Gates analytics cookies (GA) and the Meta Pixel behind explicit user consent, as required by
+const SIGNUP_SOURCE_COOKIE = "gb_src"
+const SIGNUP_SOURCE_COOKIE_MAX_AGE = 90 * 24 * 60 * 60
+
+// First-touch attribution for the admin "kullanıcı nereden geldi" metric,
+// read back by features/auth/actions.ts at signup: utm_source wins, else the
+// external referrer's host, else "direct". Resolved from the page the visitor
+// landed on (CookieConsent mounts once and survives client navigation), but
+// only written after consent, and never overwritten once set.
+function resolveLandingSource(): string {
+  const utmSource = new URLSearchParams(window.location.search).get("utm_source")
+  if (utmSource) {
+    return utmSource.slice(0, 100)
+  }
+  try {
+    const referrerHost = document.referrer ? new URL(document.referrer).host : ""
+    if (referrerHost && referrerHost !== window.location.host) {
+      return referrerHost.slice(0, 100)
+    }
+  } catch {
+    // Malformed referrer — fall through to "direct".
+  }
+  return "direct"
+}
+
+function writeSignupSource(source: string) {
+  if (document.cookie.split("; ").some((cookie) => cookie.startsWith(`${SIGNUP_SOURCE_COOKIE}=`))) {
+    return
+  }
+  document.cookie = `${SIGNUP_SOURCE_COOKIE}=${encodeURIComponent(source)}; max-age=${SIGNUP_SOURCE_COOKIE_MAX_AGE}; path=/; samesite=lax`
+}
+
+// Gates analytics cookies (GA), the Meta Pixel and the gb_src attribution cookie behind explicit user consent, as required by
 // KVKK for non-essential cookies. gtag('config', ...) itself runs
 // unconditionally from the root layout (Consent Mode v2 default: denied),
 // so GA operates cookieless with no persistent identifiers until this
@@ -37,9 +80,11 @@ export function CookieConsent({ gaMeasurementId }: { gaMeasurementId?: string })
   const t = useTranslations("CookieConsent")
   const [consent, setConsent] = useState<Consent>(null)
   const [mounted, setMounted] = useState(false)
+  const landingSource = useRef<string | null>(null)
 
   useEffect(() => {
     setMounted(true)
+    landingSource.current = resolveLandingSource()
     const stored = window.localStorage.getItem(STORAGE_KEY)
     if (stored === "accepted" || stored === "rejected") {
       setConsent(stored)
@@ -48,6 +93,7 @@ export function CookieConsent({ gaMeasurementId }: { gaMeasurementId?: string })
       }
       if (stored === "accepted") {
         updateMetaPixelConsent(true)
+        writeSignupSource(landingSource.current)
       }
     }
   }, [gaMeasurementId])
@@ -59,6 +105,9 @@ export function CookieConsent({ gaMeasurementId }: { gaMeasurementId?: string })
       updateAnalyticsConsent(value === "accepted")
     }
     updateMetaPixelConsent(value === "accepted")
+    if (value === "accepted") {
+      writeSignupSource(landingSource.current ?? resolveLandingSource())
+    }
   }
 
   return (

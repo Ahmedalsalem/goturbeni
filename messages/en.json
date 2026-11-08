@@ -1237,11 +1237,14 @@
           "heading": "Data We Collect",
           "body": ["When you register on the Platform and use it, we process the following personal data:"],
           "items": [
-            "Identity and contact information: full name, email address, phone number",
+            "Identity and contact information: full name, email address, phone number, date of birth, gender",
             "Profile information: profile photo, short bio",
             "Trip data: departure and arrival city, date, seat count, cost share amount",
             "Communication data: messages sent within the app between driver and passenger",
-            "Rating data: ratings and reviews you give to or receive from other users"
+            "Rating data: ratings and reviews you give to or receive from other users",
+            "Location data: a location you choose to share in chat; if you are a driver and turn on live location sharing, your current location during the trip (only the latest location is kept, no location history is stored); the departure and arrival points you pick on the map",
+            "Technical data: IP address, browser and device information, error logs, and your push notification subscription if you turn on notifications",
+            "Signup source: if you accept cookies, which link brought you to the site (for example an ad or a video); it is recorded on your account when you sign up"
           ]
         },
         "purposes": {
@@ -1251,16 +1254,26 @@
             "Creating, approving, and managing booking requests",
             "Enabling communication between driver and passenger",
             "Operating the rating/review system to ensure user trust and platform safety",
-            "Creating and managing your account"
+            "Creating and managing your account",
+            "Detecting errors and preventing abuse",
+            "With your consent, analyzing how the site is used and measuring how well our ads perform"
           ]
         },
         "storage": {
           "heading": "Data Storage",
           "body": [
-            "Your data is hosted on our infrastructure provider, Supabase. Supabase's servers may be located outside Turkey, in which case your data is transferred abroad. This is explicitly disclosed here as an international data transfer.",
+            "We work with the service providers below to run the Platform. Their servers are located outside Türkiye, so the relevant data is transferred abroad. For Google Analytics and Meta, see the Cookies section.",
             "Your data is protected with industry-standard security measures (encrypted connections, access control)."
           ],
-          "items": []
+          "items": [
+            "Supabase: database, sign-in, and profile photo storage",
+            "Vercel: hosting the site",
+            "Brevo: sending verification code and notification emails",
+            "Sentry: error tracking (when an error occurs: page address, browser information, and IP address)",
+            "Upstash: IP-based request limiting to prevent abuse",
+            "OpenStreetMap: map images and turning a point picked on the map into an address",
+            "Google: if you use \"Continue with Google\", we receive your name, email, and profile photo from Google"
+          ]
         },
         "retention": {
           "heading": "Retention Period",
@@ -1282,7 +1295,8 @@
           "body": [
             "The Platform uses a cookie named NEXT_LOCALE to remember your language preference, and Supabase authentication cookies to keep you signed in — these are strictly necessary cookies and don't require your consent.",
             "The Platform also uses Google Analytics (GA4), but it only activates once you accept the cookie notice at the bottom of the page; if you decline, or make no choice, Google Analytics runs in cookieless mode and leaves no persistent identifier in your browser. You can reset your choice at any time by clearing your browser's cookies.",
-            "The Platform also uses the Meta Pixel to measure how well its ads perform. The Meta Pixel likewise only activates once you click \"Accept\" on the cookie notice; until you do, no data is sent to Meta and no Meta cookie is stored in your browser. Once you accept, the pages you visit and your browser information are sent to Meta; because Meta's servers are located outside Türkiye, this means your personal data is transferred abroad."
+            "The Platform also uses the Meta Pixel to measure how well its ads perform. The Meta Pixel likewise only activates once you click \"Accept\" on the cookie notice; until you do, no data is sent to Meta and no Meta cookie is stored in your browser. Once you accept, the pages you visit and your browser information are sent to Meta; because Meta's servers are located outside Türkiye, this means your personal data is transferred abroad.",
+            "The gb_src cookie is likewise only set once you click \"Accept\". It is used to record which source brought you to the site on your account when you sign up, and it is kept for 90 days."
           ],
           "items": []
         },
@@ -1311,22 +1325,25 @@
           "items": [
             "Identity data: first name, last name, date of birth, gender",
             "Contact data: email address, phone number",
+            "Visual data: profile photo",
             "Financial data: the Platform does not request an IBAN or bank account details; if users share transfer details with each other in chat, they are stored as message content",
-            "Location/travel data: departure and arrival city, trip date, seat count, cost share amount",
-            "Transaction security data: account creation and login records, IP address, and similar technical access information"
+            "Location and travel data: departure and arrival point, trip date, seat count, cost share amount; a location shared in chat; the driver's live location (latest location only)",
+            "Transaction security data: account creation and login records, IP address, browser and device information, error logs",
+            "Marketing data: signup source; if you consent to cookies, analytics and ad measurement data"
           ]
         },
         "purposes": {
           "heading": "Purposes of Processing Personal Data",
           "body": [
-            "Your personal data is processed for the purposes of managing membership and accounts, carrying out trip booking processes (request, approval, rejection, cancellation), enabling communication between driver and passenger, ensuring user and platform safety, and operating the rating/review system."
+            "Your personal data is processed for the purposes of managing membership and accounts, carrying out trip booking processes (request, approval, rejection, cancellation), enabling communication between driver and passenger, ensuring user and platform safety, detecting errors and preventing abuse, operating the rating/review system, and, with your consent, analyzing how the site is used and measuring ad performance."
           ],
           "items": []
         },
         "legalBasis": {
           "heading": "Legal Basis for Processing Personal Data",
           "body": [
-            "Your personal data is processed on the legal grounds set out in Article 5/2 of the KVKK: that “processing is necessary for the establishment or performance of a contract, provided it is directly related to the parties to the contract,” and that “processing is necessary for the legitimate interests of the data controller, provided this does not harm the fundamental rights and freedoms of the data subject.”"
+            "Your personal data is processed on the legal grounds set out in Article 5/2 of the KVKK: that “processing is necessary for the establishment or performance of a contract, provided it is directly related to the parties to the contract,” and that “processing is necessary for the legitimate interests of the data controller, provided this does not harm the fundamental rights and freedoms of the data subject.”",
+            "Analytics and advertising cookies and the signup source cookie, however, are processed only on the basis of your explicit consent (clicking \"Accept\" on the cookie notice). You can withdraw your consent by clearing this site's data in your browser."
           ],
           "items": []
         },
@@ -1340,17 +1357,25 @@
         "collectionMethod": {
           "heading": "Method of Collecting Personal Data",
           "body": [
-            "Your personal data is collected electronically and automatically, through information you provide directly via the GötürBeni web application during registration, profile editing, ride listing creation, booking, and messaging."
+            "Your personal data is collected electronically via the GötürBeni web application: through information you provide directly during registration, profile editing, ride listing creation, booking, and messaging; automatically while you use the site (IP address, browser information, and error logs); and from Google (your name, email, and profile photo) if you use \"Continue with Google\"."
           ],
           "items": []
         },
         "transfer": {
           "heading": "Transfer of Personal Data",
           "body": [
-            "Your personal data is hosted on Supabase, which provides the Platform's technical infrastructure. Since Supabase's server infrastructure may be located outside Turkey, your personal data may be transferred abroad under Article 9 of the KVKK.",
-            "This transfer is carried out in accordance with the conditions set out in Article 9 of the KVKK (explicit consent, transfer to countries deemed by the Personal Data Protection Board to provide adequate protection, or adequate protection ensured through a written undertaking)."
+            "Your personal data is transferred to the service providers below, which we use to run the Platform, only to the extent the relevant service requires. Because these providers' servers are located outside Türkiye, this is a transfer abroad.",
+            "If you consent to cookies, analytics and ad measurement data is also transferred to Google (Google Analytics) and Meta (Meta Pixel)."
           ],
-          "items": []
+          "items": [
+            "Supabase: database, sign-in, and profile photo storage",
+            "Vercel: hosting the site",
+            "Brevo: sending verification code and notification emails",
+            "Sentry: error tracking",
+            "Upstash: IP-based request limiting",
+            "OpenStreetMap: map images and turning a picked point into an address",
+            "Google: sign-in with a Google account"
+          ]
         },
         "rights": {
           "heading": "Your Rights Under Article 11 of the KVKK",

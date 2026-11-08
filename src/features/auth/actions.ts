@@ -24,9 +24,10 @@ const LOGIN_RATE_LIMIT = { limit: 10, windowMs: 5 * 60 * 1000 }
 const SIGNUP_RATE_LIMIT = { limit: process.env.E2E_TEST === "true" ? 100 : 5, windowMs: 60 * 60 * 1000 }
 const PASSWORD_RESET_RATE_LIMIT = { limit: 5, windowMs: 60 * 60 * 1000 }
 
-// Written by middleware.ts on a visitor's first request (SIGNUP_SOURCE_COOKIE
-// there, same value). Read here rather than passed through the form because
-// it must survive same-site navigation between landing and /signup.
+// Written by CookieConsent.tsx once the visitor accepts cookies (absent
+// otherwise, and the signup is then unattributed). Read here rather than
+// passed through the form because it must survive same-site navigation
+// between landing and /signup.
 async function getSignupSource(): Promise<string | undefined> {
   const cookieStore = await cookies()
   return cookieStore.get("gb_src")?.value
