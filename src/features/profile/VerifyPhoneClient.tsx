@@ -20,13 +20,11 @@ import {
 const GENDER_OPTIONS = ["female", "male"] as const
 type Gender = (typeof GENDER_OPTIONS)[number]
 
-// Two GötürBeni users this week resent the code within ~20s of the first
-// send (Resend dashboard: 2026-09-10 mebacanak@hotmail.com x3, 2026-09-11
-// azad.roj474734@gmail.com x2) — almost certainly a real inbox not showing
-// the mail yet (deliverability lag), not a UI bug, but with no cooldown
-// there was nothing stopping them from re-triggering it seconds later
-// instead of waiting for it to land. A visible countdown buys the email
-// time to arrive before the button is even clickable again.
+// Users resent the code within ~20s of the first send, before the first
+// email had arrived. Each resend used to replace the code, so the code in the
+// first email stopped working (fixed in 0105: a resend reuses the unexpired
+// code). The countdown still gives the email time to arrive before the button
+// can be pressed again.
 const RESEND_COOLDOWN_SECONDS = 30
 
 // Drives the mandatory one-time verification gate on /verify-phone. Legacy
