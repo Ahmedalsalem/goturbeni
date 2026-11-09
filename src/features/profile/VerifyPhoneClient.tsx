@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useTransition } from "react"
+import { useEffect, useRef, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { Loader2, ShieldCheck } from "lucide-react"
@@ -27,6 +27,10 @@ type Gender = (typeof GENDER_OPTIONS)[number]
 // can be pressed again.
 const RESEND_COOLDOWN_SECONDS = 30
 
+// Set after a successful send so a reload in the same tab shows the code
+// input instead of sending another email.
+const AUTO_SENT_STORAGE_KEY = "verify-code-auto-sent"
+
 // Drives the mandatory one-time verification gate on /verify-phone. Legacy
 // accounts missing gender/phone (created before this requirement) fill them
 // in first; everyone else goes straight to the e-mail code send/verify step,
@@ -40,6 +44,29 @@ export function VerifyPhoneClient({ gender, phone }: { gender: Gender | null; ph
   const [code, setCode] = useState("")
   const [detailsMissing, setDetailsMissing] = useState(!gender || !phone)
   const [resendCooldown, setResendCooldown] = useState(0)
+  const [autoSendPending, setAutoSendPending] = useState(!detailsMissing)
+
+  // Users who reached this page used to see only a "send code" button, and
+  // many left without pressing it. The first code now goes out on its own;
+  // the button only remains as a retry if that send fails.
+  const autoSendStarted = useRef(false)
+  useEffect(() => {
+    if (!autoSendPending || autoSendStarted.current) return
+    autoSendStarted.current = true
+    let alreadySent = false
+    try {
+      alreadySent = window.sessionStorage.getItem(AUTO_SENT_STORAGE_KEY) === "1"
+    } catch {
+      // Storage unavailable (private mode): send anyway, reloads may resend.
+    }
+    setAutoSendPending(false)
+    if (alreadySent) {
+      setCodeSent(true)
+      return
+    }
+    onSend()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once on mount
+  }, [])
 
   useEffect(() => {
     if (resendCooldown <= 0) return
@@ -58,6 +85,11 @@ export function VerifyPhoneClient({ gender, phone }: { gender: Gender | null; ph
         toast.error(result.error)
         return
       }
+      try {
+        window.sessionStorage.setItem(AUTO_SENT_STORAGE_KEY, "1")
+      } catch {
+        // Storage unavailable: a reload will send again.
+      }
       setDetailsMissing(false)
       setCodeSent(true)
       setResendCooldown(RESEND_COOLDOWN_SECONDS)
@@ -72,6 +104,11 @@ export function VerifyPhoneClient({ gender, phone }: { gender: Gender | null; ph
         toast.error(result.error)
         return
       }
+      try {
+        window.sessionStorage.setItem(AUTO_SENT_STORAGE_KEY, "1")
+      } catch {
+        // Storage unavailable: a reload will send again.
+      }
       setCodeSent(true)
       setResendCooldown(RESEND_COOLDOWN_SECONDS)
       toast.success(t("codeSentTitle"))
@@ -84,6 +121,11 @@ export function VerifyPhoneClient({ gender, phone }: { gender: Gender | null; ph
       if (result.error) {
         toast.error(result.error)
         return
+      }
+      try {
+        window.sessionStorage.removeItem(AUTO_SENT_STORAGE_KEY)
+      } catch {
+        // Storage unavailable: nothing was stored.
       }
       toast.success(t("verifySuccess"))
       router.push("/rides")
@@ -162,8 +204,8 @@ export function VerifyPhoneClient({ gender, phone }: { gender: Gender | null; ph
   }
 
   return (
-    <Button type="button" className="w-full" onClick={onSend} disabled={isPending}>
-      {isPending && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
+    <Button type="button" className="w-full" onClick={onSend} disabled={isPending || autoSendPending}>
+      {(isPending || autoSendPending) && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
       {t("sendCta")}
     </Button>
   )
