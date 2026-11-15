@@ -63,7 +63,14 @@ export async function sendEmail(email: OutgoingEmail, context: string): Promise<
 // clients need dir="rtl" and mirrored alignment, not just RTL-shaped text).
 export function renderEmailHtml(
   locale: AppLocale,
-  params: { greeting: string; bodyHtml: string; ctaLabel?: string; ctaUrl?: string; signoff: string; footerNote: string }
+  params: {
+    greeting: string
+    bodyHtml: string
+    ctaLabel?: string
+    ctaUrl?: string
+    signoff: string
+    footerNote: string
+  }
 ): string {
   const dir = isRtlLocale(locale) ? "rtl" : "ltr"
   const align = dir === "rtl" ? "right" : "left"
@@ -140,13 +147,18 @@ const BREVO_VERSIONS_PER_REQUEST = 100
 // content. The top-level subject/htmlContent are required by the API but
 // every version overrides them; textContent is deliberately left off the
 // top level so a version without one never inherits another recipient's.
-export async function sendEmailBatch(emails: OutgoingEmail[], context: string): Promise<void> {
+export async function sendEmailBatch(
+  emails: OutgoingEmail[],
+  context: string,
+  headers?: Record<string, string>
+): Promise<void> {
   for (let i = 0; i < emails.length; i += BREVO_VERSIONS_PER_REQUEST) {
     const chunk = emails.slice(i, i + BREVO_VERSIONS_PER_REQUEST)
     try {
       await postToBrevo({
         subject: chunk[0].subject,
         htmlContent: chunk[0].html,
+        ...(headers ? { headers } : {}),
         messageVersions: chunk.map((email) => ({
           to: [{ email: email.to }],
           subject: email.subject,

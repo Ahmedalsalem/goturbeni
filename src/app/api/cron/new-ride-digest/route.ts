@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server"
 import { getTranslations } from "next-intl/server"
 
 import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-config"
-import { isEmailConfigured, renderEmailHtml, sendEmailBatch } from "@/lib/email"
+import { isEmailConfigured, renderEmailHtml, renderEmailText, sendEmailBatch } from "@/lib/email"
 import { getProvinceDisplayName } from "@/utils/turkish-provinces-ar"
 
 interface DigestRide {
@@ -65,26 +65,53 @@ export async function POST(request: NextRequest) {
           .map((ride) => {
             const from = getProvinceDisplayName(ride.departureCity, locale)
             const to = getProvinceDisplayName(ride.arrivalCity, locale)
-            const badge = ride.postedByRole === "passenger" ? tCard("passengerListingBadge") : tCard("driverListingBadge")
+            const badge =
+              ride.postedByRole === "passenger" ? tCard("passengerListingBadge") : tCard("driverListingBadge")
             return `<li style="margin:0 0 8px;"><a href="${siteUrl}/rides/${ride.id}" style="color:#022844;font-weight:bold;">${from} → ${to}</a> · ${badge} · ${formatDate.format(new Date(ride.departureTime))}</li>`
           })
           .join("")
+        const textItems = rides
+          .map((ride) => {
+            const from = getProvinceDisplayName(ride.departureCity, locale)
+            const to = getProvinceDisplayName(ride.arrivalCity, locale)
+            const badge =
+              ride.postedByRole === "passenger" ? tCard("passengerListingBadge") : tCard("driverListingBadge")
+            return `- ${from} → ${to} · ${badge} · ${formatDate.format(new Date(ride.departureTime))}: ${siteUrl}/rides/${ride.id}`
+          })
+          .join("\n")
+        const intro = t("newRideDigestIntro", { count: rides.length })
+        const footerNote = t("newRideDigestFooter", { url: `${siteUrl}/profile` })
+        const subject =
+          rides.length === 1
+            ? t("newRideSingleSubject", {
+                from: getProvinceDisplayName(rides[0].departureCity, locale),
+                to: getProvinceDisplayName(rides[0].arrivalCity, locale),
+              })
+            : t("newRideDigestSubject")
         return {
           to: recipient.email,
-          subject: t("newRideDigestSubject"),
+          subject,
           html: renderEmailHtml(locale, {
             greeting: t("greeting"),
-            bodyHtml: `<p style="margin:0 0 12px;">${t("newRideDigestIntro", { count: rides.length })}</p><ul style="margin:0;padding-inline-start:20px;">${items}</ul>`,
+            bodyHtml: `<p style="margin:0 0 12px;">${intro}</p><ul style="margin:0;padding-inline-start:20px;">${items}</ul>`,
             ctaLabel: t("newRideDigestCta"),
             ctaUrl: `${siteUrl}/rides`,
             signoff: t("signoff"),
-            footerNote: t("footerNote"),
+            footerNote,
+          }),
+          text: renderEmailText({
+            greeting: t("greeting"),
+            bodyText: `${intro}\n${textItems}`,
+            ctaLabel: t("newRideDigestCta"),
+            ctaUrl: `${siteUrl}/rides`,
+            signoff: t("signoff"),
+            footerNote,
           }),
         }
       })
     )
   ).filter((email) => email !== null)
-  await sendEmailBatch(emails, "cron.newRideDigest")
+  await sendEmailBatch(emails, "cron.newRideDigest", { "List-Unsubscribe": `<${siteUrl}/profile>` })
 
   return NextResponse.json({ ok: true, sent: emails.length })
 }
