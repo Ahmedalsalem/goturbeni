@@ -16,6 +16,7 @@ import {
   sendEmailVerificationCode,
   verifyEmailVerificationCode,
 } from "@/features/profile/actions"
+import { readStorage, removeStorage, writeStorage } from "@/lib/safe-storage"
 
 const GENDER_OPTIONS = ["female", "male"] as const
 type Gender = (typeof GENDER_OPTIONS)[number]
@@ -53,12 +54,8 @@ export function VerifyPhoneClient({ gender, phone }: { gender: Gender | null; ph
   useEffect(() => {
     if (!autoSendPending || autoSendStarted.current) return
     autoSendStarted.current = true
-    let alreadySent = false
-    try {
-      alreadySent = window.sessionStorage.getItem(AUTO_SENT_STORAGE_KEY) === "1"
-    } catch {
-      // Storage unavailable (private mode): send anyway, reloads may resend.
-    }
+    // Blocked storage reads as not sent: send anyway, reloads may resend.
+    const alreadySent = readStorage(AUTO_SENT_STORAGE_KEY, "sessionStorage") === "1"
     setAutoSendPending(false)
     if (alreadySent) {
       setCodeSent(true)
@@ -85,11 +82,7 @@ export function VerifyPhoneClient({ gender, phone }: { gender: Gender | null; ph
         toast.error(result.error)
         return
       }
-      try {
-        window.sessionStorage.setItem(AUTO_SENT_STORAGE_KEY, "1")
-      } catch {
-        // Storage unavailable: a reload will send again.
-      }
+      writeStorage(AUTO_SENT_STORAGE_KEY, "1", "sessionStorage")
       setDetailsMissing(false)
       setCodeSent(true)
       setResendCooldown(RESEND_COOLDOWN_SECONDS)
@@ -104,11 +97,7 @@ export function VerifyPhoneClient({ gender, phone }: { gender: Gender | null; ph
         toast.error(result.error)
         return
       }
-      try {
-        window.sessionStorage.setItem(AUTO_SENT_STORAGE_KEY, "1")
-      } catch {
-        // Storage unavailable: a reload will send again.
-      }
+      writeStorage(AUTO_SENT_STORAGE_KEY, "1", "sessionStorage")
       setCodeSent(true)
       setResendCooldown(RESEND_COOLDOWN_SECONDS)
       toast.success(t("codeSentTitle"))
@@ -122,11 +111,7 @@ export function VerifyPhoneClient({ gender, phone }: { gender: Gender | null; ph
         toast.error(result.error)
         return
       }
-      try {
-        window.sessionStorage.removeItem(AUTO_SENT_STORAGE_KEY)
-      } catch {
-        // Storage unavailable: nothing was stored.
-      }
+      removeStorage(AUTO_SENT_STORAGE_KEY, "sessionStorage")
       toast.success(t("verifySuccess"))
       router.push("/rides")
     })

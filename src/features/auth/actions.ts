@@ -157,10 +157,11 @@ export async function signUp(_prevState: AuthActionState, formData: FormData): P
     },
   })
   if (error) {
-    logError(error, "auth.signUp")
-    return {
-      error: error.message === "User already registered" ? tErrors("emailAlreadyRegistered") : tErrors("signupFailed"),
+    if (error.message === "User already registered") {
+      return { error: tErrors("emailAlreadyRegistered") }
     }
+    logError(error, "auth.signUp")
+    return { error: tErrors("signupFailed") }
   }
 
   // If Supabase's "Confirm email" setting is off, signUp already returns an

@@ -12,6 +12,7 @@ import type { RideSearchFilters } from "@/features/rides/filters"
 import { reverseGeocode } from "@/features/rides/reverse-geocode"
 import { matchTurkishLocation } from "@/utils/match-turkish-location"
 import { logError } from "@/lib/logger"
+import { readStorage, writeStorage } from "@/lib/safe-storage"
 
 const container: Variants = {
   hidden: {},
@@ -40,8 +41,8 @@ export function HomeHero() {
     // only calling getCurrentPosition from its button's onClick makes the
     // request a genuine user gesture again.
     if (!("geolocation" in navigator)) return
-    if (window.localStorage.getItem(GEO_PROMPT_STORAGE_KEY)) return
-    window.localStorage.setItem(GEO_PROMPT_STORAGE_KEY, "1")
+    if (readStorage(GEO_PROMPT_STORAGE_KEY)) return
+    writeStorage(GEO_PROMPT_STORAGE_KEY, "1")
 
     function requestLocation() {
       navigator.geolocation.getCurrentPosition(

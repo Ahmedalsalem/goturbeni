@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl"
 
 import { buttonVariants } from "@/components/ui/button"
 import { Dialog, DialogPopup, DialogCloseIcon, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { readStorage, writeStorage } from "@/lib/safe-storage"
 
 const STORAGE_KEY = "welcome-auth-modal-seen"
 
@@ -28,8 +29,8 @@ export function WelcomeAuthModal({ isGuest }: { isGuest: boolean }) {
 
   useEffect(() => {
     if (!isGuest || skip) return
-    if (window.localStorage.getItem(STORAGE_KEY) === "1") return
-    window.localStorage.setItem(STORAGE_KEY, "1")
+    if (readStorage(STORAGE_KEY) === "1") return
+    writeStorage(STORAGE_KEY, "1")
     setOpen(true)
   }, [isGuest, skip])
 

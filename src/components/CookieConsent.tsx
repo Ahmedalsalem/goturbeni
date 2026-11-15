@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
+import { readStorage, writeStorage } from "@/lib/safe-storage"
 
 const STORAGE_KEY = "cookie-consent"
 
@@ -85,7 +86,7 @@ export function CookieConsent({ gaMeasurementId }: { gaMeasurementId?: string })
   useEffect(() => {
     setMounted(true)
     landingSource.current = resolveLandingSource()
-    const stored = window.localStorage.getItem(STORAGE_KEY)
+    const stored = readStorage(STORAGE_KEY)
     if (stored === "accepted" || stored === "rejected") {
       setConsent(stored)
       if (gaMeasurementId && stored === "accepted") {
@@ -99,7 +100,7 @@ export function CookieConsent({ gaMeasurementId }: { gaMeasurementId?: string })
   }, [gaMeasurementId])
 
   const decide = (value: "accepted" | "rejected") => {
-    window.localStorage.setItem(STORAGE_KEY, value)
+    writeStorage(STORAGE_KEY, value)
     setConsent(value)
     if (gaMeasurementId) {
       updateAnalyticsConsent(value === "accepted")

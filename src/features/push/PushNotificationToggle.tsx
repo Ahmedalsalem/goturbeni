@@ -8,6 +8,7 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { subscribeToPush } from "@/features/push/actions"
 import { logError } from "@/lib/logger"
+import { readStorage, writeStorage } from "@/lib/safe-storage"
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
 const AUTO_PROMPT_STORAGE_KEY = "push-permission-auto-prompted"
@@ -77,9 +78,9 @@ export function PushNotificationToggle() {
         if (
           subscription === null &&
           Notification.permission === "default" &&
-          window.localStorage.getItem(AUTO_PROMPT_STORAGE_KEY) !== "1"
+          readStorage(AUTO_PROMPT_STORAGE_KEY) !== "1"
         ) {
-          window.localStorage.setItem(AUTO_PROMPT_STORAGE_KEY, "1")
+          writeStorage(AUTO_PROMPT_STORAGE_KEY, "1")
           subscribe()
             .then((granted) => setSubscribed(granted))
             .catch((error) => logError(error, "push.autoPrompt"))

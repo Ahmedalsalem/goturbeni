@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl"
 import { Share, SquarePlus, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { readStorage, writeStorage } from "@/lib/safe-storage"
 
 const STORAGE_KEY = "ios-install-prompt-dismissed"
 
@@ -15,7 +16,8 @@ const STORAGE_KEY = "ios-install-prompt-dismissed"
 function isIosBrowserTab(): boolean {
   const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent)
   const isStandalone =
-    window.matchMedia("(display-mode: standalone)").matches || (navigator as Navigator & { standalone?: boolean }).standalone === true
+    window.matchMedia("(display-mode: standalone)").matches ||
+    (navigator as Navigator & { standalone?: boolean }).standalone === true
   return isIos && !isStandalone
 }
 
@@ -34,7 +36,7 @@ export function IOSInstallPrompt() {
   const [needsSafari, setNeedsSafari] = useState(false)
 
   useEffect(() => {
-    if (window.localStorage.getItem(STORAGE_KEY) === "1") return
+    if (readStorage(STORAGE_KEY) === "1") return
     if (isIosBrowserTab()) {
       setVisible(true)
       setNeedsSafari(isNonSafariIosBrowser())
@@ -42,7 +44,7 @@ export function IOSInstallPrompt() {
   }, [])
 
   function dismiss() {
-    window.localStorage.setItem(STORAGE_KEY, "1")
+    writeStorage(STORAGE_KEY, "1")
     setVisible(false)
   }
 
