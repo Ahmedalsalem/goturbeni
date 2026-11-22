@@ -1164,11 +1164,13 @@
     "terms": {
       "title": "Terms of Use",
       "intro": "These Terms of Use govern the rules that apply to drivers and passengers using the GötürBeni platform (“Platform”). By using the Platform, you are deemed to have accepted these terms.",
+      "lastUpdated": "Last updated: 22 November 2026",
       "sections": {
         "service": {
           "heading": "Description of the Service",
           "body": [
             "GötürBeni is a matching platform that connects car-owning drivers with passengers who want to travel the same route on intercity trips.",
+            "The Platform is operated by Ahmed Alsalem as an individual activity.",
             "The Platform is not a taxi operator, commercial passenger transport company, or travel agency; drivers arrange trips using their own vehicles on a cost-sharing basis.",
             "This platform strictly prohibits commercial transport services. Drivers may only share travel costs; accounts found to be operating for profit will be suspended or closed.",
             "The Platform does not currently charge any commission or service fee on trips."
@@ -1186,8 +1188,39 @@
             "Arranging trips for commercial purposes or profit, or reselling seats to third parties — accounts found doing so will be suspended or closed",
             "Using false, misleading, or another person's identity or contact information",
             "Engaging in harassment, discrimination, or threatening behavior toward other users",
+            "Carrying illegal substances or items (such as drugs, weapons or smuggled goods) during a trip",
             "Using the Platform for purposes other than its intended use (advertising, spam, fraud, etc.)"
           ]
+        },
+        "compliance": {
+          "heading": "Compliance with Law and Penalties",
+          "body": [
+            "Users must comply with all applicable legislation, including the Highway Traffic Law (Karayolları Trafik Kanunu) and the Road Transport Law (Karayolu Taşıma Kanunu). Any administrative fines, vehicle impoundment or other sanctions imposed for breaching this legislation are borne entirely by the user concerned."
+          ],
+          "items": []
+        },
+        "drivers": {
+          "heading": "Driver Obligations",
+          "body": [
+            "The driver declares that they hold a valid driving licence and that the vehicle has valid compulsory traffic insurance and a valid vehicle inspection. The driver bears full responsibility for any inaccuracy in this declaration.",
+            "The driver may decline a booking request, and may refuse to take a passenger they suspect of carrying illegal substances or items, or who endangers the safety of the trip."
+          ],
+          "items": []
+        },
+        "pricing": {
+          "heading": "Cost Sharing and Suggested Amount",
+          "body": [
+            "The amount the Platform shows when a listing is created is only a non-binding suggestion based on the estimated fuel cost. Users set the cost share themselves, and it may not exceed the actual costs of the trip."
+          ],
+          "items": []
+        },
+        "verification": {
+          "heading": "User Verification",
+          "body": [
+            "The Platform does not check or verify users' identity, driving licence, vehicle registration, insurance or inspection. The user who provides profile and listing information is responsible for its accuracy.",
+            "Users are advised to confirm each other's details themselves before a trip."
+          ],
+          "items": []
         },
         "booking": {
           "heading": "Booking and Cancellation Policy",
@@ -1204,7 +1237,15 @@
           "body": [
             "GötürBeni is solely an intermediary platform that connects drivers and passengers; it is not a party to the travel arrangement formed between them.",
             "The Platform cannot be held responsible for drivers' vehicle use, compliance with traffic rules, insurance obligations, or conduct during the trip, nor for passengers' conduct.",
-            "The Platform bears no legal responsibility for accidents, delays, loss of property or life, or other damages that may occur during trips between users. Users take part in trips voluntarily and at their own risk."
+            "To the extent permitted by applicable law, the Platform is not liable for accidents, delays, loss of property or life, or other damages that may occur during trips between users. Users take part in trips voluntarily and at their own risk.",
+            "This limitation does not apply to damages arising from the Platform's intent or gross negligence, or to any other liability that cannot be limited by law."
+          ],
+          "items": []
+        },
+        "indemnity": {
+          "heading": "Indemnification",
+          "body": [
+            "If a third party or a public authority brings a claim against, or imposes a sanction on, the Platform because a user breached these terms or applicable law, that user shall cover the resulting losses and reasonable defence costs incurred by the Platform."
           ],
           "items": []
         },
@@ -1213,6 +1254,13 @@
           "body": [
             "In the event of a breach of these terms, a safety concern, or complaints from other users, GötürBeni reserves the right to temporarily suspend or permanently close an account, with or without prior notice.",
             "Users may close their accounts at any time."
+          ],
+          "items": []
+        },
+        "changes": {
+          "heading": "Changes to These Terms",
+          "body": [
+            "GötürBeni may update these Terms of Use. The current version is published on this page together with its last-updated date. Continuing to use the Platform after an update means you accept the updated terms."
           ],
           "items": []
         },

@@ -1164,11 +1164,13 @@
     "terms": {
       "title": "Kullanım Şartları",
       "intro": "Bu Kullanım Şartları, GötürBeni platformunu (“Platform”) kullanan sürücüler ve yolcular için geçerli olan kuralları düzenler. Platformu kullanarak bu şartları kabul etmiş sayılırsınız.",
+      "lastUpdated": "Son güncelleme: 22 Kasım 2026",
       "sections": {
         "service": {
           "heading": "Hizmetin Tanımı",
           "body": [
             "GötürBeni, şehirlerarası yolculuklarda araç sahibi sürücüler ile aynı güzergâhta seyahat etmek isteyen yolcuları bir araya getiren bir eşleştirme platformudur.",
+            "Platform, şahıs faaliyeti olarak Ahmed Alsalem tarafından işletilmektedir.",
             "Platform bir taksi işletmecisi, ticari yolcu taşımacılığı firması ya da seyahat acentesi değildir; sürücüler kendi araçlarıyla, masraf paylaşımı esasına dayalı olarak yolculuk düzenler.",
             "Bu platform ticari taşımacılık yapılmasını kesinlikle yasaklar. Sürücüler yalnızca seyahat masraflarını paylaşabilir; kâr amacı güden hesaplar tespit edildiğinde askıya alınır veya kapatılır.",
             "Platform şu anda yolculuklardan herhangi bir komisyon veya hizmet bedeli almamaktadır."
@@ -1186,8 +1188,39 @@
             "Yolculukların ticari amaçla, kâr elde etmek için düzenlenmesi veya koltukların üçüncü kişilere yeniden satılması — tespit edilen hesaplar askıya alınır veya kapatılır",
             "Sahte, yanıltıcı veya başkasına ait kimlik/iletişim bilgisi kullanılması",
             "Diğer kullanıcılara karşı taciz, ayrımcılık veya tehdit içeren davranışlarda bulunulması",
+            "Yolculuk sırasında yasa dışı madde veya eşya (uyuşturucu, silah, kaçak mal vb.) taşınması",
             "Platformun amacı dışında (reklam, spam, dolandırıcılık vb.) kullanılması"
           ]
+        },
+        "compliance": {
+          "heading": "Mevzuata Uyum ve Cezalar",
+          "body": [
+            "Kullanıcılar, Karayolları Trafik Kanunu ve Karayolu Taşıma Kanunu dahil yürürlükteki tüm mevzuata uymakla yükümlüdür. Bu mevzuatın ihlali nedeniyle uygulanabilecek idari para cezaları, araç men ve diğer yaptırımlar tamamen ilgili kullanıcıya aittir."
+          ],
+          "items": []
+        },
+        "drivers": {
+          "heading": "Sürücü Yükümlülükleri",
+          "body": [
+            "Sürücü; geçerli bir sürücü belgesine, aracın geçerli zorunlu trafik sigortasına ve muayenesine sahip olduğunu beyan eder. Bu beyanın doğru olmamasından doğan tüm sorumluluk sürücüye aittir.",
+            "Sürücü bir rezervasyon talebini reddedebilir; yasa dışı madde veya eşya taşıdığından şüphelendiği ya da yolculuğun güvenliğini tehlikeye atan bir yolcuyu yolculuğa almayabilir."
+          ],
+          "items": []
+        },
+        "pricing": {
+          "heading": "Masraf Paylaşımı ve Önerilen Tutar",
+          "body": [
+            "Platformun ilan oluşturulurken gösterdiği tutar, yalnızca tahmini yakıt masrafına dayalı, bağlayıcı olmayan bir öneridir. Masraf payını kullanıcılar belirler ve bu pay yolculuğun gerçek masraflarını aşamaz."
+          ],
+          "items": []
+        },
+        "verification": {
+          "heading": "Kullanıcı Doğrulaması",
+          "body": [
+            "Platform, kullanıcıların kimliğini, sürücü belgesini, araç ruhsatını, sigortasını veya muayenesini kontrol etmez ve doğrulamaz. Profil ve ilan bilgilerinin doğruluğundan bu bilgileri veren kullanıcı sorumludur.",
+            "Kullanıcıların yolculuktan önce birbirlerinin bilgilerini kendilerinin teyit etmesi önerilir."
+          ],
+          "items": []
         },
         "booking": {
           "heading": "Rezervasyon ve İptal Politikası",
@@ -1204,7 +1237,15 @@
           "body": [
             "GötürBeni yalnızca sürücü ve yolcuları buluşturan bir aracı platformdur; taraflar arasında kurulan yolculuk ilişkisinin tarafı değildir.",
             "Sürücülerin araç kullanımı, trafik kurallarına uyumu, sigorta yükümlülükleri ve yolculuk sırasındaki davranışlarından; yolcuların davranışlarından Platform sorumlu tutulamaz.",
-            "Platform, kullanıcılar arasında gerçekleşen yolculuklar sırasında meydana gelebilecek kaza, gecikme, mal/can kaybı veya diğer zararlardan yasal olarak sorumlu değildir. Kullanıcılar yolculuğa kendi rızalarıyla ve kendi sorumluluklarında katılır."
+            "Yürürlükteki mevzuatın izin verdiği ölçüde Platform, kullanıcılar arasında gerçekleşen yolculuklar sırasında meydana gelebilecek kaza, gecikme, mal/can kaybı veya diğer zararlardan sorumlu değildir. Kullanıcılar yolculuğa kendi rızalarıyla ve kendi sorumluluklarında katılır.",
+            "Bu sınırlama, Platformun kast veya ağır ihmalinden doğan zararlar ile kanunen sınırlandırılamayan diğer sorumluluklar için uygulanmaz."
+          ],
+          "items": []
+        },
+        "indemnity": {
+          "heading": "Tazminat",
+          "body": [
+            "Bir kullanıcının bu şartları veya yürürlükteki mevzuatı ihlal etmesi nedeniyle Platforma karşı üçüncü kişilerce ya da kamu kurumlarınca bir talepte bulunulması veya yaptırım uygulanması halinde, Platformun bu nedenle uğradığı zararları ve makul savunma giderlerini ilgili kullanıcı karşılar."
           ],
           "items": []
         },
@@ -1213,6 +1254,13 @@
           "body": [
             "Bu şartların ihlali, güvenlik endişesi veya diğer kullanıcılardan gelen şikâyetler halinde GötürBeni, önceden bildirimde bulunarak veya bulunmaksızın bir hesabı geçici olarak askıya alma veya kalıcı olarak kapatma hakkını saklı tutar.",
             "Kullanıcılar hesaplarını istedikleri zaman kapatabilir."
+          ],
+          "items": []
+        },
+        "changes": {
+          "heading": "Şartlarda Değişiklik",
+          "body": [
+            "GötürBeni bu Kullanım Şartlarını güncelleyebilir. Güncel metin, son güncelleme tarihiyle birlikte bu sayfada yayımlanır. Güncellemeden sonra Platformu kullanmaya devam etmeniz güncel şartları kabul ettiğiniz anlamına gelir."
           ],
           "items": []
         },

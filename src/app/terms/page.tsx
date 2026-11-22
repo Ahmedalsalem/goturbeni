@@ -21,13 +21,28 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function TermsPage() {
   const t = await getTranslations("Legal.terms")
 
-  const sectionKeys = ["service", "obligations", "booking", "liability", "termination", "disputes", "contact"] as const
+  const sectionKeys = [
+    "service",
+    "obligations",
+    "compliance",
+    "drivers",
+    "pricing",
+    "verification",
+    "booking",
+    "liability",
+    "indemnity",
+    "termination",
+    "changes",
+    "disputes",
+    "contact",
+  ] as const
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 sm:py-24">
       <div className="mx-auto mb-12 max-w-xl text-center">
         <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">{t("title")}</h1>
         <p className="text-muted-foreground mt-3 text-lg leading-relaxed text-balance">{t("intro")}</p>
+        <p className="text-muted-foreground mt-2 text-sm">{t("lastUpdated")}</p>
       </div>
 
       <div className="flex flex-col gap-4">
